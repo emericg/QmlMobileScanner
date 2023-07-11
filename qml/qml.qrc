@@ -1,0 +1,19 @@
+<RCC>
+    <qresource prefix="/qml">
+        <file>MobileApplication.qml</file>
+        <file>MobileHeader.qml</file>
+        <file>MobileDrawer.qml</file>
+        <file>MobilePermissions.qml</file>
+
+        <file>ScreenTutorial.qml</file>
+        <file>ScreenMainMenu.qml</file>
+        <file>ScreenScanner.qml</file>
+        <file>ScreenBarcode.qml</file>
+        <file>ScreenAbout.qml</file>
+        <file>ScreenSettings.qml</file>
+
+        <file>PopupCertificate.qml</file>
+
+        <file>ThemeEngine.qml</file>
+    </qresource>
+</RCC>
