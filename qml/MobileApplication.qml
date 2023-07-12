@@ -88,7 +88,7 @@ ApplicationWindow {
             screenPaddingRight = 0
             screenPaddingBottom = 0
         }
-
+/*
         console.log("> handleSafeAreas()")
         console.log("- screen width:        " + Screen.width)
         console.log("- screen width avail:  " + Screen.desktopAvailableWidth)
@@ -102,19 +102,19 @@ ApplicationWindow {
         console.log("- screenPaddingLeft:   " + screenPaddingLeft)
         console.log("- screenPaddingRight:  " + screenPaddingRight)
         console.log("- screenPaddingBottom: " + screenPaddingBottom)
-
+*/
     }
 
     MobileUI {
         id: mobileUI
 
-        statusbarTheme: {
-            if (appContent.state === "ScreenScanner") return MobileUI.Dark
-            return Theme.themeStatusbar
+        statusbarColor: {
+            if (appContent.state === "ScreenScanner") return "#000"
+            return Theme.colorStatusbar
         }
-        navbarTheme: {
-            if (appContent.state === "ScreenScanner") return MobileUI.Dark
-            return Theme.themeStatusbar
+        navbarColor: {
+            if (appContent.state === "ScreenScanner") return "#000"
+            return Theme.colorStatusbar
         }
     }
 

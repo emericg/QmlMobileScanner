@@ -35,7 +35,7 @@ Loader {
     function open_barcode() {
         console.log("screenScanner::open_barcode()")
 
-        //mobileUI.setScreenKeepOn(true)
+        mobileUI.setScreenAlwaysOn(true)
         opened_barcode = true
         active = true
     }
@@ -43,7 +43,7 @@ Loader {
     function hide() {
         console.log("screenScanner::hide()")
 
-        mobileUI.setScreenKeepOn(false)
+        mobileUI.setScreenAlwaysOn(false)
         opened_barcode = false
 
         if (screenScanner.status === Loader.Ready) {
@@ -53,7 +53,7 @@ Loader {
     function close() {
         console.log("screenScanner::close()")
 
-        mobileUI.setScreenKeepOn(false)
+        mobileUI.setScreenAlwaysOn(false)
         opened_barcode = false
 
         if (screenScanner.status === Loader.Ready) {
