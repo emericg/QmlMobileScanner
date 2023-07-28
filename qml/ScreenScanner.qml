@@ -84,7 +84,7 @@ Loader {
         function open() {
             console.log(">> open()")
 
-            //camera.active = true
+            camera.active = true
             if (isMobile) {
                 //appWindow.showFullScreen()
                 //mobileUI.refreshUI()
@@ -93,7 +93,7 @@ Loader {
         function close() {
             console.log(">> close()")
 
-            //camera.active = false
+            camera.active = false
             if (isMobile) {
                 //appWindow.showNormal()
                 //mobileUI.refreshUI()
