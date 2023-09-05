@@ -77,38 +77,10 @@ void UtilsIOS::screenLockOrientation(int orientation, bool autoRotate)
 
 void UtilsIOS::vibrate(int ms)
 {
-//https://stackoverflow.com/questions/4724980/making-the-iphone-vibrate
-/*
-For notifications:
-
-let generator = UINotificationFeedbackGenerator()
-generator.notificationOccured(style: .error)
-
-Available styles are .error, .success, and .warning. Each has its own distinctive feel.
-From the docs:
-
-    A concrete UIFeedbackGenerator subclass that creates haptics to communicate successes, failures, and warnings.
-
-For simple vibrations:
-
-let generator = UIImpactFeedbackGenerator(style: .medium)
-generator.impactOccured()
-
-Available styles are .heavy, .medium, and .light. These are simple vibrations with varying degrees of "hardness".
-From the docs:
-
-    A concrete UIFeedbackGenerator subclass that creates haptics to simulate physical impacts
-
-For when the user selected an item
-
-let generator = UISelectionFeedbackGenerator()
-generator.selectionChanged()
-
-This is the least noticeable of all the haptics, and so is the most suitable for when haptics should not be taking over the app experience.
-From the docs:
-
-    A concrete UIFeedbackGenerator subclass that creates haptics to indicate a change in selection.
-*/
+    UISelectionFeedbackGenerator *generator = [[UISelectionFeedbackGenerator alloc] init];
+    [generator prepare];
+    [generator selectionChanged];
+    generator = nil;
 }
 
 /* ************************************************************************** */
