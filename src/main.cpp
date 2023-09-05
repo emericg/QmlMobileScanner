@@ -18,6 +18,11 @@
 
 int main(int argc, char *argv[])
 {
+#if defined(Q_OS_ANDROID)
+    // Force "old" Android native multimedia backend
+    qputenv("QT_MEDIA_BACKEND", "android");
+#endif
+
     QGuiApplication app(argc, argv);
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
