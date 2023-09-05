@@ -85,7 +85,7 @@ Rectangle {
                             anchors.left: parent.left
                             anchors.leftMargin: tutorialPages.margins
 
-                            text: qsTr("")
+                            text: qsTr("Scan stuff")
                             textFormat: Text.StyledText
                             wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                             font.pixelSize: Theme.fontSizeContentBig
@@ -97,7 +97,7 @@ Rectangle {
                             height: width*0.229
                             anchors.horizontalCenter: parent.horizontalCenter
 
-                            source: "qrc:/assets/tutorial/welcome-devices.svg"
+                            source: "qrc:/assets/logos/logo_black.svg"
                             color: Theme.colorHeaderContent
                             fillMode: Image.PreserveAspectFit
                         }
@@ -107,7 +107,7 @@ Rectangle {
                             anchors.left: parent.left
                             anchors.leftMargin: tutorialPages.margins
 
-                            text: qsTr("")
+                            text: qsTr("and other stuff")
                             textFormat: Text.StyledText
                             color: Theme.colorHeaderContent
                             font.pixelSize: Theme.fontSizeContentBig
@@ -119,7 +119,7 @@ Rectangle {
                             layoutDirection: Qt.RightToLeft
                             fullColor: true
                             primaryColor: Theme.colorHeaderHighlight
-                            text: qsTr("")
+                            text: qsTr("a button")
                             source: "qrc:/assets/icons_material/duotone-launch-24px.svg"
                         }
                     }

@@ -571,14 +571,26 @@ Loader {
 
                 ////////
 
+                Rectangle { // statusbar area
+                    anchors.top: parent.top
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+
+                    height: screenPaddingStatusbar
+                    color: "black"
+                    opacity: 0.33
+                    visible: true
+                }
+
                 Rectangle { // navbar area
                     anchors.left: parent.left
                     anchors.right: parent.right
                     anchors.bottom: parent.bottom
+
                     height: screenPaddingNavbar
-                    visible: true
                     color: "black"
                     opacity: 0.33
+                    visible: true
                 }
 
                 ////////

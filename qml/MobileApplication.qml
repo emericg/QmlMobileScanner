@@ -250,9 +250,11 @@ ApplicationWindow {
 
         ScreenTutorial {
             id: screenTutorial
+            anchors.bottomMargin: screenPaddingBottom + screenPaddingNavbar
         }
         ScreenMainMenu {
             id: screenMainMenu
+            anchors.bottomMargin: screenPaddingBottom + screenPaddingNavbar
         }
 
         ScreenScanner {
@@ -260,16 +262,20 @@ ApplicationWindow {
         }
         ScreenBarcode {
             id: screenBarcode
+            anchors.bottomMargin: screenPaddingBottom + screenPaddingNavbar
         }
 
         ScreenSettings {
             id: screenSettings
+            anchors.bottomMargin: screenPaddingBottom + screenPaddingNavbar
         }
         ScreenAbout {
             id: screenAbout
+            anchors.bottomMargin: screenPaddingBottom + screenPaddingNavbar
         }
         MobilePermissions {
             id: screenAboutPermissions
+            anchors.bottomMargin: screenPaddingBottom + screenPaddingNavbar
         }
 
         // Initial state
@@ -391,6 +397,7 @@ ApplicationWindow {
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         height: screenPaddingNavbar
+
         visible: (appContent.state !== "ScreenScanner")
         color: {
             if (appContent.state === "ScreenTutorial") return Theme.colorHeader
