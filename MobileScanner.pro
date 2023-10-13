@@ -38,7 +38,12 @@ include(src/thirdparty/MobileUI/MobileUI.pri)
 include(src/thirdparty/MobileSharing/MobileSharing.pri)
 
 # QRCode scanner (QZXing)
+DEFINES += qzxing
 include(src/thirdparty/QZXing/QZXing.pri)
+
+# QRCode scanner (zxing-cpp)
+#DEFINES += zxingcpp
+#include(src/thirdparty/zxing-cpp/zxing-cpp.pri)
 
 # Build settings ###############################################################
 

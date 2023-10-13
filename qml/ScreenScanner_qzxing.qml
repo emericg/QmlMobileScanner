@@ -15,7 +15,6 @@ Loader {
     ////////////////////////////////////////////////////////////////////////////
 
     signal newBarCode(var barcode)
-    signal newUserCode(var usercode)
 
     property bool opened_barcode: false
 

@@ -36,9 +36,6 @@ Q_SIGNALS:
     void appThemeChanged();
     void appThemeAutoChanged();
 
-    void userCodeChanged();
-    void lastSendChanged();
-
 public:
     static SettingsManager *getInstance();
 

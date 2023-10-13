@@ -5,7 +5,14 @@
 #include "utils_screen.h"
 
 #include <MobileUI/MobileUI.h>
+
+#if defined(qzxing)
 #include <QZXing/QZXing.h>
+#endif
+
+#if defined(zxingcpp)
+#include "zxing-cpp/ZXingQtReader.h"
+#endif
 
 #include <QtGlobal>
 #include <QGuiApplication>
@@ -56,9 +63,16 @@ int main(int argc, char *argv[])
     // QML engine
     QQmlApplicationEngine engine;
 
+#if defined(qzxing)
     // Barcode (QZXing)
     QZXing::registerQMLTypes();
     QZXing::registerQMLImageProvider(engine);
+#endif
+
+#if defined(zxingcpp)
+    // Barcode (zxing-cpp)
+    ZXingQt::registerQmlAndMetaTypes();
+#endif
 
     // Then we start the UI
     QQmlContext *engine_context = engine.rootContext();

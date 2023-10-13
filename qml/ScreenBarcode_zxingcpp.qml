@@ -69,9 +69,9 @@ Loader {
                 height: 48
 
                 //onDisplayTextChanged: {
-                //    popupCertificate.barcode = displayText
+                //    popupBarcodeFullscreen.barcode = displayText
                 //    barcodeImage.source = displayText
-                //    popupCertificate.barcode = displayText
+                //    popupBarcodeFullscreen.barcode = displayText
                 //}
             }
 
@@ -82,8 +82,8 @@ Loader {
                 width: parent.width
                 height: width
 
-                PopupCertificate {
-                    id: popupCertificate
+                PopupBarcodeFullscreen {
+                    id: popupBarcodeFullscreen
                     barcode: barcodeTextField.displayText
                 }
 
@@ -133,7 +133,7 @@ Loader {
 
                     onClicked: {
                         if (barcodeTextField.displayText) {
-                            popupCertificate.open()
+                            popupBarcodeFullscreen.open()
                         }
                     }
 

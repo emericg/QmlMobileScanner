@@ -257,14 +257,22 @@ ApplicationWindow {
             anchors.bottomMargin: screenPaddingBottom + screenPaddingNavbar
         }
 
-        ScreenScanner {
+        ScreenScanner_qzxing {
             id: screenScanner
         }
-        ScreenBarcode {
+        ScreenBarcode_qzxing {
             id: screenBarcode
             anchors.bottomMargin: screenPaddingBottom + screenPaddingNavbar
         }
-
+/*
+        ScreenScanner_zxingcpp {
+            id: screenScanner
+        }
+        ScreenBarcode_zxingcpp {
+            id: screenBarcode
+            anchors.bottomMargin: screenPaddingBottom + screenPaddingNavbar
+        }
+*/
         ScreenSettings {
             id: screenSettings
             anchors.bottomMargin: screenPaddingBottom + screenPaddingNavbar
@@ -290,20 +298,10 @@ ApplicationWindow {
                 appHeader.leftMenuMode = "back"
 
             if (state === "ScreenScanner") {
-                /*
-                mobileUI.statusbarTheme = MobileUI.Dark
-                mobileUI.statusbarColor = "#ffffffff"
-                mobileUI.navbarTheme = MobileUI.Dark
-                mobileUI.navbarColor = "#000"
-                */
+                //
             } else {
                 screenScanner.close()
                 //mobileUI.refreshUI()
-/*
-                mobileUI.statusbarTheme = Theme.themeStatusbar
-                mobileUI.statusbarColor = Theme.colorStatusbar
-                mobileUI.navbarTheme = MobileUI.Dark
-                mobileUI.navbarColor = Theme.colorBackground*/
             }
         }
 

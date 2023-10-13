@@ -4,7 +4,7 @@ import QtQuick.Controls
 import ThemeEngine 1.0
 
 Popup {
-    id: popupCertificate
+    id: popupBarcodeFullscreen
     x: 0
     y: 0
 
@@ -43,7 +43,7 @@ Popup {
         sourceSize: 28
         iconColor: Theme.colorHeaderContent
 
-        onClicked: popupCertificate.close()
+        onClicked: popupBarcodeFullscreen.close()
     }
 
     ////////
@@ -56,7 +56,7 @@ Popup {
         sourceSize.width: width
         sourceSize.height: width
 
-        source: "image://QZXing/encode/" + popupCertificate.barcode
+        source: "image://QZXing/encode/" + popupBarcodeFullscreen.barcode
         cache: false
     }
 
