@@ -21,6 +21,10 @@
 #include <QQmlContext>
 #include <QQuickWindow>
 
+#if QT_CONFIG(permissions)
+#include <QPermissions>
+#endif
+
 /* ************************************************************************** */
 
 int main(int argc, char *argv[])
@@ -62,6 +66,16 @@ int main(int argc, char *argv[])
 
     // QML engine
     QQmlApplicationEngine engine;
+
+#if QT_CONFIG(permissions)
+    if (qApp->checkPermission(QCameraPermission{}) != Qt::PermissionStatus::Granted) {
+        qApp->requestPermission(QCameraPermission{}, [](const QPermission &permission) {
+            if (permission.status() != Qt::PermissionStatus::Granted) {
+                qWarning() << "Impossible to get Camera permission!";
+            }
+        });
+    }
+#endif
 
 #if defined(qzxing)
     // Barcode (QZXing)
