@@ -92,7 +92,8 @@ Loader {
         function close() {
             console.log(">> close()")
 
-            camera.active = false
+            //camera.active = false // crash ?!
+
             if (isMobile) {
                 //appWindow.showNormal()
                 //mobileUI.refreshUI()
