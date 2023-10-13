@@ -219,7 +219,7 @@ Loader {
 
                 onClicked: {
                     if (Qt.platform.os === "android")
-                        Qt.openUrlExternally("market://details?id=com.emeric.mobilescanner")
+                        Qt.openUrlExternally("market://details?id=io.emeric.mobilescanner")
                     else if (Qt.platform.os === "ios")
                         Qt.openUrlExternally("itms-apps://itunes.apple.com/app/1476046123")
                     else

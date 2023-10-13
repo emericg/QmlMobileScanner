@@ -21,7 +21,7 @@
  * SOFTWARE.
  */
 
-package com.emeric.utils;
+package io.emeric.utils;
 
 import org.qtproject.qt.android.QtNative;
 
@@ -53,7 +53,7 @@ import androidx.core.app.ShareCompat;
 public class QShareUtils
 {
     // reference Authority as defined in AndroidManifest.xml
-    private static String AUTHORITY="com.emeric.mobilescanner.fileprovider";
+    private static String AUTHORITY="io.emeric.qmlapptemplate.fileprovider";
 
     protected QShareUtils() {
        //Log.d("QShareUtils", "QShareUtils()");
@@ -177,6 +177,11 @@ public class QShareUtils
             targetedIntent.setPackage(targetPackageName);
             // collect all these targetedIntents
             targetedIntents.add(targetedIntent);
+
+            // did some changes to make it run with API 30+ and Android 13 devices.
+            // removed KitKat check and added queries to AndroidManifest
+            // thx: https://forum.qt.io/topic/127170/android-11-qdir-mkdir-does-not-always-work/11
+            context.grantUriPermission(targetPackageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
         }
 
         // check if there are apps found for our Intent to avoid that there was only our own removed app before

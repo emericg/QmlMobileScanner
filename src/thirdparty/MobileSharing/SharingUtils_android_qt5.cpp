@@ -62,7 +62,7 @@ bool AndroidShareUtils::checkMimeTypeView(const QString &mimeType)
 {
     QAndroidJniObject jsMime = QAndroidJniObject::fromString(mimeType);
     jboolean verified = QAndroidJniObject::callStaticMethod<jboolean>(
-                            "com/emeric/utils/QShareUtils",
+                            "io/emeric/utils/QShareUtils",
                             "checkMimeTypeView",
                             "(Ljava/lang/String;)Z",
                             jsMime.object<jstring>());
@@ -75,7 +75,7 @@ bool AndroidShareUtils::checkMimeTypeEdit(const QString &mimeType)
 {
     QAndroidJniObject jsMime = QAndroidJniObject::fromString(mimeType);
     jboolean verified = QAndroidJniObject::callStaticMethod<jboolean>(
-                            "com/emeric/utils/QShareUtils",
+                            "io/emeric/utils/QShareUtils",
                             "checkMimeTypeEdit",
                             "(Ljava/lang/String;)Z",
                             jsMime.object<jstring>());
@@ -89,7 +89,7 @@ void AndroidShareUtils::share(const QString &text, const QUrl &url)
     QAndroidJniObject jsText = QAndroidJniObject::fromString(text);
     QAndroidJniObject jsUrl = QAndroidJniObject::fromString(url.toString());
     jboolean ok = QAndroidJniObject::callStaticMethod<jboolean>(
-                      "com/emeric/utils/QShareUtils",
+                      "io/emeric/utils/QShareUtils",
                       "share",
                       "(Ljava/lang/String;Ljava/lang/String;)Z",
                       jsText.object<jstring>(), jsUrl.object<jstring>());
@@ -121,7 +121,7 @@ void AndroidShareUtils::sendFile(const QString &filePath, const QString &title,
         QAndroidJniObject jsTitle = QAndroidJniObject::fromString(title);
         QAndroidJniObject jsMimeType = QAndroidJniObject::fromString(mimeType);
         jboolean ok = QAndroidJniObject::callStaticMethod<jboolean>(
-                          "com/emeric/utils/QShareUtils",
+                          "io/emeric/utils/QShareUtils",
                           "sendFile",
                           "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;I)Z",
                           jsPath.object<jstring>(), jsTitle.object<jstring>(), jsMimeType.object<jstring>(), requestId);
@@ -261,7 +261,7 @@ void AndroidShareUtils::viewFile(const QString &filePath, const QString &title,
         QAndroidJniObject jsPath = QAndroidJniObject::fromString(filePath);
         QAndroidJniObject jsTitle = QAndroidJniObject::fromString(title);
         QAndroidJniObject jsMimeType = QAndroidJniObject::fromString(mimeType);
-        jboolean ok = QAndroidJniObject::callStaticMethod<jboolean>("com/emeric/utils/QShareUtils",
+        jboolean ok = QAndroidJniObject::callStaticMethod<jboolean>("io/emeric/utils/QShareUtils",
                                                   "viewFile",
                                                   "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;I)Z",
                                                   jsPath.object<jstring>(), jsTitle.object<jstring>(), jsMimeType.object<jstring>(), requestId);
@@ -390,7 +390,7 @@ void AndroidShareUtils::editFile(const QString &filePath, const QString &title,
         QAndroidJniObject jsTitle = QAndroidJniObject::fromString(title);
         QAndroidJniObject jsMimeType = QAndroidJniObject::fromString(mimeType);
 
-        jboolean ok = QAndroidJniObject::callStaticMethod<jboolean>("com/emeric/utils/QShareUtils",
+        jboolean ok = QAndroidJniObject::callStaticMethod<jboolean>("io/emeric/utils/QShareUtils",
                                                   "editFile",
                                                   "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;I)Z",
                                                   jsPath.object<jstring>(), jsTitle.object<jstring>(), jsMimeType.object<jstring>(), requestId);
@@ -680,7 +680,7 @@ extern "C" {
 #endif
 
 JNIEXPORT void JNICALL
-  Java_com_emeric_mobilesharing_QShareActivity_setFileUrlReceived(JNIEnv *env,
+  Java_io_emeric_mobilesharing_QShareActivity_setFileUrlReceived(JNIEnv *env,
                                                              jobject obj,
                                                              jstring url)
 {
@@ -692,7 +692,7 @@ JNIEXPORT void JNICALL
 }
 
 JNIEXPORT void JNICALL
-  Java_com_emeric_mobilesharing_QShareActivity_setFileReceivedAndSaved(JNIEnv *env,
+  Java_io_emeric_mobilesharing_QShareActivity_setFileReceivedAndSaved(JNIEnv *env,
                                                                   jobject obj,
                                                                   jstring url)
 {
@@ -704,7 +704,7 @@ JNIEXPORT void JNICALL
 }
 
 JNIEXPORT bool JNICALL
-  Java_com_emeric_mobilesharing_QShareActivity_checkFileExits(JNIEnv *env,
+  Java_io_emeric_mobilesharing_QShareActivity_checkFileExits(JNIEnv *env,
                                                          jobject obj,
                                                          jstring url)
 {
@@ -716,7 +716,7 @@ JNIEXPORT bool JNICALL
 }
 
 JNIEXPORT void JNICALL
-  Java_com_emeric_mobilesharing_QShareActivity_fireActivityResult(JNIEnv *env,
+  Java_io_emeric_mobilesharing_QShareActivity_fireActivityResult(JNIEnv *env,
                                                              jobject obj,
                                                              jint requestCode,
                                                              jint resultCode)

@@ -9,6 +9,7 @@ QT     += core concurrent qml quickcontrols2 svg sql
 
 # Validate Qt version
 !versionAtLeast(QT_VERSION, 6.5) : error("You need at least Qt version 6.5 for $${TARGET}")
+!versionAtMost(QT_VERSION, 6.6) : warning("Compatibility with Qt 6.6 is not assured for $${TARGET}")
 
 # Use Qt Quick compiler
 ios | android { CONFIG += qtquickcompiler }
@@ -70,7 +71,7 @@ android {
     #message("ANDROID_TARGET_ARCH: $$ANDROID_TARGET_ARCH")
 
     # Bundle name
-    QMAKE_TARGET_BUNDLE_PREFIX = com.emeric
+    QMAKE_TARGET_BUNDLE_PREFIX = io.emeric
     QMAKE_BUNDLE = mobilescanner
 
     ANDROID_PACKAGE_SOURCE_DIR = $${PWD}/assets/android
@@ -85,7 +86,7 @@ macx {
     #message("QMAKE_MACOSX_DEPLOYMENT_TARGET: $$QMAKE_MACOSX_DEPLOYMENT_TARGET")
 
     # Bundle name
-    QMAKE_TARGET_BUNDLE_PREFIX = com.emeric
+    QMAKE_TARGET_BUNDLE_PREFIX = io.emeric
     QMAKE_BUNDLE = mobilescanner
     CONFIG += app_bundle
 }
@@ -97,7 +98,7 @@ ios {
     CONFIG += no_autoqmake
 
     # Bundle name
-    QMAKE_TARGET_BUNDLE_PREFIX = com.emeric
+    QMAKE_TARGET_BUNDLE_PREFIX = io.emeric
     QMAKE_BUNDLE = mobilescanner
 
     # OS infos
