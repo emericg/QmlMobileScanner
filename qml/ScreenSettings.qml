@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Layouts
 import QtQuick.Controls
 
 import ThemeEngine 1.0
@@ -86,7 +87,7 @@ Loader {
                         anchors.rightMargin: 16
                         anchors.verticalCenter: parent.verticalCenter
 
-                        text: qsTr("Thème")
+                        text: qsTr("Theme")
                         textFormat: Text.PlainText
                         font.pixelSize: Theme.fontSizeContent
                         color: Theme.colorText
@@ -125,7 +126,7 @@ Loader {
                                 anchors.verticalCenter: parent.verticalCenter
                                 anchors.horizontalCenter: parent.horizontalCenter
 
-                                text: qsTr("claire")
+                                text: qsTr("light")
                                 color: "#313236"
                                 font.pixelSize: Theme.fontSizeContentSmall
                             }
@@ -153,7 +154,7 @@ Loader {
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 anchors.verticalCenter: parent.verticalCenter
 
-                                text: qsTr("sombre")
+                                text: qsTr("dark")
                                 color: "#ddd"
                                 font.pixelSize: Theme.fontSizeContentSmall
                             }
@@ -192,7 +193,7 @@ Loader {
                         anchors.rightMargin: 16
                         anchors.verticalCenter: parent.verticalCenter
 
-                        text: qsTr("Mode sombre automatique")
+                        text: qsTr("Automatic dark mode")
                         textFormat: Text.PlainText
                         font.pixelSize: Theme.fontSizeContent
                         color: Theme.colorText
@@ -226,13 +227,197 @@ Loader {
                     visible: element_appThemeAuto.visible
 
                     text: settingsManager.appThemeAuto ?
-                              qsTr("Le mode sombre s'activera automatiquement entre 21h et 8h.") :
-                              qsTr("Le mode sombre automatique est désactivé.")
+                              qsTr("Dark mode will switch on automatically between 9 PM and 9 AM.") :
+                              qsTr("Dark mode schedule is disabled.")
                     textFormat: Text.PlainText
                     wrapMode: Text.WordWrap
                     color: Theme.colorSubText
                     font.pixelSize: Theme.fontSizeContentSmall
                 }
+
+                ////////////////
+
+                SectionTitle {
+                    anchors.left: parent.left
+                    text: qsTr("Scanner")
+                    source: "qrc:/assets/icons_material/baseline-settings-20px.svg"
+                }
+
+                ////////////////
+
+                Item {
+                    id: element_showDebug
+                    height: 48
+                    anchors.left: parent.left
+                    anchors.leftMargin: screenPaddingLeft
+                    anchors.right: parent.right
+                    anchors.rightMargin: screenPaddingRight
+
+                    IconSvg {
+                        id: image_showDebug
+                        width: 24
+                        height: 24
+                        anchors.left: parent.left
+                        anchors.leftMargin: 16
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        color: Theme.colorIcon
+                        source: "qrc:/assets/icons_material/duotone-bug_report-24px.svg"
+                    }
+
+                    Text {
+                        id: text_showDebug
+                        height: 40
+                        anchors.left: image_showDebug.right
+                        anchors.leftMargin: 24
+                        anchors.right: switch_showDebug.left
+                        anchors.rightMargin: 16
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        text: qsTr("Show debug info")
+                        textFormat: Text.PlainText
+                        font.pixelSize: Theme.fontSizeContent
+                        color: Theme.colorText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    SwitchThemed {
+                        id: switch_showDebug
+                        anchors.right: parent.right
+                        anchors.rightMargin: 0
+                        anchors.verticalCenter: parent.verticalCenter
+                        z: 1
+
+                        checked: settingsManager.showDebug
+                        onClicked: settingsManager.showDebug = checked
+                    }
+                }
+
+                ////////
+
+                RowLayout {
+                    anchors.left: parent.left
+                    anchors.leftMargin: screenPaddingLeft
+                    anchors.right: parent.right
+                    anchors.rightMargin: screenPaddingRight
+                    height: 48
+
+                    visible: settingsManager.showDebug
+
+                    Item {
+                        Layout.preferredWidth: 56
+
+                        IconSvg {
+                            anchors.centerIn: parent
+                            width: 24
+                            height: 24
+                            color: Theme.colorIcon
+                            source: "qrc:/assets/icons_material/duotone-qr_code_2-24px.svg"
+                        }
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        Layout.alignment: Qt.AlignVCenter
+
+                        text: qsTr("Try harder")
+                        textFormat: Text.PlainText
+                        font.pixelSize: Theme.fontSizeContent
+                        color: Theme.colorText
+                        wrapMode: Text.WordWrap
+                    }
+
+                    SwitchThemed {
+                        Layout.alignment: Qt.AlignVCenter
+                        z: 1
+
+                        checked: settingsManager.scan_tryHarder
+                        onClicked: settingsManager.scan_tryHarder = checked
+                    }
+                }
+                RowLayout {
+                    anchors.left: parent.left
+                    anchors.leftMargin: screenPaddingLeft
+                    anchors.right: parent.right
+                    anchors.rightMargin: screenPaddingRight
+                    height: 48
+
+                    visible: settingsManager.showDebug
+
+                    Item {
+                        Layout.preferredWidth: 56
+
+                        IconSvg {
+                            anchors.centerIn: parent
+                            width: 24
+                            height: 24
+                            color: Theme.colorIcon
+                            source: "qrc:/assets/icons_material/duotone-qr_code_2-24px.svg"
+                        }
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        Layout.alignment: Qt.AlignVCenter
+
+                        text: qsTr("Try rotate")
+                        textFormat: Text.PlainText
+                        font.pixelSize: Theme.fontSizeContent
+                        color: Theme.colorText
+                        wrapMode: Text.WordWrap
+                    }
+
+                    SwitchThemed {
+                        Layout.alignment: Qt.AlignVCenter
+                        z: 1
+
+                        checked: settingsManager.scan_tryRotate
+                        onClicked: settingsManager.scan_tryRotate = checked
+                    }
+                }
+                RowLayout {
+                    anchors.left: parent.left
+                    anchors.leftMargin: screenPaddingLeft
+                    anchors.right: parent.right
+                    anchors.rightMargin: screenPaddingRight
+                    height: 48
+
+                    visible: settingsManager.showDebug
+
+                    Item {
+                        Layout.preferredWidth: 56
+
+                        IconSvg {
+                            anchors.centerIn: parent
+                            width: 24
+                            height: 24
+                            color: Theme.colorIcon
+                            source: "qrc:/assets/icons_material/duotone-qr_code_2-24px.svg"
+                        }
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        Layout.alignment: Qt.AlignVCenter
+
+                        text: qsTr("Try downscale")
+                        textFormat: Text.PlainText
+                        font.pixelSize: Theme.fontSizeContent
+                        color: Theme.colorText
+                        wrapMode: Text.WordWrap
+                    }
+
+                    SwitchThemed {
+                        Layout.alignment: Qt.AlignVCenter
+                        z: 1
+
+                        checked: settingsManager.scan_tryDownscale
+                        onClicked: settingsManager.scan_tryDownscale = checked
+                    }
+                }
+
+                ////////
             }
 
             ////////////////

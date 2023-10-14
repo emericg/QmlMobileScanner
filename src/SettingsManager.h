@@ -20,9 +20,19 @@ class SettingsManager: public QObject
     Q_PROPERTY(QString appTheme READ getAppTheme WRITE setAppTheme NOTIFY appThemeChanged)
     Q_PROPERTY(bool appThemeAuto READ getAppThemeAuto WRITE setAppThemeAuto NOTIFY appThemeAutoChanged)
 
+    Q_PROPERTY(bool showDebug READ getShowDebug WRITE setShowDebug NOTIFY debugChanged)
+    Q_PROPERTY(bool scan_tryHarder READ getScanTryHarder WRITE setScanTryHarder NOTIFY tryHarderChanged)
+    Q_PROPERTY(bool scan_tryRotate READ getScanTryRotate WRITE setScanTryRotate NOTIFY tryRotateChanged)
+    Q_PROPERTY(bool scan_tryDownscale READ getScanTryDownscale WRITE setScanTryDownscale NOTIFY tryDownscaleChanged)
+
     bool m_firstlaunch = false;
     QString m_appTheme = "light";
     bool m_appThemeAuto = false;
+
+    bool m_showDebug = false;
+    bool m_scan_tryHarder = false;
+    bool m_scan_tryRotate = false;
+    bool m_scan_tryDownscale = false;
 
     static SettingsManager *instance;
     SettingsManager();
@@ -35,18 +45,31 @@ Q_SIGNALS:
     void firstLaunchChanged();
     void appThemeChanged();
     void appThemeAutoChanged();
+    void debugChanged();
+    void tryHarderChanged();
+    void tryRotateChanged();
+    void tryDownscaleChanged();
 
 public:
     static SettingsManager *getInstance();
 
     bool isFirstLaunch() const { return m_firstlaunch; }
 
-    //
     QString getAppTheme() const { return m_appTheme; }
     void setAppTheme(const QString &value);
 
     bool getAppThemeAuto() const { return m_appThemeAuto; }
     void setAppThemeAuto(const bool value);
+
+    // app specific
+    bool getShowDebug() const { return m_showDebug; }
+    void setShowDebug(const bool value);
+    bool getScanTryHarder() const { return m_scan_tryHarder; }
+    void setScanTryHarder(const bool value);
+    bool getScanTryRotate() const { return m_scan_tryRotate; }
+    void setScanTryRotate(const bool value);
+    bool getScanTryDownscale() const { return m_scan_tryDownscale; }
+    void setScanTryDownscale(const bool value);
 
     // Utils
     Q_INVOKABLE void resetSettings();
