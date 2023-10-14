@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
     if (engine.rootObjects().isEmpty()) return EXIT_FAILURE;
 
 #if defined(Q_OS_ANDROID)
-    QNativeInterface::QAndroidApplication::hideSplashScreen(133);
+    QNativeInterface::QAndroidApplication::hideSplashScreen(333);
 #endif
 
     return app.exec();
