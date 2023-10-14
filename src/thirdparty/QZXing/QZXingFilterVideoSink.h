@@ -57,7 +57,7 @@ class QZXingFilter : public QObject
         QVideoSink *m_videoSink;
         QFuture<void> processThread;
 
-    public:  /// Methods
+    public: /// Methods
         explicit QZXingFilter(QObject *parent = 0);
         void setVideoSink(QObject *videoSink);
         virtual ~QZXingFilter();
