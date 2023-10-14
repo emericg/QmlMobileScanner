@@ -10,16 +10,28 @@ import "qrc:/js/UtilsNumber.js" as UtilsNumber
 
 T.SpinBox {
     id: control
-    implicitWidth: 140
-    implicitHeight: Theme.componentHeight
 
-    value: 50
-    editable: true
+    implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
+                            contentItem.implicitWidth + leftPadding + rightPadding)
+    implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
+                             implicitContentHeight + topPadding + bottomPadding,
+                             up.implicitIndicatorHeight, down.implicitIndicatorHeight)
 
-    font.pixelSize: Theme.componentFontSize
+    leftPadding: padding + (control.mirrored ? (up.indicator ? up.indicator.width : 0) : (down.indicator ? down.indicator.width : 0))
+    rightPadding: padding + (control.mirrored ? (down.indicator ? down.indicator.width : 0) : (up.indicator ? up.indicator.width : 0))
+
     opacity: enabled ? 1 : 0.4
+    font.pixelSize: Theme.componentFontSize
 
     property string legend
+
+    ////////////////
+
+    validator: IntValidator {
+        locale: control.locale.name
+        bottom: Math.min(control.from, control.to)
+        top: Math.max(control.from, control.to)
+    }
 
     ////////////////
 
@@ -70,7 +82,7 @@ T.SpinBox {
     contentItem: Item {
         Row {
             anchors.centerIn: parent
-            spacing: 2
+            spacing: 4
 
             TextInput {
                 height: control.height
@@ -88,20 +100,24 @@ T.SpinBox {
 
                 readOnly: !control.editable
                 validator: control.validator
-                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                inputMethodHints: Qt.ImhDigitsOnly
 
                 onEditingFinished: {
-                    var v = parseInt(text)
-                    if (text.length <= 0) v = control.from
-                    if (isNaN(v)) v = control.from
-                    if (v < control.from) v = control.from
-                    if (v > control.to) v = control.to
+                    //var v = parseInt(text)
+                    //if (text.length <= 0) v = control.from
+                    //if (isNaN(v)) v = control.from
+                    //if (v < control.from) v = control.from
+                    //if (v > control.to) v = control.to
 
-                    control.value = v
-                    text = v
+                    //control.value = v
+                    //control.valueModified()
 
                     control.focus = false
-                    control.valueModified()
+                    focus = false
+                }
+                Keys.onBackPressed: {
+                    control.focus = false
+                    focus = false
                 }
             }
 
@@ -111,7 +127,7 @@ T.SpinBox {
 
                 visible: control.legend
                 color: Theme.colorComponentText
-                opacity: 0.8
+                opacity: 0.66
 
                 text: control.legend
                 textFormat: Text.PlainText

@@ -8,7 +8,7 @@ Rectangle {
     anchors.left: parent.left
     anchors.right: parent.right
 
-    height: screenPaddingStatusbar + headerHeight
+    height: headerHeight + Math.max(screenPaddingStatusbar, screenPaddingTop)
     color: Theme.colorHeader
     clip: true
     z: 10
@@ -42,7 +42,7 @@ Rectangle {
         anchors.left: parent.left
         anchors.right: parent.right
 
-        height: screenPaddingStatusbar
+        height: Math.max(screenPaddingStatusbar, screenPaddingTop)
         color: Theme.colorStatusbar
     }
 
@@ -50,12 +50,11 @@ Rectangle {
 
     Item {
         anchors.fill: parent
-        anchors.topMargin: screenPaddingStatusbar
+        anchors.topMargin: Math.max(screenPaddingStatusbar, screenPaddingTop)
 
         ////////////
 
         Row { // left area
-            id: leftArea
             anchors.top: parent.top
             anchors.left: parent.left
             anchors.leftMargin: 4
@@ -110,7 +109,6 @@ Rectangle {
         ////////////
 
         Row { // right area
-            id: rightArea
             anchors.top: parent.top
             anchors.right: parent.right
             anchors.rightMargin: 4

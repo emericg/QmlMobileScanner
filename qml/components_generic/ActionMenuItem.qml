@@ -27,7 +27,6 @@ T.Button {
 
     // settings
     property int index
-    //property string text
     property url source
     property int sourceSize: 20
     property int layoutDirection: Qt.RightToLeft
@@ -39,13 +38,13 @@ T.Button {
 
         Rectangle {
             anchors.fill: parent
-            radius: Theme.componentMargin/2
+            radius: Theme.componentRadius
 
-            color: Theme.colorForeground
+            color: Theme.colorComponent
             //Behavior on color { ColorAnimation { duration: 133 } }
 
             opacity: control.hovered ? 1 : 0
-            Behavior on opacity { OpacityAnimator { duration: 233 } }
+            //Behavior on opacity { OpacityAnimator { duration: 233 } }
         }
 
         RippleThemed {

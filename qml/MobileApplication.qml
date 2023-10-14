@@ -43,9 +43,7 @@ ApplicationWindow {
     onVisibilityChanged: handleSafeAreas()
 
     function handleSafeAreas() {
-        // safe areas handling is a work in progress /!\
         // safe areas are only taken into account when using maximized geometry / full screen mode
-
         if (appWindow.visibility === Window.FullScreen ||
             appWindow.flags & Qt.MaximizeUsingFullscreenGeometryHint) {
 
@@ -59,15 +57,8 @@ ApplicationWindow {
 
             // hacks
             if (Qt.platform.os === "android") {
-                if (Screen.primaryOrientation === Qt.PortraitOrientation) {
-                    if (appWindow.visibility === Window.FullScreen) {
-                        screenPaddingStatusbar = 0
-                        screenPaddingNavbar = 0
-                    } else {
-                        screenPaddingStatusbar = mobileUI.safeAreaTop
-                        screenPaddingTop = 0
-                    }
-                } else {
+                if (appWindow.visibility === Window.FullScreen) {
+                    screenPaddingStatusbar = 0
                     screenPaddingNavbar = 0
                 }
             }
@@ -75,9 +66,6 @@ ApplicationWindow {
             if (Qt.platform.os === "ios") {
                 if (appWindow.visibility === Window.FullScreen) {
                     screenPaddingStatusbar = 0
-                } else {
-                    screenPaddingStatusbar = mobileUI.safeAreaTop
-                    screenPaddingTop = 0
                 }
             }
         } else {
