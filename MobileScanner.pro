@@ -16,9 +16,7 @@ ios | android { CONFIG += qtquickcompiler }
 
 # Project files ################################################################
 
-SOURCES  += src/main.cpp \
-            src/SettingsManager.cpp
-
+SOURCES  += src/SettingsManager.cpp src/main.cpp
 HEADERS  += src/SettingsManager.h
 
 INCLUDEPATH += src/ src/thirdparty/
@@ -92,7 +90,7 @@ macx {
 }
 
 ios {
-    #QMAKE_IOS_DEPLOYMENT_TARGET = 11.0
+    #QMAKE_IOS_DEPLOYMENT_TARGET = 12.0
     #message("QMAKE_IOS_DEPLOYMENT_TARGET: $$QMAKE_IOS_DEPLOYMENT_TARGET")
 
     CONFIG += no_autoqmake

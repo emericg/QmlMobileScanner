@@ -30,7 +30,7 @@ class SettingsManager: public QObject
     bool m_appThemeAuto = false;
 
     bool m_showDebug = false;
-    bool m_scan_tryHarder = false;
+    bool m_scan_tryHarder = true;
     bool m_scan_tryRotate = false;
     bool m_scan_tryDownscale = false;
 

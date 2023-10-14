@@ -5,7 +5,6 @@
 
 CONFIG += c++17
 CONFIG += qt warn_on
-
 CONFIG += build_readers build_writers
 
 QT += multimedia concurrent
@@ -14,16 +13,12 @@ INCLUDEPATH += $${PWD}/ $${PWD}/core/src
 
 ################################################################################
 
-#set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
-#set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 DEFINES += CMAKE_THREAD_PREFER_PTHREAD THREADS_PREFER_PTHREAD_FLAG
+
 DEFINES += QT_MULTIMEDIA_LIB QT_QML_LIB
 
+DEFINES += ZXING_CORE_DEFINES
 
-#define += ZXING_CORE_DEFINES
-#
-#set (ZXING_CORE_DEFINES)
-#endif()
 #if (MSVC)
 #    set (ZXING_CORE_DEFINES ${ZXING_CORE_DEFINES}
 #        /Zc:__cplusplus
@@ -51,10 +46,8 @@ DEFINES += QT_MULTIMEDIA_LIB QT_QML_LIB
 
 ################# WRAPPER
 
-HEADERS += $${PWD}/wrapper/qt/ZXingQtReader.h \
-           $${PWD}/wrapper/qt/ZXingQtWriter.h \
-           $${PWD}/wrapper/qt/ZXingReader.h \
-           $${PWD}/wrapper/qt/ZXingWriter.h
+SOURCES += $${PWD}/ZXingQt.cpp $${PWD}/ZXingQtVideoFilter.cpp $${PWD}/ZXingQtImageProvider.cpp
+HEADERS += $${PWD}/ZXingQt.h $${PWD}/ZXingQtVideoFilter.h $${PWD}/ZXingQtImageProvider.h
 
 ################# COMMON_FILES
 

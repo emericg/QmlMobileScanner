@@ -195,7 +195,7 @@ Loader {
 
             ListItem { // description
                 width: parent.width
-                text: qsTr("A demo barcode/qrcode scanner base on qzxing library.")
+                text: qsTr("Demo barcode & qrcode scanner based on qzxing and zxing-cpp libraries.")
                 iconSource: "qrc:/assets/icons_material/outline-info-24px.svg"
             }
 
@@ -337,7 +337,8 @@ Loader {
                             "Qt6 (LGPL v3)",
                             "MobileUI (MIT)",
                             "MobileSharing (MIT)",
-                            "qzxing (MIT)",
+                            "qzxing (Apache v2)",
+                            "zxing-cpp (Apache v2)",
                             "Google Material Icons (MIT)",
                         ]
                         delegate: Text {
@@ -351,6 +352,48 @@ Loader {
                     }
                 }
             }
+
+            ////////
+
+            ListSeparatorPadded { visible: settingsManager.showDebug }
+
+            Column { // list debug stuff
+                anchors.left: parent.left
+                anchors.leftMargin: screenPaddingLeft + appHeader.headerPosition
+                anchors.right: parent.right
+                anchors.rightMargin: screenPaddingRight + Theme.componentMargin
+
+                visible: settingsManager.showDebug
+                spacing: Theme.componentMargin / 3
+
+                Text {
+                    color: Theme.colorSubText
+                    text: "app name: %1".arg(utilsApp.appName())
+                    font.pixelSize: Theme.fontSizeContent
+                }
+                Text {
+                    color: Theme.colorSubText
+                    text: "app version: %1".arg(utilsApp.appVersion())
+                    font.pixelSize: Theme.fontSizeContent
+                }
+                Text {
+                    color: Theme.colorSubText
+                    text: "build mode: %1".arg(utilsApp.appBuildModeFull())
+                    font.pixelSize: Theme.fontSizeContent
+                }
+                Text {
+                    color: Theme.colorSubText
+                    text: "build date: %1".arg(utilsApp.appBuildDateTime())
+                    font.pixelSize: Theme.fontSizeContent
+                }
+                Text {
+                    color: Theme.colorSubText
+                    text: "Qt version: %1".arg(utilsApp.qtVersion())
+                    font.pixelSize: Theme.fontSizeContent
+                }
+            }
+
+            ListSeparatorPadded { visible: settingsManager.showDebug }
 
             ////////
         }

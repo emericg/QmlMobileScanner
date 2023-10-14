@@ -245,22 +245,14 @@ ApplicationWindow {
             anchors.bottomMargin: screenPaddingBottom + screenPaddingNavbar
         }
 
-        ScreenScanner_qzxing {
+        ScreenScanner {
             id: screenScanner
         }
-        ScreenBarcode_qzxing {
+        ScreenBarcode {
             id: screenBarcode
             anchors.bottomMargin: screenPaddingBottom + screenPaddingNavbar
         }
-/*
-        ScreenScanner_zxingcpp {
-            id: screenScanner
-        }
-        ScreenBarcode_zxingcpp {
-            id: screenBarcode
-            anchors.bottomMargin: screenPaddingBottom + screenPaddingNavbar
-        }
-*/
+
         ScreenSettings {
             id: screenSettings
             anchors.bottomMargin: screenPaddingBottom + screenPaddingNavbar

@@ -3,15 +3,16 @@
 
 #include "utils_app.h"
 #include "utils_screen.h"
+#include "utils_fpsmonitor.h"
 
 #include <MobileUI/MobileUI.h>
 
 #if defined(qzxing)
-#include <QZXing/QZXing.h>
+#include <QZXing/QZXing>
 #endif
 
 #if defined(zxingcpp)
-#include "zxing-cpp/ZXingQtReader.h"
+#include <zxing-cpp/zxing-cpp>
 #endif
 
 #include <QtGlobal>
@@ -66,6 +67,10 @@ int main(int argc, char *argv[])
 
     // QML engine
     QQmlApplicationEngine engine;
+    QQmlContext *engine_context = engine.rootContext();
+    engine_context->setContextProperty("settingsManager", stm);
+    engine_context->setContextProperty("utilsScreen", utilsScreen);
+    engine_context->setContextProperty("utilsApp", utilsApp);
 
 #if QT_CONFIG(permissions)
     if (qApp->checkPermission(QCameraPermission{}) != Qt::PermissionStatus::Granted) {
@@ -85,17 +90,18 @@ int main(int argc, char *argv[])
 
 #if defined(zxingcpp)
     // Barcode (zxing-cpp)
-    ZXingQt::registerQmlAndMetaTypes();
+    ZXingQt::registerQMLTypes();
+    ZXingQt::registerQMLImageProvider(engine);
 #endif
 
     // Then we start the UI
-    QQmlContext *engine_context = engine.rootContext();
-    engine_context->setContextProperty("settingsManager", stm);
-    engine_context->setContextProperty("utilsScreen", utilsScreen);
-    engine_context->setContextProperty("utilsApp", utilsApp);
-
     engine.load(QUrl(QStringLiteral("qrc:/qml/MobileApplication.qml")));
     if (engine.rootObjects().isEmpty()) return EXIT_FAILURE;
+
+    // Setup FPS monitor
+    QQuickWindow *window = qobject_cast<QQuickWindow*>(engine.rootObjects().at(0));
+    FrameRateMonitor *utilsFpsMonitor = new FrameRateMonitor(window);
+    engine_context->setContextProperty("utilsFpsMonitor", utilsFpsMonitor);
 
 #if defined(Q_OS_ANDROID)
     QNativeInterface::QAndroidApplication::hideSplashScreen(333);

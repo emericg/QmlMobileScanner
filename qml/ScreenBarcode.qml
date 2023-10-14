@@ -2,8 +2,6 @@ import QtQuick
 import QtQuick.Controls
 import Qt5Compat.GraphicalEffects
 
-import QZXing
-
 import ThemeEngine
 
 Loader {
@@ -82,7 +80,7 @@ Loader {
                 width: parent.width
                 height: width
 
-                PopupBarcodeFullscreen {
+                PopupBarcodeFullscreen{
                     id: popupBarcodeFullscreen
                     barcode: barcodeTextField.displayText
                 }

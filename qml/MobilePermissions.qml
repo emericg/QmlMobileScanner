@@ -4,7 +4,7 @@ import QtQuick.Controls
 import ThemeEngine
 
 Item {
-    id: permissionsScreen
+    id: screenAboutPermissions
     anchors.fill: parent
 
     property string entryPoint: "ScreenAbout"
@@ -13,6 +13,8 @@ Item {
 
     function loadScreen() {
         // Refresh permissions
+        button_network_test.validperm = true
+        button_camera_test.validperm = utilsApp.checkMobileCameraPermission()
 
         // Change screen
         appContent.state = "ScreenAboutPermissions"
@@ -21,6 +23,21 @@ Item {
     function loadScreenFrom(screenname) {
         entryPoint = screenname
         loadScreen()
+    }
+
+    function backAction() {
+        screenAbout.loadScreen()
+    }
+
+    Timer {
+        id: refreshPermissions
+        interval: 333
+        repeat: false
+        onTriggered: {
+            // Refresh permissions
+            button_network_test.validperm = true
+            button_camera_test.validperm = utilsApp.checkMobileCameraPermission()
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -66,6 +83,10 @@ Item {
                     iconColor: (validperm) ? "white" : "white"
                     backgroundColor: (validperm) ? Theme.colorSuccess : Theme.colorSubText
                     backgroundVisible: true
+
+                    onClicked: {
+                        refreshPermissions.start()
+                    }
                 }
 
                 Text {
@@ -122,6 +143,11 @@ Item {
                     iconColor: (validperm) ? "white" : "white"
                     backgroundColor: (validperm) ? Theme.colorSuccess : Theme.colorSubText
                     backgroundVisible: true
+
+                    onClicked: {
+                        utilsApp.getMobileCameraPermission()
+                        refreshPermissions.start()
+                    }
                 }
 
                 Text {

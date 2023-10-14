@@ -44,8 +44,8 @@ Loader {
                 anchors.left: parent.left
                 anchors.right: parent.right
 
-                topPadding: 12
-                bottomPadding: 12
+                topPadding: 20
+                bottomPadding: 20
                 spacing: 8
 
                 ////////////////
@@ -221,6 +221,7 @@ Loader {
                     anchors.leftMargin: screenPaddingLeft + 64
                     anchors.right: parent.right
                     anchors.rightMargin: 12
+                    height: 24
 
                     topPadding: -12
                     bottomPadding: 0

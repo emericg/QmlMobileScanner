@@ -30,7 +30,8 @@ DEFINES += QZXING_LIBRARY \
 
 INCLUDEPATH += $$PWD $$PWD/zxing
 
-HEADERS += $$PWD/QZXing_global.h \
+HEADERS += \
+    $$PWD/QZXing_global.h \
     $$PWD/CameraImageWrapper.h \
     $$PWD/ImageHandler.h \
     $$PWD/QZXing.h \
@@ -91,8 +92,9 @@ HEADERS += $$PWD/QZXing_global.h \
     $$PWD/zxing/zxing/WriterException.h \
     $$PWD/zxing/zxing/common/Types.h
 
-SOURCES += $$PWD/CameraImageWrapper.cpp \
+SOURCES += \
     $$PWD/QZXing.cpp \
+    $$PWD/CameraImageWrapper.cpp \
     $$PWD/ImageHandler.cpp \
     $$PWD/zxing/zxing/ResultIO.cpp \
     $$PWD/zxing/zxing/InvertedLuminanceSource.cpp \

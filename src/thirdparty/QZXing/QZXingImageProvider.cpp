@@ -1,11 +1,13 @@
 #include "QZXingImageProvider.h"
+#include "QZXing.h"
+
 #include <QDebug>
 #include <QUrlQuery>
-#include "QZXing.h"
 #include <QRegularExpression>
 
 QZXingImageProvider::QZXingImageProvider() : QQuickImageProvider(QQuickImageProvider::Image)
 {
+    //
 }
 
 QImage QZXingImageProvider::requestImage(const QString &id, QSize *size, const QSize &requestedSize)
@@ -17,9 +19,9 @@ QImage QZXingImageProvider::requestImage(const QString &id, QSize *size, const Q
         return QImage();
     }
 
-    //Detect operation (ex. encode)
+    // Detect operation (ex. encode)
     QString operationName = id.left(slashIndex);
-    if(operationName != "encode")
+    if (operationName != "encode")
     {
         qWarning() << "Operation not supported: " << operationName;
         return QImage();
@@ -33,7 +35,7 @@ QImage QZXingImageProvider::requestImage(const QString &id, QSize *size, const Q
     QSize explicitSize = requestedSize;
 
     int customSettingsIndex = id.lastIndexOf(QRegularExpression("\\?(correctionLevel|format|border|transparent)="));
-    if(customSettingsIndex >= 0)
+    if (customSettingsIndex >= 0)
     {
         int startOfDataIndex = slashIndex + 1;
         data = id.mid(startOfDataIndex, customSettingsIndex - (startOfDataIndex));
@@ -42,9 +44,11 @@ QImage QZXingImageProvider::requestImage(const QString &id, QSize *size, const Q
         // it could not recognize the first key-value pair provided
         QUrlQuery optionQuery("options?dummy=&" + id.mid(customSettingsIndex + 1));
 
-        if (optionQuery.hasQueryItem("format")) {
+        if (optionQuery.hasQueryItem("format"))
+        {
             QString formatString = optionQuery.queryItemValue("format");
-            if (formatString != "qrcode") {
+            if (formatString != "qrcode")
+            {
                 qWarning() << "Format not supported: " << formatString;
                 return QImage();
             }
@@ -66,7 +70,8 @@ QImage QZXingImageProvider::requestImage(const QString &id, QSize *size, const Q
         if (optionQuery.hasQueryItem("transparent"))
             transparent = optionQuery.queryItemValue("transparent") == "true";
 
-        if (optionQuery.hasQueryItem("explicitSize")) {
+        if (optionQuery.hasQueryItem("explicitSize"))
+        {
             QString explicitSizeStr = optionQuery.queryItemValue("explicitSize");
             bool ok;
             int size = explicitSizeStr.toInt(&ok);
@@ -90,9 +95,12 @@ QImage QZXingImageProvider::requestImage(const QString &id, QSize *size, const Q
     QImage result;
     qDebug() << "barcode encoder disabled. Add 'CONFIG += enable_encoder_qr_code'";
 #endif
+
     *size = result.size();
     return result;
 }
+
+
 /*
 void QZXingImageProvider::save(const QString &id, QSize *size, const QSize &requestedSize,
                                const QString &path)
@@ -203,7 +211,5 @@ void QZXingImageProvider::save(const QString &id, QSize *size, const QSize &requ
     QStyleOptionGraphicsItem styleOption;
     item->paint(&painter, &styleOption);
     img.save(path);
-
-    //
 }
 */

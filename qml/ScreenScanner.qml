@@ -3,7 +3,6 @@ import QtQuick.Layouts
 import QtQuick.Controls
 
 import QtMultimedia
-import QZXing
 
 import ThemeEngine
 
@@ -15,8 +14,6 @@ Loader {
     ////////////////////////////////////////////////////////////////////////////
 
     signal newBarCode(var barcode)
-
-    property bool opened_barcode: false
 
     function loadScreen() {
         appContent.state = "ScreenScanner"
@@ -35,7 +32,6 @@ Loader {
         console.log("screenScanner::open_barcode()")
 
         mobileUI.setScreenAlwaysOn(true)
-        opened_barcode = true
         active = true
     }
 
@@ -43,7 +39,6 @@ Loader {
         console.log("screenScanner::hide()")
 
         mobileUI.setScreenAlwaysOn(false)
-        opened_barcode = false
 
         if (screenScanner.status === Loader.Ready) {
             screenScanner.item.close()
@@ -53,7 +48,6 @@ Loader {
         console.log("screenScanner::close()")
 
         mobileUI.setScreenAlwaysOn(false)
-        opened_barcode = false
 
         if (screenScanner.status === Loader.Ready) {
             screenScanner.item.close()
@@ -117,6 +111,10 @@ Loader {
 
         ////////////////////////
 
+        MediaDevices {
+            id: mediaDevices
+        }
+
         CaptureSession {
             id: captureSession
 
@@ -124,6 +122,9 @@ Loader {
                 id: camera
                 active: true
                 focusMode: Camera.FocusModeAutoNear
+
+                //cameraDevice: mediaDevices.videoInputs[0] ? mediaDevices.videoInputs[0] : mediaDevices.defaultVideoInput
+                onErrorOccurred: console.log("camera error:" + errorString)
             }
 
             videoOutput: videoOutput
@@ -131,80 +132,14 @@ Loader {
 
         ////////////////////////
 
-        QZXingFilter {
-            id: zxingFilter
-            videoSink: videoOutput.videoSink
+        Loader {
+            id: backendLoader
+            active: true
+            asynchronous: true
 
-            captureRect: {
-                videoOutput.contentRect
-                videoOutput.sourceRect
-                return Qt.rect(videoOutput.sourceRect.width * videoOutput.captureRectStartFactorX,
-                               videoOutput.sourceRect.height * videoOutput.captureRectStartFactorY,
-                               videoOutput.sourceRect.width * videoOutput.captureRectFactorWidth,
-                               videoOutput.sourceRect.height * videoOutput.captureRectFactorHeight)
-            }
-
-            decoder {
-                tryHarder: false
-
-                enabledDecoders: QZXing.DecoderFormat_QR_CODE |
-                                 QZXing.DecoderFormat_DATA_MATRIX |
-                                 QZXing.DecoderFormat_UPC_E |
-                                 QZXing.DecoderFormat_UPC_A |
-                                 QZXing.DecoderFormat_UPC_EAN_EXTENSION |
-                                 QZXing.DecoderFormat_RSS_14 |
-                                 QZXing.DecoderFormat_RSS_EXPANDED |
-                                 QZXing.DecoderFormat_PDF_417 |
-                                 QZXing.DecoderFormat_MAXICODE |
-                                 QZXing.DecoderFormat_EAN_8 |
-                                 QZXing.DecoderFormat_EAN_13 |
-                                 QZXing.DecoderFormat_CODE_128 |
-                                 QZXing.DecoderFormat_CODE_93 |
-                                 QZXing.DecoderFormat_CODE_39 |
-                                 QZXing.DecoderFormat_CODABAR |
-                                 QZXing.DecoderFormat_ITF |
-                                 QZXing.DecoderFormat_Aztec
-
-                onTagFound: (tag) => {
-                    console.log(tag + " | " + decoder.foundedFormat() + " | " + decoder.charSet())
-
-                    if (tag != tagText) {
-                        utilsApp.vibrate(33)
-
-                        zxingFilter.tagText = tag
-                        zxingFilter.tagFormat = decoder.foundedFormat()
-                        zxingFilter.tagEncoding = decoder.charSet()
-                    }
-
-                    //barcodeItem.visible = true
-                    //barcodeTxt.text = tag + " | " + decoder.foundedFormat()
-                    //if (decoder.charSet()) + " | " + decoder.charSet()
-                }
-            }
-
-            property string tagText
-            property string tagFormat
-            property string tagEncoding
-
-            property int framesDecoded: 0
-            property real timePerFrameDecode: 0
-
-            onDecodingStarted: {
-                //console.log("onDecodingStarted()")
-            }
-
-            onDecodingFinished: (succeeded, decodeTime) => {
-                //console.log("onDecodingFinished()")
-                return
-
-                timePerFrameDecode = (decodeTime + framesDecoded * timePerFrameDecode) / (framesDecoded + 1)
-                framesDecoded++
-
-                if (succeeded) {
-                    console.log("frame finished: " + succeeded, decodeTime, timePerFrameDecode, framesDecoded)
-                }
-            }
+            sourceComponent: Reader_QZXing { }
         }
+        property alias zxingFilter: backendLoader.item
 
         ////////////////////////
 
@@ -257,6 +192,56 @@ Loader {
                     anchors.bottom: parent.bottom
                     color: "black"
                     opacity: 0.4
+                }
+
+                ////////
+
+                Item { // debug panel
+                    anchors.top: parent.top
+                    anchors.topMargin: Theme.componentMargin + Math.max(screenPaddingTop, screenPaddingStatusbar)
+                    anchors.left: parent.left
+                    anchors.leftMargin: Theme.componentMargin
+                    anchors.right: parent.right
+                    anchors.rightMargin: Theme.componentMargin
+
+                    visible: settingsManager.showDebug
+
+                    Column {
+                        anchors.top: parent.top
+                        anchors.left: parent.left
+
+                        SwitchThemed {
+                            text: qsTr("tryHarder")
+                            checked: settingsManager.scan_tryHarder
+                            onClicked: settingsManager.scan_tryHarder = checked
+                        }
+                        SwitchThemed {
+                            text: qsTr("tryRotate")
+                            checked: settingsManager.scan_tryRotate
+                            onClicked: settingsManager.scan_tryRotate = checked
+                        }
+                        SwitchThemed {
+                            text: qsTr("tryDownscale")
+                            checked: settingsManager.scan_tryDownscale
+                            onClicked: settingsManager.scan_tryDownscale = checked
+                        }
+                    }
+
+                    Column {
+                        anchors.top: parent.top
+                        anchors.right: parent.right
+
+                        Text {
+                            id: fpsCounter
+                            text: utilsFpsMonitor.fps + " fps"
+                            color: "white"
+                        }
+                        Text {
+                            id: mspf
+                            text: "0 ms"
+                            color: "white"
+                        }
+                    }
                 }
 
                 ////////
@@ -320,7 +305,7 @@ Loader {
                         opacity: 0.66
 
                         SequentialAnimation {
-                            running: (screenScanner.opened_barcode)
+                            running: true
                             loops: -1
                             NumberAnimation { target: scanBar; property: "y"; from: 0; to: gismo.height; duration: 750; }
                             NumberAnimation { target: scanBar; property: "y"; from: gismo.height; to: 0; duration: 750; }
@@ -338,7 +323,7 @@ Loader {
                         opacity: 0.66
 
                         SequentialAnimation {
-                            running: (screenScanner.opened_barcode)
+                            running: true
                             loops: -1
                             NumberAnimation { target: scanBar; property: "x"; from: 0; to: gismo.gismowidth; duration: 750; }
                             NumberAnimation { target: scanBar; property: "x"; from: gismo.gismowidth; to: 0; duration: 750; }
@@ -354,7 +339,7 @@ Loader {
                     anchors.right: parent.right
                     anchors.rightMargin: Theme.componentMarginXL
                     anchors.bottom: parent.bottom
-                    anchors.bottomMargin: Theme.componentMarginXL + screenPaddingNavbar
+                    anchors.bottomMargin: Theme.componentMarginXL + Math.max(screenPaddingBottom, screenPaddingNavbar)
 
                     width: parent.width
                     spacing: Theme.componentMarginXL
@@ -462,7 +447,7 @@ Loader {
                                 source: "qrc:/assets/icons_material/baseline-search-24px.svg"
 
                                 SequentialAnimation {
-                                    running: (screenScanner.opened_barcode)
+                                    running: true
                                     loops: -1
                                     NumberAnimation { target: scanImg; property: "opacity"; from: 0.33; to: 1; duration: 500; }
                                     NumberAnimation { target: scanImg; property: "opacity"; from: 1; to: 0.33; duration: 500; }

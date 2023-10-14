@@ -29,9 +29,9 @@ class QZXingFilter : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool decoding READ isDecoding NOTIFY isDecodingChanged)
-    Q_PROPERTY(QZXing* decoder READ getDecoder)
+    Q_PROPERTY(QZXing *decoder READ getDecoder)
     Q_PROPERTY(QRectF captureRect MEMBER captureRect NOTIFY captureRectChanged)
-    Q_PROPERTY(QObject* videoSink WRITE setVideoSink)
+    Q_PROPERTY(QObject *videoSink WRITE setVideoSink)
     Q_PROPERTY(int orientation READ orientation WRITE setOrientation NOTIFY orientationChanged)
 
     signals:

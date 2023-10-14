@@ -26,15 +26,13 @@
 
 #include <set>
 
-#if QT_VERSION >= 0x050000
-    class QQmlEngine;
-#endif
-
 // forward declaration
 namespace zxing {
 class MultiFormatReader;
 class ResultMetadata;
 }
+
+class QQmlEngine;
 class ImageHandler;
 
 #ifdef ENABLE_ENCODER_GENERIC
@@ -50,11 +48,7 @@ struct QZXingEncoderConfig;
   *
   * Regarding DecoderFormat, by default all of those are enabled
   */
-class
-        #ifndef DISABLE_LIBRARY_FEATURES
-        QZXINGSHARED_EXPORT
-        #endif
-        QZXing : public QObject {
+class QZXing : public QObject {
 
     Q_OBJECT
     Q_ENUMS(DecoderFormat)
