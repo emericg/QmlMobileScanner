@@ -1,3 +1,23 @@
+/*!
+ * This file is part of MobileScanner.
+ * Copyright (c) 2023 Emeric Grange - All Rights Reserved
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * \date      2023
+ * \author    Emeric Grange <emeric.grange@gmail.com>
+ */
 
 #ifndef SETTINGS_MANAGER_H
 #define SETTINGS_MANAGER_H
@@ -19,6 +39,8 @@ class SettingsManager: public QObject
     Q_PROPERTY(bool firstLaunch READ isFirstLaunch NOTIFY firstLaunchChanged)
     Q_PROPERTY(QString appTheme READ getAppTheme WRITE setAppTheme NOTIFY appThemeChanged)
     Q_PROPERTY(bool appThemeAuto READ getAppThemeAuto WRITE setAppThemeAuto NOTIFY appThemeAutoChanged)
+
+    Q_PROPERTY(QString backend READ getBackend CONSTANT)
 
     Q_PROPERTY(bool showDebug READ getShowDebug WRITE setShowDebug NOTIFY debugChanged)
     Q_PROPERTY(bool scan_tryHarder READ getScanTryHarder WRITE setScanTryHarder NOTIFY tryHarderChanged)
@@ -62,6 +84,7 @@ public:
     void setAppThemeAuto(const bool value);
 
     // app specific
+    QString getBackend() const;
     bool getShowDebug() const { return m_showDebug; }
     void setShowDebug(const bool value);
     bool getScanTryHarder() const { return m_scan_tryHarder; }

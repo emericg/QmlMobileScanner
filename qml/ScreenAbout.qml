@@ -70,11 +70,6 @@ Loader {
                         color: Theme.colorIcon
                         source: "qrc:/assets/logos/logo_black.svg"
                         //sourceSize: Qt.size(width, height)
-
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: screenSettingsAdvanced.loadScreen()
-                        }
                     }
 
                     Column { // title
@@ -364,7 +359,7 @@ Loader {
                 anchors.rightMargin: screenPaddingRight + Theme.componentMargin
 
                 visible: settingsManager.showDebug
-                spacing: Theme.componentMargin / 3
+                spacing: Theme.componentMargin * 0.4
 
                 Text {
                     color: Theme.colorSubText
@@ -374,6 +369,11 @@ Loader {
                 Text {
                     color: Theme.colorSubText
                     text: "app version: %1".arg(utilsApp.appVersion())
+                    font.pixelSize: Theme.fontSizeContent
+                }
+                Text {
+                    color: Theme.colorSubText
+                    text: "backend: %1".arg(settingsManager.backend)
                     font.pixelSize: Theme.fontSizeContent
                 }
                 Text {

@@ -82,9 +82,9 @@ android {
 
     defaultConfig {
         resConfig "en"
-        ndk.abiFilters = qtTargetAbiList.split(",")
         minSdkVersion 23 // qtMinSdkVersion
         targetSdkVersion 34 // qtTargetSdkVersion
+        ndk.abiFilters = qtTargetAbiList.split(",")
 
         namespace 'io.emeric.mobilescanner'
         versionName "0.1"

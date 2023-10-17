@@ -9,10 +9,26 @@ QT     += core concurrent qml quickcontrols2 svg sql
 
 # Validate Qt version
 !versionAtLeast(QT_VERSION, 6.5) : error("You need at least Qt version 6.5 for $${TARGET}")
-!versionAtMost(QT_VERSION, 6.6) : warning("Compatibility with Qt 6.6 is not assured for $${TARGET}")
+
+# Build settings ###############################################################
+
+# Select backend (qzxing / zxingcpp)
+CONFIG += qzxing
 
 # Use Qt Quick compiler
 ios | android { CONFIG += qtquickcompiler }
+
+# Debug defines
+CONFIG(release, debug|release) : DEFINES += NDEBUG QT_NO_DEBUG QT_NO_DEBUG_OUTPUT
+
+# Build artifacts ##############################################################
+
+OBJECTS_DIR = build/$${QT_ARCH}/
+MOC_DIR     = build/$${QT_ARCH}/
+RCC_DIR     = build/$${QT_ARCH}/
+UI_DIR      = build/$${QT_ARCH}/
+
+DESTDIR     = bin/
 
 # Project files ################################################################
 
@@ -25,40 +41,33 @@ RESOURCES   += qml/qml.qrc \
                qml/components.qrc \
                assets/assets.qrc
 
-OTHER_FILES += .gitignore
+OTHER_FILES += .gitignore \
+               README.md
 
-# Dependencies #################################################################
+# Project dependencies #########################################################
 
 # AppUtils
 include(src/thirdparty/AppUtils/AppUtils.pri)
 
-# utils for mobile OS
+# Utils for mobile OS
 include(src/thirdparty/MobileUI/MobileUI.pri)
 include(src/thirdparty/MobileSharing/MobileSharing.pri)
 
-# QRCode scanner (QZXing)
-DEFINES += qzxing
-include(src/thirdparty/QZXing/QZXing.pri)
+# Barcode scanner (QZXing)
+CONFIG(qzxing, qzxing|zxingcpp) {
+    message("Building MobileScanner with QZXing backend")
+    include(src/thirdparty/QZXing/QZXing.pri)
+    DEFINES += qzxing
+}
 
-# QRCode scanner (zxing-cpp)
-#DEFINES += zxingcpp
-#include(src/thirdparty/zxing-cpp/zxing-cpp.pri)
+# Barcode scanner (zxing-cpp)
+CONFIG(zxingcpp, qzxing|zxingcpp) {
+    message("Building MobileScanner with zxing-cpp backend")
+    include(src/thirdparty/zxing-cpp/zxing-cpp.pri)
+    DEFINES += zxingcpp
+}
 
-# Build settings ###############################################################
-
-CONFIG(release, debug|release) : DEFINES += NDEBUG QT_NO_DEBUG QT_NO_DEBUG_OUTPUT
-
-# Build artifacts ##############################################################
-
-OBJECTS_DIR = build/$${QT_ARCH}/
-MOC_DIR     = build/$${QT_ARCH}/
-RCC_DIR     = build/$${QT_ARCH}/
-UI_DIR      = build/$${QT_ARCH}/
-
-DESTDIR     = bin/
-
-################################################################################
-# Application deployment and installation steps
+# Application deployment #######################################################
 
 linux:!android {
     TARGET = $$lower($${TARGET})
