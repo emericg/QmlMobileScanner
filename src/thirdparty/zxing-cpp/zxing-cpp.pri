@@ -9,7 +9,7 @@ CONFIG += build_readers build_writers
 
 QT += multimedia concurrent
 
-INCLUDEPATH += $${PWD}/ $${PWD}/core/src
+INCLUDEPATH += $${PWD}
 
 ################################################################################
 
@@ -46,10 +46,19 @@ DEFINES += ZXING_CORE_DEFINES
 
 ################# WRAPPER
 
-SOURCES += $${PWD}/ZXingQt.cpp $${PWD}/ZXingQtVideoFilter.cpp $${PWD}/ZXingQtImageProvider.cpp
-HEADERS += $${PWD}/ZXingQt.h $${PWD}/ZXingQtVideoFilter.h $${PWD}/ZXingQtImageProvider.h
+INCLUDEPATH += $${PWD}/wrappers/qt/
+
+SOURCES += $${PWD}/wrappers/qt/ZXingQt.cpp \
+           $${PWD}/wrappers/qt/ZXingQtVideoFilter.cpp \
+           $${PWD}/wrappers/qt/ZXingQtImageProvider.cpp
+
+HEADERS += $${PWD}/wrappers/qt/ZXingQt.h \
+           $${PWD}/wrappers/qt/ZXingQtVideoFilter.h \
+           $${PWD}/wrappers/qt/ZXingQtImageProvider.h
 
 ################# COMMON_FILES
+
+INCLUDEPATH += $${PWD}/core/src/
 
 SOURCES += $${PWD}/core/src/BarcodeFormat.cpp \
            $${PWD}/core/src/BitArray.cpp \

@@ -14,9 +14,7 @@
         <file>ScreenScanner.qml</file>
         <file>ScreenBarcode.qml</file>
         <file>Reader_QZXing.qml</file>
-        <file>Reader_zxingcpp.qml</file>
-        <file>Writer_QZXing.qml</file>
-        <file>Writer_zxingcpp.qml</file>
+        <file>Reader_ZXingCpp.qml</file>
 
         <file alias="PopupBarcodeFullscreen.qml">popups/PopupBarcodeFullscreen.qml</file>
     </qresource>

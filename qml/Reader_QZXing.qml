@@ -6,9 +6,9 @@ import QZXing
 import ThemeEngine
 
 QZXingFilter {
-    id: zxingFilter
-    videoSink: videoOutput.videoSink
+    id: barcodeReader
 
+    videoSink: videoOutput.videoSink
     captureRect: {
         videoOutput.contentRect
         videoOutput.sourceRect
@@ -17,6 +17,13 @@ QZXingFilter {
                        videoOutput.sourceRect.width * videoOutput.captureRectFactorWidth,
                        videoOutput.sourceRect.height * videoOutput.captureRectFactorHeight)
     }
+
+    property string tagText
+    property string tagFormat
+    property string tagEncoding
+
+    property int framesDecoded: 0
+    property real timePerFrameDecode: 0
 
     decoder {
         tryHarder: settingsManager.scan_tryHarder
@@ -45,9 +52,9 @@ QZXingFilter {
             if (tag != tagText) {
                 utilsApp.vibrate(33)
 
-                zxingFilter.tagText = tag
-                zxingFilter.tagFormat = decoder.foundedFormat()
-                zxingFilter.tagEncoding = decoder.charSet()
+                barcodeReader.tagText = tag
+                barcodeReader.tagFormat = decoder.foundedFormat()
+                barcodeReader.tagEncoding = decoder.charSet()
             }
 
             //barcodeItem.visible = true
@@ -55,13 +62,6 @@ QZXingFilter {
             //if (decoder.charSet()) + " | " + decoder.charSet()
         }
     }
-
-    property string tagText
-    property string tagFormat
-    property string tagEncoding
-
-    property int framesDecoded: 0
-    property real timePerFrameDecode: 0
 
     onDecodingStarted: {
         //console.log("onDecodingStarted()")

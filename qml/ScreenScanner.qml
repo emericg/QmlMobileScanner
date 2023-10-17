@@ -75,7 +75,7 @@ Loader {
         Component.onCompleted: open()
 
         function open() {
-            console.log(">> open()")
+            //console.log(">> open()")
 
             camera.active = true
             if (isMobile) {
@@ -84,7 +84,7 @@ Loader {
             }
         }
         function close() {
-            console.log(">> close()")
+            //console.log(">> close()")
 
             //camera.active = false // crash ?!
 
@@ -95,7 +95,7 @@ Loader {
         }
 
         function backAction() {
-            console.log(">> backAction()")
+            //console.log(">> backAction()")
 
             // don't change screen
         }
@@ -137,9 +137,9 @@ Loader {
             active: true
             asynchronous: true
 
-            sourceComponent: Reader_QZXing { }
+            source: (settingsManager.backend === "qzxing") ? "Reader_QZXing.qml" : "Reader_ZXingCpp.qml"
         }
-        property alias zxingFilter: backendLoader.item
+        property alias barcodeReader: backendLoader.item
 
         ////////////////////////
 
@@ -351,7 +351,7 @@ Loader {
                         width: parent.width
                         height: 48
 
-                        visible: zxingFilter.tagText
+                        visible: barcodeReader && barcodeReader.tagText
 
                         Rectangle {
                             anchors.fill: parent
@@ -369,10 +369,12 @@ Loader {
                             anchors.verticalCenter: parent.verticalCenter
                             color: "white"
                             source: {
-                                if (zxingFilter.tagFormat === "QR_CODE" ||
-                                    zxingFilter.tagFormat === "DATA_MATRIX" ||
-                                    zxingFilter.tagFormat === "Aztec") {
-                                    return "qrc:/assets/icons_material/baseline-qr_code_2-24px.svg"
+                                if (barcodeReader) {
+                                    if (barcodeReader.tagFormat === "QR_CODE" ||
+                                        barcodeReader.tagFormat === "DATA_MATRIX" ||
+                                        barcodeReader.tagFormat === "Aztec") {
+                                        return "qrc:/assets/icons_material/baseline-qr_code_2-24px.svg"
+                                    }
                                 }
 
                                 return "qrc:/assets/icons_bootstrap/upc.svg"
@@ -387,7 +389,7 @@ Loader {
                             anchors.rightMargin: Theme.componentMargin
                             anchors.verticalCenter: parent.verticalCenter
 
-                            text: zxingFilter.tagText
+                            text: barcodeReader && barcodeReader.tagText
                             color: "white"
                             font.pixelSize: Theme.fontSizeContent
                             elide: Text.ElideRight
@@ -399,7 +401,7 @@ Loader {
                             anchors.rightMargin: Theme.componentMargin
                             anchors.verticalCenter: parent.verticalCenter
 
-                            text: zxingFilter.tagFormat
+                            text: barcodeReader && barcodeReader.tagFormat
                             color: "white"
                             opacity: 0.66
                             font.pixelSize: Theme.fontSizeContentSmall
@@ -410,7 +412,7 @@ Loader {
                         MouseArea {
                             anchors.fill: parent
                             onClicked: {
-                                Qt.openUrlExternally(zxingFilter.tagText)
+                                Qt.openUrlExternally(barcodeReader.tagText)
                             }
                         }
                     }

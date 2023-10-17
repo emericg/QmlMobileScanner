@@ -111,11 +111,14 @@ Loader {
                     anchors.fill: parent
                     anchors.margins: Theme.componentMargin
 
+                    cache: false
+
                     sourceSize.width: width
                     sourceSize.height: height
 
-                    source: "image://QZXing/encode/" + barcodeTextField.displayText
-                    cache: false
+                    source: (settingsManager.backend === "qzxing") ?
+                                "image://QZXing/encode/" + barcodeTextField.displayText :
+                                "image://ZXingCpp/encode/" + barcodeTextField.displayText
                 }
 
                 MouseArea {

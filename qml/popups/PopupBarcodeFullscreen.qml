@@ -56,7 +56,10 @@ Popup {
         sourceSize.width: width
         sourceSize.height: width
 
-        source: "image://QZXing/encode/" + popupBarcodeFullscreen.barcode
+        source: (settingsManager.backend === "qzxing") ?
+                    "image://QZXing/encode/" + popupBarcodeFullscreen.barcode :
+                    "image://ZXingCpp/encode/" + popupBarcodeFullscreen.barcode
+
         cache: false
     }
 
