@@ -1,7 +1,7 @@
 pragma Singleton
 
-import QtQuick 2.15
-import QtQuick.Controls.Material 2.15
+import QtQuick
+import QtQuick.Controls.Material
 
 Item {
     enum ThemeNames {
@@ -22,83 +22,84 @@ Item {
 
     ////////////////
 
+    // Status bar (mobile)
     property int themeStatusbar
-    property string colorStatusbar
+    property color colorStatusbar
 
     // Header
-    property string colorHeader
-    property string colorHeaderContent
-    property string colorHeaderHighlight
+    property color colorHeader
+    property color colorHeaderContent
+    property color colorHeaderHighlight
 
-    // Sidebar
-    property string colorSidebar
-    property string colorSidebarContent
-    property string colorSidebarHighlight
+    // Side bar (desktop)
+    property color colorSidebar
+    property color colorSidebarContent
+    property color colorSidebarHighlight
 
     // Action bar
-    property string colorActionbar
-    property string colorActionbarContent
-    property string colorActionbarHighlight
+    property color colorActionbar
+    property color colorActionbarContent
+    property color colorActionbarHighlight
 
-    // Tablet bar
-    property string colorTabletmenu
-    property string colorTabletmenuContent
-    property string colorTabletmenuHighlight
+    // Tablet bar (mobile)
+    property color colorTabletmenu
+    property color colorTabletmenuContent
+    property color colorTabletmenuHighlight
 
     // Content
-    property string colorBackground
-    property string colorForeground
+    property color colorBackground
+    property color colorForeground
 
-    property string colorPrimary
-    property string colorSecondary
-    property string colorSuccess
-    property string colorWarning
-    property string colorError
+    property color colorPrimary
+    property color colorSecondary
+    property color colorSuccess
+    property color colorWarning
+    property color colorError
 
-    property string colorText
-    property string colorSubText
-    property string colorIcon
-    property string colorSeparator
+    property color colorText
+    property color colorSubText
+    property color colorIcon
+    property color colorSeparator
 
-    property string colorLowContrast
-    property string colorHighContrast
+    property color colorLowContrast
+    property color colorHighContrast
 
     // App specific
-    property string colorRipple
+    property color colorRipple
 
     ////////////////
 
     // Palette colors
-    property string colorLightGreen: "#09debc"
-    property string colorGreen
-    property string colorDarkGreen: "#1ea892"
-    property string colorBlue
-    property string colorYellow
-    property string colorOrange
-    property string colorRed
-    property string colorGrey: "#555151"
-    property string colorLightGrey: "#a9bcb8"
+    property color colorRed: "#ff7657"
+    property color colorGreen: "#8cd200"
+    property color colorBlue: "#4cafe9"
+    property color colorYellow: "#ffcf00"
+    property color colorOrange: "#ffa635"
+    property color colorGrey: "#555151"
 
-    // Fixed colors
-    readonly property color colorMaterialBlue: "#2196f3"
-    readonly property color colorMaterialThisblue: "#448aff"
-    readonly property color colorMaterialIndigo: "#3f51b5"
-    readonly property color colorMaterialPurple: "#9c27b0"
-    readonly property color colorMaterialDeepPurple: "#673ab7"
-    readonly property color colorMaterialRed: "#f44336"
-    readonly property color colorMaterialOrange: "#ff9800"
-    readonly property color colorMaterialLightGreen: "#8bc34a"
-
-    readonly property color colorMaterialLightGrey: "#f8f8f8"
-    readonly property color colorMaterialGrey: "#eeeeee"
-    readonly property color colorMaterialDarkGrey: "#ececec"
-
-    readonly property color colorNeutralDay: "#e4e4e4"
-    readonly property color colorNeutralNight: "#ffb300"
+    // Material colors
+    readonly property color colorMaterialRed: "#F44336"
+    readonly property color colorMaterialPink: "#E91E63"
+    readonly property color colorMaterialPurple: "#9C27B0"
+    readonly property color colorMaterialDeepPurple: "#673AB7"
+    readonly property color colorMaterialIndigo: "#3F51B5"
+    readonly property color colorMaterialBlue: "#2196F3"
+    readonly property color colorMaterialLightBlue: "#03A9F4"
+    readonly property color colorMaterialCyan: "#00BCD4"
+    readonly property color colorMaterialTeal: "#009688"
+    readonly property color colorMaterialGreen: "#4CAF50"
+    readonly property color colorMaterialLightGreen: "#8BC34A"
+    readonly property color colorMaterialLime: "#CDDC39"
+    readonly property color colorMaterialYellow: "#FFEB3B"
+    readonly property color colorMaterialAmber: "#FFC107"
+    readonly property color colorMaterialOrange: "#FF9800"
+    readonly property color colorMaterialDeepOrange: "#FF5722"
+    readonly property color colorMaterialBrown: "#795548"
+    readonly property color colorMaterialGrey: "#9E9E9E"
 
     ////////////////
 
-    // Qt Quick controls & theming
+    // Qt Quick Controls & theming
     property color colorComponent
     property color colorComponentText
     property color colorComponentContent
@@ -147,7 +148,13 @@ Item {
         if (themeIndex === "dark") themeIndex = ThemeEngine.THEME_DARK
         if (themeIndex >= ThemeEngine.THEME_LAST) themeIndex = 0
 
-        if (settingsManager.autoDark) {
+        // Validate the result
+        if (themeIndex < 0 || themeIndex >= ThemeEngine.THEME_LAST) {
+            themeIndex = ThemeEngine.THEME_LIGHT // default theme for this app
+        }
+
+        // Handle day/night themes
+        if (settingsManager.appThemeAuto) {
             var rightnow = new Date()
             var hour = Qt.formatDateTime(rightnow, "hh")
             if (hour >= 21 || hour <= 8) {
@@ -155,6 +162,7 @@ Item {
             }
         }
 
+        // Do not reload the same theme
         if (themeIndex === currentTheme) return
 
         if (themeIndex === ThemeEngine.THEME_LIGHT) {
@@ -255,6 +263,7 @@ Item {
             colorRipple = "#292929"
 
         }
+
 
         // This will emit the signal 'onCurrentThemeChanged'
         currentTheme = themeIndex
