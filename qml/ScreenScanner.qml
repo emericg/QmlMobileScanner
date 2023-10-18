@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Shapes
 import QtQuick.Layouts
 import QtQuick.Controls
 
@@ -12,8 +13,6 @@ Loader {
     z: 24
 
     ////////////////////////////////////////////////////////////////////////////
-
-    signal newBarCode(var barcode)
 
     function loadScreen() {
         appContent.state = "ScreenScanner"
@@ -150,10 +149,33 @@ Loader {
             // PreserveAspectFit / PreserveAspectCrop / Stretch
             fillMode: VideoOutput.PreserveAspectCrop
 
-            property double captureRectStartFactorX: 0.1
+            // Capture rectangle
+            property double captureRectStartFactorX: 0.05
             property double captureRectStartFactorY: 0.25
             property double captureRectFactorWidth: 0.9
             property double captureRectFactorHeight: 0.5
+
+            ////
+            Shape {
+                anchors.fill: parent
+                visible: (barcodeReader && barcodeReader.points.length === 4)
+                opacity: 0.66
+
+                ShapePath {
+                    strokeWidth: 4
+                    strokeColor: Theme.colorOrange
+                    strokeStyle: ShapePath.SolidLine
+                    fillColor: "transparent"
+
+                    startX: barcodeReader.points[3].x
+                    startY: barcodeReader.points[3].y
+                    PathLine { x: barcodeReader.points[0].x; y: barcodeReader.points[0].y; }
+                    PathLine { x: barcodeReader.points[1].x; y: barcodeReader.points[1].y; }
+                    PathLine { x: barcodeReader.points[2].x; y: barcodeReader.points[2].y; }
+                    PathLine { x: barcodeReader.points[3].x; y: barcodeReader.points[3].y; }
+                }
+            }
+            ////
 
             Item {
                 id: captureZone
@@ -233,12 +255,12 @@ Loader {
 
                         Text {
                             id: fpsCounter
-                            text: utilsFpsMonitor.fps + " fps"
+                            text: utilsFpsMonitor.fps.toFixed(0) + " fps"
                             color: "white"
                         }
                         Text {
-                            id: mspf
-                            text: "0 ms"
+                            id: msPerFrame
+                            text: barcodeReader.timePerFrameDecode.toFixed(0) + " ms"
                             color: "white"
                         }
                     }
@@ -248,12 +270,12 @@ Loader {
 
                 Item {
                     id: gismo
-                    x: parent.width * 0.05
-                    y: parent.height * 0.33
-                    width: parent.width * 0.9
-                    height: parent.height * 0.33
+                    x: parent.width * videoOutput.captureRectStartFactorX
+                    y: parent.height * videoOutput.captureRectStartFactorY
+                    width: parent.width * videoOutput.captureRectFactorWidth
+                    height: parent.height * videoOutput.captureRectFactorHeight
 
-                    property int gismowidth: screenScanner.width*0.9
+                    property int gismowidth: screenScanner.width*videoOutput.captureRectFactorWidth
 
                     // Borders
                     Item {

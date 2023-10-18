@@ -2,53 +2,45 @@
 #include <QDebug>
 #include <QtConcurrent/QtConcurrent>
 
-QZXingFilter::QZXingFilter(QObject *parent)
-    : QObject(parent)
-    , decoder(QZXing::DecoderFormat_QR_CODE)
-    , decoding(false)
+QZXingFilter::QZXingFilter(QObject *parent) : QObject(parent)
 {
     /// Connecting signals to handlers that will send signals to QML
-    connect(&decoder, &QZXing::decodingStarted,
+    connect(&m_decoder, &QZXing::decodingStarted,
             this, &QZXingFilter::handleDecodingStarted);
-    connect(&decoder, &QZXing::decodingFinished,
+    connect(&m_decoder, &QZXing::decodingFinished,
             this, &QZXingFilter::handleDecodingFinished);
 }
 
 QZXingFilter::~QZXingFilter()
 {
-    if(!processThread.isFinished()) {
-        processThread.cancel();
-        processThread.waitForFinished();
+    if(!m_processThread.isFinished()) {
+        m_processThread.cancel();
+        m_processThread.waitForFinished();
     }
 }
 
 void QZXingFilter::handleDecodingStarted()
 {
-    decoding = true;
+    m_decoding = true;
     emit decodingStarted();
     emit isDecodingChanged();
 }
 
 void QZXingFilter::handleDecodingFinished(bool succeeded)
 {
-    decoding = false;
-    emit decodingFinished(succeeded, decoder.getProcessTimeOfLastDecoding());
+    m_decoding = false;
+    emit decodingFinished(succeeded, m_decoder.getProcessTimeOfLastDecoding());
     emit isDecodingChanged();
 }
 
 void QZXingFilter::setOrientation(int orientation)
 {
-    if (orientation_ == orientation) {
+    if (m_orientation == orientation) {
         return;
     }
 
-    orientation_ = orientation;
-    emit orientationChanged(orientation_);
-}
-
-int QZXingFilter::orientation() const
-{
-    return orientation_;
+    m_orientation = orientation;
+    emit orientationChanged(m_orientation);
 }
 
 void QZXingFilter::setVideoSink(QObject *videoSink)
@@ -71,36 +63,36 @@ void QZXingFilter::processFrame(const QVideoFrame &frame)
     const QVideoFrame &f = frame;
 #endif // Q_OS_ANDROID
 */
-    if (!isDecoding() && processThread.isFinished()) {
-        decoding = true;
+    if (!isDecoding() && m_processThread.isFinished()) {
+        m_decoding = true;
 
-        processThread = QtConcurrent::run([=]() {
+        m_processThread = QtConcurrent::run([=]() {
             QImage image = frame.toImage(); // moved here
 
             if (image.isNull())
             {
                 qDebug() << "QZXingFilter error: Cant create image file to process.";
-                decoding = false;
+                m_decoding = false;
                 return;
             }
 
             QImage frameToProcess(image);
-            const QRect &rect = captureRect.toRect();
+            const QRect &rect = m_captureRect.toRect();
 
-            if (captureRect.isValid() && frameToProcess.size() != rect.size()) {
+            if (m_captureRect.isValid() && frameToProcess.size() != rect.size()) {
                 frameToProcess = image.copy(rect);
             }
 
-            if (!orientation_) {
-                decoder.decodeImage(frameToProcess);
+            if (!m_orientation) {
+                m_decoder.decodeImage(frameToProcess);
             } else {
                 QTransform transformation;
                 transformation.translate(frameToProcess.rect().center().x(), frameToProcess.rect().center().y());
-                transformation.rotate(-orientation_);
+                transformation.rotate(-m_orientation);
 
                 QImage translatedImage = frameToProcess.transformed(transformation);
 
-                decoder.decodeImage(translatedImage);
+                m_decoder.decodeImage(translatedImage);
             }
 
             //static int i=0;
@@ -109,7 +101,7 @@ void QZXingFilter::processFrame(const QVideoFrame &frame)
             //const QString path = QStandardPaths::writableLocation(QStandardPaths::PicturesLocation) + "/qrtest/test_" + QString::number(i++ % 100) + ".png";
             //qDebug() << "saving image" << i << "at:" << path << frameToProcess.save(path);
 
-            decoder.decodeImage(frameToProcess, frameToProcess.width(), frameToProcess.height());
+            m_decoder.decodeImage(frameToProcess, frameToProcess.width(), frameToProcess.height());
         });
     }
 /*

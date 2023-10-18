@@ -9,14 +9,10 @@ QZXingFilter {
     id: barcodeReader
 
     videoSink: videoOutput.videoSink
-    captureRect: {
-        videoOutput.contentRect
-        videoOutput.sourceRect
-        return Qt.rect(videoOutput.sourceRect.width * videoOutput.captureRectStartFactorX,
-                       videoOutput.sourceRect.height * videoOutput.captureRectStartFactorY,
-                       videoOutput.sourceRect.width * videoOutput.captureRectFactorWidth,
-                       videoOutput.sourceRect.height * videoOutput.captureRectFactorHeight)
-    }
+    captureRect: Qt.rect(videoOutput.sourceRect.width * videoOutput.captureRectStartFactorX,
+                         videoOutput.sourceRect.height * videoOutput.captureRectStartFactorY,
+                         videoOutput.sourceRect.width * videoOutput.captureRectFactorWidth,
+                         videoOutput.sourceRect.height * videoOutput.captureRectFactorHeight)
 
     property string tagText
     property string tagFormat
@@ -64,21 +60,12 @@ QZXingFilter {
     }
 
     onDecodingStarted: {
-        //console.log("onDecodingStarted()")
+        //console.log("QZXing::onDecodingStarted()")
     }
-
     onDecodingFinished: (succeeded, decodeTime) => {
-        //console.log("onDecodingFinished(" + succeeded + " / " + decodeTime + " ms)")
-
-        if (decodeTime > 0) mspf.text = decodeTime + " ms"
-
-        return
-
         timePerFrameDecode = (decodeTime + framesDecoded * timePerFrameDecode) / (framesDecoded + 1)
         framesDecoded++
 
-        if (succeeded) {
-            console.log("frame finished: " + succeeded, decodeTime, timePerFrameDecode, framesDecoded)
-        }
+        //console.log("QZXing::onDecodingFinished(" + succeeded + " / " + decodeTime + " ms)")
     }
 }

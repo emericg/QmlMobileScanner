@@ -28,42 +28,43 @@
 class QZXingFilter : public QObject
 {
     Q_OBJECT
+
     Q_PROPERTY(bool decoding READ isDecoding NOTIFY isDecodingChanged)
     Q_PROPERTY(QZXing *decoder READ getDecoder)
-    Q_PROPERTY(QRectF captureRect MEMBER captureRect NOTIFY captureRectChanged)
-    Q_PROPERTY(QObject *videoSink WRITE setVideoSink)
+    Q_PROPERTY(QRectF captureRect MEMBER m_captureRect NOTIFY captureRectChanged)
+    Q_PROPERTY(QObject *videoSink MEMBER m_videoSink WRITE setVideoSink)
     Q_PROPERTY(int orientation READ orientation WRITE setOrientation NOTIFY orientationChanged)
 
-    signals:
-        void isDecodingChanged();
-        void decodingFinished(bool succeeded, int decodeTime);
-        void decodingStarted();
-        void captureRectChanged();
-        void orientationChanged(int orientation);
+    QZXing m_decoder = QZXing::DecoderFormat_QR_CODE;
+    bool m_decoding = false;
 
-    private slots:
-        void handleDecodingStarted();
-        void handleDecodingFinished(bool succeeded);
-        void processFrame(const QVideoFrame &frame);
-        void setOrientation(int orientation);
-        int orientation() const;
+    QRectF m_captureRect;
+    int m_orientation = 0;
 
-    private: /// Attributes
-        QZXing decoder;
-        bool decoding;
-        QRectF captureRect;
-        int orientation_;
+    QVideoSink *m_videoSink = nullptr;
+    QFuture<void> m_processThread;
 
-        QVideoSink *m_videoSink;
-        QFuture<void> processThread;
+signals:
+    void isDecodingChanged();
+    void decodingFinished(bool succeeded, int decodeTime);
+    void decodingStarted();
+    void captureRectChanged();
+    void orientationChanged(int orientation);
 
-    public: /// Methods
-        explicit QZXingFilter(QObject *parent = 0);
-        void setVideoSink(QObject *videoSink);
-        virtual ~QZXingFilter();
+private slots:
+    void handleDecodingStarted();
+    void handleDecodingFinished(bool succeeded);
+    void processFrame(const QVideoFrame &frame);
+    void setOrientation(int orientation);
+    int orientation() const { return m_orientation; };
 
-        bool isDecoding() {return decoding; }
-        QZXing* getDecoder() { return &decoder; }
+public:
+    explicit QZXingFilter(QObject *parent = nullptr);
+    void setVideoSink(QObject *videoSink);
+    virtual ~QZXingFilter();
+
+    bool isDecoding() const { return m_decoding; }
+    QZXing *getDecoder() { return &m_decoder; }
 };
 
 #endif // QZXingFilter_H
