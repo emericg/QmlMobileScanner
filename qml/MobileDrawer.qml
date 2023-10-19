@@ -128,6 +128,7 @@ DrawerThemed {
                     text: qsTr("About")
                     iconSource: "qrc:/assets/icons_material/outline-info-24px.svg"
                     highlighted: (appContent.state === "ScreenAbout" ||
+                                  appContent.state === "screenAboutFormats" ||
                                   appContent.state === "screenAboutPermissions")
 
                     onClicked: {

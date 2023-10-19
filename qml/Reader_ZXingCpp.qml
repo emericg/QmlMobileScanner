@@ -73,6 +73,7 @@ ZXingQtVideoFilter {
                 utilsApp.vibrate(33)
 
                 barcodeReader.tagText = result.text
+                barcodeReader.tagFormat = result.formatName
             }
         } else {
             points = nullPoints

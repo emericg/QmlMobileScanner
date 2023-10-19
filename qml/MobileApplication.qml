@@ -183,8 +183,10 @@ ApplicationWindow {
                 Qt.quit()
             else
                 exitTimer.start()
-        } else if (appContent.state === "screenAboutPermissions") {
-            appContent.state = screenAboutPermissions.entryPoint
+        } else if (appContent.state === "screenAbout" ||
+                   appContent.state === "screenAboutFormats" ||
+                   appContent.state === "screenAboutPermissions") {
+            screenAbout.backAction()
         } else {
             screenScanner.loadScreen()
         }
@@ -261,6 +263,10 @@ ApplicationWindow {
             id: screenAbout
             anchors.bottomMargin: screenPaddingBottom + screenPaddingNavbar
         }
+        ScreenAboutFormats {
+            id: screenAboutFormats
+            anchors.bottomMargin: screenPaddingBottom + screenPaddingNavbar
+        }
         MobilePermissions {
             id: screenAboutPermissions
             anchors.bottomMargin: screenPaddingBottom + screenPaddingNavbar
@@ -295,6 +301,7 @@ ApplicationWindow {
                 PropertyChanges { target: screenBarcode; visible: false; }
                 PropertyChanges { target: screenSettings; visible: false; }
                 PropertyChanges { target: screenAbout; visible: false; }
+                PropertyChanges { target: screenAboutFormats; visible: false; }
                 PropertyChanges { target: screenAboutPermissions; visible: false; }
             },
 
@@ -307,6 +314,7 @@ ApplicationWindow {
                 PropertyChanges { target: screenBarcode; visible: false; }
                 PropertyChanges { target: screenSettings; visible: false; }
                 PropertyChanges { target: screenAbout; visible: false; }
+                PropertyChanges { target: screenAboutFormats; visible: false; }
                 PropertyChanges { target: screenAboutPermissions; visible: false; }
             },
             State {
@@ -318,6 +326,7 @@ ApplicationWindow {
                 PropertyChanges { target: screenBarcode; visible: false; }
                 PropertyChanges { target: screenSettings; visible: false; }
                 PropertyChanges { target: screenAbout; visible: false; }
+                PropertyChanges { target: screenAboutFormats; visible: false; }
                 PropertyChanges { target: screenAboutPermissions; visible: false; }
             },
             State {
@@ -329,6 +338,7 @@ ApplicationWindow {
                 PropertyChanges { target: screenBarcode; visible: true; }
                 PropertyChanges { target: screenSettings; visible: false; }
                 PropertyChanges { target: screenAbout; visible: false; }
+                PropertyChanges { target: screenAboutFormats; visible: false; }
                 PropertyChanges { target: screenAboutPermissions; visible: false; }
             },
 
@@ -341,6 +351,7 @@ ApplicationWindow {
                 PropertyChanges { target: screenBarcode; visible: false; }
                 PropertyChanges { target: screenSettings; visible: true; }
                 PropertyChanges { target: screenAbout; visible: false; }
+                PropertyChanges { target: screenAboutFormats; visible: false; }
                 PropertyChanges { target: screenAboutPermissions; visible: false; }
             },
             State {
@@ -352,17 +363,31 @@ ApplicationWindow {
                 PropertyChanges { target: screenBarcode; visible: false; }
                 PropertyChanges { target: screenSettings; visible: false; }
                 PropertyChanges { target: screenAbout; visible: true; }
+                PropertyChanges { target: screenAboutFormats; visible: false; }
                 PropertyChanges { target: screenAboutPermissions; visible: false; }
             },
             State {
-                name: "ScreenAboutPermissions"
-                PropertyChanges { target: appHeader; headerTitle: qsTr("Permissions"); }
+                name: "ScreenAboutFormats"
+                PropertyChanges { target: appHeader; headerTitle: qsTr("Supported formats"); }
                 PropertyChanges { target: screenTutorial; visible: false; }
                 PropertyChanges { target: screenMainMenu; visible: false; }
                 PropertyChanges { target: screenScanner; visible: false; }
                 PropertyChanges { target: screenBarcode; visible: false; }
                 PropertyChanges { target: screenSettings; visible: false; }
                 PropertyChanges { target: screenAbout; visible: false; }
+                PropertyChanges { target: screenAboutFormats; visible: true; }
+                PropertyChanges { target: screenAboutPermissions; visible: false; }
+            },
+            State {
+                name: "ScreenAboutPermissions"
+                PropertyChanges { target: appHeader; headerTitle: qsTr("App permissions"); }
+                PropertyChanges { target: screenTutorial; visible: false; }
+                PropertyChanges { target: screenMainMenu; visible: false; }
+                PropertyChanges { target: screenScanner; visible: false; }
+                PropertyChanges { target: screenBarcode; visible: false; }
+                PropertyChanges { target: screenSettings; visible: false; }
+                PropertyChanges { target: screenAbout; visible: false; }
+                PropertyChanges { target: screenAboutFormats; visible: false; }
                 PropertyChanges { target: screenAboutPermissions; visible: true; }
             }
         ]

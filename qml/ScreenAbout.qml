@@ -186,6 +186,8 @@ Loader {
                 }
             }
 
+            Item { width: 12; height: 12; visible: wideWideMode; } // spacer
+
             ////////////////
 
             ListItem { // description
@@ -254,15 +256,15 @@ Loader {
 
             ListSeparator { }
 
-            ListItemClickable { // supported sensors
+            ListItemClickable { // supported formats
                 width: parent.width
 
                 text: qsTr("Supported barcode formats")
                 iconSource: "qrc:/assets/icons_material/baseline-check_circle-24px.svg"
                 iconSize: 24
-                indicatorSource: "qrc:/assets/icons_material/duotone-launch-24px.svg"
+                indicatorSource: "qrc:/assets/icons_material/baseline-chevron_right-24px.svg"
 
-                onClicked: Qt.openUrlExternally("")
+                onClicked: screenAboutFormats.loadScreenFrom("ScreenAbout")
             }
 
             ListSeparator { }

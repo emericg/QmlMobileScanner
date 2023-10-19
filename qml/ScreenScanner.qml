@@ -244,6 +244,7 @@ Loader {
                         }
                         SwitchThemed {
                             text: qsTr("tryDownscale")
+                            visible: (settingsManager.backend === "zxingcpp")
                             checked: settingsManager.scan_tryDownscale
                             onClicked: settingsManager.scan_tryDownscale = checked
                         }
@@ -392,9 +393,12 @@ Loader {
                             color: "white"
                             source: {
                                 if (barcodeReader) {
-                                    if (barcodeReader.tagFormat === "QR_CODE" ||
-                                        barcodeReader.tagFormat === "DATA_MATRIX" ||
-                                        barcodeReader.tagFormat === "Aztec") {
+                                    if (barcodeReader.tagFormat === "QR_CODE" || barcodeReader.tagFormat === "QRCode" ||
+                                        barcodeReader.tagFormat === "DATA_MATRIX" || barcodeReader.tagFormat === "DataMatrix" ||
+                                        barcodeReader.tagFormat === "Aztec" ||
+                                        barcodeReader.tagFormat === "MicroQRCode" ||
+                                        barcodeReader.tagFormat === "PDF417" ||
+                                        barcodeReader.tagFormat === "MaxiCode") {
                                         return "qrc:/assets/icons_material/baseline-qr_code_2-24px.svg"
                                     }
                                 }

@@ -8,8 +8,9 @@
 
         <file>ScreenTutorial.qml</file>
         <file>ScreenMainMenu.qml</file>
-        <file>ScreenAbout.qml</file>
         <file>ScreenSettings.qml</file>
+        <file>ScreenAbout.qml</file>
+        <file>ScreenAboutFormats.qml</file>
 
         <file>ScreenScanner.qml</file>
         <file>ScreenBarcode.qml</file>
