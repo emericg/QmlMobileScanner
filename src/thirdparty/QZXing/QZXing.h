@@ -51,9 +51,7 @@ struct QZXingEncoderConfig;
 class QZXing : public QObject {
 
     Q_OBJECT
-    Q_ENUMS(DecoderFormat)
-    Q_ENUMS(TryHarderBehaviour)
-    Q_ENUMS(SourceFilter)
+
     Q_PROPERTY(int processingTime READ getProcessTimeOfLastDecoding)
     Q_PROPERTY(uint enabledDecoders READ getEnabledFormats WRITE setDecoder NOTIFY enabledFormatsChanged)
     Q_PROPERTY(uint tryHarderType READ getTryHarderBehaviour WRITE setTryHarderBehaviour)
@@ -61,10 +59,18 @@ class QZXing : public QObject {
     Q_PROPERTY(bool tryHarder READ getTryHarder WRITE setTryHarder)
     Q_PROPERTY(QVariantList allowedExtensions READ getAllowedExtensions WRITE setAllowedExtensions)
 
+    Q_ENUMS(DecoderFormat)
+    Q_ENUMS(TryHarderBehaviour)
+    Q_ENUMS(SourceFilter)
+
+    QVariantMap metadataToMap(const zxing::ResultMetadata &metadata);
+
+    /**
+      * If true, the decoding operation will take place at a different thread.
+      */
+    bool isThreaded;
+
 public:
-    /*
-     *
-     */
     enum DecoderFormat {
         DecoderFormat_None = 0,
         DecoderFormat_Aztec = 1 << 1,
@@ -85,7 +91,7 @@ public:
         DecoderFormat_UPC_E = 1 << 16,
         DecoderFormat_UPC_EAN_EXTENSION = 1 << 17,
         DecoderFormat_CODE_128_GS1 = 1 << 18
-    } ;
+    };
     typedef unsigned int DecoderFormatType;
 
     enum TryHarderBehaviour {
@@ -117,17 +123,8 @@ public:
 
     QZXing(DecoderFormat decodeHints, QObject *parent = Q_NULLPTR);
 
-#ifdef QZXING_QML
-
-#if QT_VERSION >= 0x040700
     static void registerQMLTypes();
-#endif //QT_VERSION >= Qt 4.7
-
-#if  QT_VERSION >= 0x050000
     static void registerQMLImageProvider(QQmlEngine& engine);
-#endif //QT_VERSION >= Qt 5.0
-
-#endif //QZXING_QML
 
     void setTryHarder(bool tryHarder);
     bool getTryHarder();
@@ -142,9 +139,6 @@ public:
     Q_INVOKABLE QString charSet() const;
 
     bool getLastDecodeOperationSucceded();
-
-private:
-    QVariantMap metadataToMap(const zxing::ResultMetadata& metadata);
 
 public slots:
     /**
@@ -224,22 +218,13 @@ public slots:
       * Returns a uint which is a bitwise OR of DecoderFormat enumeration values.
       */
     uint getEnabledFormats() const;
+
     /**
       * Set the enabled decoders.
       * As argument it is possible to pass conjuction of decoders by using logic OR.
       * e.x. setDecoder ( DecoderFormat_QR_CODE | DecoderFormat_EAN_13 | DecoderFormat_CODE_39 )
       */
     void setDecoder(const uint &hint);
-
-signals:
-    void decodingStarted();
-    void decodingFinished(bool succeeded);
-    void enabledFormatsChanged();
-    void tagFound(QString tag);
-    void tagFoundAdvanced(const QString &tag, const QString &format, const QString &charSet) const;
-    void tagFoundAdvanced(const QString &tag, const QString &format, const QString &charSet, const QRectF &rect) const;
-    void tagFoundAdvanced(const QString &tag, const QString &format, const QString &charSet, const QVariantMap &metadata) const;
-    void error(QString msg);
 
 private:
     zxing::MultiFormatReader *decoder;
@@ -254,10 +239,15 @@ private:
     bool lastDecodeOperationSucceded_;
     std::set<int> allowedExtensions_;
 
-    /**
-      * If true, the decoding operation will take place at a different thread.
-      */
-    bool isThreaded;
+signals:
+    void decodingStarted();
+    void decodingFinished(bool succeeded);
+    void enabledFormatsChanged();
+    void tagFound(QString tag);
+    void tagFoundAdvanced(const QString &tag, const QString &format, const QString &charSet) const;
+    void tagFoundAdvanced(const QString &tag, const QString &format, const QString &charSet, const QRectF &rect) const;
+    void tagFoundAdvanced(const QString &tag, const QString &format, const QString &charSet, const QVariantMap &metadata) const;
+    void error(QString msg);
 };
 
 #ifdef ENABLE_ENCODER_GENERIC

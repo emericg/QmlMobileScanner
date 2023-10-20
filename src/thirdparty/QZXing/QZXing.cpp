@@ -12,13 +12,9 @@
 #include "ImageHandler.h"
 #include <QTime>
 #include <QUrl>
-#include <QFileInfo>
 #include <QColor>
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    #include <QtCore/QTextCodec>
-#else
-    #include <QStringDecoder>
-#endif
+#include <QFileInfo>
+#include <QStringDecoder>
 #include <QDebug>
 
 #ifdef ENABLE_ENCODER_QR_CODE
@@ -26,27 +22,12 @@
 #include <zxing/qrcode/ErrorCorrectionLevel.h>
 #endif // ENABLE_ENCODER_QR_CODE
 
-#ifdef QZXING_MULTIMEDIA
-#if QT_VERSION >= 0x060200
-    #include "QZXingFilterVideoSink.h"
-#else
-    #include "QZXingFilter.h"
-#endif //QT_VERSION
-#endif //QZXING_MULTIMEDIA
-
-#ifdef QZXING_QML
-#if QT_VERSION >= 0x040700 && QT_VERSION < 0x050000
-#include <QtDeclarative>
-#elif QT_VERSION >= 0x050000
-#include <QtQml/qqml.h>
-#endif
+#include "QZXingFilterVideoSink.h"
 
 #include <QQmlEngine>
 #include <QQmlContext>
 #include <QQuickImageProvider>
 #include "QZXingImageProvider.h"
-#endif //QZXING_QML
-
 
 using namespace zxing;
 
@@ -97,28 +78,16 @@ QZXing::QZXing(QZXing::DecoderFormat decodeHints, QObject *parent) : QObject(par
     setSourceFilterType(SourceFilter_ImageNormal);
 }
 
-#ifdef QZXING_QML
-
-#if QT_VERSION >= 0x040700
 void QZXing::registerQMLTypes()
 {
     qmlRegisterType<QZXing>("QZXing", 3, 3, "QZXing");
-
-#ifdef QZXING_MULTIMEDIA
     qmlRegisterType<QZXingFilter>("QZXing", 3, 3, "QZXingFilter");
-#endif //QZXING_MULTIMEDIA
-
 }
-#endif //QT_VERSION >= Qt 4.7
 
-#if  QT_VERSION >= 0x050000
 void QZXing::registerQMLImageProvider(QQmlEngine& engine)
 {
     engine.addImageProvider(QLatin1String("QZXing"), new QZXingImageProvider());
 }
-#endif //QT_VERSION >= Qt 5.0
-
-#endif //QZXING_QML
 
 void QZXing::setTryHarder(bool tryHarder)
 {
@@ -414,18 +383,16 @@ QRectF getTagRect(const QSharedPointer<std::vector<QSharedPointer<ResultPoint>> 
 
 QString QZXing::decodeImage(const QImage &image, int maxWidth, int maxHeight, bool smoothTransformation)
 {
-    //qDebug() << "Start decoding";
     QElapsedTimer t;
     t.start();
     processingTime = -1;
     QSharedPointer<Result> res;
     emit decodingStarted();
 
-    if(image.isNull())
+    if (image.isNull())
     {
         processingTime = t.elapsed();
         emit decodingFinished(false);
-        //qDebug() << "End decoding 1";
         return "";
     }
 
@@ -532,16 +499,10 @@ QString QZXing::decodeImage(const QImage &image, int maxWidth, int maxHeight, bo
             decodedFormat = decoderFormatToString(1<<fmt);
             charSet_ = QString::fromStdString(res->getCharSet());
             if (!charSet_.isEmpty()) {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-                    QTextCodec *codec = QTextCodec::codecForName(res->getCharSet().c_str());
-                    if (codec)
-                        string = codec->toUnicode(res->getText()->getText().c_str());
-#else
-                    QStringDecoder decoder(res->getCharSet().c_str());
-                    if(decoder.isValid()) {
-                        string = decoder.decode(QByteArray(res->getText()->getText().c_str()));
-                    }
-#endif
+                QStringDecoder decoder(res->getCharSet().c_str());
+                if(decoder.isValid()) {
+                    string = decoder.decode(QByteArray(res->getText()->getText().c_str()));
+                }
             }
 
             emit tagFound(string);
@@ -612,8 +573,6 @@ QString QZXing::decodeSubImageQML(const QUrl &imageUrl,
                                   const int offsetX, const int offsetY,
                                   const int width, const int height)
 {
-#ifdef QZXING_QML
-
     QString imagePath = imageUrl.path();
     imagePath = imagePath.trimmed();
     QImage img;
@@ -636,15 +595,8 @@ QString QZXing::decodeSubImageQML(const QUrl &imageUrl,
 
     if (offsetX || offsetY || width || height)
         img = img.copy(offsetX, offsetY, width, height);
+
     return decodeImage(img);
-#else
-    Q_UNUSED(imageUrl);
-    Q_UNUSED(offsetX);
-    Q_UNUSED(offsetY);
-    Q_UNUSED(width);
-    Q_UNUSED(height);
-    return decodeImage(QImage());
-#endif //QZXING_QML
 }
 
 #ifdef ENABLE_ENCODER_GENERIC

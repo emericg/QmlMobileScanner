@@ -14,8 +14,6 @@
 #include <QUrlQuery>
 #include <QRegularExpression>
 
-namespace ZXingQt {
-
 ZXingQtImageProvider::ZXingQtImageProvider() : QQuickImageProvider(QQuickImageProvider::Image)
 {
     //
@@ -23,114 +21,123 @@ ZXingQtImageProvider::ZXingQtImageProvider() : QQuickImageProvider(QQuickImagePr
 
 QImage ZXingQtImageProvider::requestImage(const QString &id, QSize *size, const QSize &requestedSize)
 {
-/*
+    if (id.isEmpty() || requestedSize.width() <= 0 || requestedSize.height() <= 0) return QImage();
+    //qDebug() << "requestImage(" << id << ") size " << *size << " /  requestedSize" << requestedSize;
+
+    int slashIndex = id.indexOf('/');
+    if (slashIndex == -1)
+    {
+        qWarning() << "Can't parse url" << id << ". Usage is encode/<data>";
+        return QImage();
+    }
+
+    // Detect operation (ex. encode)
+    QString operationName = id.left(slashIndex);
+    if (operationName != "encode")
+    {
+        qWarning() << "Operation not supported: " << operationName;
+        return QImage();
+    }
+
+    // Data
     QString data;
+    data = id.mid(slashIndex + 1);
 
-    bool border = false;
-    bool transparent = false;
-    QSize explicitSize = requestedSize;
+    // Settings
+    ZXing::BarcodeFormat format = ZXing::BarcodeFormat::QRCode;
+    ZXing::CharacterSet encoding = ZXing::CharacterSet::UTF8;
+    int eccLevel = 1;
+    int margin = 0;
 
-    //QZXing::EncoderFormat format = QZXing::EncoderFormat_QR_CODE;
-    //QZXing::EncodeErrorCorrectionLevel correctionLevel = QZXing::EncodeErrorCorrectionLevel_L;
-
-    int customSettingsIndex = id.lastIndexOf(QRegularExpression("\\?(correctionLevel|format|border|transparent)="));
+    int customSettingsIndex = id.lastIndexOf(QRegularExpression("\\?(format|encoding|eccLevel|margin)="));
     if (customSettingsIndex >= 0)
     {
-        int startOfDataIndex = slashIndex + 1;
-        data = id.mid(startOfDataIndex, customSettingsIndex - (startOfDataIndex));
-
-        //The dummy option has been added due to a bug(?) of QUrlQuery
-        // it could not recognize the first key-value pair provided
-        QUrlQuery optionQuery("options?dummy=&" + id.mid(customSettingsIndex + 1));
+        QUrlQuery optionQuery(id.mid(customSettingsIndex + 1));
 
         if (optionQuery.hasQueryItem("format"))
         {
             QString formatString = optionQuery.queryItemValue("format");
-            if (formatString != "qrcode")
+            if (formatString == "aztec") format = ZXing::BarcodeFormat::Aztec;
+            else if (formatString == "codabar") format = ZXing::BarcodeFormat::Codabar;
+            else if (formatString == "code39") format = ZXing::BarcodeFormat::Code39;
+            else if (formatString == "code93") format = ZXing::BarcodeFormat::Code93;
+            else if (formatString == "code128") format = ZXing::BarcodeFormat::Code128;
+            else if (formatString == "datamatrix") format = ZXing::BarcodeFormat::DataMatrix;
+            else if (formatString == "ean8") format = ZXing::BarcodeFormat::EAN8;
+            else if (formatString == "ean13") format = ZXing::BarcodeFormat::EAN13;
+            else if (formatString == "itf") format = ZXing::BarcodeFormat::ITF;
+            else if (formatString == "pdf417") format = ZXing::BarcodeFormat::PDF417;
+            else if (formatString == "qrcode") format = ZXing::BarcodeFormat::QRCode;
+            else if (formatString == "upca") format = ZXing::BarcodeFormat::UPCA;
+            else if (formatString == "upce") format = ZXing::BarcodeFormat::UPCE;
+            else
             {
                 qWarning() << "Format not supported: " << formatString;
-                return QImage();
+                format = ZXing::BarcodeFormat::QRCode;
             }
         }
 
-        QString correctionLevelString = optionQuery.queryItemValue("correctionLevel");
-        if(correctionLevelString == "H")
-            correctionLevel = QZXing::EncodeErrorCorrectionLevel_H;
-        else if(correctionLevelString == "Q")
-            correctionLevel = QZXing::EncodeErrorCorrectionLevel_Q;
-        else if(correctionLevelString == "M")
-            correctionLevel = QZXing::EncodeErrorCorrectionLevel_M;
-        else if(correctionLevelString == "L")
-            correctionLevel = QZXing::EncodeErrorCorrectionLevel_L;
-
-        if (optionQuery.hasQueryItem("border"))
-            border = optionQuery.queryItemValue("border") == "true";
-
-        if (optionQuery.hasQueryItem("transparent"))
-            transparent = optionQuery.queryItemValue("transparent") == "true";
-
-        if (optionQuery.hasQueryItem("explicitSize"))
+        if (optionQuery.hasQueryItem("encoding"))
         {
-            QString explicitSizeStr = optionQuery.queryItemValue("explicitSize");
-            bool ok;
-            int size = explicitSizeStr.toInt(&ok);
-            if(ok){
-                explicitSize = QSize(size, size);
-            }
-        }
-    }
-    else
-    {
-        data = id.mid(slashIndex + 1);
-    }
-*/
-    QImage image;
-    if (id != "")
-    {
-        int slashIndex = id.indexOf('/');
-        if (slashIndex == -1)
-        {
-            qWarning() << "Can't parse url" << id << ". Usage is encode/<data>";
-            return QImage();
-        }
-
-        // Detect operation (ex. encode)
-        QString operationName = id.left(slashIndex);
-        if (operationName != "encode")
-        {
-            qWarning() << "Operation not supported: " << operationName;
-            return QImage();
-        }
-
-        QString data;
-        data = id.mid(slashIndex + 1);
-
-        if (data != "")
-        {
-            ZXing::BarcodeFormat format = ZXing::BarcodeFormat::QRCode;
-
-            int width = requestedSize.width(), height = requestedSize.height();
-
-            int margin = 10;
-            int eccLevel = 1;
-            auto writer = ZXing::MultiFormatWriter(format).setMargin(margin).setEccLevel(eccLevel);
-            auto matrix = writer.encode(data.toStdString(), width, height);
-
-            image = QImage(width, height, QImage::Format_ARGB32);
-            image.fill(qRgba(255, 255, 255, 255));
-
-            for (int i = 0; i < width; ++i)
+            QString encodingString = optionQuery.queryItemValue("encoding");
+            if (encodingString == "iso88591") encoding = ZXing::CharacterSet::ISO8859_1;
+            else if (encodingString == "utf8") encoding = ZXing::CharacterSet::UTF8;
+            else
             {
-                for (int j = 0; j < height; ++j)
-                {
-                    if (i < matrix.width() && j < matrix.height())
-                    {
-                        if (matrix.get(j, i)) // or i, j for linear?
-                        {
-                            image.setPixel(i, j, qRgba(0, 0, 0, 255));
-                        }
-                    }
-                }
+                qWarning() << "Format not supported: " << encodingString;
+                encoding = ZXing::CharacterSet::UTF8;
+            }
+        }
+
+        if (optionQuery.hasQueryItem("eccLevel"))
+        {
+            QString eccString = optionQuery.queryItemValue("eccLevel");
+        }
+
+        if (optionQuery.hasQueryItem("margin"))
+        {
+            bool ok = false;
+            int m = optionQuery.queryItemValue("eccLevel").toInt(&ok);
+            if (ok && m > 0 && m < 128) margin = m;
+        }
+    }
+
+    //
+    bool formatMatrix = (format == ZXing::BarcodeFormat::Aztec ||
+                         format == ZXing::BarcodeFormat::DataMatrix ||
+                         format == ZXing::BarcodeFormat::QRCode ||
+                         format == ZXing::BarcodeFormat::PDF417);
+
+    // TODO // Validate data, depending on the format selected
+    {
+        if (data.isEmpty())
+        {
+            data = "empty";
+        }
+        if (format == ZXing::BarcodeFormat::EAN8)
+        {
+            data = "1234567";
+        }
+        else if (format == ZXing::BarcodeFormat::EAN13)
+        {
+            data = "123456789123";
+        }
+    }
+
+    // Generate barcode
+    int width = requestedSize.width(), height = requestedSize.height();
+    if (!formatMatrix) height /= 3; // 1D codes
+
+    auto writer = ZXing::MultiFormatWriter(format).setMargin(margin).setEccLevel(eccLevel).setEncoding(encoding);
+    auto matrix = writer.encode(data.toStdString(), width, height);
+
+    QImage image = QImage(width, height, QImage::Format_ARGB32);
+    for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
+            if (formatMatrix) {
+                image.setPixel(i, j, qRgba(0, 0, 0, matrix.get(j, i) ? 255 : 0)); // 2D codes
+            } else {
+                image.setPixel(i, j, qRgba(0, 0, 0, matrix.get(i, j) ? 255 : 0)); // 1D codes
             }
         }
     }
@@ -138,5 +145,3 @@ QImage ZXingQtImageProvider::requestImage(const QString &id, QSize *size, const 
     *size = image.size();
     return image;
 }
-
-} // namespace ZXingQt

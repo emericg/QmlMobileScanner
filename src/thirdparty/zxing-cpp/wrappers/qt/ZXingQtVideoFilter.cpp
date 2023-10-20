@@ -16,7 +16,13 @@
 #include <QDebug>
 
 namespace ZXingQt {
-
+/*
+template<typename T, typename = decltype(ZXing::ToString(T()))>
+QDebug operator<<(QDebug dbg, const T& v)
+{
+    return dbg.noquote() << QString::fromStdString(ToString(v));
+}
+*/
 inline QList<Result> QListResults(ZXing::Results&& zxres)
 {
     QList<Result> res;
@@ -70,7 +76,6 @@ inline QList<Result> ReadBarcodes(const QVideoFrame &frame, const DecodeHints &h
         return {};
     }
     auto unmap = qScopeGuard([&] { img.unmap(); });
-
 
     ZXing::ImageFormat fmt = ZXing::ImageFormat::None;
     int pixStride = 0;
@@ -167,54 +172,78 @@ ZXingQtVideoFilter::~ZXingQtVideoFilter()
     if (m_videoSink) disconnect(m_videoSink, nullptr, this, nullptr);
 }
 
-ZXingQt::Result ZXingQtVideoFilter::process(const QVideoFrame &frame) // v2
+ZXingQt::Result ZXingQtVideoFilter::process(const QVideoFrame &frame)
 {
-    if (m_active && !m_decoding && (!m_processTimer.isValid() || m_processTimer.elapsed() >= 10))
+    if (m_active && !m_decoding && m_processThread.isFinished() &&
+        (!m_processTimer.isValid() || m_processTimer.elapsed() >= 10))
     {
         m_decoding = true;
-        qDebug() << "Decoding : Time between last decode : " << m_processTimer.elapsed();
+        //qDebug() << "Decoding : Time between last decode : " << m_processTimer.elapsed();
 
-        {
-            auto img = static_cast<QVideoFrame>(frame).toImage();
-            if (!img.isNull())
+        m_processThread = QtConcurrent::run([=]() {
+
+            QImage image = frame.toImage(); // moved here, from outside the QtConcurrent::run()
+            if (image.isNull())
             {
-                auto ret = QtConcurrent::run([=]() {
-                    //auto img = static_cast<QVideoFrame>(frame).toImage();
-
-                    QElapsedTimer t;
-                    t.start();
-
-                    auto res = ReadBarcode(img.copy(m_captureRect), *this);
-                    res.runTime = t.elapsed();
-
-                    emit decodingFinished(res);
-                    if (res.isValid() && m_active) {
-                        emit tagFound(res);
-                    }
-
-                    m_decoding = false;
-                    m_processTimer.restart();
-
-                    return res;
-                });
-            }
-            else
-            {
+                qWarning() << "QZXingFilter error: Cant create image file to process.";
                 m_decoding = false;
                 m_processTimer.restart();
+                return ZXingQt::Result();;
             }
 
-            return ZXingQt::Result();
-        }
+            QElapsedTimer t;
+            t.start();
 
-        m_decoding = false;
-        m_processTimer.restart();
+            QImage frameToProcess(image);
 
-        return ZXingQt::Result();
+            if (m_captureRect.isValid() &&
+                frameToProcess.size() != m_captureRect.size())
+            {
+                frameToProcess = image.copy(m_captureRect);
+            }
+
+            auto res = ReadBarcode(frameToProcess, *this);
+            res.runTime = t.elapsed();
+
+            emit decodingFinished(res);
+            if (res.isValid() && m_active) {
+                emit tagFound(res);
+            }
+
+            m_decoding = false;
+            m_processTimer.restart();
+
+            return res;
+        });
     }
-    else
+
+    return ZXingQt::Result();
+}
+
+void ZXingQtVideoFilter::setTryHarder(const bool value)
+{
+    if (m_tryHarder != value)
     {
-        return ZXingQt::Result();
+        m_tryHarder = value;
+        emit tryHarderChanged();
+    }
+}
+
+void ZXingQtVideoFilter::setTryRotate(const bool value)
+{
+    if (m_tryRotate != value)
+    {
+        m_tryRotate = value;
+        emit tryRotateChanged();
+    }
+}
+
+void ZXingQtVideoFilter::setTryDownscale(const bool value)
+{
+    if (m_tryDownscale != value)
+    {
+        m_tryDownscale = value;
+        emit tryDownscaleChanged();
     }
 }
 
@@ -230,7 +259,7 @@ void ZXingQtVideoFilter::setFormats(int newVal)
     {
         DecodeHints::setFormats(static_cast<ZXing::BarcodeFormat>(newVal));
         emit formatsChanged();
-        qDebug() << DecodeHints::formats();
+        //qDebug() << DecodeHints::formats();
     }
 }
 

@@ -17,12 +17,13 @@
 #ifndef QZXingFilter_H
 #define QZXingFilter_H
 
-#include <QObject>
-#include <QDebug>
-#include <QFuture>
 #include "QZXing.h"
-#include <QtMultimedia/QVideoSink>
-#include <QtMultimedia/QVideoFrame>
+
+#include <QObject>
+#include <QFuture>
+#include <QRect>
+#include <QVideoSink>
+#include <QVideoFrame>
 
 /// Video filter is the filter that has to be registered in C++, instantiated and attached in QML
 class QZXingFilter : public QObject

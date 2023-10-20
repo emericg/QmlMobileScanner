@@ -9,8 +9,6 @@
 #include <QQuickImageProvider>
 #include <QImage>
 
-namespace ZXingQt {
-
 class ZXingQtImageProvider : public QQuickImageProvider
 {
 public:
@@ -18,5 +16,3 @@ public:
 
     QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize);
 };
-
-} // namespace ZXingQt

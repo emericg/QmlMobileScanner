@@ -9,51 +9,20 @@
 #include "ReadBarcode.h"
 #include "BarcodeFormat.h"
 
+#include <QObject>
 #include <QVideoFrame>
 #include <QVideoSink>
-#include <QElapsedTimer>
+#include <QFuture>
 #include <QRect>
+#include <QElapsedTimer>
 
 namespace ZXingQt {
 
-enum class BarcodeFormat {
-    None            = 0,         ///< Used as a return value if no valid barcode has been detected
-    Aztec           = (1 << 0),  ///< Aztec
-    Codabar         = (1 << 1),  ///< Codabar
-    Code39          = (1 << 2),  ///< Code39
-    Code93          = (1 << 3),  ///< Code93
-    Code128         = (1 << 4),  ///< Code128
-    DataBar         = (1 << 5),  ///< GS1 DataBar, formerly known as RSS 14
-    DataBarExpanded = (1 << 6),  ///< GS1 DataBar Expanded, formerly known as RSS EXPANDED
-    DataMatrix      = (1 << 7),  ///< DataMatrix
-    EAN8            = (1 << 8),  ///< EAN-8
-    EAN13           = (1 << 9),  ///< EAN-13
-    ITF             = (1 << 10), ///< ITF (Interleaved Two of Five)
-    MaxiCode        = (1 << 11), ///< MaxiCode
-    PDF417          = (1 << 12), ///< PDF417 or
-    QRCode          = (1 << 13), ///< QR Code
-    UPCA            = (1 << 14), ///< UPC-A
-    UPCE            = (1 << 15), ///< UPC-E
-    MicroQRCode     = (1 << 16), ///< Micro QR Code
-
-    LinearCodes = Codabar | Code39 | Code93 | Code128 | EAN8 | EAN13 | ITF | DataBar | DataBarExpanded | UPCA | UPCE,
-    MatrixCodes = Aztec | DataMatrix | MaxiCode | PDF417 | QRCode | MicroQRCode,
-};
-//Q_ENUM_NS(BarcodeFormat)
-
-enum class ContentType { Text, Binary, Mixed, GS1, ISO15434, UnknownECI };
-//Q_ENUM_NS(ContentType)
-
 using ZXing::DecodeHints;
 using ZXing::Binarizer;
-using ZXing::BarcodeFormats;
-/*
-template<typename T, typename = decltype(ZXing::ToString(T()))>
-QDebug operator<<(QDebug dbg, const T& v)
-{
-    return dbg.noquote() << QString::fromStdString(ToString(v));
-}
-*/
+using ZXing::BarcodeFormat;
+using ZXing::ContentType;
+
 class Position : public ZXing::Quadrilateral<QPoint>
 {
     Q_GADGET
@@ -108,47 +77,39 @@ public:
     const Position &position() const { return _position; }
 };
 
-#define ZQ_PROPERTY(Type, name, setter) \
-public: \
-    Q_PROPERTY(Type name READ name WRITE setter NOTIFY name##Changed) \
-    Type name() const noexcept { return DecodeHints::name(); } \
-    Q_SLOT void setter(const Type& newVal) \
-    { \
-        if (name() != newVal) { \
-            DecodeHints::setter(newVal); \
-            emit name##Changed(); \
-        } \
-    } \
-    Q_SIGNAL void name##Changed();
-
-
 class ZXingQtVideoFilter : public QObject, private DecodeHints
 {
     Q_OBJECT
 
-    ZQ_PROPERTY(bool, tryRotate, setTryRotate)
-    ZQ_PROPERTY(bool, tryHarder, setTryHarder)
-    ZQ_PROPERTY(bool, tryDownscale, setTryDownscale)
+    Q_PROPERTY(bool tryHarder READ tryHarder WRITE setTryHarder NOTIFY tryHarderChanged)
+    Q_PROPERTY(bool tryRotate READ tryRotate WRITE setTryRotate NOTIFY tryRotateChanged)
+    Q_PROPERTY(bool tryDownscale READ tryDownscale WRITE setTryDownscale NOTIFY tryDownscaleChanged)
 
-    // TODO: find out how to properly expose QFlags to QML
-    // simply using ZQ_PROPERTY(BarcodeFormats, formats, setFormats)
-    // results in the runtime error "can't assign int to formats"
     Q_PROPERTY(int formats READ formats WRITE setFormats NOTIFY formatsChanged)
     Q_PROPERTY(QRect captureRect READ captureRect WRITE setCaptureRect NOTIFY captureRectChanged)
     Q_PROPERTY(QVideoSink *videoSink MEMBER m_videoSink WRITE setVideoSink)
 
-    QRect m_captureRect;
     QVideoSink *m_videoSink = nullptr;
+    QFuture<void> m_processThread;
     QElapsedTimer m_processTimer;
+    QRect m_captureRect;
 
     bool m_decoding = false;
     bool m_active = true;
 
+    bool m_tryHarder = true;
+    bool m_tryRotate = true;
+    bool m_tryDownscale = false;
+
     void setVideoSink(QVideoSink *sink);
 
 signals:
+    void tryHarderChanged();
+    void tryRotateChanged();
+    void tryDownscaleChanged();
     void formatsChanged();
     void captureRectChanged();
+
     void decodingStarted();
     void decodingFinished(ZXingQt::Result result);
     void tagFound(ZXingQt::Result result);
@@ -160,6 +121,13 @@ public:
     ZXingQtVideoFilter(QObject *parent = nullptr);
     ~ZXingQtVideoFilter();
 
+    bool tryHarder() const { return m_tryHarder; }
+    void setTryHarder(const bool value);
+    bool tryRotate() const { return m_tryRotate; }
+    void setTryRotate(const bool value);
+    bool tryDownscale() const { return m_tryDownscale; }
+    void setTryDownscale(const bool value);
+
     int formats() const noexcept;
     void setFormats(int newVal);
 
@@ -168,7 +136,5 @@ public:
 
     Q_INVOKABLE void stopFilter();
 };
-
-#undef ZX_PROPERTY
 
 } // namespace ZXingQt
