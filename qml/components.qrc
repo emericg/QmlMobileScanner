@@ -16,6 +16,8 @@
         <file alias="SimpleShadow.qml">components_generic/SimpleShadow6.qml</file>
         <file alias="ToolTipFlat.qml">components_generic/ToolTipFlat.qml</file>
         <file alias="SectionTitle.qml">components_generic/SectionTitle.qml</file>
+        <file alias="SelectorMenu.qml">components_generic/SelectorMenu.qml</file>
+        <file alias="SelectorMenuItem.qml">components_generic/SelectorMenuItem.qml</file>
 
         <file alias="CheckBoxThemed.qml">components_themed/CheckBoxThemed.qml</file>
         <file alias="ComboBoxThemed.qml">components_themed/ComboBoxThemed.qml</file>

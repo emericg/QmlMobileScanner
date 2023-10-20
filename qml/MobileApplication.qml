@@ -120,7 +120,12 @@ ApplicationWindow {
 
     Component.onCompleted: {
         handleSafeAreas()
-        screenScanner.loadScreen()
+
+        if (settingsManager.defaultTab === "writer") {
+            screenBarcode.loadScreen()
+        } else {
+            screenScanner.loadScreen()
+        }
     }
 
     Connections {
@@ -368,7 +373,7 @@ ApplicationWindow {
             },
             State {
                 name: "ScreenAboutFormats"
-                PropertyChanges { target: appHeader; headerTitle: qsTr("Supported formats"); }
+                PropertyChanges { target: appHeader; headerTitle: qsTr("About formats"); }
                 PropertyChanges { target: screenTutorial; visible: false; }
                 PropertyChanges { target: screenMainMenu; visible: false; }
                 PropertyChanges { target: screenScanner; visible: false; }
@@ -380,7 +385,7 @@ ApplicationWindow {
             },
             State {
                 name: "ScreenAboutPermissions"
-                PropertyChanges { target: appHeader; headerTitle: qsTr("App permissions"); }
+                PropertyChanges { target: appHeader; headerTitle: qsTr("About permissions"); }
                 PropertyChanges { target: screenTutorial; visible: false; }
                 PropertyChanges { target: screenMainMenu; visible: false; }
                 PropertyChanges { target: screenScanner; visible: false; }

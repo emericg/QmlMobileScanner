@@ -221,7 +221,6 @@ Loader {
                     anchors.leftMargin: screenPaddingLeft + 64
                     anchors.right: parent.right
                     anchors.rightMargin: 12
-                    height: 24
 
                     topPadding: -12
                     bottomPadding: 0
@@ -236,12 +235,71 @@ Loader {
                     font.pixelSize: Theme.fontSizeContentSmall
                 }
 
+                ////////
+
+                Item {
+                    anchors.left: parent.left
+                    anchors.leftMargin: screenPaddingLeft
+                    anchors.right: parent.right
+                    anchors.rightMargin: screenPaddingRight
+                    height: 48
+
+                    Item {
+                        width: 56
+                        height: 48
+
+                        IconSvg {
+                            anchors.centerIn: parent
+                            width: 24
+                            height: 24
+                            color: Theme.colorIcon
+                            source: "qrc:/assets/icons_material/baseline-stars-24px.svg"
+                        }
+                    }
+
+                    Text {
+                        anchors.left: parent.left
+                        anchors.leftMargin: 64
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        text: qsTr("Default tab")
+                        textFormat: Text.PlainText
+                        font.pixelSize: Theme.fontSizeContent
+                        color: Theme.colorText
+                        wrapMode: Text.WordWrap
+                    }
+
+                    SelectorMenu {
+                        anchors.right: parent.right
+                        anchors.rightMargin: 12
+                        anchors.verticalCenter: parent.verticalCenter
+                        z: 1
+
+                        model: ListModel {
+                            ListElement { idx: 1; txt: "Reader"; src: ""; sz: 0; }
+                            ListElement { idx: 2; txt: "Writer"; src: ""; sz: 0; }
+                        }
+                        currentSelection: {
+                            if (settingsManager.defaultTab === "writer") return 2
+                            return 1
+                        }
+
+                        onMenuSelected: (index) => {
+                            console.log("SelectorMenu clicked #" + index)
+                            currentSelection = index
+
+                            if (index === 1) settingsManager.defaultTab = "reader"
+                            else if (index === 2) settingsManager.defaultTab = "writer"
+                        }
+                    }
+                }
+
                 ////////////////
 
                 SectionTitle {
                     anchors.left: parent.left
                     text: qsTr("Scanner")
-                    source: "qrc:/assets/icons_material/baseline-settings-20px.svg"
+                    source: "qrc:/assets/icons_material/duotone-qr_code_2-24px.svg"
                 }
 
                 ////////////////
@@ -302,7 +360,7 @@ Loader {
                     anchors.leftMargin: screenPaddingLeft
                     anchors.right: parent.right
                     anchors.rightMargin: screenPaddingRight
-                    height: 48
+                    height: 36
 
                     visible: settingsManager.showDebug
 
@@ -342,7 +400,7 @@ Loader {
                     anchors.leftMargin: screenPaddingLeft
                     anchors.right: parent.right
                     anchors.rightMargin: screenPaddingRight
-                    height: 48
+                    height: 36
 
                     visible: settingsManager.showDebug
 
@@ -382,7 +440,7 @@ Loader {
                     anchors.leftMargin: screenPaddingLeft
                     anchors.right: parent.right
                     anchors.rightMargin: screenPaddingRight
-                    height: 48
+                    height: 36
 
                     visible: settingsManager.showDebug
 

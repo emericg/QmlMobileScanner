@@ -19,7 +19,7 @@ Popup {
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
     parent: Overlay.overlay
 
-    property string barcode
+    property string barcode_string
 
     ////////
 
@@ -53,14 +53,13 @@ Popup {
 
         width: parent.width - 64
         height: width
-        sourceSize.width: width
-        sourceSize.height: width
-
-        source: (settingsManager.backend === "qzxing") ?
-                    "image://QZXing/encode/" + popupBarcodeFullscreen.barcode :
-                    "image://ZXingCpp/encode/" + popupBarcodeFullscreen.barcode
 
         cache: false
+        sourceSize.width: width
+        sourceSize.height: width
+        fillMode: Image.PreserveAspectFit
+
+        source: popupBarcodeFullscreen.barcode_string
     }
 
     ////////

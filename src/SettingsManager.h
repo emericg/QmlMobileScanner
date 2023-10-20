@@ -41,6 +41,7 @@ class SettingsManager: public QObject
     Q_PROPERTY(bool appThemeAuto READ getAppThemeAuto WRITE setAppThemeAuto NOTIFY appThemeAutoChanged)
 
     Q_PROPERTY(QString backend READ getBackend CONSTANT)
+    Q_PROPERTY(QString defaultTab READ getDefaultTab WRITE setDefaultTab NOTIFY defaultTabChanged)
 
     Q_PROPERTY(bool showDebug READ getShowDebug WRITE setShowDebug NOTIFY debugChanged)
     Q_PROPERTY(bool scan_tryHarder READ getScanTryHarder WRITE setScanTryHarder NOTIFY tryHarderChanged)
@@ -51,6 +52,7 @@ class SettingsManager: public QObject
     QString m_appTheme = "light";
     bool m_appThemeAuto = false;
 
+    QString m_defaultTab = "reader";
     bool m_showDebug = false;
     bool m_scan_tryHarder = true;
     bool m_scan_tryRotate = false;
@@ -68,6 +70,7 @@ Q_SIGNALS:
     void appThemeChanged();
     void appThemeAutoChanged();
     void debugChanged();
+    void defaultTabChanged();
     void tryHarderChanged();
     void tryRotateChanged();
     void tryDownscaleChanged();
@@ -85,6 +88,8 @@ public:
 
     // app specific
     QString getBackend() const;
+    QString getDefaultTab() const { return m_defaultTab; }
+    void setDefaultTab(const QString &value);
     bool getShowDebug() const { return m_showDebug; }
     void setShowDebug(const bool value);
     bool getScanTryHarder() const { return m_scan_tryHarder; }

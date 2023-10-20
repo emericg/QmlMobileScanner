@@ -66,11 +66,7 @@ Loader {
                 anchors.right: parent.right
                 height: 48
 
-                //onDisplayTextChanged: {
-                //    popupBarcodeFullscreen.barcode = displayText
-                //    barcodeImage.source = displayText
-                //    popupBarcodeFullscreen.barcode = displayText
-                //}
+                property string settings
             }
 
             ////////////////
@@ -80,9 +76,9 @@ Loader {
                 width: parent.width
                 height: width
 
-                PopupBarcodeFullscreen{
+                PopupBarcodeFullscreen {
                     id: popupBarcodeFullscreen
-                    barcode: barcodeTextField.displayText
+                    barcode_string: barcodeImage.source
                 }
 
                 Rectangle {
@@ -112,13 +108,13 @@ Loader {
                     anchors.margins: Theme.componentMargin
 
                     cache: false
-
                     sourceSize.width: width
                     sourceSize.height: height
+                    fillMode: Image.PreserveAspectFit
 
                     source: (settingsManager.backend === "qzxing") ?
                                 "image://QZXing/encode/" + barcodeTextField.displayText :
-                                "image://ZXingCpp/encode/" + barcodeTextField.displayText
+                                "image://ZXingCpp/encode/" + barcodeTextField.displayText + barcodeTextField.settings
                 }
 
                 MouseArea {
@@ -133,7 +129,7 @@ Loader {
                     acceptedButtons: Qt.LeftButton
 
                     onClicked: {
-                        if (barcodeTextField.displayText) {
+                        if (isMobile && barcodeTextField.displayText) {
                             popupBarcodeFullscreen.open()
                         }
                     }
@@ -172,6 +168,57 @@ Loader {
                             radius: Theme.componentRadius
                         }
                     }
+                }
+            }
+
+            ////////////////
+
+            SelectorMenuThemed {
+                id: selectorBarcode2D
+                anchors.horizontalCenter: parent.horizontalCenter
+                height: 40
+
+                currentSelection: 1
+                model:  ListModel {
+                    id: lmSelectorBarcode2D
+                    ListElement { idx: 1; txt: "QR Code"; src: ""; sz: 0; }
+                    ListElement { idx: 2; txt: "Aztec"; src: ""; sz: 0; }
+                    ListElement { idx: 3; txt: "DataMatrix"; src: ""; sz: 0; }
+                    //ListElement { idx: 4; txt: "PDF417"; src: ""; sz: 0; }
+                }
+
+                onMenuSelected: (index) => {
+                    //console.log("SelectorMenu clicked #" + index)
+                    currentSelection = index
+                     selectorBarcode1D.currentSelection = 0
+
+                    if (index === 1) barcodeTextField.settings = "?format=qrcode"
+                    if (index === 2) barcodeTextField.settings = "?format=aztec"
+                    if (index === 3) barcodeTextField.settings = "?format=datamatrix"
+                    if (index === 4) barcodeTextField.settings = "?format=pdf417"
+                }
+            }
+            SelectorMenuThemed {
+                id: selectorBarcode1D
+                anchors.horizontalCenter: parent.horizontalCenter
+                height: 40
+
+                currentSelection: 0
+                model:  ListModel {
+                    id: lmSelectorBarcode1D
+                    ListElement { idx: 1; txt: "EAN 8"; src: ""; sz: 0; }
+                    ListElement { idx: 2; txt: "EAN 13"; src: ""; sz: 0; }
+                    ListElement { idx: 3; txt: "Code 128"; src: ""; sz: 0; }
+                }
+
+                onMenuSelected: (index) => {
+                    //console.log("SelectorMenu clicked #" + index)
+                    currentSelection = index
+                    selectorBarcode2D.currentSelection = 0
+
+                    if (index === 1) barcodeTextField.settings = "?format=ean8"
+                    if (index === 2) barcodeTextField.settings = "?format=ean13"
+                    if (index === 3) barcodeTextField.settings = "?format=code128"
                 }
             }
 

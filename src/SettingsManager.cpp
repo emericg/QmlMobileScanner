@@ -72,6 +72,9 @@ bool SettingsManager::readSettings()
         if (settings.contains("settings/appThemeAuto"))
             m_appThemeAuto = settings.value("settings/appThemeAuto").toBool();
 
+        if (settings.contains("settings/defaultTab"))
+            m_defaultTab = settings.value("settings/defaultTab").toString();
+
         if (settings.contains("settings/showDebug"))
             m_showDebug = settings.value("settings/showDebug").toBool();
 
@@ -111,6 +114,7 @@ bool SettingsManager::writeSettings()
         settings.setValue("settings/appTheme", m_appTheme);
         settings.setValue("settings/appThemeAuto", m_appThemeAuto);
 
+        settings.setValue("settings/defaultTab", m_defaultTab);
         settings.setValue("settings/showDebug", m_showDebug);
         settings.setValue("settings/tryHarder", m_scan_tryHarder);
         settings.setValue("settings/tryRotate", m_scan_tryRotate);
@@ -143,6 +147,7 @@ void SettingsManager::resetSettings()
     Q_EMIT appThemeAutoChanged();
 
     m_showDebug = false;
+    m_defaultTab = "reader";
     m_scan_tryRotate = false;
     m_scan_tryHarder = false;
     m_scan_tryDownscale = false;
@@ -187,6 +192,17 @@ QString SettingsManager::getBackend() const
 
     qWarning() << "SettingsManager::getBackend() no backend set";
     return "error";
+}
+
+void SettingsManager::setDefaultTab(const QString &value)
+{
+    if (m_defaultTab != value)
+    {
+        m_defaultTab = value;
+        Q_EMIT defaultTabChanged();
+
+        writeSettings();
+    }
 }
 
 void SettingsManager::setShowDebug(const bool value)
