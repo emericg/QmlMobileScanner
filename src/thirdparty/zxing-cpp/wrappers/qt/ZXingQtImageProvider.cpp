@@ -27,8 +27,13 @@ QImage ZXingQtImageProvider::requestImage(const QString &id, QSize *size, const 
     int slashIndex = id.indexOf('/');
     if (slashIndex == -1)
     {
-        qWarning() << "Can't parse url" << id << ". Usage is encode/<data>";
+        qWarning() << "Can't parse url" << id << ". Usage is encode/<data>?params";
         return QImage();
+    }
+    int exmarkIndex = id.indexOf('?');
+    if (exmarkIndex == -1)
+    {
+        exmarkIndex = id.size();
     }
 
     // Detect operation (ex. encode)
@@ -40,14 +45,16 @@ QImage ZXingQtImageProvider::requestImage(const QString &id, QSize *size, const 
     }
 
     // Data
-    QString data;
-    data = id.mid(slashIndex + 1);
+    int data_sz = id.size() - slashIndex - 1 - (id.size() - exmarkIndex);
+    QString data = id.mid(slashIndex + 1, data_sz);
 
     // Settings
     ZXing::BarcodeFormat format = ZXing::BarcodeFormat::QRCode;
     ZXing::CharacterSet encoding = ZXing::CharacterSet::UTF8;
-    int eccLevel = 1;
-    int margin = 0;
+    int eccLevel = 0;
+    int margins = 0;
+    QColor bgc(0, 0, 0, 0);
+    QColor fgc(0, 0, 0, 255);
 
     int customSettingsIndex = id.lastIndexOf(QRegularExpression("\\?(format|encoding|eccLevel|margin)="));
     if (customSettingsIndex >= 0)
@@ -91,14 +98,25 @@ QImage ZXingQtImageProvider::requestImage(const QString &id, QSize *size, const 
 
         if (optionQuery.hasQueryItem("eccLevel"))
         {
-            QString eccString = optionQuery.queryItemValue("eccLevel");
+            bool ok = false;
+            int e = optionQuery.queryItemValue("eccLevel").toInt(&ok);
+            if (ok && e >= 0 && e <= 8) eccLevel = e;
         }
 
-        if (optionQuery.hasQueryItem("margin"))
+        if (optionQuery.hasQueryItem("margins"))
         {
             bool ok = false;
-            int m = optionQuery.queryItemValue("eccLevel").toInt(&ok);
-            if (ok && m > 0 && m < 128) margin = m;
+            int m = optionQuery.queryItemValue("margins").toInt(&ok);
+            if (ok && m > 0 && m < 128) margins = m;
+        }
+
+        if (optionQuery.hasQueryItem("backgroundColor"))
+        {
+            bgc = QColor(optionQuery.queryItemValue("backgroundColor"));
+        }
+        if (optionQuery.hasQueryItem("foregroundColor"))
+        {
+            fgc = QColor(optionQuery.queryItemValue("foregroundColor"));
         }
     }
 
@@ -114,13 +132,32 @@ QImage ZXingQtImageProvider::requestImage(const QString &id, QSize *size, const 
         {
             data = "empty";
         }
+
         if (format == ZXing::BarcodeFormat::EAN8)
         {
+            // numeric - 7 char + 1 char checksum
             data = "1234567";
         }
         else if (format == ZXing::BarcodeFormat::EAN13)
         {
+            // numeric - 12 char + 1 char checksum
             data = "123456789123";
+        }
+        else if (format == ZXing::BarcodeFormat::UPCA)
+        {
+            data = "12345678912";
+        }
+        else if (format == ZXing::BarcodeFormat::UPCE)
+        {
+            data = "1234567";
+        }
+        else if (format == ZXing::BarcodeFormat::Codabar)
+        {
+            data = "A0123456789A";
+        }
+        else if (format == ZXing::BarcodeFormat::ITF)
+        {
+            data = "0011223344";
         }
     }
 
@@ -128,16 +165,16 @@ QImage ZXingQtImageProvider::requestImage(const QString &id, QSize *size, const 
     int width = requestedSize.width(), height = requestedSize.height();
     if (!formatMatrix) height /= 3; // 1D codes
 
-    auto writer = ZXing::MultiFormatWriter(format).setMargin(margin).setEccLevel(eccLevel).setEncoding(encoding);
+    auto writer = ZXing::MultiFormatWriter(format).setMargin(margins).setEccLevel(eccLevel).setEncoding(encoding);
     auto matrix = writer.encode(data.toStdString(), width, height);
 
     QImage image = QImage(width, height, QImage::Format_ARGB32);
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < height; j++) {
             if (formatMatrix) {
-                image.setPixel(i, j, qRgba(0, 0, 0, matrix.get(j, i) ? 255 : 0)); // 2D codes
+                image.setPixel(i, j, matrix.get(j, i) ? fgc.rgba() : bgc.rgba()); // 2D codes
             } else {
-                image.setPixel(i, j, qRgba(0, 0, 0, matrix.get(i, j) ? 255 : 0)); // 1D codes
+                image.setPixel(i, j, matrix.get(i, j) ? fgc.rgba() : bgc.rgba()); // 1D codes
             }
         }
     }

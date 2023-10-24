@@ -27,6 +27,7 @@
         <file alias="RippleThemed.qml">components_themed/RippleThemed.qml</file>
         <file alias="SelectorMenuThemed.qml">components_themed/SelectorMenuThemed.qml</file>
         <file alias="SelectorMenuThemedItem.qml">components_themed/SelectorMenuThemedItem.qml</file>
+        <file alias="SliderThemed.qml">components_themed/SliderThemed.qml</file>
         <file alias="SpinBoxThemed.qml">components_themed/SpinBoxThemed_mobile.qml</file>
         <file alias="SwitchThemed.qml">components_themed/SwitchThemed_desktop.qml</file>
         <file alias="TextAreaThemed.qml">components_themed/TextAreaThemed.qml</file>
