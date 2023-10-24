@@ -112,6 +112,8 @@ Loader {
 
         MediaDevices {
             id: mediaDevices
+
+            property int selectedDevice: 0
         }
 
         CaptureSession {
@@ -122,7 +124,7 @@ Loader {
                 active: true
                 focusMode: Camera.FocusModeAutoNear
 
-                //cameraDevice: mediaDevices.videoInputs[0] ? mediaDevices.videoInputs[0] : mediaDevices.defaultVideoInput
+                cameraDevice: mediaDevices.videoInputs[mediaDevices.selectedDevice] ? mediaDevices.videoInputs[mediaDevices.selectedDevice] : mediaDevices.defaultVideoInput
                 onErrorOccurred: console.log("camera error:" + errorString)
             }
 
@@ -356,7 +358,103 @@ Loader {
 
                 ////////
 
-                Column {
+                Row { // top/right menu
+                    anchors.top: parent.top
+                    anchors.topMargin: Theme.componentMargin + Math.max(screenPaddingStatusbar, screenPaddingTop)
+                    anchors.right: parent.right
+                    anchors.rightMargin: Theme.componentMargin
+
+                    spacing: Theme.componentMarginXL
+
+                    ////
+/*
+                    Item {
+                        width: 48
+                        height: 48
+
+                        Rectangle {
+                            anchors.fill: parent
+                            radius: height
+                            color: "black"
+                            opacity: 0.33
+                        }
+
+                        IconSvg {
+                            width: parent.height * 0.6
+                            height: parent.height * 0.6
+                            anchors.centerIn: parent
+                            color: "white"
+                            source: "qrc:/assets/icons_material/baseline-cameraswitch-24px.svg"
+                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: cameraCol.visible = !cameraCol.visible
+                        }
+
+                        Column {
+                            id: cameraCol
+                            anchors.top: parent.bottom
+                            anchors.topMargin: Theme.componentMargin
+                            anchors.right: parent.right
+
+                            width: singleColumn ? screenScanner.width - Theme.componentMarginXL*2 : 320
+                            spacing: Theme.componentMargin
+                            visible: false
+
+                            Repeater {
+                                model: mediaDevices.videoInputs
+
+                                Item {
+                                    width: parent.width
+                                    height: 40
+
+                                    Rectangle {
+                                        anchors.fill: parent
+                                        radius: 24
+                                        color: "black"
+                                        opacity: 0.33
+                                    }
+
+                                    Text {
+                                        anchors.left: parent.left
+                                        anchors.leftMargin: Theme.componentMargin
+                                        anchors.verticalCenter: parent.verticalCenter
+
+                                        text: modelData.description
+                                        color: "white"
+                                    }
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        onClicked: {
+                                            mediaDevices.selectedDevice = index
+                                            cameraCol.visible = false
+                                        }
+                                    }
+
+                                    IconSvg {
+                                        width: parent.height * 0.5
+                                        height: parent.height * 0.5
+                                        anchors.right: parent.right
+                                        anchors.rightMargin: Theme.componentMargin
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        color: "white"
+                                        source: {
+                                            if (index === mediaDevices.selectedDevice) return  "qrc:/assets/icons_material/baseline-check_circle-24px.svg"
+                                            if (modelData.isDefault) return  "qrc:/assets/icons_material/baseline-stars-24px.svg"
+                                            return ""
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+*/
+                    ////
+                }
+
+                ////////
+
+                Column { // bottom menu
                     anchors.left: parent.left
                     anchors.leftMargin: Theme.componentMarginXL
                     anchors.right: parent.right
