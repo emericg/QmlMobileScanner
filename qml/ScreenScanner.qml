@@ -160,8 +160,20 @@ Loader {
             ////
             Shape {
                 anchors.fill: parent
-                visible: (barcodeReader && barcodeReader.points.length === 4)
-                opacity: 0.66
+
+                opacity: 0
+                Behavior on opacity { NumberAnimation { duration: 133 } }
+
+                Timer {
+                    id: barcodeVisibleTimer
+                    interval: 2500
+                    onRunningChanged: {
+                        if (running && barcodeReader && barcodeReader.points.length === 4) {
+                            parent.opacity = 0.66
+                        }
+                    }
+                    onTriggered: parent.opacity = 0
+                }
 
                 ShapePath {
                     strokeWidth: 4
