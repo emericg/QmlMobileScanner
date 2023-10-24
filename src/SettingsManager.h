@@ -24,6 +24,7 @@
 /* ************************************************************************** */
 
 #include <QObject>
+#include <QSize>
 #include <QString>
 #include <QDateTime>
 
@@ -37,6 +38,11 @@ class SettingsManager: public QObject
     Q_OBJECT
 
     Q_PROPERTY(bool firstLaunch READ isFirstLaunch NOTIFY firstLaunchChanged)
+
+    Q_PROPERTY(QSize initialSize READ getInitialSize NOTIFY initialSizeChanged)
+    Q_PROPERTY(QSize initialPosition READ getInitialPosition NOTIFY initialSizeChanged)
+    Q_PROPERTY(int initialVisibility READ getInitialVisibility NOTIFY initialSizeChanged)
+
     Q_PROPERTY(QString appTheme READ getAppTheme WRITE setAppTheme NOTIFY appThemeChanged)
     Q_PROPERTY(bool appThemeAuto READ getAppThemeAuto WRITE setAppThemeAuto NOTIFY appThemeAutoChanged)
 
@@ -49,9 +55,17 @@ class SettingsManager: public QObject
     Q_PROPERTY(bool scan_tryDownscale READ getScanTryDownscale WRITE setScanTryDownscale NOTIFY tryDownscaleChanged)
 
     bool m_firstlaunch = false;
+
+    // Application window
+    QSize m_appSize;
+    QSize m_appPosition;
+    int m_appVisibility = 1;                        //!< QWindow::Visibility
+
+    // Application generic
     QString m_appTheme = "light";
     bool m_appThemeAuto = false;
 
+    // Application specific
     QString m_defaultTab = "reader";
     bool m_showDebug = false;
     bool m_scan_tryHarder = true;
@@ -67,6 +81,7 @@ class SettingsManager: public QObject
 
 Q_SIGNALS:
     void firstLaunchChanged();
+    void initialSizeChanged();
     void appThemeChanged();
     void appThemeAutoChanged();
     void debugChanged();
@@ -80,13 +95,20 @@ public:
 
     bool isFirstLaunch() const { return m_firstlaunch; }
 
+    QSize getInitialSize() { return m_appSize; }
+    QSize getInitialPosition() { return m_appPosition; }
+    int getInitialVisibility() { return m_appVisibility; }
+
+    ////
+
     QString getAppTheme() const { return m_appTheme; }
     void setAppTheme(const QString &value);
 
     bool getAppThemeAuto() const { return m_appThemeAuto; }
     void setAppThemeAuto(const bool value);
 
-    // app specific
+    ////
+
     QString getBackend() const;
     QString getDefaultTab() const { return m_defaultTab; }
     void setDefaultTab(const QString &value);
@@ -99,7 +121,8 @@ public:
     bool getScanTryDownscale() const { return m_scan_tryDownscale; }
     void setScanTryDownscale(const bool value);
 
-    // Utils
+    ////
+
     Q_INVOKABLE void resetSettings();
 };
 

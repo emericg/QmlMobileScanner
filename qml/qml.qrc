@@ -4,6 +4,7 @@
         <file>MobileHeader.qml</file>
         <file>MobileDrawer.qml</file>
         <file>MobilePermissions.qml</file>
+        <file>WindowGeometrySaver.qml</file>
         <file>ThemeEngine.qml</file>
 
         <file>ScreenTutorial.qml</file>

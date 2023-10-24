@@ -20,10 +20,31 @@ ApplicationWindow {
     property bool isPhone: ((Qt.platform.os === "ios" || Qt.platform.os === "android") && (utilsScreen.screenSize < 7.0))
     property bool isTablet: ((Qt.platform.os === "ios" || Qt.platform.os === "android") && (utilsScreen.screenSize >= 7.0))
 
-    property bool singleColumn: true
-    property bool headerUnicolor: false
+    property bool singleColumn: (width < height)
     property bool wideMode: (isDesktop && width >= 560) || (isTablet && width >= 480)
     property bool wideWideMode: (width >= 640)
+
+    // Desktop stuff ///////////////////////////////////////////////////////////
+
+    width: {
+        if (settingsManager.initialSize.width > 0)
+            return settingsManager.initialSize.width
+        else
+            return isHdpi ? 960 : 1280
+    }
+    height: {
+        if (settingsManager.initialSize.height > 0)
+            return settingsManager.initialSize.height
+        else
+            return isHdpi ? 640 : 720
+    }
+    x: settingsManager.initialPosition.width
+    y: settingsManager.initialPosition.height
+    visibility: settingsManager.initialVisibility
+
+    WindowGeometrySaver {
+        windowInstance: appWindow
+    }
 
     // Mobile stuff ////////////////////////////////////////////////////////////
 
@@ -78,6 +99,7 @@ ApplicationWindow {
         }
 /*
         console.log("> handleSafeAreas()")
+        console.log("- screen dpi:          " + Screen.devicePixelRatio)
         console.log("- screen width:        " + Screen.width)
         console.log("- screen width avail:  " + Screen.desktopAvailableWidth)
         console.log("- screen height:       " + Screen.height)

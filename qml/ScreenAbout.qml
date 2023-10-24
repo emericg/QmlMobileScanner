@@ -51,7 +51,7 @@ Loader {
                 anchors.right: parent.right
 
                 height: 96
-                color: headerUnicolor ? Theme.colorBackground : Theme.colorForeground
+                color: Theme.colorForeground
 
                 Row {
                     anchors.left: parent.left
