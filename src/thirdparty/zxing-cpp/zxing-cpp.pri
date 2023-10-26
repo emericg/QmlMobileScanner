@@ -70,7 +70,6 @@ SOURCES += $${PWD}/core/src/BarcodeFormat.cpp \
            $${PWD}/core/src/GenericGF.cpp \
            $${PWD}/core/src/GenericGFPoly.cpp \
            $${PWD}/core/src/GTIN.cpp \
-           $${PWD}/core/src/TextUtfEncoding.cpp \ # [[deprecated]]
            $${PWD}/core/src/Utf.cpp \
            $${PWD}/core/src/ZXBigInteger.cpp
 
@@ -99,7 +98,6 @@ HEADERS += $${PWD}/core/src/BarcodeFormat.h \
            $${PWD}/core/src/Range.h \
            $${PWD}/core/src/RegressionLine.h \
            $${PWD}/core/src/Scope.h \
-           $${PWD}/core/src/TextUtfEncoding.h \ # [[deprecated]]
            $${PWD}/core/src/TritMatrix.h \
            $${PWD}/core/src/Utf.h \
            $${PWD}/core/src/ZXAlgorithms.h \

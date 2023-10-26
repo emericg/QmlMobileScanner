@@ -19,4 +19,3 @@ void registerQMLTypes();
 void registerQMLImageProvider(QQmlEngine &engine);
 
 } // namespace ZXingQt
-

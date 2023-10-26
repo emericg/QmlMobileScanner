@@ -55,7 +55,7 @@ inline QList<Result> ReadBarcodes(const QImage &img, const DecodeHints &hints = 
 
     auto exec = [&](const QImage &img) {
         return QListResults(ZXing::ReadBarcodes( {img.bits(), img.width(), img.height(),
-                                                 ImgFmtFromQImg(img), static_cast<int>(img.bytesPerLine())}, hints));
+                                                  ImgFmtFromQImg(img), static_cast<int>(img.bytesPerLine())}, hints));
     };
 
     return ImgFmtFromQImg(img) == ZXing::ImageFormat::None ? exec(img.convertToFormat(QImage::Format_Grayscale8)) : exec(img);
