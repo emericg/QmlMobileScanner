@@ -15,7 +15,6 @@
         <file>icons_material/baseline-autorenew-24px.svg</file>
         <file>icons_material/baseline-backspace-24px.svg</file>
         <file>icons_material/baseline-camera-24px.svg</file>
-        <file>icons_material/baseline-cameraswitch-24px.svg</file>
         <file>icons_material/baseline-chevron_left-24px.svg</file>
         <file>icons_material/baseline-chevron_right-24px.svg</file>
         <file>icons_material/baseline-check-24px.svg</file>
@@ -57,6 +56,7 @@
 
         <file>icons_material/duotone-brightness_4-24px.svg</file>
         <file>icons_material/duotone-bug_report-24px.svg</file>
+        <file>icons_material/duotone-cameraswitch-24px.svg</file>
         <file>icons_material/duotone-data_usage-24px.svg</file>
         <file>icons_material/duotone-date_range-24px.svg</file>
         <file>icons_material/duotone-edit-24px.svg</file>

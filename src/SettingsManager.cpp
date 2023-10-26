@@ -98,6 +98,9 @@ bool SettingsManager::readSettings()
         if (settings.contains("settings/defaultTab"))
             m_defaultTab = settings.value("settings/defaultTab").toString();
 
+        if (settings.contains("settings/formatsEnabled"))
+            m_formatsEnabled = settings.value("settings/formatsEnabled").toUInt();
+
         if (settings.contains("settings/showDebug"))
             m_showDebug = settings.value("settings/showDebug").toBool();
 
@@ -138,6 +141,7 @@ bool SettingsManager::writeSettings()
         settings.setValue("settings/appThemeAuto", m_appThemeAuto);
 
         settings.setValue("settings/defaultTab", m_defaultTab);
+        settings.setValue("settings/formatsEnabled", m_formatsEnabled);
         settings.setValue("settings/showDebug", m_showDebug);
         settings.setValue("settings/tryHarder", m_scan_tryHarder);
         settings.setValue("settings/tryRotate", m_scan_tryRotate);
@@ -169,8 +173,9 @@ void SettingsManager::resetSettings()
     m_appThemeAuto = false;
     Q_EMIT appThemeAutoChanged();
 
-    m_showDebug = false;
     m_defaultTab = "reader";
+    m_formatsEnabled = 0xffffffff; // ZXing::LinearCodes | ZXing::MatrixCodes;
+    m_showDebug = false;
     m_scan_tryRotate = false;
     m_scan_tryHarder = false;
     m_scan_tryDownscale = false;
@@ -223,6 +228,17 @@ void SettingsManager::setDefaultTab(const QString &value)
     {
         m_defaultTab = value;
         Q_EMIT defaultTabChanged();
+
+        writeSettings();
+    }
+}
+
+void SettingsManager::setFormatsEnabled(const unsigned value)
+{
+    if (m_formatsEnabled != value)
+    {
+        m_formatsEnabled = value;
+        Q_EMIT formatsEnabledChanged();
 
         writeSettings();
     }

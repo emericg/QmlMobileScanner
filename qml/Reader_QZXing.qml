@@ -18,8 +18,9 @@ QZXingFilter {
     property string tagFormat
     property string tagEncoding
 
-    property int framesDecoded: 0
     property real timePerFrameDecode: 0
+    property int framesDecodedTotal: 0
+    property var framesDecodedTable: []
 
     decoder {
         tryHarder: settingsManager.scan_tryHarder
@@ -63,9 +64,11 @@ QZXingFilter {
         //console.log("QZXing::onDecodingStarted()")
     }
     onDecodingFinished: (succeeded, decodeTime) => {
-        timePerFrameDecode = (decodeTime + framesDecoded * timePerFrameDecode) / (framesDecoded + 1)
-        framesDecoded++
+        if (framesDecodedTable.length >= 120) framesDecodedTotal -= framesDecodedTable.shift()
+        framesDecodedTable.push(decodeTime)
+        framesDecodedTotal += decodeTime
 
+        timePerFrameDecode = framesDecodedTotal / framesDecodedTable.length
         //console.log("QZXing::onDecodingFinished(" + succeeded + " / " + decodeTime + " ms)")
     }
 }

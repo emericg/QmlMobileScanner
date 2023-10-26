@@ -9,13 +9,26 @@ ZXingQtVideoFilter {
     id: barcodeReader
 
     videoSink: videoOutput.videoSink
+    formats: settingsManager.formatsEnabled
+/*
     captureRect: Qt.rect(videoOutput.sourceRect.width * videoOutput.captureRectStartFactorX,
                          videoOutput.sourceRect.height * videoOutput.captureRectStartFactorY,
                          videoOutput.sourceRect.width * videoOutput.captureRectFactorWidth,
                          videoOutput.sourceRect.height * videoOutput.captureRectFactorHeight)
 
-    formats: ZXingCpp.LinearCodes | ZXingCpp.MatrixCodes // ZXingCpp.None
-
+    formats: ZXingCpp.LinearCodes | ZXingCpp.MatrixCodes
+    formats: ZXingCpp.Codabar |
+             ZXingCpp.Code39 | ZXingCpp.Code93 | ZXingCpp.Code128 |
+             ZXingCpp.EAN8 | ZXingCpp.EAN13 |
+             ZXingCpp.ITF |
+             ZXingCpp.DataBar | ZXingCpp.DataBarExpanded |
+             ZXingCpp.UPCA | ZXingCpp.UPCE |
+             ZXingCpp.Aztec |
+             ZXingCpp.DataMatrix |
+             //ZXingCpp.MaxiCode |
+             ZXingCpp.PDF417 |
+             ZXingCpp.QRCode | ZXingCpp.MicroQRCode
+*/
     tryRotate: settingsManager.scan_tryRotate
     tryHarder: settingsManager.scan_tryHarder
     tryDownscale: settingsManager.scan_tryDownscale
@@ -24,8 +37,9 @@ ZXingQtVideoFilter {
     property string tagFormat
     property string tagEncoding
 
-    property int framesDecoded: 0
     property real timePerFrameDecode: 0
+    property int framesDecodedTotal: 0
+    property var framesDecodedTable: []
 
     property var nullPoints: [Qt.point(0,0), Qt.point(0,0), Qt.point(0,0), Qt.point(0,0)]
     property var points: nullPoints
@@ -82,9 +96,11 @@ ZXingQtVideoFilter {
         //console.log("ZXingCpp::onDecodingStarted()")
     }
     onDecodingFinished: (result) => {
-        timePerFrameDecode = (result.runTime + framesDecoded * timePerFrameDecode) / (framesDecoded + 1)
-        framesDecoded++
+        if (framesDecodedTable.length >= 120) framesDecodedTotal -= framesDecodedTable.shift()
+        framesDecodedTable.push(result.runTime)
+        framesDecodedTotal += result.runTime
 
+        timePerFrameDecode = framesDecodedTotal / framesDecodedTable.length
         //console.log("ZXingCpp::onDecodingFinished(" + result.isValid + " / " + result.runTime + " ms)")
     }
 }
