@@ -13,8 +13,8 @@
         <file>ScreenAbout.qml</file>
         <file>ScreenAboutFormats.qml</file>
 
-        <file>ScreenScanner.qml</file>
-        <file>ScreenBarcode.qml</file>
+        <file>ScreenBarcodeReader.qml</file>
+        <file>ScreenBarcodeWriter.qml</file>
         <file>Reader_QZXing.qml</file>
         <file>Reader_ZXingCpp.qml</file>
 

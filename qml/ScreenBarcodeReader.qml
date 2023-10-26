@@ -8,49 +8,49 @@ import QtMultimedia
 import ThemeEngine
 
 Loader {
-    id: screenScanner
+    id: screenBarcodeReader
     anchors.fill: parent
     z: 24
 
     ////////////////////////////////////////////////////////////////////////////
 
     function loadScreen() {
-        appContent.state = "ScreenScanner"
-        screenScanner.open_barcode()
+        appContent.state = "ScreenBarcodeReader"
+        screenBarcodeReader.open_barcode()
 
-        if (screenScanner.status === Loader.Ready)
-            screenScanner.item.open()
+        if (screenBarcodeReader.status === Loader.Ready)
+            screenBarcodeReader.item.open()
     }
 
     function backAction() {
-        if (screenScanner.status === Loader.Ready)
-            screenScanner.item.backAction()
+        if (screenBarcodeReader.status === Loader.Ready)
+            screenBarcodeReader.item.backAction()
     }
 
     function open_barcode() {
-        console.log("screenScanner::open_barcode()")
+        console.log("screenBarcodeReader::open_barcode()")
 
         mobileUI.setScreenAlwaysOn(true)
         active = true
     }
 
     function hide() {
-        console.log("screenScanner::hide()")
+        console.log("screenBarcodeReader::hide()")
 
         mobileUI.setScreenAlwaysOn(false)
 
-        if (screenScanner.status === Loader.Ready) {
-            screenScanner.item.close()
+        if (screenBarcodeReader.status === Loader.Ready) {
+            screenBarcodeReader.item.close()
         }
     }
     function close() {
-        console.log("screenScanner::close()")
+        console.log("screenBarcodeReader::close()")
 
         mobileUI.setScreenAlwaysOn(false)
 
-        if (screenScanner.status === Loader.Ready) {
-            screenScanner.item.close()
-            screenScanner.active = false
+        if (screenBarcodeReader.status === Loader.Ready) {
+            screenBarcodeReader.item.close()
+            //screenBarcodeReader.active = false // crash ?!
         }
     }
 
@@ -290,7 +290,7 @@ Loader {
                     width: parent.width * videoOutput.captureRectFactorWidth
                     height: parent.height * videoOutput.captureRectFactorHeight
 
-                    property int gismowidth: screenScanner.width*videoOutput.captureRectFactorWidth
+                    property int gismowidth: screenBarcodeReader.width*videoOutput.captureRectFactorWidth
 
                     // Borders
                     Item {
@@ -409,7 +409,7 @@ Loader {
                             anchors.topMargin: Theme.componentMargin
                             anchors.right: parent.right
 
-                            width: singleColumn ? screenScanner.width - Theme.componentMarginXL*2 : 320
+                            width: singleColumn ? screenBarcodeReader.width - Theme.componentMarginXL*2 : 320
                             spacing: Theme.componentMargin
                             visible: false
 

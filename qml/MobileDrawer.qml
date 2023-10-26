@@ -86,23 +86,23 @@ DrawerThemed {
                 ////////
 
                 DrawerItem {
-                    highlighted: (appContent.state === "ScreenScanner")
+                    highlighted: (appContent.state === "ScreenBarcodeReader")
                     text: qsTr("Scanner")
                     iconSource: "qrc:/assets/icons_material/duotone-qr_code_scanner-24px.svg"
 
                     onClicked: {
-                        screenScanner.loadScreen()
+                        screenBarcodeReader.loadScreen()
                         appDrawer.close()
                     }
                 }
 
                 DrawerItem {
-                    highlighted: (appContent.state === "ScreenBarcode")
+                    highlighted: (appContent.state === "ScreenBarcodeWriter")
                     text: qsTr("Generator")
                     iconSource: "qrc:/assets/icons_material/baseline-qr_code_2-24px.svg"
 
                     onClicked: {
-                        screenBarcode.loadScreen()
+                        screenBarcodeWriter.loadScreen()
                         appDrawer.close()
                     }
                 }
@@ -128,8 +128,8 @@ DrawerThemed {
                     text: qsTr("About")
                     iconSource: "qrc:/assets/icons_material/outline-info-24px.svg"
                     highlighted: (appContent.state === "ScreenAbout" ||
-                                  appContent.state === "screenAboutFormats" ||
-                                  appContent.state === "screenAboutPermissions")
+                                  appContent.state === "ScreenAboutFormats" ||
+                                  appContent.state === "ScreenAboutPermissions")
 
                     onClicked: {
                         screenAbout.loadScreen()

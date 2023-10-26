@@ -10,12 +10,12 @@ Rectangle {
 
     color: Theme.colorHeader
 
-    property string entryPoint: "ScreenScanner"
+    property string entryPoint: "ScreenBarcodeReader"
 
     ////////////////////////////////////////////////////////////////////////////
 
     function loadScreen() {
-        entryPoint = "ScreenScanner"
+        entryPoint = "ScreenBarcodeReader"
         appContent.state = "ScreenTutorial"
     }
 

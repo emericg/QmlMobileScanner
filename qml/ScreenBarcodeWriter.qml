@@ -1,3 +1,4 @@
+import QtCore
 import QtQuick
 import QtQuick.Dialogs
 import QtQuick.Layouts
@@ -8,22 +9,22 @@ import Qt5Compat.GraphicalEffects
 import ThemeEngine
 
 Loader {
-    id: screenBarcode
+    id: screenBarcodeWriter
     anchors.fill: parent
 
     ////////////////////////////////////////////////////////////////////////////
 
     function loadScreen() {
         // load screen
-        screenBarcode.active = true
+        screenBarcodeWriter.active = true
 
         // change screen
-        appContent.state = "ScreenBarcode"
+        appContent.state = "ScreenBarcodeWriter"
     }
 
     function backAction() {
-        if (screenBarcode.status === Loader.Ready)
-            screenBarcode.item.backAction()
+        if (screenBarcodeWriter.status === Loader.Ready)
+            screenBarcodeWriter.item.backAction()
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -338,6 +339,7 @@ Loader {
                     }
 
                     ButtonWireframe {
+                        height: 36
                         fullColor: true
                         primaryColor: barcodeAdvanced.colorBg
                         fulltextColor: utilsApp.isQColorLight(barcodeAdvanced.colorBg) ? "#333" : "#f4f4f4"
@@ -354,6 +356,7 @@ Loader {
                     }
 
                     ButtonWireframe {
+                        height: 36
                         fullColor: true
                         primaryColor: barcodeAdvanced.colorFg
                         fulltextColor: utilsApp.isQColorLight(barcodeAdvanced.colorFg) ? "#333" : "#f4f4f4"
@@ -366,6 +369,55 @@ Loader {
                             id: colorDialogFg
                             selectedColor: barcodeAdvanced.colorFg
                             onAccepted: barcodeAdvanced.colorFg = selectedColor
+                        }
+                    }
+                }
+
+                ////
+
+                Row {
+                    spacing: Theme.componentMargin
+
+                    Text {
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        text: qsTr("Save to file")
+                        color: Theme.colorText
+                        font.pixelSize: Theme.componentFontSize
+                    }
+
+                    ComboBoxThemed {
+                        height: 36
+
+                        model: ListModel {
+                            ListElement { text: "SVG"; }
+                            ListElement { text: "PNG"; }
+                            ListElement { text: "JPEG"; }
+                        }
+                    }
+
+                    ButtonWireframeIcon {
+                        height: 36
+                        fullColor: true
+                        primaryColor: Theme.colorGrey
+                        font.bold: true
+
+                        text: qsTr("save")
+                        source: "qrc:/assets/icons_material/baseline-save-24px.svg"
+                        onClicked: fileSaveDialog.open()
+
+                        FileDialog {
+                            id: fileSaveDialog
+
+                            fileMode: FileDialog.SaveFile
+                            nameFilters: ["Vector files (*.svg)", "PNG files (*.png)", "JPEG files (*.jpg *.jpeg)"]
+                            currentFolder: StandardPaths.standardLocations(StandardPaths.PicturesLocation)[0]
+                            currentFile: StandardPaths.standardLocations(StandardPaths.PicturesLocation)[0] + "/barcode"
+
+                            onAccepted: {
+                                console.log(" - " + fileSaveDialog.selectedNameFilter.name[0])
+                                console.log(" - " + fileSaveDialog.selectedNameFilter.extensions[0])
+                            }
                         }
                     }
                 }

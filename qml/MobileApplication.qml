@@ -8,7 +8,7 @@ import MobileUI
 ApplicationWindow {
     id: appWindow
     minimumWidth: 480
-    minimumHeight: 960
+    minimumHeight: 800
 
     flags: Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint
     color: Theme.colorBackground
@@ -119,18 +119,18 @@ ApplicationWindow {
         id: mobileUI
 
         statusbarColor: {
-            if (appContent.state === "ScreenScanner") return "#000"
+            if (appContent.state === "ScreenBarcodeReader") return "#000"
             return Theme.colorStatusbar
         }
         navbarColor: {
-            if (appContent.state === "ScreenScanner") return "#000"
+            if (appContent.state === "ScreenBarcodeReader") return "#000"
             return Theme.colorStatusbar
         }
     }
 
     MobileHeader {
         id: appHeader
-        visible: (appContent.state !== "ScreenScanner")
+        visible: (appContent.state !== "ScreenBarcodeReader")
     }
 
     MobileDrawer {
@@ -144,9 +144,9 @@ ApplicationWindow {
         handleSafeAreas()
 
         if (settingsManager.defaultTab === "writer") {
-            screenBarcode.loadScreen()
+            screenBarcodeWriter.loadScreen()
         } else {
-            screenScanner.loadScreen()
+            screenBarcodeReader.loadScreen()
         }
     }
 
@@ -157,7 +157,7 @@ ApplicationWindow {
             switch (Qt.application.state) {
             case Qt.ApplicationSuspended:
                 //console.log("Qt.ApplicationSuspended")
-                screenScanner.close()
+                screenBarcodeReader.close()
                 break
             case Qt.ApplicationHidden:
                 //console.log("Qt.ApplicationHidden")
@@ -168,8 +168,8 @@ ApplicationWindow {
             case Qt.ApplicationActive:
                 //console.log("Qt.ApplicationActive")
 
-                if (appContent.state === "ScreenScanner")
-                    screenScanner.loadScreen()
+                if (appContent.state === "ScreenBarcodeReader")
+                    screenBarcodeReader.loadScreen()
 
                 // Check if we need an 'automatic' theme change
                 Theme.loadTheme(settingsManager.appTheme)
@@ -198,24 +198,24 @@ ApplicationWindow {
     function backAction() {
         //console.log("backAction() backAction() backAction() backAction()")
 /*
-        if (screenScanner.active) {
-            screenScanner.close()
+        if (screenBarcodeReader.active) {
+            screenBarcodeReader.close()
             return
         }
 */
         if (appContent.state === "ScreenTutorial")  return // do nothing
 
-        if (appContent.state === "ScreenScanner") {
+        if (appContent.state === "ScreenBarcodeReader") {
             if (exitTimer.running)
                 Qt.quit()
             else
                 exitTimer.start()
-        } else if (appContent.state === "screenAbout" ||
-                   appContent.state === "screenAboutFormats" ||
-                   appContent.state === "screenAboutPermissions") {
+        } else if (appContent.state === "ScreenAbout" ||
+                   appContent.state === "ScreenAboutFormats" ||
+                   appContent.state === "ScreenAboutPermissions") {
             screenAbout.backAction()
         } else {
-            screenScanner.loadScreen()
+            screenBarcodeReader.loadScreen()
         }
     }
     function forwardAction() {
@@ -256,7 +256,7 @@ ApplicationWindow {
     FocusScope {
         id: appContent
 
-        anchors.top: (appContent.state === "ScreenScanner") ? parent.top : appHeader.bottom
+        anchors.top: (appContent.state === "ScreenBarcodeReader") ? parent.top : appHeader.bottom
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
@@ -274,11 +274,11 @@ ApplicationWindow {
             anchors.bottomMargin: screenPaddingBottom + screenPaddingNavbar
         }
 
-        ScreenScanner {
-            id: screenScanner
+        ScreenBarcodeReader {
+            id: screenBarcodeReader
         }
-        ScreenBarcode {
-            id: screenBarcode
+        ScreenBarcodeWriter {
+            id: screenBarcodeWriter
             anchors.bottomMargin: screenPaddingBottom + screenPaddingNavbar
         }
 
@@ -300,20 +300,20 @@ ApplicationWindow {
         }
 
         // Initial state
-        state: "ScreenScanner"
+        state: "ScreenBarcodeReader"
 
         onStateChanged: {
-            if (state === "ScreenScanner")
+            if (state === "ScreenBarcodeReader")
                 appHeader.leftMenuMode = "drawer"
             else if (state === "ScreenTutorial")
                 appHeader.leftMenuMode = "close"
             else
                 appHeader.leftMenuMode = "back"
 
-            if (state === "ScreenScanner") {
+            if (state === "ScreenBarcodeReader") {
                 //
             } else {
-                screenScanner.close()
+                screenBarcodeReader.close()
                 //mobileUI.refreshUI()
             }
         }
@@ -324,8 +324,8 @@ ApplicationWindow {
                 PropertyChanges { target: appHeader; headerTitle: qsTr("MobileScanner"); }
                 PropertyChanges { target: screenTutorial; visible: true; }
                 PropertyChanges { target: screenMainMenu; visible: false; }
-                PropertyChanges { target: screenScanner; visible: false; }
-                PropertyChanges { target: screenBarcode; visible: false; }
+                PropertyChanges { target: screenBarcodeReader; visible: false; }
+                PropertyChanges { target: screenBarcodeWriter; visible: false; }
                 PropertyChanges { target: screenSettings; visible: false; }
                 PropertyChanges { target: screenAbout; visible: false; }
                 PropertyChanges { target: screenAboutFormats; visible: false; }
@@ -337,32 +337,32 @@ ApplicationWindow {
                 PropertyChanges { target: appHeader; headerTitle: qsTr("MobileScanner"); }
                 PropertyChanges { target: screenTutorial; visible: false; }
                 PropertyChanges { target: screenMainMenu; visible: true; }
-                PropertyChanges { target: screenScanner; visible: false; }
-                PropertyChanges { target: screenBarcode; visible: false; }
+                PropertyChanges { target: screenBarcodeReader; visible: false; }
+                PropertyChanges { target: screenBarcodeWriter; visible: false; }
                 PropertyChanges { target: screenSettings; visible: false; }
                 PropertyChanges { target: screenAbout; visible: false; }
                 PropertyChanges { target: screenAboutFormats; visible: false; }
                 PropertyChanges { target: screenAboutPermissions; visible: false; }
             },
             State {
-                name: "ScreenScanner"
+                name: "ScreenBarcodeReader"
                 PropertyChanges { target: appHeader; headerTitle: qsTr("MobileScanner"); }
                 PropertyChanges { target: screenTutorial; visible: false; }
                 PropertyChanges { target: screenMainMenu; visible: false; }
-                PropertyChanges { target: screenScanner; visible: true; }
-                PropertyChanges { target: screenBarcode; visible: false; }
+                PropertyChanges { target: screenBarcodeReader; visible: true; }
+                PropertyChanges { target: screenBarcodeWriter; visible: false; }
                 PropertyChanges { target: screenSettings; visible: false; }
                 PropertyChanges { target: screenAbout; visible: false; }
                 PropertyChanges { target: screenAboutFormats; visible: false; }
                 PropertyChanges { target: screenAboutPermissions; visible: false; }
             },
             State {
-                name: "ScreenBarcode"
+                name: "ScreenBarcodeWriter"
                 PropertyChanges { target: appHeader; headerTitle: qsTr("MobileScanner"); }
                 PropertyChanges { target: screenTutorial; visible: false; }
                 PropertyChanges { target: screenMainMenu; visible: false; }
-                PropertyChanges { target: screenScanner; visible: false; }
-                PropertyChanges { target: screenBarcode; visible: true; }
+                PropertyChanges { target: screenBarcodeReader; visible: false; }
+                PropertyChanges { target: screenBarcodeWriter; visible: true; }
                 PropertyChanges { target: screenSettings; visible: false; }
                 PropertyChanges { target: screenAbout; visible: false; }
                 PropertyChanges { target: screenAboutFormats; visible: false; }
@@ -374,8 +374,8 @@ ApplicationWindow {
                 PropertyChanges { target: appHeader; headerTitle: qsTr("Settings"); }
                 PropertyChanges { target: screenTutorial; visible: false; }
                 PropertyChanges { target: screenMainMenu; visible: false; }
-                PropertyChanges { target: screenScanner; visible: false; }
-                PropertyChanges { target: screenBarcode; visible: false; }
+                PropertyChanges { target: screenBarcodeReader; visible: false; }
+                PropertyChanges { target: screenBarcodeWriter; visible: false; }
                 PropertyChanges { target: screenSettings; visible: true; }
                 PropertyChanges { target: screenAbout; visible: false; }
                 PropertyChanges { target: screenAboutFormats; visible: false; }
@@ -386,8 +386,8 @@ ApplicationWindow {
                 PropertyChanges { target: appHeader; headerTitle: qsTr("About"); }
                 PropertyChanges { target: screenTutorial; visible: false; }
                 PropertyChanges { target: screenMainMenu; visible: false; }
-                PropertyChanges { target: screenScanner; visible: false; }
-                PropertyChanges { target: screenBarcode; visible: false; }
+                PropertyChanges { target: screenBarcodeReader; visible: false; }
+                PropertyChanges { target: screenBarcodeWriter; visible: false; }
                 PropertyChanges { target: screenSettings; visible: false; }
                 PropertyChanges { target: screenAbout; visible: true; }
                 PropertyChanges { target: screenAboutFormats; visible: false; }
@@ -398,8 +398,8 @@ ApplicationWindow {
                 PropertyChanges { target: appHeader; headerTitle: qsTr("About formats"); }
                 PropertyChanges { target: screenTutorial; visible: false; }
                 PropertyChanges { target: screenMainMenu; visible: false; }
-                PropertyChanges { target: screenScanner; visible: false; }
-                PropertyChanges { target: screenBarcode; visible: false; }
+                PropertyChanges { target: screenBarcodeReader; visible: false; }
+                PropertyChanges { target: screenBarcodeWriter; visible: false; }
                 PropertyChanges { target: screenSettings; visible: false; }
                 PropertyChanges { target: screenAbout; visible: false; }
                 PropertyChanges { target: screenAboutFormats; visible: true; }
@@ -410,8 +410,8 @@ ApplicationWindow {
                 PropertyChanges { target: appHeader; headerTitle: qsTr("About permissions"); }
                 PropertyChanges { target: screenTutorial; visible: false; }
                 PropertyChanges { target: screenMainMenu; visible: false; }
-                PropertyChanges { target: screenScanner; visible: false; }
-                PropertyChanges { target: screenBarcode; visible: false; }
+                PropertyChanges { target: screenBarcodeReader; visible: false; }
+                PropertyChanges { target: screenBarcodeWriter; visible: false; }
                 PropertyChanges { target: screenSettings; visible: false; }
                 PropertyChanges { target: screenAbout; visible: false; }
                 PropertyChanges { target: screenAboutFormats; visible: false; }
@@ -428,7 +428,7 @@ ApplicationWindow {
         anchors.bottom: parent.bottom
         height: screenPaddingNavbar
 
-        visible: (appContent.state !== "ScreenScanner")
+        visible: (appContent.state !== "ScreenBarcodeReader")
         color: {
             if (appContent.state === "ScreenTutorial") return Theme.colorHeader
             return Theme.colorBackground
