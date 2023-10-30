@@ -7,6 +7,55 @@ MobileScanner
 
 Demo barcode & QR code scanner based on qzxing and zxing-cpp libraries.
 
+### Features
+
+- General features
+  - [x] Barcode reader
+    - [x] Multi camera support
+    - [ ] Read from picture
+  - [x] Barcode writer
+    - [ ] Save to picture (WIP)
+    - [ ] Save to vector (WIP)
+  - [x] Barcodes history
+  - [x] Phone UI
+  - [ ] Tablet / desktop UI (WIP)
+
+
+## Supported Formats (QZXing)
+
+[QZXing](https://github.com/ftylitak/qzxing/) is a Qt/QML wrapper library for the ZXing barcode image processing library.
+
+| Linear / 1D barcodes | Matrix / 2D barcodes |
+| -------------------- | -------------------- |
+| UPC-A                | QR Code              |
+| UPC-E                | Data Matrix          |
+| EAN-8                | PDF 417              |
+| EAN-13               | Aztec (beta)         |
+| Code 39              |                      |
+| Code 93              |                      |
+| Code 128 (GS1)       |                      |
+| Codabar              |                      |
+| ITF                  |                      |
+
+
+## Supported Formats (zxing-cpp)
+
+[zxing-cpp](https://github.com/zxing-cpp/zxing-cpp/) is an open-source, multi-format linear/matrix barcode image processing library implemented in C++.
+
+| Linear / 1D barcodes | Matrix / 2D barcodes |
+| -------------------- | -------------------- |
+| UPC-A                | QR Code              |
+| UPC-E                | Micro QR Code        |
+| EAN-8                | Aztec                |
+| EAN-13               | DataMatrix           |
+| DataBar              | PDF417               |
+| DataBar Expanded     | MaxiCode (partial)   |
+| Code 39              |                      |
+| Code 93              |                      |
+| Code 128 (GS1)       |                      |
+| Codabar              |                      |
+| ITF                  |                      |
+
 
 ## Third party projects used by MobileScanner
 

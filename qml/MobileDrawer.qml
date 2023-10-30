@@ -87,7 +87,7 @@ DrawerThemed {
 
                 DrawerItem {
                     highlighted: (appContent.state === "ScreenBarcodeReader")
-                    text: qsTr("Scanner")
+                    text: qsTr("Barcode sanner")
                     iconSource: "qrc:/assets/icons_material/duotone-qr_code_scanner-24px.svg"
 
                     onClicked: {
@@ -98,7 +98,7 @@ DrawerThemed {
 
                 DrawerItem {
                     highlighted: (appContent.state === "ScreenBarcodeWriter")
-                    text: qsTr("Generator")
+                    text: qsTr("Barcode generator")
                     iconSource: "qrc:/assets/icons_material/baseline-qr_code_2-24px.svg"
 
                     onClicked: {

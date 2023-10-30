@@ -45,11 +45,10 @@ ZXingQtVideoFilter {
     property var points: nullPoints
 
     function mapPointToItem(point) {
-        if (videoOutput.sourceRect.width === 0 || videoOutput.sourceRect.height === 0)
-            return Qt.point(0, 0);
+        if (videoOutput.sourceRect.width === 0 || videoOutput.sourceRect.height === 0) return Qt.point(0, 0)
 
-        let dx = point.x;
-        let dy = point.y;
+        let dx = point.x
+        let dy = point.y
 
         if ((videoOutput.orientation % 180) == 0) {
             dx = dx * videoOutput.contentRect.width / videoOutput.sourceRect.width

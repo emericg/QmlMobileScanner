@@ -51,40 +51,40 @@ Loader {
             // don't change screen
         }
 
-        PopupBarcodeFullscreen {
-            id: popupBarcodeFullscreen
-            barcode_string: barcodeImage.source
-        }
-
-        GridLayout {
+        Grid {
             id: gridContent
-            anchors.top: parent.top
+
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.bottom: singleColumn ? undefined : parent.bottom
-            anchors.margins: Theme.componentMarginXL * (singleColumn ? 1 : 2)
+            anchors.margins: columnSpacing
 
             columns: singleColumn ? 1 : 2
             columnSpacing: Theme.componentMarginXL * (singleColumn ? 1 : 2)
             rows: 2
             rowSpacing: Theme.componentMarginXL * (singleColumn ? 1 : 2)
 
+            topPadding: columnSpacing
+            bottomPadding: columnSpacing
+            spacing: columnSpacing
+
+            property int www: singleColumn ? gridContent.width : (gridContent.width - columnSpacing) / 2
+            property int hhh: screenBarcodeWriter.height - columnSpacing*2
+
             ////////////////
 
             Item { // pane 1
-                Layout.preferredWidth: 128
-                Layout.preferredHeight: width
-                Layout.fillHeight: !singleColumn
-                Layout.fillWidth: true
+                id: barcodeView
+                width: gridContent.www
+                height: singleColumn ? qrcodearea.height : gridContent.hhh
 
                 ////
 
                 Item {
                     id: qrcodearea
+                    anchors.centerIn: parent
 
-                    width: parent.width
-                    height: parent.width
-                    anchors.verticalCenter: parent.verticalCenter
+                    width: Math.min(gridContent.www, gridContent.hhh)
+                    height: width
 
                     Rectangle {
                         id: shadowarea
@@ -132,6 +132,11 @@ Loader {
                         visible: true
                         hoverEnabled: false
                         acceptedButtons: Qt.LeftButton
+
+                        PopupBarcodeFullscreen {
+                            id: popupBarcodeFullscreen
+                            barcode_string: barcodeImage.source
+                        }
 
                         onClicked: {
                             if (isMobile && barcodeAdvanced.barcode_string) {
@@ -181,14 +186,10 @@ Loader {
 
             ////////////////
 
-            Column { // pane 2
+            Item { // pane 2
                 id: barcodeAdvanced
-                Layout.fillWidth: true
-                Layout.preferredWidth: 128
-                Layout.alignment: Qt.AlignVCenter
-                spacing: Theme.componentMarginXL
-
-                ////
+                width: gridContent.www
+                height: singleColumn ? settingsarea.height : gridContent.hhh
 
                 property string barcode_string
                 property string barcode_settings: "?" + setting_format + "&" + setting_eccLevel + "&"
@@ -202,221 +203,231 @@ Loader {
                 property color colorBg: "#fff"
                 property color colorFg: "#000"
 
-                TextFieldThemed {
-                    id: barcodeTextField
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                    height: 40
-                    visible: singleColumn
+                Column {
+                    id: settingsarea
+                    anchors.centerIn: parent
 
-                    onDisplayTextChanged: barcodeAdvanced.barcode_string = displayText
-                }
-                TextAreaThemed {
-                    id: barcodeTextArea
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                    height: 128
-                    visible: !singleColumn
+                    width: gridContent.www
+                    spacing: Theme.componentMarginXL
 
-                    wrapMode: "WrapAnywhere"
-                    selectByMouse: true
-                    onTextChanged: barcodeAdvanced.barcode_string = text
-                }
+                    ////
 
-                ////
+                    TextFieldThemed {
+                        id: barcodeTextField
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        height: 40
+                        visible: singleColumn
 
-                SelectorGrid {
-                    id: selectorBarcodes
-                    anchors.left: parent.left
-                    anchors.right: parent.right
+                        onDisplayTextChanged: barcodeAdvanced.barcode_string = displayText
+                    }
+                    TextAreaThemed {
+                        id: barcodeTextArea
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        height: 128
+                        visible: !singleColumn
 
-                    currentSelection: 1
-                    model: ListModel {
-                        id: lmSelectorBarcodes
-
-                        // matrix
-                        ListElement { idx: 1; txt: "QR Code"; src: ""; sz: 0;       maxchar: 4296; maxbytes: 2953; ecc: 4; }
-                        ListElement { idx: 2; txt: "Aztec"; src: ""; sz: 0;         maxchar: 3067; maxbytes: 3067; ecc: 8;}
-                        ListElement { idx: 3; txt: "DataMatrix"; src: ""; sz: 0; }
-                        //ListElement { idx: 4; txt: "PDF417"; src: ""; sz: 0; }
-                        // linear
-                        ListElement { idx: 5; txt: "EAN 13"; src: ""; sz: 0; }
-                        ListElement { idx: 6; txt: "EAN 8"; src: ""; sz: 0; }
-                        ListElement { idx: 7; txt: "UPC-A"; src: ""; sz: 0; }
-                        ListElement { idx: 8; txt: "UPC-E"; src: ""; sz: 0; }
-                        ListElement { idx: 9; txt: "Code 39"; src: ""; sz: 0; }
-                        ListElement { idx: 10; txt: "Code 93"; src: ""; sz: 0; }
-                        ListElement { idx: 11; txt: "Code 128"; src: ""; sz: 0; }
-                        ListElement { idx: 12; txt: "Codabar"; src: ""; sz: 0; }
-                        ListElement { idx: 13; txt: "ITF"; src: ""; sz: 0; }
+                        wrapMode: "WrapAnywhere"
+                        selectByMouse: true
+                        onTextChanged: barcodeAdvanced.barcode_string = text
                     }
 
-                    onMenuSelected: (index) => {
-                        //console.log("SelectorMenu clicked #" + index)
+                    ////
 
-                        currentSelection = index
-                        var selection = ""
+                    SelectorGrid {
+                        id: selectorBarcodes
+                        anchors.left: parent.left
+                        anchors.right: parent.right
 
-                        if (index === 1) selection = "format=qrcode"
-                        else if (index === 2) selection = "format=aztec"
-                        else if (index === 3) selection = "format=datamatrix"
-                        else if (index === 4) selection = "format=pdf417"
-                        else if (index === 5) selection = "format=ean13"
-                        else if (index === 6) selection = "format=ean8"
-                        else if (index === 7) selection = "format=upca"
-                        else if (index === 8) selection = "format=upce"
-                        else if (index === 9) selection = "format=code39"
-                        else if (index === 10) selection = "format=code93"
-                        else if (index === 11) selection = "format=code128"
-                        else if (index === 12) selection = "format=codabar"
-                        else if (index === 13) selection = "format=itf"
-
-                        barcodeAdvanced.setting_format = selection
-                    }
-                }
-
-                RowLayout {
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-
-                    Text {
-                        Layout.alignment: Qt.AlignVCenter
-                        text: qsTr("Error correction:")
-                        color: Theme.colorText
-                        font.pixelSize: Theme.componentFontSize
-                    }
-
-                    SliderThemed {
-                        id: barcodeEccSlider
-                        Layout.fillWidth: true
-                        Layout.alignment: Qt.AlignVCenter
-
-                        snapMode : Slider.SnapAlways
-                        stepSize : 2
-                        value: 1
-                        from: 0
-                        to: 8
-
-                        onMoved: barcodeAdvanced.setting_eccLevel = "eccLevel=" + parseInt(value)
-                    }
-                }
-
-                RowLayout {
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-
-                    Text {
-                        Layout.alignment: Qt.AlignVCenter
-                        text: qsTr("Margins:")
-                        color: Theme.colorText
-                        font.pixelSize: Theme.componentFontSize
-                    }
-
-                    SliderThemed {
-                        id: barcodeBorderSlider
-                        Layout.fillWidth: true
-                        Layout.alignment: Qt.AlignVCenter
-
-                        snapMode : Slider.SnapAlways
-                        stepSize : 8
-                        value: 0
-                        from: 0
-                        to: 32
-
-                        onMoved: barcodeAdvanced.setting_margins = "margins=" + parseInt(value)
-                    }
-                }
-
-                Row {
-                    spacing: Theme.componentMargin
-
-                    Text {
-                        anchors.verticalCenter: parent.verticalCenter
-
-                        text: qsTr("Colors:")
-                        color: Theme.colorText
-                        font.pixelSize: Theme.componentFontSize
-                    }
-
-                    ButtonWireframe {
-                        height: 36
-                        fullColor: true
-                        primaryColor: barcodeAdvanced.colorBg
-                        fulltextColor: utilsApp.isQColorLight(barcodeAdvanced.colorBg) ? "#333" : "#f4f4f4"
-                        font.bold: true
-
-                        text: qsTr("background color")
-                        onClicked: colorDialogBg.open()
-
-                        ColorDialog {
-                            id: colorDialogBg
-                            selectedColor: barcodeAdvanced.colorBg
-                            onAccepted: barcodeAdvanced.colorBg = selectedColor
-                        }
-                    }
-
-                    ButtonWireframe {
-                        height: 36
-                        fullColor: true
-                        primaryColor: barcodeAdvanced.colorFg
-                        fulltextColor: utilsApp.isQColorLight(barcodeAdvanced.colorFg) ? "#333" : "#f4f4f4"
-                        font.bold: true
-
-                        text: qsTr("foreground color")
-                        onClicked: colorDialogFg.open()
-
-                        ColorDialog {
-                            id: colorDialogFg
-                            selectedColor: barcodeAdvanced.colorFg
-                            onAccepted: barcodeAdvanced.colorFg = selectedColor
-                        }
-                    }
-                }
-
-                ////
-
-                Row {
-                    spacing: Theme.componentMargin
-
-                    Text {
-                        anchors.verticalCenter: parent.verticalCenter
-
-                        text: qsTr("Save to file")
-                        color: Theme.colorText
-                        font.pixelSize: Theme.componentFontSize
-                    }
-
-                    ComboBoxThemed {
-                        height: 36
-
+                        currentSelection: 1
                         model: ListModel {
-                            ListElement { text: "SVG"; }
-                            ListElement { text: "PNG"; }
-                            ListElement { text: "JPEG"; }
+                            id: lmSelectorBarcodes
+
+                            // matrix
+                            ListElement { idx: 1; txt: "QR Code"; src: ""; sz: 0;       maxchar: 4296; maxbytes: 2953; ecc: 4; }
+                            ListElement { idx: 2; txt: "Aztec"; src: ""; sz: 0;         maxchar: 3067; maxbytes: 3067; ecc: 8;}
+                            ListElement { idx: 3; txt: "DataMatrix"; src: ""; sz: 0; }
+                            //ListElement { idx: 4; txt: "PDF417"; src: ""; sz: 0; }
+                            // linear
+                            ListElement { idx: 5; txt: "EAN 13"; src: ""; sz: 0; }
+                            ListElement { idx: 6; txt: "EAN 8"; src: ""; sz: 0; }
+                            ListElement { idx: 7; txt: "UPC-A"; src: ""; sz: 0; }
+                            ListElement { idx: 8; txt: "UPC-E"; src: ""; sz: 0; }
+                            ListElement { idx: 9; txt: "Code 39"; src: ""; sz: 0; }
+                            ListElement { idx: 10; txt: "Code 93"; src: ""; sz: 0; }
+                            ListElement { idx: 11; txt: "Code 128"; src: ""; sz: 0; }
+                            ListElement { idx: 12; txt: "Codabar"; src: ""; sz: 0; }
+                            ListElement { idx: 13; txt: "ITF"; src: ""; sz: 0; }
+                        }
+
+                        onMenuSelected: (index) => {
+                            //console.log("SelectorMenu clicked #" + index)
+
+                            currentSelection = index
+                            var selection = ""
+
+                            if (index === 1) selection = "format=qrcode"
+                            else if (index === 2) selection = "format=aztec"
+                            else if (index === 3) selection = "format=datamatrix"
+                            else if (index === 4) selection = "format=pdf417"
+                            else if (index === 5) selection = "format=ean13"
+                            else if (index === 6) selection = "format=ean8"
+                            else if (index === 7) selection = "format=upca"
+                            else if (index === 8) selection = "format=upce"
+                            else if (index === 9) selection = "format=code39"
+                            else if (index === 10) selection = "format=code93"
+                            else if (index === 11) selection = "format=code128"
+                            else if (index === 12) selection = "format=codabar"
+                            else if (index === 13) selection = "format=itf"
+
+                            barcodeAdvanced.setting_format = selection
                         }
                     }
 
-                    ButtonWireframeIcon {
-                        height: 36
-                        fullColor: true
-                        primaryColor: Theme.colorGrey
-                        font.bold: true
+                    RowLayout {
+                        anchors.left: parent.left
+                        anchors.right: parent.right
 
-                        text: qsTr("save")
-                        source: "qrc:/assets/icons_material/baseline-save-24px.svg"
-                        onClicked: fileSaveDialog.open()
+                        Text {
+                            Layout.alignment: Qt.AlignVCenter
+                            text: qsTr("Error correction:")
+                            color: Theme.colorText
+                            font.pixelSize: Theme.componentFontSize
+                        }
 
-                        FileDialog {
-                            id: fileSaveDialog
+                        SliderThemed {
+                            id: barcodeEccSlider
+                            Layout.fillWidth: true
+                            Layout.alignment: Qt.AlignVCenter
 
-                            fileMode: FileDialog.SaveFile
-                            nameFilters: ["Vector files (*.svg)", "PNG files (*.png)", "JPEG files (*.jpg *.jpeg)"]
-                            currentFolder: StandardPaths.standardLocations(StandardPaths.PicturesLocation)[0]
-                            currentFile: StandardPaths.standardLocations(StandardPaths.PicturesLocation)[0] + "/barcode"
+                            snapMode: Slider.SnapAlways
+                            stepSize: 2
+                            value: 1
+                            from: 0
+                            to: 8
 
-                            onAccepted: {
-                                console.log(" - " + fileSaveDialog.selectedNameFilter.name[0])
-                                console.log(" - " + fileSaveDialog.selectedNameFilter.extensions[0])
+                            onMoved: barcodeAdvanced.setting_eccLevel = "eccLevel=" + parseInt(value)
+                        }
+                    }
+
+                    RowLayout {
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+
+                        Text {
+                            Layout.alignment: Qt.AlignVCenter
+                            text: qsTr("Margins:")
+                            color: Theme.colorText
+                            font.pixelSize: Theme.componentFontSize
+                        }
+
+                        SliderThemed {
+                            id: barcodeBorderSlider
+                            Layout.fillWidth: true
+                            Layout.alignment: Qt.AlignVCenter
+
+                            snapMode: Slider.SnapAlways
+                            stepSize: 8
+                            value: 0
+                            from: 0
+                            to: 32
+
+                            onMoved: barcodeAdvanced.setting_margins = "margins=" + parseInt(value)
+                        }
+                    }
+
+                    Row {
+                        spacing: Theme.componentMargin
+
+                        Text {
+                            anchors.verticalCenter: parent.verticalCenter
+
+                            text: qsTr("Colors:")
+                            color: Theme.colorText
+                            font.pixelSize: Theme.componentFontSize
+                        }
+
+                        ButtonWireframe {
+                            height: 36
+                            fullColor: true
+                            primaryColor: barcodeAdvanced.colorBg
+                            fulltextColor: utilsApp.isQColorLight(barcodeAdvanced.colorBg) ? "#333" : "#f4f4f4"
+                            font.bold: true
+
+                            text: qsTr("background color")
+                            onClicked: colorDialogBg.open()
+
+                            ColorDialog {
+                                id: colorDialogBg
+                                selectedColor: barcodeAdvanced.colorBg
+                                onAccepted: barcodeAdvanced.colorBg = selectedColor
+                            }
+                        }
+
+                        ButtonWireframe {
+                            height: 36
+                            fullColor: true
+                            primaryColor: barcodeAdvanced.colorFg
+                            fulltextColor: utilsApp.isQColorLight(barcodeAdvanced.colorFg) ? "#333" : "#f4f4f4"
+                            font.bold: true
+
+                            text: qsTr("foreground color")
+                            onClicked: colorDialogFg.open()
+
+                            ColorDialog {
+                                id: colorDialogFg
+                                selectedColor: barcodeAdvanced.colorFg
+                                onAccepted: barcodeAdvanced.colorFg = selectedColor
+                            }
+                        }
+                    }
+
+                    ////
+
+                    Row {
+                        spacing: Theme.componentMargin
+
+                        Text {
+                            anchors.verticalCenter: parent.verticalCenter
+
+                            text: qsTr("Save to file")
+                            color: Theme.colorText
+                            font.pixelSize: Theme.componentFontSize
+                        }
+
+                        ComboBoxThemed {
+                            height: 36
+
+                            model: ListModel {
+                                ListElement { text: "SVG"; }
+                                ListElement { text: "PNG"; }
+                                ListElement { text: "JPEG"; }
+                            }
+                        }
+
+                        ButtonWireframeIcon {
+                            height: 36
+                            fullColor: true
+                            primaryColor: Theme.colorGrey
+                            font.bold: true
+
+                            text: qsTr("save")
+                            source: "qrc:/assets/icons_material/baseline-save-24px.svg"
+                            onClicked: fileSaveDialog.open()
+
+                            FileDialog {
+                                id: fileSaveDialog
+
+                                fileMode: FileDialog.SaveFile
+                                nameFilters: ["Vector files (*.svg)", "PNG files (*.png)", "JPEG files (*.jpg *.jpeg)"]
+                                currentFolder: StandardPaths.standardLocations(StandardPaths.PicturesLocation)[0]
+                                currentFile: StandardPaths.standardLocations(StandardPaths.PicturesLocation)[0] + "/barcode"
+
+                                onAccepted: {
+                                    console.log(" - " + fileSaveDialog.selectedNameFilter.name[0])
+                                    console.log(" - " + fileSaveDialog.selectedNameFilter.extensions[0])
+                                }
                             }
                         }
                     }

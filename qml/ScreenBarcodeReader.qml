@@ -85,7 +85,7 @@ Loader {
         function close() {
             //console.log(">> close()")
 
-            //camera.active = false // crash ?!
+            //camera.active = false // crash !!
 
             if (isMobile) {
                 //appWindow.showNormal()
@@ -158,6 +158,7 @@ Loader {
             property double captureRectFactorHeight: 0.5
 
             ////
+
             Shape {
                 anchors.fill: parent
 
@@ -189,11 +190,23 @@ Loader {
                     PathLine { x: barcodeReader.points[3].x; y: barcodeReader.points[3].y; }
                 }
             }
+
             ////
 
+            Rectangle {
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                color: "black"
+                opacity: 0.4
+                visible: !captureZone.visible
+            }
             Item {
                 id: captureZone
                 anchors.fill: parent
+
+                visible: (!debugCol.visible && !formatCol.visible && !cameraCol.visible && !appDrawer.visible)
 
                 ////////
 
@@ -279,25 +292,7 @@ Loader {
                         Rectangle { width: 4; height: 16; color: "white";
                                     anchors.bottom: parent.bottom; anchors.right: parent.right; }
                     }
-/*
-                    // Scanner (vertical)
-                    Rectangle {
-                        id: scanBar
-                        width: parent.width + 0
-                        height: 2
-                        anchors.horizontalCenter: parent.horizontalCenter
 
-                        color: "white"
-                        opacity: 0.66
-
-                        SequentialAnimation {
-                            running: true
-                            loops: -1
-                            NumberAnimation { target: scanBar; property: "y"; from: 0; to: gismo.height; duration: 750; }
-                            NumberAnimation { target: scanBar; property: "y"; from: gismo.height; to: 0; duration: 750; }
-                        }
-                    }
-*/
                     // Scanner (horizontal)
                     Rectangle {
                         id: scanBar
@@ -309,7 +304,7 @@ Loader {
                         opacity: 0.66
 
                         SequentialAnimation {
-                            running: true
+                            running: visible
                             loops: -1
                             NumberAnimation { target: scanBar; property: "x"; from: 0; to: gismo.gismowidth; duration: 750; }
                             NumberAnimation { target: scanBar; property: "x"; from: gismo.gismowidth; to: 0; duration: 750; }
@@ -319,6 +314,8 @@ Loader {
 
                 ////////
             }
+
+            ////
         }
 
         ////////////////////////
