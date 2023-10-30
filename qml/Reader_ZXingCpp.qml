@@ -9,26 +9,8 @@ ZXingQtVideoFilter {
     id: barcodeReader
 
     videoSink: videoOutput.videoSink
-    formats: settingsManager.formatsEnabled
-/*
-    captureRect: Qt.rect(videoOutput.sourceRect.width * videoOutput.captureRectStartFactorX,
-                         videoOutput.sourceRect.height * videoOutput.captureRectStartFactorY,
-                         videoOutput.sourceRect.width * videoOutput.captureRectFactorWidth,
-                         videoOutput.sourceRect.height * videoOutput.captureRectFactorHeight)
+    formats: settingsManager.formatsEnabled // ZXingCpp.LinearCodes | ZXingCpp.MatrixCodes
 
-    formats: ZXingCpp.LinearCodes | ZXingCpp.MatrixCodes
-    formats: ZXingCpp.Codabar |
-             ZXingCpp.Code39 | ZXingCpp.Code93 | ZXingCpp.Code128 |
-             ZXingCpp.EAN8 | ZXingCpp.EAN13 |
-             ZXingCpp.ITF |
-             ZXingCpp.DataBar | ZXingCpp.DataBarExpanded |
-             ZXingCpp.UPCA | ZXingCpp.UPCE |
-             ZXingCpp.Aztec |
-             ZXingCpp.DataMatrix |
-             //ZXingCpp.MaxiCode |
-             ZXingCpp.PDF417 |
-             ZXingCpp.QRCode | ZXingCpp.MicroQRCode
-*/
     tryRotate: settingsManager.scan_tryRotate
     tryHarder: settingsManager.scan_tryHarder
     tryDownscale: settingsManager.scan_tryDownscale
@@ -72,7 +54,7 @@ ZXingQtVideoFilter {
     }
 
     onTagFound: (result) => {
-        console.log("onTagFound : " + result)
+        //console.log("onTagFound : " + result)
 
         if (result.isValid && result.text !== "") {
             points = [mapPointToItem(result.position.topLeft), mapPointToItem(result.position.topRight),
@@ -82,6 +64,9 @@ ZXingQtVideoFilter {
 
             if (result.text !== tagText) {
                 utilsApp.vibrate(33)
+
+                //barcodeManager.addBarcode(result.text, result.formatName, result.contentType, "")
+                barcodeManager.addHistory(result.text, result.formatName, result.contentType, "")
 
                 barcodeReader.tagText = result.text
                 barcodeReader.tagFormat = result.formatName

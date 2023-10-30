@@ -111,6 +111,21 @@ DrawerThemed {
 
                 ListSeparatorPadded { }
 
+                DrawerItem {
+                    highlighted: (appContent.state === "ScreenBarcodeHistory")
+                    text: qsTr("Barcodes history")
+                    iconSource: "qrc:/assets/icons_material/duotone-list-24px.svg"
+
+                    onClicked: {
+                        screenBarcodeHistory.loadScreen()
+                        appDrawer.close()
+                    }
+                }
+
+                ////////
+
+                ListSeparatorPadded { }
+
                 ////////
 
                 DrawerItem {

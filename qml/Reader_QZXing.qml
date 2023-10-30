@@ -44,19 +44,18 @@ QZXingFilter {
                          QZXing.DecoderFormat_Aztec
 
         onTagFound: (tag) => {
-            console.log(tag + " | " + decoder.foundedFormat() + " | " + decoder.charSet())
+            //console.log("onTagFound : " + tag + " | " + decoder.foundedFormat() + " | " + decoder.charSet())
 
             if (tag != tagText) {
                 utilsApp.vibrate(33)
+
+                //barcodeManager.addBarcode(tag, decoder.foundedFormat(), decoder.charSet(), "")
+                barcodeManager.addHistory(tag, decoder.foundedFormat(), decoder.charSet(), "")
 
                 barcodeReader.tagText = tag
                 barcodeReader.tagFormat = decoder.foundedFormat()
                 barcodeReader.tagEncoding = decoder.charSet()
             }
-
-            //barcodeItem.visible = true
-            //barcodeTxt.text = tag + " | " + decoder.foundedFormat()
-            //if (decoder.charSet()) + " | " + decoder.charSet()
         }
     }
 

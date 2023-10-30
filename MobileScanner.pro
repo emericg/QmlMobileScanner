@@ -32,8 +32,16 @@ DESTDIR     = bin/
 
 # Project files ################################################################
 
-SOURCES  += src/SettingsManager.cpp src/main.cpp
-HEADERS  += src/SettingsManager.h
+SOURCES  += src/main.cpp \
+            src/SettingsManager.cpp \
+            src/DatabaseManager.cpp \
+            src/BarcodeManager.cpp \
+            src/Barcode.cpp
+
+HEADERS  += src/DatabaseManager.h  \
+            src/SettingsManager.h \
+            src/BarcodeManager.h \
+            src/Barcode.h
 
 INCLUDEPATH += src/ src/thirdparty/
 

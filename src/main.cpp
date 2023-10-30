@@ -19,7 +19,9 @@
  * \author    Emeric Grange <emeric.grange@gmail.com>
  */
 
+#include "DatabaseManager.h"
 #include "SettingsManager.h"
+#include "BarcodeManager.h"
 
 #include "utils_app.h"
 #include "utils_screen.h"
@@ -69,8 +71,14 @@ int main(int argc, char *argv[])
     app.setOrganizationDomain("emeric");
 
     // Init app components
+    DatabaseManager *dbm = DatabaseManager::getInstance();
+    if (!dbm) return EXIT_FAILURE;
+
     SettingsManager *stm = SettingsManager::getInstance();
     if (!stm) return EXIT_FAILURE;
+
+    BarcodeManager *bch = BarcodeManager::getInstance();
+    if (!bch) return EXIT_FAILURE;
 
     // Init utils
     UtilsScreen *utilsScreen = UtilsScreen::getInstance();
@@ -89,6 +97,7 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
     QQmlContext *engine_context = engine.rootContext();
     engine_context->setContextProperty("settingsManager", stm);
+    engine_context->setContextProperty("barcodeManager", bch);
     engine_context->setContextProperty("utilsScreen", utilsScreen);
     engine_context->setContextProperty("utilsApp", utilsApp);
 

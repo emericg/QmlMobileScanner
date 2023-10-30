@@ -553,17 +553,28 @@ Loader {
                 spacing: Theme.componentMargin /2
                 visible: false
 
+                ListModel {
+                    id: formatsAvailable_zxingcpp
+                    ListElement { text: "Linear codes"; value: 51070; }
+                    ListElement { text: "Aztec"; value: 1; }
+                    ListElement { text: "DataMatrix"; value: 128; }
+                    ListElement { text: "MaxiCode"; value: 2048; }
+                    ListElement { text: "PDF417"; value: 4096; }
+                    ListElement { text: "QRCode"; value: 8192; }
+                    ListElement { text: "MicroQRCode"; value: 65536; }
+                }
+                ListModel {
+                    id: formatsAvailable_qzxing
+                    ListElement { text: "Linear codes"; value: 517052; }
+                    ListElement { text: "Aztec"; value: 2; }
+                    ListElement { text: "DataMatrix"; value: 64; }
+                    ListElement { text: "MaxiCode"; value: 1024; }
+                    ListElement { text: "PDF417"; value: 2048; }
+                    ListElement { text: "QRCode"; value: 4096; }
+                }
+
                 Repeater {
-                    model: ListModel {
-                        id: formatsAvailable
-                        ListElement { text: "Linear codes"; value: 51070; }
-                        ListElement { text: "Aztec"; value: 1; }
-                        ListElement { text: "DataMatrix"; value: 128; }
-                        ListElement { text: "MaxiCode"; value: 2048; }
-                        ListElement { text: "PDF417"; value: 4096; }
-                        ListElement { text: "QRCode"; value: 8192; }
-                        ListElement { text: "MicroQRCode"; value: 65536; }
-                    }
+                    model: (settingsManager.backend === "zxingcpp") ? formatsAvailable_zxingcpp :formatsAvailable_qzxing
 
                     Item {
                         width: parent.width

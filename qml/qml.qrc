@@ -14,12 +14,15 @@
         <file>ScreenAboutFormats.qml</file>
 
         <file>ScreenBarcodeReader.qml</file>
+        <file>ScreenBarcodeHistory.qml</file>
+        <file>ScreenBarcodeDetails.qml</file>
         <file>ScreenBarcodeWriter.qml</file>
         <file>Reader_QZXing.qml</file>
         <file>Reader_ZXingCpp.qml</file>
 
         <file alias="SelectorGrid.qml">components/SelectorGrid.qml</file>
         <file alias="SelectorGridItem.qml">components/SelectorGridItem.qml</file>
+        <file alias="WidgetBarcode.qml">components/WidgetBarcode.qml</file>
         <file alias="PopupBarcodeFullscreen.qml">popups/PopupBarcodeFullscreen.qml</file>
     </qresource>
 </RCC>
