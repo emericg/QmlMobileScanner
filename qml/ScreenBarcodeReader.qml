@@ -491,6 +491,28 @@ Loader {
                         width: parent.width - 16
                         LayoutMirroring.enabled: true
 
+                        text: qsTr("fullscreen")
+                        colorText: "white"
+                        checked: settingsManager.scan_fullscreen
+                        onClicked: settingsManager.scan_fullscreen = checked
+                    }
+                }
+                Item {
+                    width: parent.width
+                    height: 40
+
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: 24
+                        color: "black"
+                        opacity: 0.33
+                    }
+
+                    SwitchThemed {
+                        anchors.centerIn: parent
+                        width: parent.width - 16
+                        LayoutMirroring.enabled: true
+
                         text: qsTr("tryHarder")
                         colorText: "white"
                         checked: settingsManager.scan_tryHarder
@@ -515,6 +537,7 @@ Loader {
 
                         text: qsTr("tryRotate")
                         colorText: "white"
+                        visible: (settingsManager.backend === "zxingcpp")
                         checked: settingsManager.scan_tryRotate
                         onClicked: settingsManager.scan_tryRotate = checked
                     }

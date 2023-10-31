@@ -51,6 +51,7 @@ class SettingsManager: public QObject
     Q_PROPERTY(unsigned formatsEnabled READ getFormatsEnabled WRITE setFormatsEnabled NOTIFY formatsEnabledChanged)
 
     Q_PROPERTY(bool showDebug READ getShowDebug WRITE setShowDebug NOTIFY debugChanged)
+    Q_PROPERTY(bool scan_fullscreen READ getScanFullscreen WRITE setScanFullscreen NOTIFY fullscreenChanged)
     Q_PROPERTY(bool scan_tryHarder READ getScanTryHarder WRITE setScanTryHarder NOTIFY tryHarderChanged)
     Q_PROPERTY(bool scan_tryRotate READ getScanTryRotate WRITE setScanTryRotate NOTIFY tryRotateChanged)
     Q_PROPERTY(bool scan_tryDownscale READ getScanTryDownscale WRITE setScanTryDownscale NOTIFY tryDownscaleChanged)
@@ -68,8 +69,10 @@ class SettingsManager: public QObject
 
     // Application specific
     QString m_defaultTab = "reader";
-    unsigned m_formatsEnabled = 0xffffffff;
+    unsigned m_formatsEnabled_zxingcpp = 0xffffffff;
+    unsigned m_formatsEnabled_qzxing = 0xffffffff;
     bool m_showDebug = false;
+    bool m_scan_fullscreen = false;
     bool m_scan_tryHarder = true;
     bool m_scan_tryRotate = false;
     bool m_scan_tryDownscale = false;
@@ -89,6 +92,7 @@ Q_SIGNALS:
     void debugChanged();
     void defaultTabChanged();
     void formatsEnabledChanged();
+    void fullscreenChanged();
     void tryHarderChanged();
     void tryRotateChanged();
     void tryDownscaleChanged();
@@ -115,10 +119,12 @@ public:
     QString getBackend() const;
     QString getDefaultTab() const { return m_defaultTab; }
     void setDefaultTab(const QString &value);
-    unsigned getFormatsEnabled() const { return m_formatsEnabled; }
+    unsigned getFormatsEnabled() const;
     void setFormatsEnabled(const unsigned value);
     bool getShowDebug() const { return m_showDebug; }
     void setShowDebug(const bool value);
+    bool getScanFullscreen() const { return m_scan_fullscreen; }
+    void setScanFullscreen(const bool value);
     bool getScanTryHarder() const { return m_scan_tryHarder; }
     void setScanTryHarder(const bool value);
     bool getScanTryRotate() const { return m_scan_tryRotate; }

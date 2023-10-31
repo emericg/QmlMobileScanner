@@ -51,19 +51,19 @@ class Result : private ZXing::Result
     Q_PROPERTY(Position position READ position)
     Q_PROPERTY(int runTime MEMBER runTime)
 
-    QString _text;
-    QByteArray _bytes;
-    Position _position;
+    QString m_text;
+    QByteArray m_bytes;
+    Position m_position;
 
 public:
     Result() = default; // required for qmetatype machinery
 
     explicit Result(ZXing::Result &&r) : ZXing::Result(std::move(r)) {
-        _text = QString::fromStdString(ZXing::Result::text());
-        _bytes = QByteArray(reinterpret_cast<const char*>(ZXing::Result::bytes().data()), Size(ZXing::Result::bytes()));
+        m_text = QString::fromStdString(ZXing::Result::text());
+        m_bytes = QByteArray(reinterpret_cast<const char*>(ZXing::Result::bytes().data()), Size(ZXing::Result::bytes()));
         auto &pos = ZXing::Result::position();
         auto qp = [&pos](int i) { return QPoint(pos[i].x, pos[i].y); };
-        _position = {qp(0), qp(1), qp(2), qp(3)};
+        m_position = {qp(0), qp(1), qp(2), qp(3)};
     }
 
     int runTime = 0; // for debugging/development
@@ -72,9 +72,9 @@ public:
     BarcodeFormat format() const { return static_cast<BarcodeFormat>(ZXing::Result::format()); }
     ContentType contentType() const { return static_cast<ContentType>(ZXing::Result::contentType()); }
     QString formatName() const { return QString::fromStdString(ZXing::ToString(ZXing::Result::format())); }
-    const QString &text() const { return _text; }
-    const QByteArray &bytes() const { return _bytes; }
-    const Position &position() const { return _position; }
+    const QString &text() const { return m_text; }
+    const QByteArray &bytes() const { return m_bytes; }
+    const Position &position() const { return m_position; }
 };
 
 class ZXingQtVideoFilter : public QObject, private DecodeHints

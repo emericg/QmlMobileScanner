@@ -28,8 +28,6 @@
 #include <QDir>
 #include <QDebug>
 
-#include <cmath>
-
 /* ************************************************************************** */
 
 SettingsManager *SettingsManager::instance = nullptr;
@@ -98,12 +96,16 @@ bool SettingsManager::readSettings()
         if (settings.contains("settings/defaultTab"))
             m_defaultTab = settings.value("settings/defaultTab").toString();
 
-        if (settings.contains("settings/formatsEnabled"))
-            m_formatsEnabled = settings.value("settings/formatsEnabled").toUInt();
+        if (settings.contains("settings/formatsEnabled_zxingcpp"))
+            m_formatsEnabled_zxingcpp = settings.value("settings/formatsEnabled_zxingcpp").toUInt();
+        if (settings.contains("settings/formatsEnabled_qzxing"))
+            m_formatsEnabled_qzxing = settings.value("settings/formatsEnabled_qzxing").toUInt();
 
         if (settings.contains("settings/showDebug"))
             m_showDebug = settings.value("settings/showDebug").toBool();
 
+        if (settings.contains("settings/scanfullscreen"))
+            m_scan_fullscreen = settings.value("settings/scanfullscreen").toBool();
         if (settings.contains("settings/tryHarder"))
             m_scan_tryHarder = settings.value("settings/tryHarder").toBool();
         if (settings.contains("settings/tryRotate"))
@@ -141,8 +143,10 @@ bool SettingsManager::writeSettings()
         settings.setValue("settings/appThemeAuto", m_appThemeAuto);
 
         settings.setValue("settings/defaultTab", m_defaultTab);
-        settings.setValue("settings/formatsEnabled", m_formatsEnabled);
+        settings.setValue("settings/formatsEnabled_zxingcpp", m_formatsEnabled_zxingcpp);
+        settings.setValue("settings/formatsEnabled_qzxing", m_formatsEnabled_qzxing);
         settings.setValue("settings/showDebug", m_showDebug);
+        settings.setValue("settings/scanfullscreen", m_scan_fullscreen);
         settings.setValue("settings/tryHarder", m_scan_tryHarder);
         settings.setValue("settings/tryRotate", m_scan_tryRotate);
         settings.setValue("settings/tryDownscale", m_scan_tryDownscale);
@@ -174,10 +178,12 @@ void SettingsManager::resetSettings()
     Q_EMIT appThemeAutoChanged();
 
     m_defaultTab = "reader";
-    m_formatsEnabled = 0xffffffff; // ZXing::LinearCodes | ZXing::MatrixCodes;
+    m_formatsEnabled_zxingcpp = 0xffffffff; // ZXing::LinearCodes | ZXing::MatrixCodes;
+    m_formatsEnabled_qzxing = 0xffffffff; // QZXing::LinearCodes | QZXing::MatrixCodes;
     m_showDebug = false;
+    m_scan_fullscreen = false;
+    m_scan_tryHarder = true;
     m_scan_tryRotate = false;
-    m_scan_tryHarder = false;
     m_scan_tryDownscale = false;
 
     writeSettings();
@@ -233,15 +239,34 @@ void SettingsManager::setDefaultTab(const QString &value)
     }
 }
 
+unsigned SettingsManager::getFormatsEnabled() const
+{
+#if defined(qzxing)
+    return m_formatsEnabled_qzxing;
+#elif defined(zxingcpp)
+    return m_formatsEnabled_zxingcpp;
+#endif
+}
+
 void SettingsManager::setFormatsEnabled(const unsigned value)
 {
-    if (m_formatsEnabled != value)
+#if defined(qzxing)
+    if (m_formatsEnabled_qzxing != value)
     {
-        m_formatsEnabled = value;
+        m_formatsEnabled_qzxing = value;
         Q_EMIT formatsEnabledChanged();
 
         writeSettings();
     }
+#elif defined(zxingcpp)
+    if (m_formatsEnabled_zxingcpp != value)
+    {
+        m_formatsEnabled_zxingcpp = value;
+        Q_EMIT formatsEnabledChanged();
+
+        writeSettings();
+    }
+#endif
 }
 
 void SettingsManager::setShowDebug(const bool value)
@@ -250,6 +275,17 @@ void SettingsManager::setShowDebug(const bool value)
     {
         m_showDebug = value;
         Q_EMIT debugChanged();
+
+        writeSettings();
+    }
+}
+
+void SettingsManager::setScanFullscreen(const bool value)
+{
+    if (m_scan_fullscreen != value)
+    {
+        m_scan_fullscreen = value;
+        Q_EMIT fullscreenChanged();
 
         writeSettings();
     }

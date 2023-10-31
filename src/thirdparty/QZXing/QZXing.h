@@ -90,7 +90,15 @@ public:
         DecoderFormat_UPC_A = 1 << 15,
         DecoderFormat_UPC_E = 1 << 16,
         DecoderFormat_UPC_EAN_EXTENSION = 1 << 17,
-        DecoderFormat_CODE_128_GS1 = 1 << 18
+        DecoderFormat_CODE_128_GS1 = 1 << 18,
+
+        LinearCodes = DecoderFormat_CODABAR | DecoderFormat_CODE_39 | DecoderFormat_CODE_93 | DecoderFormat_CODE_128 |
+                      DecoderFormat_EAN_8 | DecoderFormat_EAN_13 | DecoderFormat_ITF |
+                      DecoderFormat_RSS_EXPANDED | DecoderFormat_RSS_14 | DecoderFormat_UPC_A | DecoderFormat_UPC_E |
+                      DecoderFormat_UPC_EAN_EXTENSION |DecoderFormat_CODE_128_GS1,
+        MatrixCodes = DecoderFormat_Aztec | DecoderFormat_DATA_MATRIX | DecoderFormat_MAXICODE |
+                      DecoderFormat_PDF_417 | DecoderFormat_QR_CODE,
+        Any         = LinearCodes | MatrixCodes
     };
     typedef unsigned int DecoderFormatType;
 

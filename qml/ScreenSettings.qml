@@ -380,6 +380,46 @@ Loader {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignVCenter
 
+                        text: qsTr("Fullscreen scan")
+                        textFormat: Text.PlainText
+                        font.pixelSize: Theme.fontSizeContent
+                        color: Theme.colorText
+                        wrapMode: Text.WordWrap
+                    }
+
+                    SwitchThemed {
+                        Layout.alignment: Qt.AlignVCenter
+                        z: 1
+
+                        checked: settingsManager.scan_fullscreen
+                        onClicked: settingsManager.scan_fullscreen = checked
+                    }
+                }
+                RowLayout {
+                    anchors.left: parent.left
+                    anchors.leftMargin: screenPaddingLeft
+                    anchors.right: parent.right
+                    anchors.rightMargin: screenPaddingRight
+                    height: 36
+
+                    visible: settingsManager.showDebug
+
+                    Item {
+                        Layout.preferredWidth: 56
+
+                        IconSvg {
+                            anchors.centerIn: parent
+                            width: 24
+                            height: 24
+                            color: Theme.colorIcon
+                            source: "qrc:/assets/icons_material/duotone-qr_code_2-24px.svg"
+                        }
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        Layout.alignment: Qt.AlignVCenter
+
                         text: qsTr("Try harder")
                         textFormat: Text.PlainText
                         font.pixelSize: Theme.fontSizeContent

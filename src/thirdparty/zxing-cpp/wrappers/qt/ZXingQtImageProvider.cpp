@@ -63,7 +63,8 @@ QImage ZXingQtImageProvider::requestImage(const QString &id, QSize *size, const 
 
         if (optionQuery.hasQueryItem("format"))
         {
-            QString formatString = optionQuery.queryItemValue("format");
+            QString formatString = optionQuery.queryItemValue("format").toLower().remove('-');
+
             if (formatString == "aztec") format = ZXing::BarcodeFormat::Aztec;
             else if (formatString == "codabar") format = ZXing::BarcodeFormat::Codabar;
             else if (formatString == "code39") format = ZXing::BarcodeFormat::Code39;

@@ -10,7 +10,24 @@ ZXingQtVideoFilter {
 
     videoSink: videoOutput.videoSink
     formats: settingsManager.formatsEnabled // ZXingCpp.LinearCodes | ZXingCpp.MatrixCodes
+/*
+    captureRect: Qt.rect(videoOutput.sourceRect.width * videoOutput.captureRectStartFactorX,
+                         videoOutput.sourceRect.height * videoOutput.captureRectStartFactorY,
+                         videoOutput.sourceRect.width * videoOutput.captureRectFactorWidth,
+                         videoOutput.sourceRect.height * videoOutput.captureRectFactorHeight)
 
+    formats: ZXingCpp.Codabar |
+             ZXingCpp.Code39 | ZXingCpp.Code93 | ZXingCpp.Code128 |
+             ZXingCpp.EAN8 | ZXingCpp.EAN13 |
+             ZXingCpp.ITF |
+             ZXingCpp.DataBar | ZXingCpp.DataBarExpanded |
+             ZXingCpp.UPCA | ZXingCpp.UPCE |
+             ZXingCpp.Aztec |
+             ZXingCpp.DataMatrix |
+             //ZXingCpp.MaxiCode |
+             ZXingCpp.PDF417 |
+             ZXingCpp.QRCode | ZXingCpp.MicroQRCode
+*/
     tryRotate: settingsManager.scan_tryRotate
     tryHarder: settingsManager.scan_tryHarder
     tryDownscale: settingsManager.scan_tryDownscale

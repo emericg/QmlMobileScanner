@@ -24,7 +24,8 @@ QZXingFilter {
 
     decoder {
         tryHarder: settingsManager.scan_tryHarder
-
+        enabledDecoders: settingsManager.formatsEnabled
+/*
         enabledDecoders: QZXing.DecoderFormat_QR_CODE |
                          QZXing.DecoderFormat_DATA_MATRIX |
                          QZXing.DecoderFormat_UPC_E |
@@ -42,7 +43,7 @@ QZXingFilter {
                          QZXing.DecoderFormat_CODABAR |
                          QZXing.DecoderFormat_ITF |
                          QZXing.DecoderFormat_Aztec
-
+*/
         onTagFound: (tag) => {
             //console.log("onTagFound : " + tag + " | " + decoder.foundedFormat() + " | " + decoder.charSet())
 
