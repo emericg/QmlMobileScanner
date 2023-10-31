@@ -62,8 +62,6 @@ BarcodeManager::BarcodeManager()
             double barcodeLatitude = queryBarcodes.value(5).toDouble();
             double barcodeLongitude = queryBarcodes.value(6).toDouble();
 
-            qWarning() << "loading tag (" << barcodeData << ")";
-
             Barcode *bc = new Barcode(barcodeData, barcodeFormat, barcodeEncoding, barcodeEcc,
                                       barcodeDateTime, barcodeLatitude, barcodeLongitude, this);
             if (bc) m_barcodes_history.push_back(bc);
@@ -78,9 +76,10 @@ BarcodeManager::~BarcodeManager()
 
 /* ************************************************************************** */
 
-void BarcodeManager::addBarcode(const QString &data, const QString &format,
-                                const QString &enc, const QString &ecc)
-{
+bool BarcodeManager::addBarcode(const QString &data, const QString &format,
+                                const QString &enc, const QString &ecc,
+                                const QPoint &p1, const QPoint &p2, const QPoint &p3, const QPoint &p4)
+{   
     if (!data.isEmpty())
     {
         // check if exists
@@ -90,21 +89,30 @@ void BarcodeManager::addBarcode(const QString &data, const QString &format,
             if (bbc && (bbc->getData() == data))
             {
                 qDebug() << "tag exist (" << data << ")";
-                return;
+
+                bbc->setLastSeen(QDateTime::currentDateTime());
+                bbc->setLastCoordinates(p1, p2, p3, p4);
+
+                Q_EMIT barcodesChanged();
+                return false;
             }
         }
 
         // add barcode to the onscreen list
         Barcode *bc = new Barcode(data, format, enc, ecc,
-                                  QDateTime::currentDateTime(), 0, 0,
+                                  QDateTime::currentDateTime(), p1, p2, p3, p4,
                                   this);
         if (bc)
         {
-            qWarning() << "addBarcode(" << data << ")";
+            qDebug() << "addBarcode(" << data << ")";
             m_barcodes_onscreen.push_back(bc);
+
             Q_EMIT barcodesChanged();
+            return true;
         }
     }
+
+    return false;
 }
 
 /* ************************************************************************** */
@@ -125,40 +133,28 @@ void BarcodeManager::addHistory(const QString &data, const QString &format,
             }
         }
 
-        // add barcode to the history list
         Barcode *bc = new Barcode(data, format, enc, ecc,
                                   QDateTime::currentDateTime(), 0, 0,
                                   this);
         if (bc)
         {
-            qWarning() << "addHistory(" << data << ")";
+            qDebug() << "addHistory(" << data << ")";
+
+            // add barcode to the history list
             m_barcodes_history.push_back(bc);
-            Q_EMIT barcodesChanged();
-        }
+            Q_EMIT historyChanged();
 
-        // add barcode to the history database
-        if (bc)
-        {
-            // if
-            //QSqlQuery queryBarcode;
-            //queryBarcode.prepare("SELECT data FROM barcodes WHERE data = :data");
-            //queryBarcode.bindValue(":data", d->getData());
-            //queryBarcode.exec();
+            // add barcode to the history database
+            QSqlQuery addBarcode;
+            addBarcode.prepare("INSERT INTO barcodes (data, format, date) VALUES (:data, :format, :date)");
+            addBarcode.bindValue(":data", data);
+            addBarcode.bindValue(":format", format);
+            addBarcode.bindValue(":date", QDateTime::currentDateTime().toMSecsSinceEpoch());
 
-            // then
-            //if (queryBarcode.last() == false)
+            if (addBarcode.exec() == false)
             {
-                QSqlQuery addBarcode;
-                addBarcode.prepare("INSERT INTO barcodes (data, format, date) VALUES (:data, :format, :date)");
-                addBarcode.bindValue(":data", data);
-                addBarcode.bindValue(":format", format);
-                addBarcode.bindValue(":date", QDateTime::currentDateTime().toMSecsSinceEpoch());
-
-                if (addBarcode.exec() == false)
-                {
-                    qWarning() << "> addBarcode.exec() ERROR"
-                               << addBarcode.lastError().type() << ":" << addBarcode.lastError().text();
-                }
+                qWarning() << "> addBarcode.exec() ERROR"
+                           << addBarcode.lastError().type() << ":" << addBarcode.lastError().text();
             }
         }
     }
@@ -166,16 +162,29 @@ void BarcodeManager::addHistory(const QString &data, const QString &format,
 
 void BarcodeManager::removeHistory(const QString &data)
 {
-    if (data.isEmpty())
+    if (!data.isEmpty())
     {
         for (auto bc: std::as_const(m_barcodes_history)) // barcode already exists
         {
             Barcode *bbc = qobject_cast<Barcode*>(bc);
             if (bbc && (bbc->getData() == data))
             {
-                qWarning() << "removeHistory";
+                qDebug() << "removeHistory(" << data << ")";
+
+                // remove barcode from the history list
                 m_barcodes_history.removeAll(bbc);
-                Q_EMIT barcodesChanged();
+                Q_EMIT historyChanged();
+
+                // remove barcode from the history database
+                QSqlQuery removeBarcode;
+                removeBarcode.prepare("DELETE FROM barcodes WHERE data = :data");
+                removeBarcode.bindValue(":data", bbc->getData());
+
+                if (removeBarcode.exec() == false)
+                {
+                    qWarning() << "> removeBarcode.exec() ERROR"
+                               << removeBarcode.lastError().type() << ":" << removeBarcode.lastError().text();
+                }
 
                 return;
             }

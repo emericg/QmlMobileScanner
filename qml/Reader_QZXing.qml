@@ -9,14 +9,13 @@ QZXingFilter {
     id: barcodeReader
 
     videoSink: videoOutput.videoSink
-    captureRect: Qt.rect(videoOutput.sourceRect.width * videoOutput.captureRectStartFactorX,
-                         videoOutput.sourceRect.height * videoOutput.captureRectStartFactorY,
-                         videoOutput.sourceRect.width * videoOutput.captureRectFactorWidth,
-                         videoOutput.sourceRect.height * videoOutput.captureRectFactorHeight)
-
-    property string tagText
-    property string tagFormat
-    property string tagEncoding
+    captureRect: settingsManager.scan_fullscreen ?
+                     Qt.rect(videoOutput.sourceRect.x, videoOutput.sourceRect.y,
+                             videoOutput.sourceRect.width, videoOutput.sourceRect.height) :
+                     Qt.rect(videoOutput.sourceRect.width * videoOutput.captureRectStartFactorX,
+                             videoOutput.sourceRect.height * videoOutput.captureRectStartFactorY,
+                             videoOutput.sourceRect.width * videoOutput.captureRectFactorWidth,
+                             videoOutput.sourceRect.height * videoOutput.captureRectFactorHeight)
 
     property real timePerFrameDecode: 0
     property int framesDecodedTotal: 0
@@ -27,35 +26,26 @@ QZXingFilter {
         enabledDecoders: settingsManager.formatsEnabled
 /*
         enabledDecoders: QZXing.DecoderFormat_QR_CODE |
+                         QZXing.DecoderFormat_Aztec |
                          QZXing.DecoderFormat_DATA_MATRIX |
-                         QZXing.DecoderFormat_UPC_E |
-                         QZXing.DecoderFormat_UPC_A |
-                         QZXing.DecoderFormat_UPC_EAN_EXTENSION |
-                         QZXing.DecoderFormat_RSS_14 |
-                         QZXing.DecoderFormat_RSS_EXPANDED |
-                         QZXing.DecoderFormat_PDF_417 |
                          QZXing.DecoderFormat_MAXICODE |
-                         QZXing.DecoderFormat_EAN_8 |
-                         QZXing.DecoderFormat_EAN_13 |
-                         QZXing.DecoderFormat_CODE_128 |
-                         QZXing.DecoderFormat_CODE_93 |
-                         QZXing.DecoderFormat_CODE_39 |
+                         QZXing.DecoderFormat_PDF_417 |
+                         QZXing.DecoderFormat_UPC_A | QZXing.DecoderFormat_UPC_E | QZXing.DecoderFormat_UPC_EAN_EXTENSION |
+                         QZXing.DecoderFormat_RSS_14 | QZXing.DecoderFormat_RSS_EXPANDED |
+                         QZXing.DecoderFormat_EAN_8 | QZXing.DecoderFormat_EAN_13 |
+                         QZXing.DecoderFormat_CODE_39 | QZXing.DecoderFormat_CODE_93 | QZXing.DecoderFormat_CODE_128 |
                          QZXing.DecoderFormat_CODABAR |
-                         QZXing.DecoderFormat_ITF |
-                         QZXing.DecoderFormat_Aztec
+                         QZXing.DecoderFormat_ITF
 */
         onTagFound: (tag) => {
             //console.log("onTagFound : " + tag + " | " + decoder.foundedFormat() + " | " + decoder.charSet())
 
-            if (tag != tagText) {
+            var newbarcode = barcodeManager.addBarcode(tag, decoder.foundedFormat(), decoder.charSet(), "",
+                                                       Qt.point(0,0), Qt.point(0,0), Qt.point(0,0), Qt.point(0,0))
+
+            if (newbarcode) {
                 utilsApp.vibrate(33)
-
-                //barcodeManager.addBarcode(tag, decoder.foundedFormat(), decoder.charSet(), "")
                 barcodeManager.addHistory(tag, decoder.foundedFormat(), decoder.charSet(), "")
-
-                barcodeReader.tagText = tag
-                barcodeReader.tagFormat = decoder.foundedFormat()
-                barcodeReader.tagEncoding = decoder.charSet()
             }
         }
     }

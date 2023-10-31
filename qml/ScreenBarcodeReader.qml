@@ -159,35 +159,34 @@ Loader {
 
             ////
 
-            Shape {
-                anchors.fill: parent
+            Repeater {
+                model: barcodeManager.barcodes
 
-                opacity: 0
-                Behavior on opacity { NumberAnimation { duration: 133 } }
+                Shape {
+                    anchors.fill: parent
 
-                Timer {
-                    id: barcodeVisibleTimer
-                    interval: 2500
-                    onRunningChanged: {
-                        if (running && barcodeReader && barcodeReader.points.length === 4) {
-                            parent.opacity = 0.66
+                    antialiasing: true
+                    opacity: modelData.lastVisible ? 1 : 0
+                    Behavior on opacity { NumberAnimation { duration: 133 } }
+
+                    ShapePath {
+                        strokeWidth: 4
+                        strokeColor: {
+                            if (index === 0) return Theme.colorGreen
+                            if (index === 1) return Theme.colorBlue
+                            if (index === 2) return Theme.colorOrange
+                            if (index === 3) return Theme.colorRed
                         }
+                        strokeStyle: ShapePath.SolidLine
+                        fillColor: "transparent"
+
+                        startX: modelData.p4.x
+                        startY: modelData.p4.y
+                        PathLine { x: modelData.p1.x; y: modelData.p1.y; }
+                        PathLine { x: modelData.p2.x; y: modelData.p2.y; }
+                        PathLine { x: modelData.p3.x; y: modelData.p3.y; }
+                        PathLine { x: modelData.p4.x; y: modelData.p4.y; }
                     }
-                    onTriggered: parent.opacity = 0
-                }
-
-                ShapePath {
-                    strokeWidth: 4
-                    strokeColor: Theme.colorOrange
-                    strokeStyle: ShapePath.SolidLine
-                    fillColor: "transparent"
-
-                    startX: barcodeReader.points[3].x
-                    startY: barcodeReader.points[3].y
-                    PathLine { x: barcodeReader.points[0].x; y: barcodeReader.points[0].y; }
-                    PathLine { x: barcodeReader.points[1].x; y: barcodeReader.points[1].y; }
-                    PathLine { x: barcodeReader.points[2].x; y: barcodeReader.points[2].y; }
-                    PathLine { x: barcodeReader.points[3].x; y: barcodeReader.points[3].y; }
                 }
             }
 
@@ -403,8 +402,6 @@ Loader {
                     width: 48
                     height: 48
 
-                    visible: (settingsManager.backend === "zxingcpp")
-
                     Rectangle {
                         anchors.fill: parent
                         radius: height
@@ -523,6 +520,8 @@ Loader {
                     width: parent.width
                     height: 40
 
+                    visible: (settingsManager.backend === "zxingcpp")
+
                     Rectangle {
                         anchors.fill: parent
                         radius: 24
@@ -537,7 +536,6 @@ Loader {
 
                         text: qsTr("tryRotate")
                         colorText: "white"
-                        visible: (settingsManager.backend === "zxingcpp")
                         checked: settingsManager.scan_tryRotate
                         onClicked: settingsManager.scan_tryRotate = checked
                     }
@@ -545,6 +543,8 @@ Loader {
                 Item {
                     width: parent.width
                     height: 40
+
+                    visible: (settingsManager.backend === "zxingcpp")
 
                     Rectangle {
                         anchors.fill: parent
@@ -560,7 +560,6 @@ Loader {
 
                         text: qsTr("tryDownscale")
                         colorText: "white"
-                        visible: (settingsManager.backend === "zxingcpp")
                         checked: settingsManager.scan_tryDownscale
                         onClicked: settingsManager.scan_tryDownscale = checked
                     }
@@ -703,76 +702,67 @@ Loader {
 
                 ////
 
-                Item { // barcode
-                    id: barcodeItem
-                    width: parent.width
-                    height: 48
+                Repeater { // barcode(s)
+                    model: barcodeManager.barcodes
 
-                    visible: barcodeReader && barcodeReader.tagText
+                    Item {
+                        width: parent.width
+                        height: 48
 
-                    Rectangle {
-                        anchors.fill: parent
-                        radius: height
-                        color: "black"
-                        opacity: 0.33
-                    }
+                        visible: modelData.lastVisible
 
-                    IconSvg {
-                        id: barcodeImg
-                        width: parent.height * 0.666
-                        height: parent.height * 0.666
-                        anchors.left: parent.left
-                        anchors.leftMargin: Theme.componentMargin
-                        anchors.verticalCenter: parent.verticalCenter
-                        color: "white"
-                        source: {
-                            if (barcodeReader) {
-                                if (barcodeReader.tagFormat === "QR_CODE" || barcodeReader.tagFormat === "QRCode" ||
-                                    barcodeReader.tagFormat === "DATA_MATRIX" || barcodeReader.tagFormat === "DataMatrix" ||
-                                    barcodeReader.tagFormat === "Aztec" ||
-                                    barcodeReader.tagFormat === "MicroQRCode" ||
-                                    barcodeReader.tagFormat === "PDF417" ||
-                                    barcodeReader.tagFormat === "MaxiCode") {
-                                    return "qrc:/assets/icons_material/baseline-qr_code_2-24px.svg"
-                                }
-                            }
-
-                            return "qrc:/assets/icons_bootstrap/upc.svg"
+                        Rectangle {
+                            anchors.fill: parent
+                            radius: height
+                            color: "black"
+                            opacity: 0.33
                         }
-                    }
 
-                    Text {
-                        id: barcodeTxt
-                        anchors.left: barcodeImg.right
-                        anchors.leftMargin: Theme.componentMargin
-                        anchors.right: parent.right
-                        anchors.rightMargin: Theme.componentMargin
-                        anchors.verticalCenter: parent.verticalCenter
+                        IconSvg {
+                            id: barcodeImg
+                            width: parent.height * 0.666
+                            height: parent.height * 0.666
+                            anchors.left: parent.left
+                            anchors.leftMargin: Theme.componentMargin
+                            anchors.verticalCenter: parent.verticalCenter
+                            color: "white"
+                            source: modelData.isMatrix ? "qrc:/assets/icons_material/baseline-qr_code_2-24px.svg" :
+                                                         "qrc:/assets/icons_bootstrap/upc.svg"
+                        }
 
-                        text: barcodeReader && barcodeReader.tagText
-                        color: "white"
-                        font.pixelSize: Theme.fontSizeContent
-                        elide: Text.ElideRight
-                        //wrapMode: Text.WordWrap
-                    }
+                        Text {
+                            id: barcodeTxt
+                            anchors.left: barcodeImg.right
+                            anchors.leftMargin: Theme.componentMargin
+                            anchors.right: parent.right
+                            anchors.rightMargin: Theme.componentMargin
+                            anchors.verticalCenter: parent.verticalCenter
 
-                    Text {
-                        anchors.right: parent.right
-                        anchors.rightMargin: Theme.componentMargin
-                        anchors.verticalCenter: parent.verticalCenter
+                            text: modelData.data
+                            color: "white"
+                            font.pixelSize: Theme.fontSizeContent
+                            elide: Text.ElideRight
+                            //wrapMode: Text.WordWrap
+                        }
 
-                        text: barcodeReader && barcodeReader.tagFormat
-                        color: "white"
-                        opacity: 0.66
-                        font.pixelSize: Theme.fontSizeContentSmall
-                        elide: Text.ElideRight
-                        //wrapMode: Text.WordWrap
-                    }
+                        Text {
+                            anchors.right: parent.right
+                            anchors.rightMargin: Theme.componentMargin
+                            anchors.verticalCenter: parent.verticalCenter
 
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: {
-                            Qt.openUrlExternally(barcodeReader.tagText)
+                            text: modelData.format
+                            color: "white"
+                            opacity: 0.66
+                            font.pixelSize: Theme.fontSizeContentSmall
+                            elide: Text.ElideRight
+                            //wrapMode: Text.WordWrap
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                Qt.openUrlExternally(modelData.data)
+                            }
                         }
                     }
                 }

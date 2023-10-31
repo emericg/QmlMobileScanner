@@ -9,13 +9,17 @@ ZXingQtVideoFilter {
     id: barcodeReader
 
     videoSink: videoOutput.videoSink
-    formats: settingsManager.formatsEnabled // ZXingCpp.LinearCodes | ZXingCpp.MatrixCodes
-/*
-    captureRect: Qt.rect(videoOutput.sourceRect.width * videoOutput.captureRectStartFactorX,
-                         videoOutput.sourceRect.height * videoOutput.captureRectStartFactorY,
-                         videoOutput.sourceRect.width * videoOutput.captureRectFactorWidth,
-                         videoOutput.sourceRect.height * videoOutput.captureRectFactorHeight)
+    captureRect: settingsManager.scan_fullscreen ?
+                     Qt.rect(videoOutput.sourceRect.x, videoOutput.sourceRect.y,
+                             videoOutput.sourceRect.width, videoOutput.sourceRect.height) :
+                     Qt.rect(videoOutput.sourceRect.width * videoOutput.captureRectStartFactorX,
+                             videoOutput.sourceRect.height * videoOutput.captureRectStartFactorY,
+                             videoOutput.sourceRect.width * videoOutput.captureRectFactorWidth,
+                             videoOutput.sourceRect.height * videoOutput.captureRectFactorHeight)
 
+    formats: settingsManager.formatsEnabled
+/*
+    formats: ZXingCpp.LinearCodes | ZXingCpp.MatrixCodes
     formats: ZXingCpp.Codabar |
              ZXingCpp.Code39 | ZXingCpp.Code93 | ZXingCpp.Code128 |
              ZXingCpp.EAN8 | ZXingCpp.EAN13 |
@@ -24,7 +28,7 @@ ZXingQtVideoFilter {
              ZXingCpp.UPCA | ZXingCpp.UPCE |
              ZXingCpp.Aztec |
              ZXingCpp.DataMatrix |
-             //ZXingCpp.MaxiCode |
+             ZXingCpp.MaxiCode |
              ZXingCpp.PDF417 |
              ZXingCpp.QRCode | ZXingCpp.MicroQRCode
 */
@@ -32,16 +36,9 @@ ZXingQtVideoFilter {
     tryHarder: settingsManager.scan_tryHarder
     tryDownscale: settingsManager.scan_tryDownscale
 
-    property string tagText
-    property string tagFormat
-    property string tagEncoding
-
     property real timePerFrameDecode: 0
     property int framesDecodedTotal: 0
     property var framesDecodedTable: []
-
-    property var nullPoints: [Qt.point(0,0), Qt.point(0,0), Qt.point(0,0), Qt.point(0,0)]
-    property var points: nullPoints
 
     function mapPointToItem(point) {
         if (videoOutput.sourceRect.width === 0 || videoOutput.sourceRect.height === 0) return Qt.point(0, 0)
@@ -74,22 +71,14 @@ ZXingQtVideoFilter {
         //console.log("onTagFound : " + result)
 
         if (result.isValid && result.text !== "") {
-            points = [mapPointToItem(result.position.topLeft), mapPointToItem(result.position.topRight),
-                      mapPointToItem(result.position.bottomRight), mapPointToItem(result.position.bottomLeft)]
+            var newbarcode = barcodeManager.addBarcode(result.text, result.formatName, result.contentType, "",
+                                                       mapPointToItem(result.position.topLeft), mapPointToItem(result.position.topRight),
+                                                       mapPointToItem(result.position.bottomRight), mapPointToItem(result.position.bottomLeft))
 
-            barcodeVisibleTimer.start()
-
-            if (result.text !== tagText) {
+            if (newbarcode) {
                 utilsApp.vibrate(33)
-
-                //barcodeManager.addBarcode(result.text, result.formatName, result.contentType, "")
                 barcodeManager.addHistory(result.text, result.formatName, result.contentType, "")
-
-                barcodeReader.tagText = result.text
-                barcodeReader.tagFormat = result.formatName
             }
-        } else {
-            points = nullPoints
         }
     }
 

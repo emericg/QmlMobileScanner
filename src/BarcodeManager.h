@@ -40,7 +40,7 @@ class BarcodeManager: public QObject
 
     Q_PROPERTY(bool hasBarcodes READ hasBarcodes NOTIFY barcodesChanged)
     Q_PROPERTY(int barcodesCount READ getBarcodesCount NOTIFY barcodesChanged)
-    Q_PROPERTY(QVariant barcodes READ getBarcodesHistory NOTIFY barcodesChanged)
+    Q_PROPERTY(QVariant barcodes READ getBarcodes NOTIFY barcodesChanged)
 
     Q_PROPERTY(bool hasBarcodesHistory READ hasBarcodesHistory NOTIFY historyChanged)
     Q_PROPERTY(int barcodesHistoryCount READ getBarcodesHistoryCount NOTIFY historyChanged)
@@ -60,8 +60,9 @@ Q_SIGNALS:
 public:
     static BarcodeManager *getInstance();
 
-    Q_INVOKABLE void addBarcode(const QString &data, const QString &format,
-                                const QString &enc, const QString &ecc);
+    Q_INVOKABLE bool addBarcode(const QString &data, const QString &format,
+                                const QString &enc, const QString &ecc,
+                                const QPoint &p1, const QPoint &p2,  const QPoint &p3, const QPoint &p4);
 
     Q_INVOKABLE void addHistory(const QString &data, const QString &format,
                                 const QString &enc, const QString &ecc);
