@@ -26,6 +26,7 @@
 Barcode::Barcode(const QString &data, const QString &format,
                  const QString &enc, const QString &ecc,
                  const QDateTime &date, const double lat, const double lon,
+                 const bool starred,
                  QObject *parent) : QObject(parent)
 {
     m_data = data;
@@ -36,6 +37,8 @@ Barcode::Barcode(const QString &data, const QString &format,
     m_date = date;
     m_geo_lat = lat;
     m_geo_long = lon;
+
+    m_starred = starred;
 
     m_isMatrix = (format == "QR_CODE" || format == "QRCode" || format == "MicroQRCode" ||
                   format == "DATA_MATRIX" || format == "DataMatrix" || format == "Aztec" ||
@@ -87,6 +90,15 @@ Barcode::~Barcode()
 }
 
 /* ************************************************************************** */
+
+void Barcode::setStarred(const bool value)
+{
+    if (m_starred != value)
+    {
+        m_starred = value;
+        Q_EMIT barcodeChanged();
+    }
+}
 
 void Barcode::setLastSeen(const QDateTime &value)
 {

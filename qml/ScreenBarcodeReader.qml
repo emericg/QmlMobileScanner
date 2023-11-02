@@ -10,7 +10,6 @@ import ThemeEngine
 Loader {
     id: screenBarcodeReader
     anchors.fill: parent
-    z: 24
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -50,26 +49,26 @@ Loader {
 
         if (screenBarcodeReader.status === Loader.Ready) {
             screenBarcodeReader.item.close()
-            //screenBarcodeReader.active = false // crash ?!
+            screenBarcodeReader.active = false // crash ?!
         }
     }
 
     ////////////////////////////////////////////////////////////////////////////
-
-    active: false
-    asynchronous: true
-
-    opacity: active ? 1 : 0
-    Behavior on opacity { NumberAnimation { duration: 333 } }
 
     Rectangle {
         anchors.fill: parent
         color: "black"
     }
 
+    active: false
+    asynchronous: true
+
     sourceComponent: Rectangle {
         anchors.fill: parent
         color: "black"
+
+        opacity: camera.active ? 1 : 0
+        Behavior on opacity { NumberAnimation { duration: 233 } }
 
         Component.onCompleted: open()
 
@@ -119,16 +118,16 @@ Loader {
         CaptureSession {
             id: captureSession
 
+            videoOutput: videoOutput
+
             camera: Camera {
                 id: camera
                 active: true
                 focusMode: Camera.FocusModeAutoNear
 
                 cameraDevice: mediaDevices.videoInputs[mediaDevices.selectedDevice] ? mediaDevices.videoInputs[mediaDevices.selectedDevice] : mediaDevices.defaultVideoInput
-                onErrorOccurred: console.log("camera error:" + errorString)
+                onErrorOccurred: console.log("CaptureSession::Camera ERROR " + errorString)
             }
-
-            videoOutput: videoOutput
         }
 
         ////////////////////////
@@ -148,7 +147,9 @@ Loader {
             id: videoOutput
             anchors.fill: parent
 
-            // PreserveAspectFit / PreserveAspectCrop / Stretch
+            orientation: 0
+
+            // Stretch / PreserveAspectFit / PreserveAspectCrop
             fillMode: VideoOutput.PreserveAspectCrop
 
             // Capture rectangle
@@ -159,6 +160,18 @@ Loader {
 
             ////
 
+            function printInfos() {
+                console.log("> Camera > " + mediaDevices.selectedDevice.description)
+                console.log("- videoOutput sz: " + videoOutput.x + "," + videoOutput.y + " - " + videoOutput.width + "x" + videoOutput.height)
+                console.log("- sourceRect  sz: " + videoOutput.sourceRect.x.toFixed() + "," + videoOutput.sourceRect.y + " - " + videoOutput.sourceRect.width + "x" + videoOutput.sourceRect.height)
+                console.log("- contentRect sz: " + videoOutput.contentRect.x.toFixed() + "," + videoOutput.contentRect.y.toFixed() + " - " +
+                                                   videoOutput.contentRect.width.toFixed() + "x" + videoOutput.contentRect.height.toFixed())
+                console.log("- captureRect sz: " + barcodeReader.captureRect.x.toFixed() + "," + barcodeReader.captureRect.y.toFixed() + " - " +
+                                                   barcodeReader.captureRect.width.toFixed() + "x" + barcodeReader.captureRect.height.toFixed())
+            }
+
+            ////
+
             Repeater {
                 model: barcodeManager.barcodes
 
@@ -166,7 +179,7 @@ Loader {
                     anchors.fill: parent
 
                     antialiasing: true
-                    opacity: modelData.lastVisible ? 1 : 0
+                    opacity: modelData.lastVisible ? 0.80 : 0
                     Behavior on opacity { NumberAnimation { duration: 133 } }
 
                     ShapePath {
@@ -180,12 +193,12 @@ Loader {
                         strokeStyle: ShapePath.SolidLine
                         fillColor: "transparent"
 
-                        startX: modelData.p4.x
-                        startY: modelData.p4.y
-                        PathLine { x: modelData.p1.x; y: modelData.p1.y; }
-                        PathLine { x: modelData.p2.x; y: modelData.p2.y; }
-                        PathLine { x: modelData.p3.x; y: modelData.p3.y; }
-                        PathLine { x: modelData.p4.x; y: modelData.p4.y; }
+                        startX: modelData.lastCoordinates[3].x
+                        startY: modelData.lastCoordinates[3].y
+                        PathLine { x: modelData.lastCoordinates[0].x; y: modelData.lastCoordinates[0].y; }
+                        PathLine { x: modelData.lastCoordinates[1].x; y: modelData.lastCoordinates[1].y; }
+                        PathLine { x: modelData.lastCoordinates[2].x; y: modelData.lastCoordinates[2].y; }
+                        PathLine { x: modelData.lastCoordinates[3].x; y: modelData.lastCoordinates[3].y; }
                     }
                 }
             }
@@ -490,6 +503,7 @@ Loader {
 
                         text: qsTr("fullscreen")
                         colorText: "white"
+                        colorSubText: "grey"
                         checked: settingsManager.scan_fullscreen
                         onClicked: settingsManager.scan_fullscreen = checked
                     }
@@ -512,6 +526,7 @@ Loader {
 
                         text: qsTr("tryHarder")
                         colorText: "white"
+                        colorSubText: "grey"
                         checked: settingsManager.scan_tryHarder
                         onClicked: settingsManager.scan_tryHarder = checked
                     }
@@ -536,6 +551,7 @@ Loader {
 
                         text: qsTr("tryRotate")
                         colorText: "white"
+                        colorSubText: "grey"
                         checked: settingsManager.scan_tryRotate
                         onClicked: settingsManager.scan_tryRotate = checked
                     }
@@ -560,6 +576,7 @@ Loader {
 
                         text: qsTr("tryDownscale")
                         colorText: "white"
+                        colorSubText: "grey"
                         checked: settingsManager.scan_tryDownscale
                         onClicked: settingsManager.scan_tryDownscale = checked
                     }
@@ -618,6 +635,7 @@ Loader {
 
                             text: modelData.text
                             colorText: "white"
+                            colorSubText: "grey"
                             checked: (settingsManager.formatsEnabled & modelData.value)
                             onClicked: {
                                 if (settingsManager.formatsEnabled & modelData.value)

@@ -10,6 +10,7 @@ SwipeDelegate {
     width: parent.width
     height: 96
     clip: true
+    padding: Theme.componentMargin
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -43,9 +44,7 @@ SwipeDelegate {
     contentItem: Item {
         RowLayout {
             anchors.left: parent.left
-            anchors.leftMargin: Theme.componentMargin / 2
             anchors.right: parent.right
-            anchors.rightMargin: Theme.componentMargin / 2
             anchors.verticalCenter: parent.verticalCenter
             spacing: Theme.componentMargin
 
@@ -139,6 +138,22 @@ SwipeDelegate {
             }
 
             ////
+
+
+            Item {
+                Layout.preferredWidth: 48
+                Layout.preferredHeight: 48
+                Layout.alignment: Qt.AlignVCenter
+
+                IconSvg {
+                    anchors.centerIn: parent
+                    width: 32
+                    height: 32
+                    visible: modelData.isStarred
+                    color: Theme.colorSubText
+                    source: "qrc:/assets/icons_material/baseline-stars-24px.svg"
+                }
+            }
         }
     }
 

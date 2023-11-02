@@ -97,28 +97,25 @@ class Barcode: public QObject
     Q_PROPERTY(QString format READ getFormat CONSTANT)
     Q_PROPERTY(QString encoding READ getEnc CONSTANT)
     Q_PROPERTY(QString errorCorrection READ getEcc CONSTANT)
-
-    Q_PROPERTY(bool isMatrix READ isMatrix CONSTANT)
-    Q_PROPERTY(bool isLinear READ isLinear CONSTANT)
-    Q_PROPERTY(QString content READ getContent CONSTANT)
-
     Q_PROPERTY(QDateTime date READ getDate CONSTANT)
     Q_PROPERTY(double latitude READ getLat CONSTANT)
     Q_PROPERTY(double longitude READ getLon CONSTANT)
 
+    Q_PROPERTY(bool isStarred READ isStarred WRITE setStarred NOTIFY barcodeChanged)
+    Q_PROPERTY(bool isMatrix READ isMatrix CONSTANT)
+    Q_PROPERTY(bool isLinear READ isLinear CONSTANT)
+    Q_PROPERTY(QString content READ getContent CONSTANT)
+
     Q_PROPERTY(bool lastVisible READ getLastVisible NOTIFY lastseenChanged)
     Q_PROPERTY(QDateTime lastSeen READ getLastSeen NOTIFY lastseenChanged)
-    //Q_PROPERTY(QList<QPoint> lastCoordinates READ getLastCoordinates NOTIFY lastseenChanged)
-    Q_PROPERTY(QPoint p1 READ getP1 NOTIFY lastseenChanged)
-    Q_PROPERTY(QPoint p2 READ getP2 NOTIFY lastseenChanged)
-    Q_PROPERTY(QPoint p3 READ getP3 NOTIFY lastseenChanged)
-    Q_PROPERTY(QPoint p4 READ getP4 NOTIFY lastseenChanged)
+    Q_PROPERTY(QList<QPoint> lastCoordinates READ getLastCoordinates NOTIFY lastseenChanged)
 
     QString m_data;
     QString m_format;
     QString m_encoding;
     QString m_ecc;
 
+    bool m_starred = false;
     bool m_isMatrix = false;
     QString m_content;
 
@@ -137,7 +134,7 @@ Q_SIGNALS:
 
 public:
     Barcode(const QString &data, const QString &format, const QString &enc, const QString &ecc,
-            const QDateTime &date = QDateTime(), const double lat = 0.0, const double lon = 0.0,
+            const QDateTime &date = QDateTime(), const double lat = 0.0, const double lon = 0.0, const bool starred = false,
             QObject *parent = nullptr);
     Barcode(const QString &data, const QString &format, const QString &enc, const QString &ecc,
             const QDateTime &lastseen, const QPoint &p1, const QPoint &p2, const QPoint &p3, const QPoint &p4,
@@ -152,6 +149,9 @@ public:
     double getLat() const { return m_geo_lat; }
     double getLon() const { return m_geo_long; }
 
+    bool isStarred() const { return m_starred; }
+    void setStarred(const bool value);
+
     bool isMatrix() const { return m_isMatrix; }
     bool isLinear() const { return !m_isMatrix; }
     QString getContent() const { return m_content; }
@@ -161,11 +161,6 @@ public:
     void setLastSeen(const QDateTime &value);
     QList<QPoint> getLastCoordinates() const { return m_lastCoordinates; }
     void setLastCoordinates(const QPoint &p1, const QPoint &p2, const QPoint &p3, const QPoint &p4);
-
-    QPoint getP1() const { if (m_lastCoordinates.size() != 4) return QPoint(100, 100); return m_lastCoordinates.at(0); }
-    QPoint getP2() const { if (m_lastCoordinates.size() != 4) return QPoint(200, 100); return m_lastCoordinates.at(1); }
-    QPoint getP3() const { if (m_lastCoordinates.size() != 4) return QPoint(200, 200); return m_lastCoordinates.at(2); }
-    QPoint getP4() const { if (m_lastCoordinates.size() != 4) return QPoint(100, 200); return m_lastCoordinates.at(3); }
 };
 
 /* ************************************************************************** */

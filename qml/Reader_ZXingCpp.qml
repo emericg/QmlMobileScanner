@@ -41,10 +41,12 @@ ZXingQtVideoFilter {
     property var framesDecodedTable: []
 
     function mapPointToItem(point) {
+        //console.log("mapPointToItem(" + point + ")")
+
         if (videoOutput.sourceRect.width === 0 || videoOutput.sourceRect.height === 0) return Qt.point(0, 0)
 
-        let dx = point.x
-        let dy = point.y
+        let dx = point.x + barcodeReader.captureRect.x
+        let dy = point.y + barcodeReader.captureRect.y
 
         if ((videoOutput.orientation % 180) == 0) {
             dx = dx * videoOutput.contentRect.width / videoOutput.sourceRect.width
@@ -86,7 +88,7 @@ ZXingQtVideoFilter {
         //console.log("ZXingCpp::onDecodingStarted()")
     }
     onDecodingFinished: (result) => {
-        if (framesDecodedTable.length >= 120) framesDecodedTotal -= framesDecodedTable.shift()
+        if (framesDecodedTable.length >= 60) framesDecodedTotal -= framesDecodedTable.shift()
         framesDecodedTable.push(result.runTime)
         framesDecodedTotal += result.runTime
 

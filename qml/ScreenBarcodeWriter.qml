@@ -48,7 +48,7 @@ Loader {
                 return
             }
 
-            // don't change screen
+            screenBarcodeReader.loadScreen()
         }
 
         Grid {

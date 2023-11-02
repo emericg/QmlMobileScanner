@@ -210,12 +210,16 @@ ApplicationWindow {
                 Qt.quit()
             else
                 exitTimer.start()
+        } else if (appContent.state === "ScreenBarcodeWriter") {
+            screenBarcodeWriter.backAction()
         } else if (appContent.state === "ScreenBarcodeDetails") {
            screenBarcodeDetails.backAction()
-        }  else if (appContent.state === "ScreenAbout" ||
-                   appContent.state === "ScreenAboutFormats" ||
-                   appContent.state === "ScreenAboutPermissions") {
+        } else if (appContent.state === "ScreenAbout") {
             screenAbout.backAction()
+        } else if (appContent.state === "ScreenAboutFormats") {
+            screenAboutFormats.backAction()
+        } else if (appContent.state === "ScreenAboutPermissions") {
+            screenAboutPermissions.backAction()
         } else {
             screenBarcodeReader.loadScreen()
         }
@@ -324,7 +328,6 @@ ApplicationWindow {
                 //
             } else {
                 screenBarcodeReader.close()
-                //mobileUI.refreshUI()
             }
         }
 

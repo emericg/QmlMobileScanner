@@ -54,7 +54,7 @@ QZXingFilter {
         //console.log("QZXing::onDecodingStarted()")
     }
     onDecodingFinished: (succeeded, decodeTime) => {
-        if (framesDecodedTable.length >= 120) framesDecodedTotal -= framesDecodedTable.shift()
+        if (framesDecodedTable.length >= 60) framesDecodedTotal -= framesDecodedTable.shift()
         framesDecodedTable.push(decodeTime)
         framesDecodedTotal += decodeTime
 

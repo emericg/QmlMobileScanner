@@ -50,21 +50,30 @@ BarcodeManager::BarcodeManager()
     if (db && db->hasDatabaseInternal())
     {
         // Load saved barcodes
-        QSqlQuery queryBarcodes;
-        queryBarcodes.exec("SELECT data, format, encoding, ecc, date, lat, long FROM barcodes");
-        while (queryBarcodes.next())
+        QSqlQuery loadBarcodes;
+        bool status = loadBarcodes.exec("SELECT data, format, encoding, ecc, date, lat, long, starred FROM barcodes");
+        if (status)
         {
-            QString barcodeData = queryBarcodes.value(0).toString();
-            QString barcodeFormat = queryBarcodes.value(1).toString();
-            QString barcodeEncoding = queryBarcodes.value(2).toString();
-            QString barcodeEcc = queryBarcodes.value(3).toString();
-            QDateTime barcodeDateTime = QDateTime::fromMSecsSinceEpoch(queryBarcodes.value(4).toULongLong());
-            double barcodeLatitude = queryBarcodes.value(5).toDouble();
-            double barcodeLongitude = queryBarcodes.value(6).toDouble();
+            while (loadBarcodes.next())
+            {
+                QString barcodeData = loadBarcodes.value(0).toString();
+                QString barcodeFormat = loadBarcodes.value(1).toString();
+                QString barcodeEncoding = loadBarcodes.value(2).toString();
+                QString barcodeEcc = loadBarcodes.value(3).toString();
+                QDateTime barcodeDateTime = QDateTime::fromMSecsSinceEpoch(loadBarcodes.value(4).toULongLong());
+                double barcodeLatitude = loadBarcodes.value(5).toDouble();
+                double barcodeLongitude = loadBarcodes.value(6).toDouble();
+                bool barcodeStarred = loadBarcodes.value(7).toBool();
 
-            Barcode *bc = new Barcode(barcodeData, barcodeFormat, barcodeEncoding, barcodeEcc,
-                                      barcodeDateTime, barcodeLatitude, barcodeLongitude, this);
-            if (bc) m_barcodes_history.push_back(bc);
+                Barcode *bc = new Barcode(barcodeData, barcodeFormat, barcodeEncoding, barcodeEcc,
+                                          barcodeDateTime, barcodeLatitude, barcodeLongitude, barcodeStarred, this);
+                if (bc) m_barcodes_history.push_back(bc);
+            }
+        }
+        else
+        {
+            qWarning() << "> loadBarcodes.exec() ERROR"
+                       << loadBarcodes.lastError().type() << ":" << loadBarcodes.lastError().text();
         }
     }
 }

@@ -121,10 +121,8 @@ bool DatabaseManager::openDatabase_sqlite()
 
                         // Sanitize database ///////////////////////////////////
 
-                        int maxDays = 180;
-
-                        // Delete everything xx days old
-                        QSqlQuery sanitizePastData("DELETE FROM barcodeHistory WHERE timestamp < DATE('now', '-" + QString::number(maxDays) + " days')");
+                        // Delete everything 180 days old
+                        //QSqlQuery sanitizePastData("DELETE FROM barcodes WHERE date < DATE('now', '-" + QString::number(180) + " days')");
                     }
                     else
                     {
@@ -258,7 +256,8 @@ void DatabaseManager::createDatabase()
                                        "ecc VARCHAR(8)," \
                                        "date DATETIME," \
                                        "lat FLOAT," \
-                                       "long FLOAT" \
+                                       "long FLOAT," \
+                                       "starred BOOLEAN" \
                                      ");");
 
         if (createBarcodes.exec() == false)

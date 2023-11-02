@@ -36,7 +36,7 @@ Loader {
         ScrollBar.vertical: ScrollBar { visible: false }
 
         function backAction() {
-            screenDeviceList.loadScreen()
+            screenBarcodeReader.loadScreen()
         }
 
         Column {

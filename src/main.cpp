@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
     engine_context->setContextProperty("utilsFpsMonitor", utilsFpsMonitor);
 
 #if defined(Q_OS_ANDROID)
-    QNativeInterface::QAndroidApplication::hideSplashScreen(333);
+    QNativeInterface::QAndroidApplication::hideSplashScreen(233);
 #endif
 
     return app.exec();
