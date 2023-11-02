@@ -110,6 +110,8 @@ bool SettingsManager::readSettings()
             m_scan_tryHarder = settings.value("settings/tryHarder").toBool();
         if (settings.contains("settings/tryRotate"))
             m_scan_tryRotate = settings.value("settings/tryRotate").toBool();
+        if (settings.contains("settings/tryInvert"))
+            m_scan_tryInvert = settings.value("settings/tryInvert").toBool();
         if (settings.contains("settings/tryDownscale"))
             m_scan_tryDownscale = settings.value("settings/tryDownscale").toBool();
 
@@ -149,6 +151,7 @@ bool SettingsManager::writeSettings()
         settings.setValue("settings/scanfullscreen", m_scan_fullscreen);
         settings.setValue("settings/tryHarder", m_scan_tryHarder);
         settings.setValue("settings/tryRotate", m_scan_tryRotate);
+        settings.setValue("settings/tryInvert", m_scan_tryInvert);
         settings.setValue("settings/tryDownscale", m_scan_tryDownscale);
 
         if (settings.status() == QSettings::NoError)
@@ -181,10 +184,12 @@ void SettingsManager::resetSettings()
     m_formatsEnabled_zxingcpp = 0xffffffff; // ZXing::LinearCodes | ZXing::MatrixCodes;
     m_formatsEnabled_qzxing = 0xffffffff; // QZXing::LinearCodes | QZXing::MatrixCodes;
     m_showDebug = false;
+
     m_scan_fullscreen = false;
     m_scan_tryHarder = true;
-    m_scan_tryRotate = false;
-    m_scan_tryDownscale = false;
+    m_scan_tryRotate = true;
+    m_scan_tryInvert = true;
+    m_scan_tryDownscale = true;
 
     writeSettings();
 }
@@ -308,6 +313,17 @@ void SettingsManager::setScanTryRotate(const bool value)
     {
         m_scan_tryRotate = value;
         Q_EMIT tryRotateChanged();
+
+        writeSettings();
+    }
+}
+
+void SettingsManager::setScanTryInvert(const bool value)
+{
+    if (m_scan_tryInvert != value)
+    {
+        m_scan_tryInvert = value;
+        Q_EMIT tryInvertChanged();
 
         writeSettings();
     }

@@ -574,6 +574,31 @@ Loader {
                         width: parent.width - 16
                         LayoutMirroring.enabled: true
 
+                        text: qsTr("tryInvert")
+                        colorText: "white"
+                        colorSubText: "grey"
+                        checked: settingsManager.scan_tryInvert
+                        onClicked: settingsManager.scan_tryInvert = checked
+                    }
+                }
+                Item {
+                    width: parent.width
+                    height: 40
+
+                    visible: (settingsManager.backend === "zxingcpp")
+
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: 24
+                        color: "black"
+                        opacity: 0.33
+                    }
+
+                    SwitchThemed {
+                        anchors.centerIn: parent
+                        width: parent.width - 16
+                        LayoutMirroring.enabled: true
+
                         text: qsTr("tryDownscale")
                         colorText: "white"
                         colorSubText: "grey"

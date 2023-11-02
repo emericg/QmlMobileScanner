@@ -143,7 +143,7 @@ void BarcodeManager::addHistory(const QString &data, const QString &format,
         }
 
         Barcode *bc = new Barcode(data, format, enc, ecc,
-                                  QDateTime::currentDateTime(), 0, 0,
+                                  QDateTime::currentDateTime(), 0, 0, false,
                                   this);
         if (bc)
         {

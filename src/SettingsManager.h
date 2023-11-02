@@ -54,6 +54,7 @@ class SettingsManager: public QObject
     Q_PROPERTY(bool scan_fullscreen READ getScanFullscreen WRITE setScanFullscreen NOTIFY fullscreenChanged)
     Q_PROPERTY(bool scan_tryHarder READ getScanTryHarder WRITE setScanTryHarder NOTIFY tryHarderChanged)
     Q_PROPERTY(bool scan_tryRotate READ getScanTryRotate WRITE setScanTryRotate NOTIFY tryRotateChanged)
+    Q_PROPERTY(bool scan_tryInvert READ getScanTryInvert WRITE setScanTryInvert NOTIFY tryInvertChanged)
     Q_PROPERTY(bool scan_tryDownscale READ getScanTryDownscale WRITE setScanTryDownscale NOTIFY tryDownscaleChanged)
 
     bool m_firstlaunch = false;
@@ -74,8 +75,9 @@ class SettingsManager: public QObject
     bool m_showDebug = false;
     bool m_scan_fullscreen = false;
     bool m_scan_tryHarder = true;
-    bool m_scan_tryRotate = false;
-    bool m_scan_tryDownscale = false;
+    bool m_scan_tryRotate = true;
+    bool m_scan_tryInvert = true;
+    bool m_scan_tryDownscale = true;
 
     static SettingsManager *instance;
     SettingsManager();
@@ -95,6 +97,7 @@ Q_SIGNALS:
     void fullscreenChanged();
     void tryHarderChanged();
     void tryRotateChanged();
+    void tryInvertChanged();
     void tryDownscaleChanged();
 
 public:
@@ -129,6 +132,8 @@ public:
     void setScanTryHarder(const bool value);
     bool getScanTryRotate() const { return m_scan_tryRotate; }
     void setScanTryRotate(const bool value);
+    bool getScanTryInvert() const { return m_scan_tryInvert; }
+    void setScanTryInvert(const bool value);
     bool getScanTryDownscale() const { return m_scan_tryDownscale; }
     void setScanTryDownscale(const bool value);
 

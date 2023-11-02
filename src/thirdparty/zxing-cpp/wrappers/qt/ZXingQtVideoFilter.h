@@ -77,36 +77,35 @@ public:
     const Position &position() const { return m_position; }
 };
 
-class ZXingQtVideoFilter : public QObject, private DecodeHints
+class ZXingQtVideoFilter : public QObject
 {
     Q_OBJECT
 
     Q_PROPERTY(bool tryHarder READ tryHarder WRITE setTryHarder NOTIFY tryHarderChanged)
     Q_PROPERTY(bool tryRotate READ tryRotate WRITE setTryRotate NOTIFY tryRotateChanged)
+    Q_PROPERTY(bool tryInvert READ tryInvert WRITE setTryInvert NOTIFY tryInvertChanged)
     Q_PROPERTY(bool tryDownscale READ tryDownscale WRITE setTryDownscale NOTIFY tryDownscaleChanged)
-
     Q_PROPERTY(int formats READ formats WRITE setFormats NOTIFY formatsChanged)
     Q_PROPERTY(QRect captureRect READ captureRect WRITE setCaptureRect NOTIFY captureRectChanged)
     Q_PROPERTY(QVideoSink *videoSink MEMBER m_videoSink WRITE setVideoSink)
 
-    QVideoSink *m_videoSink = nullptr;
-    QFuture<void> m_processThread;
-    QElapsedTimer m_processTimer;
-    QRect m_captureRect;
-
-    bool m_decoding = false;
     bool m_active = true;
+    bool m_decoding = false;
+    QFuture <void> m_processThread;
+    QElapsedTimer m_processTimer;
 
-    bool m_tryHarder = true;
-    bool m_tryRotate = true;
-    bool m_tryDownscale = false;
+    QRect m_captureRect;
+    DecodeHints m_decodeHints;
 
+    QVideoSink *m_videoSink = nullptr;
     void setVideoSink(QVideoSink *sink);
 
 signals:
     void tryHarderChanged();
     void tryRotateChanged();
+    void tryInvertChanged();
     void tryDownscaleChanged();
+
     void formatsChanged();
     void captureRectChanged();
 
@@ -121,20 +120,22 @@ public:
     ZXingQtVideoFilter(QObject *parent = nullptr);
     ~ZXingQtVideoFilter();
 
-    bool tryHarder() const { return m_tryHarder; }
-    void setTryHarder(const bool value);
-    bool tryRotate() const { return m_tryRotate; }
-    void setTryRotate(const bool value);
-    bool tryDownscale() const { return m_tryDownscale; }
-    void setTryDownscale(const bool value);
-
-    int formats() const noexcept;
-    void setFormats(int newVal);
-
     QRect captureRect() const { return m_captureRect; }
     void setCaptureRect(const QRect &captureRect);
 
     Q_INVOKABLE void stopFilter();
+
+    // decode hints
+    int formats() const noexcept;
+    void setFormats(int newVal);
+    bool tryHarder() const { return m_decodeHints.tryHarder(); }
+    void setTryHarder(const bool value);
+    bool tryRotate() const { return m_decodeHints.tryRotate(); }
+    void setTryRotate(const bool value);
+    bool tryInvert() const { return m_decodeHints.tryInvert(); }
+    void setTryInvert(const bool value);
+    bool tryDownscale() const { return m_decodeHints.tryDownscale(); }
+    void setTryDownscale(const bool value);
 };
 
 } // namespace ZXingQt

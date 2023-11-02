@@ -32,8 +32,9 @@ ZXingQtVideoFilter {
              ZXingCpp.PDF417 |
              ZXingCpp.QRCode | ZXingCpp.MicroQRCode
 */
-    tryRotate: settingsManager.scan_tryRotate
     tryHarder: settingsManager.scan_tryHarder
+    tryRotate: settingsManager.scan_tryRotate
+    tryInvert: settingsManager.scan_tryInvert
     tryDownscale: settingsManager.scan_tryDownscale
 
     property real timePerFrameDecode: 0
