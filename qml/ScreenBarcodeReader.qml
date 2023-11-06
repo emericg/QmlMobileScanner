@@ -370,7 +370,7 @@ Loader {
 
             MouseArea {
                 anchors.fill: parent
-                enabled: menuDebug.visible || menuFormats.visible || menuCamera.visible || menuScreens.visible
+                enabled: (menuDebug.visible || menuFormats.visible || menuCamera.visible || menuScreens.visible)
                 onClicked: {
                     menuDebug.visible = false
                     menuFormats.visible = false
@@ -651,7 +651,7 @@ Loader {
                             width: parent.height * 0.5
                             height: parent.height * 0.5
                             anchors.centerIn: parent
-                            color: "white"
+                            color: (camera.torchMode === Camera.TorchOn) ? Theme.colorYellow : "white"
                             source: {
                                 if (camera.torchMode !== Camera.TorchOn)
                                     return "qrc:/assets/icons_material/baseline-flash_off-24px.svg"

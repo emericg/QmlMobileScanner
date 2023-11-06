@@ -22,6 +22,12 @@ DrawerThemed {
 
                 height: Math.max(screenPaddingTop, screenPaddingStatusbar)
                 color: Theme.colorBackground // to hide flickable content
+
+                Rectangle {
+                    anchors.fill: parent
+                    color: Theme.colorStatusbar // so we can read the statusbar
+                    opacity: 0.85
+                }
             }
 
             ////////
@@ -158,6 +164,19 @@ DrawerThemed {
 
                 ////////
             }
+        }
+
+        ////////////////
+
+        Rectangle {
+            id: rectangleNavigationbar
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+
+            height: Math.max(screenPaddingBottom, screenPaddingNavbar)
+            color: Theme.colorStatusbar // so we can read the navigation bar
+            opacity: 0.85
         }
 
         ////////////////
