@@ -34,6 +34,12 @@ Item {
 
         ////////
 
+        enum SupportLevel {
+            None,
+            Supported,
+            Incomplete
+        }
+
         ListModel {
             id: qzxing
             ListElement { type: "linear"; name: "UPC-A"; decode: 1; encode: 0; }
@@ -68,7 +74,7 @@ Item {
             ListElement { type: "matrix"; name: "Aztec"; decode: 1; encode: 1; }
             ListElement { type: "matrix"; name: "Data Matrix"; decode: 1; encode: 1; }
             ListElement { type: "matrix"; name: "PDF 417"; decode: 1; encode: 1; }
-            ListElement { type: "matrix"; name: "MaxiCode"; decode: 1; encode: 0; }
+            ListElement { type: "matrix"; name: "MaxiCode"; decode: 2; encode: 0; }
         }
 
         ////////
@@ -102,33 +108,57 @@ Item {
                     Layout.fillHeight: true
                     Layout.fillWidth: true
                     Layout.preferredWidth: 64
+                    Layout.margins: 2
+                    radius: 4
 
-                    color: decode ? Theme.colorGreen : Theme.colorOrange
+                    color: {
+                        if (decode === 1) return Theme.colorGreen
+                        if (decode === 2) return Theme.colorOrange
+                        return Theme.colorBackground
+                    }
                 }
                 Rectangle {
                     Layout.fillHeight: true
                     Layout.fillWidth: true
                     Layout.preferredWidth: 64
+                    Layout.margins: 2
+                    radius: 4
 
-                    color: encode ? Theme.colorGreen : Theme.colorOrange
+                    color: {
+                        if (encode === 1) return Theme.colorGreen
+                        if (encode === 2) return Theme.colorOrange
+                        return Theme.colorBackground
+                    }
                 }
             }
 
             section.property: "type"
             section.criteria: ViewSection.FullString
-            section.delegate: Rectangle {
+            section.delegate: Item {
                 width: ListView.view.width
-                height: 40
-                color: Theme.colorForeground
+                height: 48
 
                 required property string section
 
-                Text {
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: parent.section
-                    color:Theme.colorText
-                    font.bold: false
-                    font.pixelSize: Theme.fontSizeContent
+                Rectangle {
+                    anchors.fill: parent
+                    anchors.topMargin: 4
+                    anchors.bottomMargin: 4
+
+                    radius: 4
+                    color: Theme.colorForeground
+
+                    Text {
+                        anchors.left: parent.left
+                        anchors.leftMargin: Theme.componentMargin
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        text: section
+                        color: Theme.colorText
+                        font.bold: true
+                        font.pixelSize: Theme.fontSizeContent
+                        font.capitalization: Font.Capitalize
+                    }
                 }
             }
         }

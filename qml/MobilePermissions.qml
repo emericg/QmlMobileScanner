@@ -101,7 +101,7 @@ Item {
                     text: qsTr("Network access")
                     textFormat: Text.PlainText
                     wrapMode: Text.WordWrap
-                    font.pixelSize: 18
+                    font.pixelSize: Theme.fontSizeContentBig
                     color: Theme.colorText
                     verticalAlignment: Text.AlignVCenter
                 }
@@ -162,7 +162,7 @@ Item {
                     text: qsTr("Camera")
                     textFormat: Text.PlainText
                     wrapMode: Text.WordWrap
-                    font.pixelSize: 18
+                    font.pixelSize: Theme.fontSizeContentBig
                     color: Theme.colorText
                     verticalAlignment: Text.AlignVCenter
                 }

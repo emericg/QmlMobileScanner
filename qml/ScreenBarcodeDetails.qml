@@ -210,27 +210,75 @@ Item {
 
             Column { // pane 2
                 width: gridContent.www
-                height: gridContent.hhh
                 spacing: Theme.componentMargin
+
+                ////
+
+                Rectangle {
+                    width: parent.width
+                    height: barcodedata2.contentHeight + Theme.componentMargin
+                    radius: Theme.componentRadius
+                    color: "white"
+                    border.width: 2
+                    border.color: Theme.colorComponentBorder
+
+                    Text {
+                        id: barcodedata2
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.margins: Theme.componentMargin
+
+                        text: barcode.data
+                        color: Theme.colorText
+                        wrapMode: Text.WrapAnywhere
+                        font.pixelSize: Theme.fontSizeContentBig
+                    }
+                }
+
+                ////
+
+                Row { // format
+                    //visible: barcode.format
+                    height: 20
+                    spacing: 8
+
+                    IconSvg {
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: 20
+                        height: 20
+
+                        source: barcode.isMatrix ? "qrc:/assets/icons_material/baseline-qr_code_2-24px.svg" :
+                                                   "qrc:/assets/icons_bootstrap/barcode.svg"
+                        color: Theme.colorIcon
+                    }
+                    Text {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: barcode.format
+                        font.pixelSize: Theme.fontSizeContent
+                        color: Theme.colorSubText
+                    }
+                }
 
                 ////
 
                 Row { // date
                     //visible: barcode.date
-                    height: 24
+                    height: 20
                     spacing: 8
 
                     IconSvg {
-                        width: 24
-                        height: 24
                         anchors.verticalCenter: parent.verticalCenter
+                        width: 20
+                        height: 20
+
                         source: "qrc:/assets/icons_material/duotone-date_range-24px.svg"
                         color: Theme.colorIcon
                     }
                     Text {
                         anchors.verticalCenter: parent.verticalCenter
                         text: barcode.date
-                        font.pixelSize: 15
+                        font.pixelSize: Theme.fontSizeContent
                         color: Theme.colorSubText
                     }
                 }
@@ -239,20 +287,21 @@ Item {
 
                 Row { // location
                     //visible: (barcode.latitude != 0 && barcode.longitude != 0)
-                    height: 24
+                    height: 20
                     spacing: 8
 
                     IconSvg {
-                        width: 24
-                        height: 24
                         anchors.verticalCenter: parent.verticalCenter
+                        width: 20
+                        height: 20
+
                         source: "qrc:/assets/icons_material/duotone-pin_drop-24px.svg"
                         color: Theme.colorIcon
                     }
                     Text {
                         anchors.verticalCenter: parent.verticalCenter
                         text: barcode.latitude + "°N " + barcode.longitude + "°E"
-                        font.pixelSize: 15
+                        font.pixelSize: Theme.fontSizeContent
                         color: Theme.colorSubText
                     }
                 }

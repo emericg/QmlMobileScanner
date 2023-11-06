@@ -23,6 +23,11 @@
         <file alias="SelectorGrid.qml">components/SelectorGrid.qml</file>
         <file alias="SelectorGridItem.qml">components/SelectorGridItem.qml</file>
         <file alias="WidgetBarcode.qml">components/WidgetBarcode.qml</file>
+
+        <file alias="MenuDebug.qml">components/MenuDebug.qml</file>
+        <file alias="MenuCamera.qml">components/MenuCamera.qml</file>
+        <file alias="MenuFormats.qml">components/MenuFormats.qml</file>
+        <file alias="MenuScreens.qml">components/MenuScreens.qml</file>
         <file alias="PopupBarcodeFullscreen.qml">popups/PopupBarcodeFullscreen.qml</file>
     </qresource>
 </RCC>

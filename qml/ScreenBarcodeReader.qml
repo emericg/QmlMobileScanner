@@ -218,7 +218,8 @@ Loader {
                 id: captureZone
                 anchors.fill: parent
 
-                visible: (!debugCol.visible && !formatCol.visible && !cameraCol.visible && !appDrawer.visible)
+                visible: !(menuDebug.visible || menuFormats.visible ||
+                           menuCamera.visible || menuScreens.visible || appDrawer.visible)
 
                 ////////
 
@@ -367,6 +368,16 @@ Loader {
 
             ////////
 
+            MouseArea {
+                anchors.fill: parent
+                enabled: menuDebug.visible || menuFormats.visible || menuCamera.visible || menuScreens.visible
+                onClicked: {
+                    menuDebug.visible = false
+                    menuFormats.visible = false
+                    menuCamera.visible = false
+                    menuScreens.visible = false
+                }
+            }
             Row { // top/right menu
                 id: toprightmenu
                 anchors.top: parent.top
@@ -384,6 +395,8 @@ Loader {
                     width: 48
                     height: 48
 
+                    visible: settingsManager.showDebug
+
                     Rectangle {
                         anchors.fill: parent
                         radius: height
@@ -395,15 +408,16 @@ Loader {
                         width: parent.height * 0.6
                         height: parent.height * 0.6
                         anchors.centerIn: parent
-                        color: debugCol.visible ? Theme.colorYellow : "white"
+                        color: menuDebug.visible ? Theme.colorYellow : "white"
                         source: "qrc:/assets/icons_material/duotone-bug_report-24px.svg"
                     }
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
-                            debugCol.visible = !debugCol.visible
-                            formatCol.visible = false
-                            cameraCol.visible = false
+                            menuDebug.visible = !menuDebug.visible
+                            menuFormats.visible = false
+                            menuCamera.visible = false
+                            menuScreens.visible = false
                         }
                     }
                 }
@@ -426,15 +440,16 @@ Loader {
                         width: parent.height * 0.6
                         height: parent.height * 0.6
                         anchors.centerIn: parent
-                        color: formatCol.visible ? Theme.colorYellow : "white"
+                        color: menuFormats.visible ? Theme.colorYellow : "white"
                         source: "qrc:/assets/icons_material/baseline-qr_code-24px.svg"
                     }
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
-                            debugCol.visible = false
-                            formatCol.visible = !formatCol.visible
-                            cameraCol.visible = false
+                            menuDebug.visible = false
+                            menuFormats.visible = !menuFormats.visible
+                            menuCamera.visible = false
+                            menuScreens.visible = false
                         }
                     }
                 }
@@ -459,15 +474,16 @@ Loader {
                         width: parent.height * 0.66
                         height: parent.height * 0.66
                         anchors.centerIn: parent
-                        color: cameraCol.visible ? Theme.colorYellow : "white"
+                        color: menuCamera.visible ? Theme.colorYellow : "white"
                         source: "qrc:/assets/icons_material/duotone-cameraswitch-24px.svg"
                     }
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
-                            debugCol.visible = false
-                            formatCol.visible = false
-                            cameraCol.visible = !cameraCol.visible
+                            menuDebug.visible = false
+                            menuFormats.visible = false
+                            menuCamera.visible = !menuCamera.visible
+                            menuScreens.visible = false
                         }
                     }
                 }
@@ -475,264 +491,24 @@ Loader {
                 ////
             }
 
-            Column { // top/right menu content
-                id: debugCol
-                anchors.top: toprightmenu.bottom
-                anchors.topMargin: Theme.componentMargin
-                anchors.right: toprightmenu.right
-
-                width: singleColumn ? screenBarcodeReader.width - Theme.componentMargin*2 : 300
-                spacing: Theme.componentMargin / 2
-                visible: false
-
-                Item {
-                    width: parent.width
-                    height: 40
-
-                    Rectangle {
-                        anchors.fill: parent
-                        radius: 24
-                        color: "black"
-                        opacity: 0.33
-                    }
-
-                    SwitchThemed {
-                        anchors.centerIn: parent
-                        width: parent.width - 16
-                        LayoutMirroring.enabled: true
-
-                        text: qsTr("fullscreen")
-                        colorText: "white"
-                        colorSubText: "grey"
-                        checked: settingsManager.scan_fullscreen
-                        onClicked: settingsManager.scan_fullscreen = checked
-                    }
-                }
-                Item {
-                    width: parent.width
-                    height: 40
-
-                    Rectangle {
-                        anchors.fill: parent
-                        radius: 24
-                        color: "black"
-                        opacity: 0.33
-                    }
-
-                    SwitchThemed {
-                        anchors.centerIn: parent
-                        width: parent.width - 16
-                        LayoutMirroring.enabled: true
-
-                        text: qsTr("tryHarder")
-                        colorText: "white"
-                        colorSubText: "grey"
-                        checked: settingsManager.scan_tryHarder
-                        onClicked: settingsManager.scan_tryHarder = checked
-                    }
-                }
-                Item {
-                    width: parent.width
-                    height: 40
-
-                    visible: (settingsManager.backend === "zxingcpp")
-
-                    Rectangle {
-                        anchors.fill: parent
-                        radius: 24
-                        color: "black"
-                        opacity: 0.33
-                    }
-
-                    SwitchThemed {
-                        anchors.centerIn: parent
-                        width: parent.width - 16
-                        LayoutMirroring.enabled: true
-
-                        text: qsTr("tryRotate")
-                        colorText: "white"
-                        colorSubText: "grey"
-                        checked: settingsManager.scan_tryRotate
-                        onClicked: settingsManager.scan_tryRotate = checked
-                    }
-                }
-                Item {
-                    width: parent.width
-                    height: 40
-
-                    visible: (settingsManager.backend === "zxingcpp")
-
-                    Rectangle {
-                        anchors.fill: parent
-                        radius: 24
-                        color: "black"
-                        opacity: 0.33
-                    }
-
-                    SwitchThemed {
-                        anchors.centerIn: parent
-                        width: parent.width - 16
-                        LayoutMirroring.enabled: true
-
-                        text: qsTr("tryInvert")
-                        colorText: "white"
-                        colorSubText: "grey"
-                        checked: settingsManager.scan_tryInvert
-                        onClicked: settingsManager.scan_tryInvert = checked
-                    }
-                }
-                Item {
-                    width: parent.width
-                    height: 40
-
-                    visible: (settingsManager.backend === "zxingcpp")
-
-                    Rectangle {
-                        anchors.fill: parent
-                        radius: 24
-                        color: "black"
-                        opacity: 0.33
-                    }
-
-                    SwitchThemed {
-                        anchors.centerIn: parent
-                        width: parent.width - 16
-                        LayoutMirroring.enabled: true
-
-                        text: qsTr("tryDownscale")
-                        colorText: "white"
-                        colorSubText: "grey"
-                        checked: settingsManager.scan_tryDownscale
-                        onClicked: settingsManager.scan_tryDownscale = checked
-                    }
-                }
+            MenuDebug {
+                id: menuDebug
             }
-            Column { // top/right menu content
-                id: formatCol
-                anchors.top: toprightmenu.bottom
-                anchors.topMargin: Theme.componentMargin
-                anchors.right: toprightmenu.right
-
-                width: singleColumn ? screenBarcodeReader.width - Theme.componentMargin*2 : 300
-                spacing: Theme.componentMargin /2
-                visible: false
-
-                ListModel {
-                    id: formatsAvailable_zxingcpp
-                    ListElement { text: "Linear codes"; value: 51070; }
-                    ListElement { text: "Aztec"; value: 1; }
-                    ListElement { text: "DataMatrix"; value: 128; }
-                    ListElement { text: "MaxiCode"; value: 2048; }
-                    ListElement { text: "PDF417"; value: 4096; }
-                    ListElement { text: "QRCode"; value: 8192; }
-                    ListElement { text: "MicroQRCode"; value: 65536; }
-                }
-                ListModel {
-                    id: formatsAvailable_qzxing
-                    ListElement { text: "Linear codes"; value: 517052; }
-                    ListElement { text: "Aztec"; value: 2; }
-                    ListElement { text: "DataMatrix"; value: 64; }
-                    ListElement { text: "MaxiCode"; value: 1024; }
-                    ListElement { text: "PDF417"; value: 2048; }
-                    ListElement { text: "QRCode"; value: 4096; }
-                }
-
-                Repeater {
-                    model: (settingsManager.backend === "zxingcpp") ? formatsAvailable_zxingcpp :formatsAvailable_qzxing
-
-                    Item {
-                        width: parent.width
-                        height: 40
-
-                        required property var modelData
-
-                        Rectangle {
-                            anchors.fill: parent
-                            radius: 24
-                            color: "black"
-                            opacity: 0.33
-                        }
-
-                        SwitchThemed {
-                            anchors.centerIn: parent
-                            width: parent.width - 16
-                            LayoutMirroring.enabled: true
-
-                            text: modelData.text
-                            colorText: "white"
-                            colorSubText: "grey"
-                            checked: (settingsManager.formatsEnabled & modelData.value)
-                            onClicked: {
-                                if (settingsManager.formatsEnabled & modelData.value)
-                                    settingsManager.formatsEnabled -= modelData.value
-                                else
-                                    settingsManager.formatsEnabled += modelData.value
-                            }
-                        }
-                    }
-                }
+            MenuFormats {
+                id: menuFormats
             }
-            Column { // top/right menu content
-                id: cameraCol
-                anchors.top: toprightmenu.bottom
-                anchors.topMargin: Theme.componentMargin
-                anchors.right: toprightmenu.right
+            MenuCamera {
+                id: menuCamera
+            }
 
-                width: singleColumn ? screenBarcodeReader.width - Theme.componentMargin*2 : 320
-                spacing: Theme.componentMargin
-                visible: false
-
-                Repeater {
-                    model: mediaDevices.videoInputs
-
-                    Item {
-                        width: parent.width
-                        height: 40
-
-                        Rectangle {
-                            anchors.fill: parent
-                            radius: 24
-                            color: "black"
-                            opacity: 0.33
-                        }
-
-                        Text {
-                            anchors.left: parent.left
-                            anchors.leftMargin: Theme.componentMargin
-                            anchors.verticalCenter: parent.verticalCenter
-
-                            text: modelData.description
-                            font.pixelSize: Theme.componentFontSize
-                            color: "white"
-                        }
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                mediaDevices.selectedDevice = index
-                                cameraCol.visible = false
-                            }
-                        }
-
-                        IconSvg {
-                            width: parent.height * 0.5
-                            height: parent.height * 0.5
-                            anchors.right: parent.right
-                            anchors.rightMargin: Theme.componentMargin
-                            anchors.verticalCenter: parent.verticalCenter
-                            color: "white"
-                            source: {
-                                if (index === mediaDevices.selectedDevice) return  "qrc:/assets/icons_material/baseline-check_circle-24px.svg"
-                                if (modelData.isDefault) return  "qrc:/assets/icons_material/baseline-stars-24px.svg"
-                                return ""
-                            }
-                        }
-                    }
-                }
+            MenuScreens {
+                id: menuScreens
             }
 
             ////////
 
             Column { // bottom menu
+                id: bottomemnu
                 anchors.left: parent.left
                 anchors.leftMargin: Theme.componentMarginXL
                 anchors.right: parent.right
@@ -909,12 +685,21 @@ Loader {
                             width: parent.height * 0.666
                             height: parent.height * 0.666
                             anchors.centerIn: parent
-                            color: "white"
+                            color: (appDrawer.opened || menuScreens.visible) ? Theme.colorYellow : "white"
                             source: "qrc:/assets/icons_material/baseline-menu-24px.svg"
                         }
                         MouseArea {
                             anchors.fill: parent
-                            onClicked: appDrawer.open()
+                            onClicked: {
+                                if (isPhone) {
+                                    appDrawer.open()
+                                } else {
+                                    menuDebug.visible = false
+                                    menuFormats.visible = false
+                                    menuCamera.visible = false
+                                    menuScreens.visible = !menuScreens.visible
+                                }
+                            }
                         }
                     }
                 }

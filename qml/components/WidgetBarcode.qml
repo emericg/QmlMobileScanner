@@ -19,7 +19,7 @@ SwipeDelegate {
 
         Rectangle {
             anchors.right: parent.right
-            anchors.rightMargin: -16
+            anchors.rightMargin: -12
             anchors.verticalCenter: parent.verticalCenter
 
             width: parent.height*0.33
@@ -36,7 +36,6 @@ SwipeDelegate {
             height: 1
             color: Theme.colorSeparator
         }
-
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -48,7 +47,7 @@ SwipeDelegate {
             anchors.verticalCenter: parent.verticalCenter
             spacing: Theme.componentMargin
 
-            ////
+            ////////
 
             Item {
                 Layout.preferredWidth: 48
@@ -65,35 +64,43 @@ SwipeDelegate {
                 }
             }
 
-            ////
+            ////////
 
             Column {
                 Layout.fillWidth: true
                 Layout.alignment: Qt.AlignVCenter
                 spacing: Theme.componentMargin / 3
 
-                Row { // content
+                ////
+
+                RowLayout { // content
                     anchors.left: parent.left
                     anchors.right: parent.right
                     spacing: 8
 
                     Text {
+                        visible: modelData.content
                         text: modelData.content
                         font.pixelSize: Theme.fontSizeContentBig
                         color: Theme.colorSubText
                     }
                     Text {
                         text: modelData.data
+                        Layout.fillWidth: true
                         font.pixelSize: Theme.fontSizeContentBig
                         color: Theme.colorText
                         elide: Text.ElideRight
                     }
                 }
 
+                ////
+
                 Row { // info
                     anchors.left: parent.left
                     anchors.right: parent.right
                     spacing: 8
+
+                    ////
 
                     Row { // date
                         visible: modelData.date
@@ -101,19 +108,21 @@ SwipeDelegate {
                         spacing: 6
 
                         IconSvg {
+                            anchors.verticalCenter: parent.verticalCenter
                             width: 16
                             height: 16
-                            anchors.verticalCenter: parent.verticalCenter
                             source: "qrc:/assets/icons_material/duotone-date_range-24px.svg"
                             color: Theme.colorSubText
                         }
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
-                            text: modelData.date.toLocaleString(Qt.locale(), "dddd, MMMM d, yyyy h:mm")
-                            font.pixelSize: 15
+                            text: modelData.date.toLocaleString(Qt.locale(), "dddd, MMMM d, yyyy hh:mm")
+                            font.pixelSize: Theme.fontSizeContentSmall
                             color: Theme.colorSubText
                         }
                     }
+
+                    ////
 
                     Row { // location
                         visible: (modelData.latitude != 0 && modelData.longitude != 0)
@@ -121,27 +130,30 @@ SwipeDelegate {
                         spacing: 6
 
                         IconSvg {
+                            anchors.verticalCenter: parent.verticalCenter
                             width: 16
                             height: 16
-                            anchors.verticalCenter: parent.verticalCenter
                             source: "qrc:/assets/icons_material/duotone-pin_drop-24px.svg"
                             color: Theme.colorSubText
                         }
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
                             text: modelData.latitude + "°N " + modelData.longitude + "°E"
-                            font.pixelSize: 15
+                            font.pixelSize: Theme.fontSizeContentSmall
                             color: Theme.colorSubText
                         }
                     }
+
+                    ////
                 }
+
+                ////
             }
 
-            ////
-
+            ////////
 
             Item {
-                Layout.preferredWidth: 48
+                Layout.preferredWidth: modelData.isStarred ? 48 : 0
                 Layout.preferredHeight: 48
                 Layout.alignment: Qt.AlignVCenter
 
@@ -154,6 +166,8 @@ SwipeDelegate {
                     source: "qrc:/assets/icons_material/baseline-stars-24px.svg"
                 }
             }
+
+            ////////
         }
     }
 

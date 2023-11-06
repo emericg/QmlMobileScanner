@@ -34,13 +34,13 @@ Loader {
             anchors.fill: parent
 
             contentWidth: -1
-            contentHeight: column.height
+            contentHeight: contentColumn.height
 
             boundsBehavior: isDesktop ? Flickable.OvershootBounds : Flickable.DragAndOvershootBounds
             ScrollBar.vertical: ScrollBar { visible: false }
 
             Column {
-                id: column
+                id: contentColumn
                 anchors.left: parent.left
                 anchors.right: parent.right
 
@@ -48,23 +48,26 @@ Loader {
                 bottomPadding: 20
                 spacing: 8
 
+                property int padIcon: singleColumn ? Theme.componentMarginL : Theme.componentMarginL
+                property int padText: appHeader.headerPosition
+                property int padMargin: singleColumn ? 0 : Theme.componentMargin
+
                 ////////////////
 
-                SectionTitle {
-                    anchors.left: parent.left
+                ListTitle {
                     text: qsTr("Application")
-                    source: "qrc:/assets/icons_material/baseline-settings-20px.svg"
+                    icon: "qrc:/assets/icons_material/baseline-settings-20px.svg"
                 }
 
                 ////////////////
 
                 Item {
                     id: element_appTheme
-                    height: 48
                     anchors.left: parent.left
-                    anchors.leftMargin: screenPaddingLeft
+                    anchors.leftMargin: screenPaddingLeft + contentColumn.padMargin
                     anchors.right: parent.right
-                    anchors.rightMargin: screenPaddingRight
+                    anchors.rightMargin: screenPaddingRight + contentColumn.padMargin
+                    height: 48
 
                     IconSvg {
                         id: image_appTheme
@@ -80,12 +83,12 @@ Loader {
 
                     Text {
                         id: text_appTheme
-                        height: 40
                         anchors.left: image_appTheme.right
                         anchors.leftMargin: 24
                         anchors.right: appTheme_selector.left
                         anchors.rightMargin: 16
                         anchors.verticalCenter: parent.verticalCenter
+                        height: 40
 
                         text: qsTr("Theme")
                         textFormat: Text.PlainText
@@ -166,11 +169,11 @@ Loader {
 
                 Item {
                     id: element_appThemeAuto
-                    height: 48
                     anchors.left: parent.left
-                    anchors.leftMargin: screenPaddingLeft
+                    anchors.leftMargin: screenPaddingLeft + contentColumn.padMargin
                     anchors.right: parent.right
-                    anchors.rightMargin: screenPaddingRight
+                    anchors.rightMargin: screenPaddingRight + contentColumn.padMargin
+                    height: 48
 
                     IconSvg {
                         id: image_appThemeAuto
@@ -239,9 +242,9 @@ Loader {
 
                 Item {
                     anchors.left: parent.left
-                    anchors.leftMargin: screenPaddingLeft
+                    anchors.leftMargin: screenPaddingLeft + contentColumn.padMargin
                     anchors.right: parent.right
-                    anchors.rightMargin: screenPaddingRight
+                    anchors.rightMargin: screenPaddingRight + contentColumn.padMargin
                     height: 48
 
                     Item {
@@ -296,21 +299,20 @@ Loader {
 
                 ////////////////
 
-                SectionTitle {
-                    anchors.left: parent.left
+                ListTitle {
                     text: qsTr("Scanner")
-                    source: "qrc:/assets/icons_material/duotone-qr_code_2-24px.svg"
+                    icon: "qrc:/assets/icons_material/duotone-qr_code_2-24px.svg"
                 }
 
                 ////////////////
 
                 Item {
                     id: element_showDebug
-                    height: 48
                     anchors.left: parent.left
-                    anchors.leftMargin: screenPaddingLeft
+                    anchors.leftMargin: screenPaddingLeft + contentColumn.padMargin
                     anchors.right: parent.right
-                    anchors.rightMargin: screenPaddingRight
+                    anchors.rightMargin: screenPaddingRight + contentColumn.padMargin
+                    height: 48
 
                     IconSvg {
                         id: image_showDebug
@@ -357,9 +359,9 @@ Loader {
 
                 RowLayout {
                     anchors.left: parent.left
-                    anchors.leftMargin: screenPaddingLeft
+                    anchors.leftMargin: screenPaddingLeft + contentColumn.padMargin
                     anchors.right: parent.right
-                    anchors.rightMargin: screenPaddingRight
+                    anchors.rightMargin: screenPaddingRight + contentColumn.padMargin
                     height: 36
 
                     visible: settingsManager.showDebug
@@ -397,9 +399,9 @@ Loader {
                 }
                 RowLayout {
                     anchors.left: parent.left
-                    anchors.leftMargin: screenPaddingLeft
+                    anchors.leftMargin: screenPaddingLeft + contentColumn.padMargin
                     anchors.right: parent.right
-                    anchors.rightMargin: screenPaddingRight
+                    anchors.rightMargin: screenPaddingRight + contentColumn.padMargin
                     height: 36
 
                     visible: settingsManager.showDebug
@@ -437,9 +439,9 @@ Loader {
                 }
                 RowLayout {
                     anchors.left: parent.left
-                    anchors.leftMargin: screenPaddingLeft
+                    anchors.leftMargin: screenPaddingLeft + contentColumn.padMargin
                     anchors.right: parent.right
-                    anchors.rightMargin: screenPaddingRight
+                    anchors.rightMargin: screenPaddingRight + contentColumn.padMargin
                     height: 36
 
                     visible: settingsManager.showDebug
@@ -477,9 +479,9 @@ Loader {
                 }
                 RowLayout {
                     anchors.left: parent.left
-                    anchors.leftMargin: screenPaddingLeft
+                    anchors.leftMargin: screenPaddingLeft + contentColumn.padMargin
                     anchors.right: parent.right
-                    anchors.rightMargin: screenPaddingRight
+                    anchors.rightMargin: screenPaddingRight + contentColumn.padMargin
                     height: 36
 
                     visible: settingsManager.showDebug
@@ -517,9 +519,9 @@ Loader {
                 }
                 RowLayout {
                     anchors.left: parent.left
-                    anchors.leftMargin: screenPaddingLeft
+                    anchors.leftMargin: screenPaddingLeft + contentColumn.padMargin
                     anchors.right: parent.right
-                    anchors.rightMargin: screenPaddingRight
+                    anchors.rightMargin: screenPaddingRight + contentColumn.padMargin
                     height: 36
 
                     visible: settingsManager.showDebug

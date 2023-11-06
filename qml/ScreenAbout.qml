@@ -224,6 +224,17 @@ Loader {
                 }
             }
 
+            ListItemClickable { // release notes
+                width: parent.width
+
+                text: qsTr("Release notes")
+                iconSource: "qrc:/assets/icons_material/outline-new_releases-24px.svg"
+                iconSize: 28
+                indicatorSource: "qrc:/assets/icons_material/duotone-launch-24px.svg"
+
+                onClicked: Qt.openUrlExternally("https://github.com/emericg/MobileScanner/releases")
+            }
+
             ////////
 
             ListSeparator { }
@@ -233,7 +244,7 @@ Loader {
 
                 text: qsTr("Open the tutorial")
                 iconSource: "qrc:/assets/icons_material/baseline-import_contacts-24px.svg"
-                iconSize: 28
+                iconSize: 24
                 indicatorSource: "qrc:/assets/icons_material/baseline-chevron_right-24px.svg"
 
                 onClicked: screenTutorial.loadScreenFrom("ScreenAbout")
@@ -249,6 +260,7 @@ Loader {
 
                 text: qsTr("About app permissions")
                 iconSource: "qrc:/assets/icons_material/baseline-flaky-24px.svg"
+                iconSize: 24
                 indicatorSource: "qrc:/assets/icons_material/baseline-chevron_right-24px.svg"
 
                 onClicked: screenAboutPermissions.loadScreenFrom("ScreenAbout")
@@ -265,19 +277,6 @@ Loader {
                 indicatorSource: "qrc:/assets/icons_material/baseline-chevron_right-24px.svg"
 
                 onClicked: screenAboutFormats.loadScreenFrom("ScreenAbout")
-            }
-
-            ListSeparator { }
-
-            ListItemClickable { // release notes
-                width: parent.width
-
-                text: qsTr("Release notes")
-                iconSource: "qrc:/assets/icons_material/outline-new_releases-24px.svg"
-                iconSize: 24
-                indicatorSource: "qrc:/assets/icons_material/duotone-launch-24px.svg"
-
-                onClicked: Qt.openUrlExternally("https://github.com/emericg/MobileScanner/releases")
             }
 
             ListSeparator { }
