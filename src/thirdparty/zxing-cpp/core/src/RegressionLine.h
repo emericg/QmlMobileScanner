@@ -79,6 +79,7 @@ public:
 	auto signedDistance(PointF p) const { return dot(normal(), p) - c; }
 	template <typename T> auto distance(PointT<T> p) const { return std::abs(signedDistance(PointF(p))); }
 	PointF project(PointF p) const { return p - signedDistance(p) * normal(); }
+	PointF centroid() const { return std::accumulate(_points.begin(), _points.end(), PointF()) / _points.size(); }
 
 	void reset()
 	{
@@ -116,10 +117,13 @@ public:
 					return sd > maxSignedDist || sd < -2 * maxSignedDist;
 				});
 				points.erase(end, points.end());
+				// if we threw away too many points, something is off with the line to begin with
+				if (points.size() < old_points_size / 2 || points.size() < 2)
+					return false;
 				if (old_points_size == points.size())
 					break;
 #ifdef PRINT_DEBUG
-				printf("removed %zu points\n", old_points_size - points.size());
+				printf("removed %zu points -> %zu remaining\n", old_points_size - points.size(), points.size());
 #endif
 				ret = evaluate(points);
 			}
