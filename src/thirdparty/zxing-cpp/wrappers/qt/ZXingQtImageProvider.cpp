@@ -122,10 +122,7 @@ QImage ZXingQtImageProvider::requestImage(const QString &id, QSize *size, const 
     }
 
     //
-    bool formatMatrix = (format == ZXing::BarcodeFormat::Aztec ||
-                         format == ZXing::BarcodeFormat::DataMatrix ||
-                         format == ZXing::BarcodeFormat::QRCode ||
-                         format == ZXing::BarcodeFormat::PDF417);
+    bool formatMatrix = ((int)format & (int)ZXing::BarcodeFormat::MatrixCodes);
 
     // TODO // Validate data, depending on the format selected
     {
@@ -166,7 +163,7 @@ QImage ZXingQtImageProvider::requestImage(const QString &id, QSize *size, const 
     int width = requestedSize.width(), height = requestedSize.height();
     if (!formatMatrix) height /= 3; // 1D codes
 
-    auto writer = ZXing::MultiFormatWriter(format).setMargin(margins).setEccLevel(eccLevel).setEncoding(encoding);
+    auto writer = ZXing::MultiFormatWriter(format).setEccLevel(eccLevel).setEncoding(encoding).setMargin(margins);
     auto matrix = writer.encode(data.toStdString(), width, height);
 
     QImage image = QImage(width, height, QImage::Format_ARGB32);

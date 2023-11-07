@@ -4,10 +4,13 @@
  * Copyright 2023 Emeric Grange
  */
 
-#pragma once
+#ifndef ZXING_QT_IMAGEPROVIDER_H
+#define ZXING_QT_IMAGEPROVIDER_H
 
 #include <QQuickImageProvider>
+#include <QString>
 #include <QImage>
+#include <QSize>
 
 class ZXingQtImageProvider : public QQuickImageProvider
 {
@@ -16,3 +19,5 @@ public:
 
     QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize);
 };
+
+#endif // ZXING_QT_IMAGEPROVIDER_H
