@@ -88,7 +88,7 @@ BarcodeManager::~BarcodeManager()
 bool BarcodeManager::addBarcode(const QString &data, const QString &format,
                                 const QString &enc, const QString &ecc,
                                 const QPoint &p1, const QPoint &p2, const QPoint &p3, const QPoint &p4)
-{   
+{
     if (!data.isEmpty())
     {
         // check if exists

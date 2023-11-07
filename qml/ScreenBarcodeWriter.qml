@@ -6,6 +6,7 @@ import QtQuick.Controls
 
 import Qt5Compat.GraphicalEffects
 
+import ZXingCpp
 import ThemeEngine
 
 Loader {
@@ -196,8 +197,8 @@ Loader {
                                                       + setting_margins + "&" + setting_colorBg + "&" + setting_colorFg
 
                 property string setting_format: "format=qrcode"
-                property string setting_eccLevel: "eccLevel=0"
-                property string setting_margins: "margins=0"
+                property string setting_eccLevel: "eccLevel=1"
+                property string setting_margins: "margins=8"
                 property string setting_colorBg: "backgroundColor=" + colorBg
                 property string setting_colorFg: "foregroundColor=" + colorFg
                 property color colorBg: "#fff"
@@ -245,20 +246,20 @@ Loader {
                             id: lmSelectorBarcodes
 
                             // matrix
-                            ListElement { idx: 1; txt: "QR Code"; src: ""; sz: 0;       maxchar: 4296; maxbytes: 2953; ecc: 4; }
-                            ListElement { idx: 2; txt: "Aztec"; src: ""; sz: 0;         maxchar: 3067; maxbytes: 3067; ecc: 8;}
-                            ListElement { idx: 3; txt: "DataMatrix"; src: ""; sz: 0; }
-                            //ListElement { idx: 4; txt: "PDF417"; src: ""; sz: 0; }
+                            ListElement { idx: 1; txt: "QR Code";       maxchar: 4296; maxbytes: 2953; ecc: 4; }
+                            ListElement { idx: 2; txt: "Aztec";         maxchar: 3067; maxbytes: 3067; ecc: 8; }
+                            ListElement { idx: 3; txt: "DataMatrix"; }
+                            //ListElement { idx: 4; txt: "PDF417"; }
                             // linear
-                            ListElement { idx: 5; txt: "EAN 13"; src: ""; sz: 0; }
-                            ListElement { idx: 6; txt: "EAN 8"; src: ""; sz: 0; }
-                            ListElement { idx: 7; txt: "UPC-A"; src: ""; sz: 0; }
-                            ListElement { idx: 8; txt: "UPC-E"; src: ""; sz: 0; }
-                            ListElement { idx: 9; txt: "Code 39"; src: ""; sz: 0; }
-                            ListElement { idx: 10; txt: "Code 93"; src: ""; sz: 0; }
-                            ListElement { idx: 11; txt: "Code 128"; src: ""; sz: 0; }
-                            ListElement { idx: 12; txt: "Codabar"; src: ""; sz: 0; }
-                            ListElement { idx: 13; txt: "ITF"; src: ""; sz: 0; }
+                            ListElement { idx: 5; txt: "EAN 13"; }
+                            ListElement { idx: 6; txt: "EAN 8"; }
+                            ListElement { idx: 7; txt: "UPC-A"; }
+                            ListElement { idx: 8; txt: "UPC-E"; }
+                            ListElement { idx: 9; txt: "Code 39"; }
+                            ListElement { idx: 10; txt: "Code 93"; }
+                            ListElement { idx: 11; txt: "Code 128"; }
+                            ListElement { idx: 12; txt: "Codabar"; }
+                            ListElement { idx: 13; txt: "ITF"; }
                         }
 
                         onMenuSelected: (index) => {
@@ -425,6 +426,7 @@ Loader {
                                 currentFile: StandardPaths.standardLocations(StandardPaths.PicturesLocation)[0] + "/barcode"
 
                                 onAccepted: {
+                                    console.log(" - " + fileSaveDialog.selectedFile)
                                     console.log(" - " + fileSaveDialog.selectedNameFilter.name[0])
                                     console.log(" - " + fileSaveDialog.selectedNameFilter.extensions[0])
                                 }

@@ -51,8 +51,6 @@ Item {
                 highlighted: (selectorGrid.currentSelection === idx)
                 index: idx ?? 0
                 text: txt ?? ""
-                source: src ?? ""
-                sourceSize: sz ?? 32
                 onClicked: selectorGrid.menuSelected(idx)
             }
         }

@@ -93,6 +93,7 @@ WIFI:S:ssid;P:password;;
 class Barcode: public QObject
 {
     Q_OBJECT
+
     Q_PROPERTY(QString data READ getData CONSTANT)
     Q_PROPERTY(QString format READ getFormat CONSTANT)
     Q_PROPERTY(QString encoding READ getEnc CONSTANT)
@@ -106,7 +107,7 @@ class Barcode: public QObject
     Q_PROPERTY(bool isLinear READ isLinear CONSTANT)
     Q_PROPERTY(QString content READ getContent CONSTANT)
 
-    Q_PROPERTY(bool lastVisible READ getLastVisible NOTIFY lastseenChanged)
+    Q_PROPERTY(bool isOnScreen READ isOnScreen NOTIFY lastseenChanged)
     Q_PROPERTY(QDateTime lastSeen READ getLastSeen NOTIFY lastseenChanged)
     Q_PROPERTY(QList<QPoint> lastCoordinates READ getLastCoordinates NOTIFY lastseenChanged)
 
@@ -123,7 +124,7 @@ class Barcode: public QObject
     double m_geo_lat;
     double m_geo_long;
 
-    bool m_lastVisible = false;
+    bool m_isOnScreen = false;
     QTimer m_lastTimer;
     QDateTime m_lastSeen;
     QList<QPoint> m_lastCoordinates;
@@ -156,9 +157,10 @@ public:
     bool isLinear() const { return !m_isMatrix; }
     QString getContent() const { return m_content; }
 
-    bool getLastVisible() const { return m_lastVisible; }
+    bool isOnScreen() const { return m_isOnScreen; }
     QDateTime getLastSeen() const { return m_lastSeen; }
     void setLastSeen(const QDateTime &value);
+
     QList<QPoint> getLastCoordinates() const { return m_lastCoordinates; }
     void setLastCoordinates(const QPoint &p1, const QPoint &p2, const QPoint &p3, const QPoint &p4);
 };

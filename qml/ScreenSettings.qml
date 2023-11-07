@@ -221,7 +221,7 @@ Loader {
                 Text {
                     id: legend_appThemeAuto
                     anchors.left: parent.left
-                    anchors.leftMargin: screenPaddingLeft + 64
+                    anchors.leftMargin: screenPaddingLeft + contentColumn.padMargin + 64
                     anchors.right: parent.right
                     anchors.rightMargin: 12
 

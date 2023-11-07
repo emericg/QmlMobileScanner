@@ -49,7 +49,7 @@ Loader {
 
         if (screenBarcodeReader.status === Loader.Ready) {
             screenBarcodeReader.item.close()
-            screenBarcodeReader.active = false // crash ?!
+            if (isMobile) screenBarcodeReader.active = false // crash ?!
         }
     }
 
@@ -179,7 +179,7 @@ Loader {
                     anchors.fill: parent
 
                     antialiasing: true
-                    opacity: modelData.lastVisible ? 0.80 : 0
+                    opacity: modelData.isOnScreen ? 0.80 : 0
                     Behavior on opacity { NumberAnimation { duration: 133 } }
 
                     ShapePath {
@@ -527,8 +527,6 @@ Loader {
                     Item {
                         width: parent.width
                         height: 48
-
-                        visible: modelData.lastVisible
 
                         Rectangle {
                             anchors.fill: parent

@@ -79,9 +79,9 @@ Barcode::Barcode(const QString &data, const QString &format, const QString &enc,
     m_lastSeen = lastseen;
     m_lastCoordinates << p1 << p2 << p3 << p4;
 
-    m_lastVisible = true;
+    m_isOnScreen = true;
     m_lastTimer.start(1000);
-    connect(&m_lastTimer, &QTimer::timeout, [this]() { m_lastVisible = false; Q_EMIT lastseenChanged(); });
+    connect(&m_lastTimer, &QTimer::timeout, [this]() { m_isOnScreen = false; Q_EMIT lastseenChanged(); });
 }
 
 Barcode::~Barcode()
@@ -104,7 +104,7 @@ void Barcode::setLastSeen(const QDateTime &value)
 {
     if (m_lastSeen != value)
     {
-        m_lastVisible = true;
+        m_isOnScreen = true;
         m_lastTimer.start(1000);
         m_lastSeen = value;
         Q_EMIT lastseenChanged();
