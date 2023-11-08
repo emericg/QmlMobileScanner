@@ -389,6 +389,8 @@ Loader {
                     Row {
                         spacing: Theme.componentMargin
 
+                        enabled: barcodeAdvanced.barcode_string
+
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
 
@@ -398,12 +400,16 @@ Loader {
                         }
 
                         ComboBoxThemed {
+                            id: fileSaveExtension
+                            width: 128
                             height: 36
 
                             model: ListModel {
-                                ListElement { text: "SVG"; }
                                 ListElement { text: "PNG"; }
+                                ListElement { text: "BMP"; }
                                 ListElement { text: "JPEG"; }
+                                ListElement { text: "WEBP"; }
+                                ListElement { text: "SVG"; }
                             }
                         }
 
@@ -421,9 +427,9 @@ Loader {
                                 id: fileSaveDialog
 
                                 fileMode: FileDialog.SaveFile
-                                nameFilters: ["Vector files (*.svg)", "PNG files (*.png)", "JPEG files (*.jpg *.jpeg)"]
+                                nameFilters: ["Vector files (*.svg)", "PNG files (*.png)", "BMP files (*.bmp)", "JPEG files (*.jpg *.jpeg)", "WebP files (*.webp)"]
                                 currentFolder: StandardPaths.standardLocations(StandardPaths.PicturesLocation)[0]
-                                currentFile: StandardPaths.standardLocations(StandardPaths.PicturesLocation)[0] + "/barcode"
+                                currentFile: StandardPaths.standardLocations(StandardPaths.PicturesLocation)[0] + "/barcode." + fileSaveExtension.currentText.toLowerCase()
 
                                 onAccepted: {
                                     console.log(" - " + fileSaveDialog.selectedFile)

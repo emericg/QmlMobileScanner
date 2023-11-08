@@ -1,11 +1,13 @@
 <RCC>
     <qresource prefix="/qml">
+        <file>ThemeEngine.qml</file>
         <file>MobileApplication.qml</file>
         <file>MobileHeader.qml</file>
         <file>MobileDrawer.qml</file>
         <file>MobilePermissions.qml</file>
+        <file>DesktopApplication.qml</file>
+        <file>DesktopSidebar.qml</file>
         <file>WindowGeometrySaver.qml</file>
-        <file>ThemeEngine.qml</file>
 
         <file>ScreenTutorial.qml</file>
         <file>ScreenMainMenu.qml</file>

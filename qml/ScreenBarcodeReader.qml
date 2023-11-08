@@ -1,10 +1,11 @@
+import QtCore
 import QtQuick
 import QtQuick.Shapes
 import QtQuick.Layouts
 import QtQuick.Controls
+import QtQuick.Dialogs
 
 import QtMultimedia
-
 import ThemeEngine
 
 Loader {
@@ -54,11 +55,6 @@ Loader {
     }
 
     ////////////////////////////////////////////////////////////////////////////
-
-    Rectangle {
-        anchors.fill: parent
-        color: "black"
-    }
 
     active: false
     asynchronous: true
@@ -265,7 +261,7 @@ Loader {
                     width: parent.width * videoOutput.captureRectFactorWidth
                     height: parent.height * videoOutput.captureRectFactorHeight
 
-                    property int gismowidth: screenBarcodeReader.width*videoOutput.captureRectFactorWidth
+                    property int gismowidth: screenBarcodeReader.width * videoOutput.captureRectFactorWidth
 
                     // Borders
                     Item {
@@ -291,9 +287,9 @@ Loader {
                         width: 16; height: 16;
 
                         Rectangle { width: 16; height: 4; color: "white";
-                            anchors.bottom: parent.bottom; }
+                                    anchors.bottom: parent.bottom; }
                         Rectangle { width: 4; height: 16; color: "white";
-                            anchors.bottom: parent.bottom; }
+                                    anchors.bottom: parent.bottom; }
                     }
                     Item {
                         anchors.bottom: parent.bottom
@@ -424,10 +420,12 @@ Loader {
 
                 ////
 
-                Item { // format selector
+                Item { // debug format selector
                     id: formatItm
                     width: 48
                     height: 48
+
+                    visible: settingsManager.showDebug
 
                     Rectangle {
                         anchors.fill: parent

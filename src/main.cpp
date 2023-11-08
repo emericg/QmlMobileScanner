@@ -124,8 +124,17 @@ int main(int argc, char *argv[])
 #endif
 
     // Then we start the UI
+#if defined(Q_OS_ANDROID) || defined(Q_OS_IOS) || defined(FORCE_MOBILE_UI)
     engine.load(QUrl(QStringLiteral("qrc:/qml/MobileApplication.qml")));
-    if (engine.rootObjects().isEmpty()) return EXIT_FAILURE;
+#else
+    engine.load(QUrl(QStringLiteral("qrc:/qml/DesktopApplication.qml")));
+#endif
+
+    if (engine.rootObjects().isEmpty())
+    {
+        qWarning() << "Cannot init QmlApplicationEngine!";
+        return EXIT_FAILURE;
+    }
 
     // Setup FPS monitor
     QQuickWindow *window = qobject_cast<QQuickWindow*>(engine.rootObjects().at(0));

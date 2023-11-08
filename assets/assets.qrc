@@ -40,7 +40,6 @@
         <file>icons_material/baseline-search-24px.svg</file>
         <file>icons_material/baseline-settings-20px.svg</file>
         <file>icons_material/baseline-stars-24px.svg</file>
-        <file>icons_material/baseline-subdirectory_arrow_left-24px.svg</file>
         <file>icons_material/baseline-supervised_user_circle-24px.svg</file>
         <file>icons_material/baseline-support-24px.svg</file>
         <file>icons_material/baseline-warning-24px.svg</file>
@@ -61,6 +60,7 @@
         <file>icons_material/duotone-date_range-24px.svg</file>
         <file>icons_material/duotone-edit-24px.svg</file>
         <file>icons_material/duotone-exit_to_app-24px.svg</file>
+        <file>icons_material/duotone-info-24px.svg</file>
         <file>icons_material/duotone-insert_chart-24px.svg</file>
         <file>icons_material/duotone-launch-24px.svg</file>
         <file>icons_material/duotone-list-24px.svg</file>

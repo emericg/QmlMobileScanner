@@ -96,7 +96,7 @@ Loader {
                     anchors.rightMargin: Theme.componentMargin
                     anchors.verticalCenter: parent.verticalCenter
 
-                    visible: wideWideMode
+                    visible: wideMode
                     spacing: Theme.componentMargin
 
                     ButtonWireframeIconCentered {
@@ -157,7 +157,7 @@ Loader {
                 anchors.right: parent.right
                 anchors.rightMargin: screenPaddingRight + Theme.componentMargin
 
-                visible: !wideWideMode
+                visible: !wideMode
                 spacing: Theme.componentMargin
 
                 ButtonWireframeIconCentered {
@@ -186,7 +186,7 @@ Loader {
                 }
             }
 
-            Item { width: 12; height: 12; visible: wideWideMode; } // spacer
+            Item { width: 12; height: 12; visible: wideMode; } // spacer
 
             ////////////////
 
