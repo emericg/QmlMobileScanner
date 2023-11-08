@@ -31,7 +31,7 @@
 
 using namespace zxing;
 
-QZXing::QZXing(QObject *parent) : QObject(parent), tryHarder_(false), lastDecodeOperationSucceded_(false)
+QZXing::QZXing(QObject *parent) : QObject(parent)
 {
     decoder = new MultiFormatReader();
     setDecoder(DecoderFormat_QR_CODE |

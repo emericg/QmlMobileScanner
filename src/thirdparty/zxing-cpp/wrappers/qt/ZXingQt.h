@@ -8,11 +8,11 @@
 #define ZXING_QT_H
 
 #include <QObject>
-#include <QMetaType>
 #include <QQmlEngine>
 
-#include <QRect>
+#include <QUrl>
 #include <QList>
+#include <QRect>
 #include <QPoint>
 #include <QImage>
 #include <QVideoFrame>
@@ -182,8 +182,7 @@ public:
     Q_ENUM(CharacterSet)
 
 public:
-    ZXingQt(QObject *parent = nullptr);
-    ~ZXingQt();
+    explicit ZXingQt(QObject *parent = nullptr) : QObject(parent) {}
 
     static void registerQMLTypes();
     static void registerQMLImageProvider(QQmlEngine &engine);
@@ -202,6 +201,8 @@ public:
 
     ///
 
+    Q_INVOKABLE static QList<Result> loadImage(const QUrl &fileurl);
+
     Q_INVOKABLE static QImage generateImage(const QString &data, const int width, const int height, const int margins,
                                             const int format, const int encoding, const int eccLevel,
                                             const QColor backgroundColor, const QColor foregroundColor);
@@ -209,7 +210,7 @@ public:
     Q_INVOKABLE static bool saveImage(const QString &data, const int width, const int height, const int margins,
                                       const int format, const int encoding, const int eccLevel,
                                       const QColor backgroundColor, const QColor foregroundColor,
-                                      const QString &filename);
+                                      const QUrl &fileurl);
 
     ///
 };

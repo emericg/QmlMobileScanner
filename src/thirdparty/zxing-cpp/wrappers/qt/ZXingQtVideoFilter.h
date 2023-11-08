@@ -20,13 +20,14 @@ class ZXingQtVideoFilter : public QObject
 {
     Q_OBJECT
 
+    Q_PROPERTY(QVideoSink *videoSink MEMBER m_videoSink WRITE setVideoSink)
+    Q_PROPERTY(QRect captureRect READ captureRect WRITE setCaptureRect NOTIFY captureRectChanged)
+    Q_PROPERTY(int formats READ formats WRITE setFormats NOTIFY formatsChanged)
+
     Q_PROPERTY(bool tryHarder READ tryHarder WRITE setTryHarder NOTIFY tryHarderChanged)
     Q_PROPERTY(bool tryRotate READ tryRotate WRITE setTryRotate NOTIFY tryRotateChanged)
     Q_PROPERTY(bool tryInvert READ tryInvert WRITE setTryInvert NOTIFY tryInvertChanged)
     Q_PROPERTY(bool tryDownscale READ tryDownscale WRITE setTryDownscale NOTIFY tryDownscaleChanged)
-    Q_PROPERTY(int formats READ formats WRITE setFormats NOTIFY formatsChanged)
-    Q_PROPERTY(QRect captureRect READ captureRect WRITE setCaptureRect NOTIFY captureRectChanged)
-    Q_PROPERTY(QVideoSink *videoSink MEMBER m_videoSink WRITE setVideoSink)
 
     bool m_active = true;
     bool m_decoding = false;

@@ -59,9 +59,9 @@ class QZXing : public QObject {
     Q_PROPERTY(bool tryHarder READ getTryHarder WRITE setTryHarder)
     Q_PROPERTY(QVariantList allowedExtensions READ getAllowedExtensions WRITE setAllowedExtensions)
 
-    Q_ENUMS(DecoderFormat)
-    Q_ENUMS(TryHarderBehaviour)
-    Q_ENUMS(SourceFilter)
+    Q_ENUM(DecoderFormat)
+    Q_ENUM(TryHarderBehaviour)
+    Q_ENUM(SourceFilter)
 
     QVariantMap metadataToMap(const zxing::ResultMetadata &metadata);
 
@@ -243,8 +243,8 @@ private:
     int processingTime;
     QString decodedFormat;
     QString charSet_;
-    bool tryHarder_;
-    bool lastDecodeOperationSucceded_;
+    bool tryHarder_ = false;
+    bool lastDecodeOperationSucceded_ = false;
     std::set<int> allowedExtensions_;
 
 signals:

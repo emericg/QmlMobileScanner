@@ -21,20 +21,10 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ZXingQt::ZXingQt(QObject *parent) : QObject(parent)
-{
-    //
-}
-
-ZXingQt::~ZXingQt()
-{
-    //
-}
-
 void ZXingQt::registerQMLTypes()
 {
-    qRegisterMetaType<ZXingQt::BarcodeFormat>("BarcodeFormat");
-    qRegisterMetaType<ZXingQt::ContentType>("ContentType");
+    //qRegisterMetaType<ZXingQt::BarcodeFormat>("BarcodeFormat");
+    //qRegisterMetaType<ZXingQt::ContentType>("ContentType");
 
     // supposedly the Q_DECLARE_METATYPE should be used with the overload without a custom name
     // but then the qml side complains about "unregistered type"
@@ -42,12 +32,14 @@ void ZXingQt::registerQMLTypes()
     //qRegisterMetaType<ZXingQt::Result>("Result");
 
     //qmlRegisterUncreatableMetaObject(ZXingQt::staticMetaObject, "ZXingCpp", 1, 0, "ZXingCpp", "Access to enums & flags only");
+
+    qmlRegisterType<ZXingQt>("ZXingCpp", 1, 0, "ZXingQt");
     qmlRegisterType<ZXingQtVideoFilter>("ZXingCpp", 1, 0, "ZXingQtVideoFilter");
 }
 
 void ZXingQt::registerQMLImageProvider(QQmlEngine &engine)
 {
-    engine.addImageProvider(QLatin1String("ZXingCpp"), new ZXingQtImageProvider());
+    engine.addImageProvider("ZXingCpp", new ZXingQtImageProvider());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -192,6 +184,14 @@ QList<Result> ZXingQt::ReadBarcodes(const QVideoFrame &frame, const ZXing::Decod
     }
 }
 
+QList<Result> ZXingQt::loadImage(const QUrl &fileurl)
+{
+    QString filepath = fileurl.toLocalFile();
+    QImage img(filepath);
+
+    return ReadBarcodes(img);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 QImage ZXingQt::generateImage(const QString &data, const int width, const int height, const int margins,
@@ -225,16 +225,19 @@ QImage ZXingQt::generateImage(const QString &data, const int width, const int he
 bool ZXingQt::saveImage(const QString &data, const int width, const int height, const int margins,
                         const int format, const int encoding, const int eccLevel,
                         const QColor backgroundColor, const QColor foregroundColor,
-                        const QString &filename)
+                        const QUrl &fileurl)
 {
-    if (data.isEmpty() || filename.isEmpty()) return false;
+    //qDebug() << "ZXingQt::saveImage(" << data << fileurl;
+    if (data.isEmpty() || fileurl.isEmpty()) return false;
     bool status = false;
 
-    QFileInfo saveFileInfo(filename);
+    QString filepath = fileurl.toLocalFile();
+
+    QFileInfo saveFileInfo(filepath);
     if (saveFileInfo.suffix() == "svg")
     {
         // to vector
-        QFile efile(filename);
+        QFile efile(filepath);
         if (efile.open(QIODevice::WriteOnly | QIODevice::Text))
         {
             bool formatMatrix = (format & (int)BarcodeFormat::MatrixCodes);
@@ -278,11 +281,11 @@ bool ZXingQt::saveImage(const QString &data, const int width, const int height, 
                                    format, encoding, eccLevel,
                                    backgroundColor, foregroundColor);
 
-        status = img.save(filename, saveFileInfo.suffix().toStdString().c_str(), -1);
+        status = img.save(filepath, saveFileInfo.suffix().toStdString().c_str(), -1);
     }
     else
     {
-        qWarning() << "ZXingQt::saveImage() unknown format error";
+        qWarning() << "ZXingQt::saveImage() unknown format error:" << saveFileInfo.suffix();
     }
 
     return status;
