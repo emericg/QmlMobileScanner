@@ -109,7 +109,7 @@ class Barcode: public QObject
 
     Q_PROPERTY(bool isOnScreen READ isOnScreen NOTIFY lastseenChanged)
     Q_PROPERTY(QDateTime lastSeen READ getLastSeen NOTIFY lastseenChanged)
-    Q_PROPERTY(QList<QPoint> lastCoordinates READ getLastCoordinates NOTIFY lastseenChanged)
+    Q_PROPERTY(QList<QPointF> lastCoordinates READ getLastCoordinates NOTIFY lastseenChanged)
 
     QString m_data;
     QString m_format;
@@ -127,7 +127,7 @@ class Barcode: public QObject
     bool m_isOnScreen = false;
     QTimer m_lastTimer;
     QDateTime m_lastSeen;
-    QList<QPoint> m_lastCoordinates;
+    QList<QPointF> m_lastCoordinates;
 
 Q_SIGNALS:
     void barcodeChanged();
@@ -138,7 +138,7 @@ public:
             const QDateTime &date = QDateTime(), const double lat = 0.0, const double lon = 0.0, const bool starred = false,
             QObject *parent = nullptr);
     Barcode(const QString &data, const QString &format, const QString &enc, const QString &ecc,
-            const QDateTime &lastseen, const QPoint &p1, const QPoint &p2, const QPoint &p3, const QPoint &p4,
+            const QDateTime &lastseen, const QPointF &p1, const QPointF &p2, const QPointF &p3, const QPointF &p4,
             QObject *parent = nullptr);
     ~Barcode();
 
@@ -161,8 +161,8 @@ public:
     QDateTime getLastSeen() const { return m_lastSeen; }
     void setLastSeen(const QDateTime &value);
 
-    QList<QPoint> getLastCoordinates() const { return m_lastCoordinates; }
-    void setLastCoordinates(const QPoint &p1, const QPoint &p2, const QPoint &p3, const QPoint &p4);
+    QList<QPointF> getLastCoordinates() const { return m_lastCoordinates; }
+    void setLastCoordinates(const QPointF &p1, const QPointF &p2, const QPointF &p3, const QPointF &p4);
 };
 
 /* ************************************************************************** */

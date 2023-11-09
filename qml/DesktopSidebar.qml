@@ -29,7 +29,7 @@ Rectangle {
 
     Column {
         anchors.top: parent.top
-        anchors.topMargin: 16
+        anchors.topMargin: 20
         anchors.left: parent.left
         anchors.leftMargin: 0
         anchors.right: parent.right
@@ -39,7 +39,7 @@ Rectangle {
 
         DesktopSidebarItem {
             source: "qrc:/assets/icons_material/duotone-qr_code_scanner-24px.svg"
-            sourceSize: 48
+            sourceSize: 40
 
             highlightMode: "background"
             highlighted: (appContent.state === "ScreenBarcodeReader")
@@ -51,7 +51,7 @@ Rectangle {
         }
         DesktopSidebarItem {
             source: "qrc:/assets/icons_material/duotone-qr_code_2-24px.svg"
-            sourceSize: 48
+            sourceSize: 40
 
             highlightMode: "background"
             highlighted: (appContent.state === "ScreenBarcodeWriter")
@@ -60,7 +60,7 @@ Rectangle {
         }
         DesktopSidebarItem {
             source: "qrc:/assets/icons_material/duotone-list-24px.svg"
-            sourceSize: 48
+            sourceSize: 40
 
             highlightMode: "background"
             highlighted: (appContent.state === "ScreenBarcodeHistory")
@@ -77,13 +77,13 @@ Rectangle {
         anchors.right: parent.right
         anchors.rightMargin: 0
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: 16
+        anchors.bottomMargin: 20
 
         spacing: 0
 
         DesktopSidebarItem {
             source: "qrc:/assets/icons_material/duotone-tune-24px.svg"
-            sourceSize: 48
+            sourceSize: 40
 
             highlightMode: (Theme.sidebarSelector) ? "indicator" : "background"
             highlighted: appContent.state === "ScreenSettings"
@@ -92,7 +92,7 @@ Rectangle {
         }
         DesktopSidebarItem {
             source: "qrc:/assets/icons_material/duotone-info-24px.svg"
-            sourceSize: 48
+            sourceSize: 40
 
             highlightMode: (Theme.sidebarSelector) ? "indicator" : "background"
             highlighted: (appContent.state === "ScreenAbout" ||
@@ -103,7 +103,7 @@ Rectangle {
         }
         DesktopSidebarItem {
             source: "qrc:/assets/icons_material/duotone-exit_to_app-24px.svg"
-            sourceSize: 48
+            sourceSize: 40
             highlightMode: "circle"
             onClicked: appWindow.close()
         }

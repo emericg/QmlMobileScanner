@@ -184,11 +184,16 @@ QList<Result> ZXingQt::ReadBarcodes(const QVideoFrame &frame, const ZXing::Decod
     }
 }
 
-QList<Result> ZXingQt::loadImage(const QUrl &fileurl)
+QList<Result> ZXingQt::loadImage(const QUrl &fileUrl)
 {
-    QString filepath = fileurl.toLocalFile();
+    QString filepath = fileUrl.toLocalFile();
     QImage img(filepath);
 
+    return ReadBarcodes(img);
+}
+
+QList<Result> ZXingQt::loadImage(const QImage &img)
+{
     return ReadBarcodes(img);
 }
 

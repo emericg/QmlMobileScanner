@@ -23,9 +23,8 @@
 
 /* ************************************************************************** */
 
-Barcode::Barcode(const QString &data, const QString &format,
-                 const QString &enc, const QString &ecc,
-                 const QDateTime &date, const double lat, const double lon,
+Barcode::Barcode(const QString &data, const QString &format, const QString &enc, const QString &ecc,
+                 const QDateTime &lastseen, const double lat, const double lon,
                  const bool starred,
                  QObject *parent) : QObject(parent)
 {
@@ -34,7 +33,7 @@ Barcode::Barcode(const QString &data, const QString &format,
     m_encoding = enc;
     m_ecc = ecc;
 
-    m_date = date;
+    m_date = lastseen;
     m_geo_lat = lat;
     m_geo_long = lon;
 
@@ -55,7 +54,8 @@ Barcode::Barcode(const QString &data, const QString &format,
 }
 
 Barcode::Barcode(const QString &data, const QString &format, const QString &enc, const QString &ecc,
-                 const QDateTime &lastseen, const QPoint &p1, const QPoint &p2, const QPoint &p3, const QPoint &p4,
+                 const QDateTime &lastseen,
+                 const QPointF &p1, const QPointF &p2, const QPointF &p3, const QPointF &p4,
                  QObject *parent) : QObject(parent)
 {
     m_data = data;
@@ -76,12 +76,15 @@ Barcode::Barcode(const QString &data, const QString &format, const QString &enc,
     else if (m_data.startsWith("BEGIN:VCARD") || m_data.startsWith("MECARD:")) m_content = "Contact";
     else if (m_data.startsWith("BEGIN:VEVENT")) m_content = "Calendar";
 
-    m_lastSeen = lastseen;
     m_lastCoordinates << p1 << p2 << p3 << p4;
-
     m_isOnScreen = true;
-    m_lastTimer.start(1000);
-    connect(&m_lastTimer, &QTimer::timeout, [this]() { m_isOnScreen = false; Q_EMIT lastseenChanged(); });
+    m_lastSeen = lastseen;
+
+    if (m_lastSeen.isValid())
+    {
+        connect(&m_lastTimer, &QTimer::timeout, [this]() { m_isOnScreen = false; Q_EMIT lastseenChanged(); });
+        m_lastTimer.start(1000);
+    }
 }
 
 Barcode::~Barcode()
@@ -111,7 +114,7 @@ void Barcode::setLastSeen(const QDateTime &value)
     }
 }
 
-void Barcode::setLastCoordinates(const QPoint &p1, const QPoint &p2, const QPoint &p3, const QPoint &p4)
+void Barcode::setLastCoordinates(const QPointF &p1, const QPointF &p2, const QPointF &p3, const QPointF &p4)
 {
     m_lastCoordinates.clear();
     m_lastCoordinates << p1 << p2 << p3 << p4;

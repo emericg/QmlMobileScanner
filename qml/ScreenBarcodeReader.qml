@@ -16,7 +16,9 @@ Loader {
 
     function loadScreen() {
         appContent.state = "ScreenBarcodeReader"
-        screenBarcodeReader.open_barcode()
+
+        mobileUI.setScreenAlwaysOn(true)
+        screenBarcodeReader.active = true
 
         if (screenBarcodeReader.status === Loader.Ready)
             screenBarcodeReader.item.open()
@@ -25,13 +27,6 @@ Loader {
     function backAction() {
         if (screenBarcodeReader.status === Loader.Ready)
             screenBarcodeReader.item.backAction()
-    }
-
-    function open_barcode() {
-        console.log("screenBarcodeReader::open_barcode()")
-
-        mobileUI.setScreenAlwaysOn(true)
-        active = true
     }
 
     function hide() {
@@ -50,7 +45,7 @@ Loader {
 
         if (screenBarcodeReader.status === Loader.Ready) {
             screenBarcodeReader.item.close()
-            if (isMobile) screenBarcodeReader.active = false // crash ?!
+            if (isMobile) screenBarcodeReader.active = false // crash on desktop !?!
         }
     }
 
@@ -63,24 +58,44 @@ Loader {
         anchors.fill: parent
         color: "black"
 
-        opacity: camera.active ? 1 : 0
+        opacity: 0
         Behavior on opacity { NumberAnimation { duration: 233 } }
+
+        property string currentMode: "video"
 
         Component.onCompleted: open()
 
         function open() {
             //console.log(">> open()")
 
-            camera.active = true
+            opacity = 1
+
+            if (currentMode === "video") open_video()
+            else if (currentMode === "image") open_image()
+
             if (isMobile) {
                 //appWindow.showFullScreen()
                 //mobileUI.refreshUI()
             }
         }
+        function open_video() {
+            console.log(">> open_video()")
+            currentMode = "video"
+            camera.active = true
+            videoOutput.visible = true
+            imageOutput.visible = false
+        }
+        function open_image(file) {
+            console.log(">> open_image()")
+            currentMode = "image"
+            if (file) imageOutput.source = file
+            videoOutput.visible = false
+            imageOutput.visible = true
+        }
         function close() {
             //console.log(">> close()")
 
-            //camera.active = false // crash !!
+            //camera.active = false // crash !?!
 
             if (isMobile) {
                 //appWindow.showNormal()
@@ -122,7 +137,7 @@ Loader {
                 focusMode: Camera.FocusModeAutoNear
 
                 cameraDevice: mediaDevices.videoInputs[mediaDevices.selectedDevice] ? mediaDevices.videoInputs[mediaDevices.selectedDevice] : mediaDevices.defaultVideoInput
-                onErrorOccurred: console.log("CaptureSession::Camera ERROR " + errorString)
+                onErrorOccurred: (errorString) => { console.log("CaptureSession::Camera ERROR " + errorString) }
             }
         }
 
@@ -159,44 +174,12 @@ Loader {
             function printInfos() {
                 console.log("> Camera > " + mediaDevices.selectedDevice.description)
                 console.log("- videoOutput sz: " + videoOutput.x + "," + videoOutput.y + " - " + videoOutput.width + "x" + videoOutput.height)
-                console.log("- sourceRect  sz: " + videoOutput.sourceRect.x.toFixed() + "," + videoOutput.sourceRect.y + " - " + videoOutput.sourceRect.width + "x" + videoOutput.sourceRect.height)
+                console.log("- sourceRect  sz: " + videoOutput.sourceRect.x.toFixed() + "," + videoOutput.sourceRect.y + " - " +
+                                                   videoOutput.sourceRect.width + "x" + videoOutput.sourceRect.height)
                 console.log("- contentRect sz: " + videoOutput.contentRect.x.toFixed() + "," + videoOutput.contentRect.y.toFixed() + " - " +
                                                    videoOutput.contentRect.width.toFixed() + "x" + videoOutput.contentRect.height.toFixed())
                 console.log("- captureRect sz: " + barcodeReader.captureRect.x.toFixed() + "," + barcodeReader.captureRect.y.toFixed() + " - " +
                                                    barcodeReader.captureRect.width.toFixed() + "x" + barcodeReader.captureRect.height.toFixed())
-            }
-
-            ////
-
-            Repeater {
-                model: barcodeManager.barcodes
-
-                Shape {
-                    anchors.fill: parent
-
-                    antialiasing: true
-                    opacity: modelData.isOnScreen ? 0.80 : 0
-                    Behavior on opacity { NumberAnimation { duration: 133 } }
-
-                    ShapePath {
-                        strokeWidth: 4
-                        strokeColor: {
-                            if (index === 0) return Theme.colorGreen
-                            if (index === 1) return Theme.colorBlue
-                            if (index === 2) return Theme.colorOrange
-                            if (index === 3) return Theme.colorRed
-                        }
-                        strokeStyle: ShapePath.SolidLine
-                        fillColor: "transparent"
-
-                        startX: modelData.lastCoordinates[3].x
-                        startY: modelData.lastCoordinates[3].y
-                        PathLine { x: modelData.lastCoordinates[0].x; y: modelData.lastCoordinates[0].y; }
-                        PathLine { x: modelData.lastCoordinates[1].x; y: modelData.lastCoordinates[1].y; }
-                        PathLine { x: modelData.lastCoordinates[2].x; y: modelData.lastCoordinates[2].y; }
-                        PathLine { x: modelData.lastCoordinates[3].x; y: modelData.lastCoordinates[3].y; }
-                    }
-                }
             }
 
             ////
@@ -214,8 +197,10 @@ Loader {
                 id: captureZone
                 anchors.fill: parent
 
-                visible: !(menuDebug.visible || menuFormats.visible ||
-                           menuCamera.visible || menuScreens.visible || appDrawer.visible)
+                visible: !(appDrawer.visible ||
+                           imageOutput.visible ||
+                           menuDebug.visible || menuFormats.visible ||
+                           menuCamera.visible || menuScreens.visible)
 
                 ////////
 
@@ -322,6 +307,98 @@ Loader {
                 }
 
                 ////////
+
+                Repeater {
+                    model: barcodeManager.barcodes
+
+                    Shape {
+                        anchors.fill: parent
+
+                        antialiasing: true
+                        opacity: modelData.isOnScreen ? 0.80 : 0
+                        Behavior on opacity { NumberAnimation { duration: 133 } }
+
+                        ShapePath {
+                            strokeWidth: 4
+                            strokeColor: {
+                                if (index === 0) return Theme.colorGreen
+                                if (index === 1) return Theme.colorBlue
+                                if (index === 2) return Theme.colorOrange
+                                if (index === 3) return Theme.colorRed
+                            }
+                            strokeStyle: ShapePath.SolidLine
+                            fillColor: "transparent"
+
+                            startX: modelData.lastCoordinates[3].x
+                            startY: modelData.lastCoordinates[3].y
+                            PathLine { x: modelData.lastCoordinates[0].x; y: modelData.lastCoordinates[0].y; }
+                            PathLine { x: modelData.lastCoordinates[1].x; y: modelData.lastCoordinates[1].y; }
+                            PathLine { x: modelData.lastCoordinates[2].x; y: modelData.lastCoordinates[2].y; }
+                            PathLine { x: modelData.lastCoordinates[3].x; y: modelData.lastCoordinates[3].y; }
+                        }
+                    }
+                }
+
+                ////////
+            }
+
+            ////
+        }
+
+        ////////////////////////
+
+        Image {
+            id: imageOutput
+            anchors.centerIn: parent
+
+            visible: false
+            source: ""
+
+            // Stretch / PreserveAspectFit / PreserveAspectCrop
+            fillMode: VideoOutput.PreserveAspectFit
+
+            ////
+
+            function printInfos() {
+                console.log("> Image > " + imageOutput.source)
+                console.log("- image sz: " + imageOutput.x + "," + imageOutput.y + " - " + imageOutput.width + "x" + imageOutput.height)
+                console.log("- sourceSize  sz: " + imageOutput.sourceSize.x + "," + imageOutput.sourceSize.y + " - " +
+                                                   imageOutput.sourceSize.width + "x" + imageOutput.sourceSize.height)
+                console.log("- sourceClipRect sz: " + imageOutput.sourceClipRect.x + "," + imageOutput.sourceClipRect.y + " - " +
+                                                      imageOutput.sourceClipRect.width + "x" + imageOutput.sourceClipRect.height)
+            }
+
+            ////
+
+            Repeater {
+                model: barcodeManager.barcodes
+
+                Shape {
+                    anchors.fill: parent
+
+                    antialiasing: true
+                    opacity: modelData.isOnScreen ? 0.80 : 0
+                    Behavior on opacity { NumberAnimation { duration: 133 } }
+
+                    ShapePath {
+                        strokeWidth: 4
+                        strokeColor: {
+                            if (index === 0) return Theme.colorGreen
+                            if (index === 1) return Theme.colorBlue
+                            if (index === 2) return Theme.colorOrange
+                            if (index === 3) return Theme.colorRed
+                        }
+                        strokeStyle: ShapePath.SolidLine
+                        fillColor: "transparent"
+
+                        startX: modelData.lastCoordinates[3].x * imageOutput.sourceSize.width
+                        startY: modelData.lastCoordinates[3].y * imageOutput.sourceSize.height
+                        PathLine { x: modelData.lastCoordinates[0].x* imageOutput.sourceSize.width; y: modelData.lastCoordinates[0].y* imageOutput.sourceSize.height; }
+                        PathLine { x: modelData.lastCoordinates[1].x* imageOutput.sourceSize.width; y: modelData.lastCoordinates[1].y* imageOutput.sourceSize.height; }
+                        PathLine { x: modelData.lastCoordinates[2].x* imageOutput.sourceSize.width; y: modelData.lastCoordinates[2].y* imageOutput.sourceSize.height; }
+                        PathLine { x: modelData.lastCoordinates[3].x* imageOutput.sourceSize.width; y: modelData.lastCoordinates[3].y* imageOutput.sourceSize.height; }
+                    }
+                }
             }
 
             ////
@@ -356,6 +433,7 @@ Loader {
                     }
                     Text {
                         id: msPerFrame
+                        visible: (currentMode === "video")
                         text: barcodeReader.timePerFrameDecode.toFixed(0) + " ms"
                         color: "white"
                     }
@@ -386,12 +464,101 @@ Loader {
 
                 ////
 
+                Item { // drag and drop
+                    id: dndItm
+                    width: 48
+                    height: 48
+
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: height
+                        color: "black"
+                        opacity: 0.33
+                    }
+
+                    IconSvg {
+                        width: parent.height * 0.6
+                        height: parent.height * 0.6
+                        anchors.centerIn: parent
+                        color: fileOpenDialog.visible ? Theme.colorYellow : "white"
+                        source: "qrc:/assets/icons_material/duotone-photo_library-24px.svg"
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            menuDebug.visible = false
+                            menuFormats.visible = false
+                            menuCamera.visible = false
+                            menuScreens.visible = false
+
+                            if (fileOpenDialog.visible) fileOpenDialog.close()
+                            else fileOpenDialog.open()
+                        }
+                    }
+
+                    FileDialog {
+                        id: fileOpenDialog
+
+                        fileMode: FileDialog.OpenFile
+                        nameFilters: ["Picture files (*.png *.bmp *.jpg *.jpeg *.webp)",
+                                      "PNG files (*.png)", "BMP files (*.bmp)", "JPEG files (*.jpg *.jpeg)", "WebP files (*.webp)"]
+                        currentFolder: StandardPaths.standardLocations(StandardPaths.PicturesLocation)[0]
+
+                        onAccepted: {
+                            //console.log("fileOpenDialog: " + currentFile)
+
+                            if (barcodeManager.loadImage(currentFile))
+                            {
+                                open_image(currentFile)
+                            }
+                        }
+                    }
+                }
+
+                ////
+
+                Item { // back to camera
+                    id: camItm
+                    width: 48
+                    height: 48
+
+                    visible: (currentMode === "image")
+
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: height
+                        color: "black"
+                        opacity: 0.33
+                    }
+
+                    IconSvg {
+                        width: parent.height * 0.6
+                        height: parent.height * 0.6
+                        anchors.centerIn: parent
+                        color: "white"
+                        source: "qrc:/assets/icons_material/duotone-camera-24px.svg"
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            menuDebug.visible = false
+                            menuFormats.visible = false
+                            menuCamera.visible = false
+                            menuScreens.visible = false
+                            fileOpenDialog.close()
+                            open_video()
+                        }
+                    }
+                }
+
+                ////
+
                 Item { // debug settings
                     id: debugItm
                     width: 48
                     height: 48
 
-                    visible: settingsManager.showDebug
+                    visible: (currentMode === "video" && settingsManager.showDebug)
 
                     Rectangle {
                         anchors.fill: parent
@@ -410,6 +577,7 @@ Loader {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
+                            fileOpenDialog.close()
                             menuDebug.visible = !menuDebug.visible
                             menuFormats.visible = false
                             menuCamera.visible = false
@@ -425,7 +593,7 @@ Loader {
                     width: 48
                     height: 48
 
-                    visible: settingsManager.showDebug
+                    visible: (currentMode === "video" && settingsManager.showDebug)
 
                     Rectangle {
                         anchors.fill: parent
@@ -444,6 +612,7 @@ Loader {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
+                            fileOpenDialog.close()
                             menuDebug.visible = false
                             menuFormats.visible = !menuFormats.visible
                             menuCamera.visible = false
@@ -459,7 +628,7 @@ Loader {
                     width: 48
                     height: 48
 
-                    visible: (mediaDevices.videoInputs.length > 1)
+                    visible: (currentMode === "video" && mediaDevices.videoInputs.length > 1)
 
                     Rectangle {
                         anchors.fill: parent
@@ -478,6 +647,7 @@ Loader {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
+                            fileOpenDialog.close()
                             menuDebug.visible = false
                             menuFormats.visible = false
                             menuCamera.visible = !menuCamera.visible

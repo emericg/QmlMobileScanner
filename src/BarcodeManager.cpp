@@ -28,6 +28,10 @@
 #include <QSqlError>
 #include <QSqlQuery>
 
+#if defined(zxingcpp)
+#include "ZXingQt.h"
+#endif
+
 /* ************************************************************************** */
 
 BarcodeManager *BarcodeManager::instance = nullptr;
@@ -80,14 +84,61 @@ BarcodeManager::BarcodeManager()
 
 BarcodeManager::~BarcodeManager()
 {
-    //
+    qDeleteAll(m_barcodes_onscreen);
+    m_barcodes_onscreen.clear();
+
+    qDeleteAll(m_barcodes_history);
+    m_barcodes_history.clear();
+
+    delete m_nwManager;
+    delete firmwareReply;
+}
+
+/* ************************************************************************** */
+
+bool BarcodeManager::loadImage(const QUrl &fileUrl)
+{
+    bool status = false;
+
+#if defined(zxingcpp)
+    QImage img;
+    if (img.load(fileUrl.toLocalFile()))
+    {
+        qDeleteAll(m_barcodes_onscreen);
+        m_barcodes_onscreen.clear();
+
+        QList<Result> results = ZXingQt::loadImage(fileUrl);
+        for (auto r: results)
+        {
+            QPointF tl = r.position().topLeft();
+            tl.setX(tl.x() / img.width());
+            tl.setY(tl.y() / img.height());
+            QPointF tr = r.position().topRight();
+            tr.setX(tr.x() / img.width());
+            tr.setY(tr.y() / img.height());
+            QPointF bl = r.position().bottomLeft();
+            bl.setX(bl.x() / img.width());
+            bl.setY(bl.y() / img.height());
+            QPointF br = r.position().bottomRight();
+            br.setX(br.x() / img.width());
+            br.setY(br.y() / img.height());
+
+            addBarcode(r.text(), r.formatName(), "", "", tl, tr, br, bl, false);
+        }
+
+        status = true;
+    }
+#endif
+
+    return status;
 }
 
 /* ************************************************************************** */
 
 bool BarcodeManager::addBarcode(const QString &data, const QString &format,
                                 const QString &enc, const QString &ecc,
-                                const QPoint &p1, const QPoint &p2, const QPoint &p3, const QPoint &p4)
+                                const QPointF &p1, const QPointF &p2, const QPointF &p3, const QPointF &p4,
+                                const bool fromVideo)
 {
     if (!data.isEmpty())
     {
@@ -107,9 +158,12 @@ bool BarcodeManager::addBarcode(const QString &data, const QString &format,
             }
         }
 
+        QDateTime dt;
+        if (fromVideo) dt = QDateTime::currentDateTime();
+
         // add barcode to the onscreen list
         Barcode *bc = new Barcode(data, format, enc, ecc,
-                                  QDateTime::currentDateTime(), p1, p2, p3, p4,
+                                  dt, p1, p2, p3, p4,
                                   this);
         if (bc)
         {

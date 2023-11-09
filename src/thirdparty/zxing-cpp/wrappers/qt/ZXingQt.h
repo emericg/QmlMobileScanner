@@ -201,7 +201,9 @@ public:
 
     ///
 
-    Q_INVOKABLE static QList<Result> loadImage(const QUrl &fileurl);
+    Q_INVOKABLE static QList<Result> loadImage(const QUrl &fileUrl);
+
+    Q_INVOKABLE static QList<Result> loadImage(const QImage &img);
 
     Q_INVOKABLE static QImage generateImage(const QString &data, const int width, const int height, const int margins,
                                             const int format, const int encoding, const int eccLevel,

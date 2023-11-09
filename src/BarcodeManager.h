@@ -24,6 +24,7 @@
 /* ************************************************************************** */
 
 #include <QObject>
+#include <QUrl>
 #include <QString>
 #include <QDateTime>
 
@@ -60,9 +61,12 @@ Q_SIGNALS:
 public:
     static BarcodeManager *getInstance();
 
+    Q_INVOKABLE bool loadImage(const QUrl &fileUrl);
+
     Q_INVOKABLE bool addBarcode(const QString &data, const QString &format,
                                 const QString &enc, const QString &ecc,
-                                const QPoint &p1, const QPoint &p2,  const QPoint &p3, const QPoint &p4);
+                                const QPointF &p1, const QPointF &p2,  const QPointF &p3, const QPointF &p4,
+                                const bool fromVideo = true);
 
     Q_INVOKABLE void addHistory(const QString &data, const QString &format,
                                 const QString &enc, const QString &ecc);
