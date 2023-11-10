@@ -24,7 +24,8 @@
 
         <file alias="SelectorGrid.qml">components/SelectorGrid.qml</file>
         <file alias="SelectorGridItem.qml">components/SelectorGridItem.qml</file>
-        <file alias="WidgetBarcode.qml">components/WidgetBarcode.qml</file>
+        <file alias="WidgetBarcodeHistory.qml">components/WidgetBarcodeHistory.qml</file>
+        <file alias="WidgetBarcodeResult.qml">components/WidgetBarcodeResult.qml</file>
 
         <file alias="MenuDebug.qml">components/MenuDebug.qml</file>
         <file alias="MenuCamera.qml">components/MenuCamera.qml</file>

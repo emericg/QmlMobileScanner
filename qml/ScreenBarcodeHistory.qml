@@ -19,7 +19,8 @@ Loader {
     }
 
     function backAction() {
-        screenBarcodeHistory.loadScreen()
+        if (screenBarcodeHistory.status === Loader.Ready)
+            screenBarcodeHistory.item.backAction()
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -34,16 +35,46 @@ Loader {
         anchors.fill: parent
         anchors.margins: 0
 
+        function backAction() {
+            if (stackView.depth > 1) {
+                stackView.pop()
+                return
+            }
+
+            screenBarcodeReader.loadScreen()
+        }
+
         ////////
 
-        ListView {
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
-            width: parent.width
+        StackView {
+            id: stackView
+            anchors.fill: parent
 
-            model: barcodeManager.barcodesHistory
-            delegate: WidgetBarcode {
-                //
+            initialItem: mainView
+        }
+
+        ////////
+
+        Component {
+            id: mainView
+
+            ListView {
+                model: barcodeManager.barcodesHistory
+                delegate: WidgetBarcodeHistory {
+                    width: parent.width
+                    onClicked: {
+                        stackView.push(detailsView)
+                        stackView.get(1).loadBarcode(modelData)
+                    }
+                }
+            }
+        }
+
+        Component {
+            id: detailsView
+
+            ScreenBarcodeDetails {
+                anchors.fill: undefined
             }
         }
 

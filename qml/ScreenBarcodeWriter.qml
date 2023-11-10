@@ -218,20 +218,62 @@ Loader {
                         anchors.left: parent.left
                         anchors.right: parent.right
                         height: 40
-                        visible: singleColumn
 
-                        onDisplayTextChanged: barcodeAdvanced.barcode_string = displayText
+                        visible: selectorBarcodes.currentSelection >= 5
+
+                        IntValidator { bottom: 0; top: 999999999; }
+                        maximumLength: 12
+                        onDisplayTextChanged: {
+                            var code = "0"
+                            var codesize = 7
+
+                            if (selectorBarcodes.currentSelection === 5) codesize = 12 // EAN 13
+                            if (selectorBarcodes.currentSelection === 6) codesize = 7 // EAN 8
+                            if (selectorBarcodes.currentSelection === 7) codesize = 11 // UPC-A
+                            if (selectorBarcodes.currentSelection === 8) codesize = 7 // UPC-E
+                            if (selectorBarcodes.currentSelection === 9) codesize = 7 // Code 39
+                            if (selectorBarcodes.currentSelection === 10) codesize = 7 // Code 93
+                            if (selectorBarcodes.currentSelection === 11) codesize = 7 // Code 128
+                            if (selectorBarcodes.currentSelection === 12) codesize = 11 // codabar
+                            if (selectorBarcodes.currentSelection === 13) codesize = 10 // itf
+
+                            code = displayText.slice(0, codesize)
+                            code = code.padEnd(codesize, '0');
+                            barcodeAdvanced.barcode_string = code
+                        }
+                        ButtonWireframe {
+                            anchors.top: parent.top
+                            anchors.right: parent.right
+                            anchors.bottom: parent.bottom
+                            fullColor: true
+                            visible: barcodeTextField.text
+
+                            text: qsTr("clear")
+                            onClicked: barcodeTextField.clear()
+                        }
                     }
                     TextAreaThemed {
                         id: barcodeTextArea
                         anchors.left: parent.left
                         anchors.right: parent.right
                         height: 128
-                        visible: !singleColumn
+
+                        visible: selectorBarcodes.currentSelection < 5
 
                         wrapMode: "WrapAnywhere"
                         selectByMouse: true
                         onTextChanged: barcodeAdvanced.barcode_string = text
+
+                        ButtonWireframe {
+                            anchors.right: parent.right
+                            anchors.bottom: parent.bottom
+                            height: 36
+                            fullColor: true
+                            visible: barcodeTextArea.text
+
+                            text: qsTr("clear")
+                            onClicked: barcodeTextArea.clear()
+                        }
                     }
 
                     ////

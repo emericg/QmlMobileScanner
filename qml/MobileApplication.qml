@@ -174,12 +174,7 @@ ApplicationWindow {
 
     function backAction() {
         //console.log("backAction() backAction() backAction() backAction()")
-/*
-        if (screenBarcodeReader.active) {
-            screenBarcodeReader.close()
-            return
-        }
-*/
+
         if (appContent.state === "ScreenTutorial")  return // do nothing
 
         if (appContent.state === "ScreenBarcodeReader") {
@@ -189,14 +184,12 @@ ApplicationWindow {
                 exitTimer.start()
         } else if (appContent.state === "ScreenBarcodeWriter") {
             screenBarcodeWriter.backAction()
-        } else if (appContent.state === "ScreenBarcodeDetails") {
-           screenBarcodeDetails.backAction()
-        } else if (appContent.state === "ScreenAbout") {
+        } else if (appContent.state === "ScreenBarcodeHistory") {
+            screenBarcodeHistory.backAction()
+        } else if (appContent.state === "ScreenAbout" ||
+                   appContent.state === "ScreenAboutFormats" ||
+                   appContent.state === "ScreenAboutPermissions") {
             screenAbout.backAction()
-        } else if (appContent.state === "ScreenAboutFormats") {
-            screenAboutFormats.backAction()
-        } else if (appContent.state === "ScreenAboutPermissions") {
-            screenAboutPermissions.backAction()
         } else {
             screenBarcodeReader.loadScreen()
         }
@@ -250,10 +243,6 @@ ApplicationWindow {
             id: screenBarcodeHistory
             anchors.bottomMargin: screenPaddingBottom + screenPaddingNavbar
         }
-        ScreenBarcodeDetails {
-            id: screenBarcodeDetails
-            anchors.bottomMargin: screenPaddingBottom + screenPaddingNavbar
-        }
         ScreenBarcodeWriter {
             id: screenBarcodeWriter
             anchors.bottomMargin: screenPaddingBottom + screenPaddingNavbar
@@ -303,7 +292,6 @@ ApplicationWindow {
                 PropertyChanges { target: screenBarcodeReader; visible: false; }
                 PropertyChanges { target: screenBarcodeWriter; visible: false; }
                 PropertyChanges { target: screenBarcodeHistory; visible: false; }
-                PropertyChanges { target: screenBarcodeDetails; visible: false; }
                 PropertyChanges { target: screenSettings; visible: false; }
                 PropertyChanges { target: screenAbout; visible: false; }
                 PropertyChanges { target: screenAboutFormats; visible: false; }
@@ -318,7 +306,6 @@ ApplicationWindow {
                 PropertyChanges { target: screenBarcodeReader; visible: false; }
                 PropertyChanges { target: screenBarcodeWriter; visible: false; }
                 PropertyChanges { target: screenBarcodeHistory; visible: false; }
-                PropertyChanges { target: screenBarcodeDetails; visible: false; }
                 PropertyChanges { target: screenSettings; visible: false; }
                 PropertyChanges { target: screenAbout; visible: false; }
                 PropertyChanges { target: screenAboutFormats; visible: false; }
@@ -332,7 +319,6 @@ ApplicationWindow {
                 PropertyChanges { target: screenBarcodeReader; visible: true; }
                 PropertyChanges { target: screenBarcodeWriter; visible: false; }
                 PropertyChanges { target: screenBarcodeHistory; visible: false; }
-                PropertyChanges { target: screenBarcodeDetails; visible: false; }
                 PropertyChanges { target: screenSettings; visible: false; }
                 PropertyChanges { target: screenAbout; visible: false; }
                 PropertyChanges { target: screenAboutFormats; visible: false; }
@@ -346,7 +332,6 @@ ApplicationWindow {
                 PropertyChanges { target: screenBarcodeReader; visible: false; }
                 PropertyChanges { target: screenBarcodeWriter; visible: true; }
                 PropertyChanges { target: screenBarcodeHistory; visible: false; }
-                PropertyChanges { target: screenBarcodeDetails; visible: false; }
                 PropertyChanges { target: screenSettings; visible: false; }
                 PropertyChanges { target: screenAbout; visible: false; }
                 PropertyChanges { target: screenAboutFormats; visible: false; }
@@ -360,21 +345,6 @@ ApplicationWindow {
                 PropertyChanges { target: screenBarcodeReader; visible: false; }
                 PropertyChanges { target: screenBarcodeWriter; visible: false; }
                 PropertyChanges { target: screenBarcodeHistory; visible: true; }
-                PropertyChanges { target: screenBarcodeDetails; visible: false; }
-                PropertyChanges { target: screenSettings; visible: false; }
-                PropertyChanges { target: screenAbout; visible: false; }
-                PropertyChanges { target: screenAboutFormats; visible: false; }
-                PropertyChanges { target: screenAboutPermissions; visible: false; }
-            },
-            State {
-                name: "ScreenBarcodeDetails"
-                PropertyChanges { target: appHeader; headerTitle: qsTr("Barcode"); }
-                PropertyChanges { target: screenTutorial; visible: false; }
-                PropertyChanges { target: screenMainMenu; visible: false; }
-                PropertyChanges { target: screenBarcodeReader; visible: false; }
-                PropertyChanges { target: screenBarcodeWriter; visible: false; }
-                PropertyChanges { target: screenBarcodeHistory; visible: false; }
-                PropertyChanges { target: screenBarcodeDetails; visible: true; }
                 PropertyChanges { target: screenSettings; visible: false; }
                 PropertyChanges { target: screenAbout; visible: false; }
                 PropertyChanges { target: screenAboutFormats; visible: false; }
@@ -389,7 +359,6 @@ ApplicationWindow {
                 PropertyChanges { target: screenBarcodeReader; visible: false; }
                 PropertyChanges { target: screenBarcodeWriter; visible: false; }
                 PropertyChanges { target: screenBarcodeHistory; visible: false; }
-                PropertyChanges { target: screenBarcodeDetails; visible: false; }
                 PropertyChanges { target: screenSettings; visible: true; }
                 PropertyChanges { target: screenAbout; visible: false; }
                 PropertyChanges { target: screenAboutFormats; visible: false; }
@@ -403,7 +372,6 @@ ApplicationWindow {
                 PropertyChanges { target: screenBarcodeReader; visible: false; }
                 PropertyChanges { target: screenBarcodeWriter; visible: false; }
                 PropertyChanges { target: screenBarcodeHistory; visible: false; }
-                PropertyChanges { target: screenBarcodeDetails; visible: false; }
                 PropertyChanges { target: screenSettings; visible: false; }
                 PropertyChanges { target: screenAbout; visible: true; }
                 PropertyChanges { target: screenAboutFormats; visible: false; }
@@ -417,7 +385,6 @@ ApplicationWindow {
                 PropertyChanges { target: screenBarcodeReader; visible: false; }
                 PropertyChanges { target: screenBarcodeWriter; visible: false; }
                 PropertyChanges { target: screenBarcodeHistory; visible: false; }
-                PropertyChanges { target: screenBarcodeDetails; visible: false; }
                 PropertyChanges { target: screenSettings; visible: false; }
                 PropertyChanges { target: screenAbout; visible: false; }
                 PropertyChanges { target: screenAboutFormats; visible: true; }
@@ -431,7 +398,6 @@ ApplicationWindow {
                 PropertyChanges { target: screenBarcodeReader; visible: false; }
                 PropertyChanges { target: screenBarcodeWriter; visible: false; }
                 PropertyChanges { target: screenBarcodeHistory; visible: false; }
-                PropertyChanges { target: screenBarcodeDetails; visible: false; }
                 PropertyChanges { target: screenSettings; visible: false; }
                 PropertyChanges { target: screenAbout; visible: false; }
                 PropertyChanges { target: screenAboutFormats; visible: false; }

@@ -320,12 +320,7 @@ Loader {
 
                         ShapePath {
                             strokeWidth: 4
-                            strokeColor: {
-                                if (index === 0) return Theme.colorGreen
-                                if (index === 1) return Theme.colorBlue
-                                if (index === 2) return Theme.colorOrange
-                                if (index === 3) return Theme.colorRed
-                            }
+                            strokeColor: modelData.color
                             strokeStyle: ShapePath.SolidLine
                             fillColor: "transparent"
 
@@ -382,12 +377,7 @@ Loader {
 
                     ShapePath {
                         strokeWidth: 4
-                        strokeColor: {
-                            if (index === 0) return Theme.colorGreen
-                            if (index === 1) return Theme.colorBlue
-                            if (index === 2) return Theme.colorOrange
-                            if (index === 3) return Theme.colorRed
-                        }
+                        strokeColor: modelData.color
                         strokeStyle: ShapePath.SolidLine
                         fillColor: "transparent"
 
@@ -468,6 +458,8 @@ Loader {
                     id: dndItm
                     width: 48
                     height: 48
+
+                    visible: isDesktop
 
                     Rectangle {
                         anchors.fill: parent
@@ -685,70 +677,16 @@ Loader {
                 anchors.bottomMargin: Theme.componentMarginXL + Math.max(screenPaddingBottom, screenPaddingNavbar)
 
                 width: parent.width
-                spacing: Theme.componentMarginXL
+                spacing: Theme.componentMargin
 
                 ////
 
                 Repeater { // barcode(s)
                     model: barcodeManager.barcodes
 
-                    Item {
+                    WidgetBarcodeResult {
                         width: parent.width
-                        height: 48
-
-                        Rectangle {
-                            anchors.fill: parent
-                            radius: height
-                            color: "black"
-                            opacity: 0.33
-                        }
-
-                        IconSvg {
-                            id: barcodeImg
-                            width: parent.height * 0.666
-                            height: parent.height * 0.666
-                            anchors.left: parent.left
-                            anchors.leftMargin: Theme.componentMargin
-                            anchors.verticalCenter: parent.verticalCenter
-                            color: "white"
-                            source: modelData.isMatrix ? "qrc:/assets/icons_material/baseline-qr_code_2-24px.svg" :
-                                                         "qrc:/assets/icons_bootstrap/upc.svg"
-                        }
-
-                        Text {
-                            id: barcodeTxt
-                            anchors.left: barcodeImg.right
-                            anchors.leftMargin: Theme.componentMargin
-                            anchors.right: parent.right
-                            anchors.rightMargin: Theme.componentMargin
-                            anchors.verticalCenter: parent.verticalCenter
-
-                            text: modelData.data
-                            color: "white"
-                            font.pixelSize: Theme.fontSizeContent
-                            elide: Text.ElideRight
-                            //wrapMode: Text.WordWrap
-                        }
-
-                        Text {
-                            anchors.right: parent.right
-                            anchors.rightMargin: Theme.componentMargin
-                            anchors.verticalCenter: parent.verticalCenter
-
-                            text: modelData.format
-                            color: "white"
-                            opacity: 0.66
-                            font.pixelSize: Theme.fontSizeContentSmall
-                            elide: Text.ElideRight
-                            //wrapMode: Text.WordWrap
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                Qt.openUrlExternally(modelData.data)
-                            }
-                        }
+                        barcode: modelData
                     }
                 }
 

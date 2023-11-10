@@ -214,53 +214,57 @@ Item {
 
         } else if (themeIndex === ThemeEngine.THEME_DARK) {
 
-            colorGreen = "#58CF77"
-            colorBlue = "#4dceeb"
-            colorYellow = "#fcc632"
-            colorOrange = "#ff7657"
-            colorRed = "#e8635a"
+            colorGreen =                "#58CF77"
+            colorBlue =                 "#4dceeb"
+            colorYellow =               "#fcc632"
+            colorOrange =               "#ff7657"
+            colorRed =                  "#e8635a"
 
-            themeStatusbar = Material.Dark
-            colorStatusbar = "#944197"
+            themeStatusbar =            Material.Dark
+            colorStatusbar =            "#944197"
 
-            colorHeader = "#944197"
-            colorHeaderContent = "#fff"
-            colorHeaderHighlight = Qt.darker(colorHeader, 1.1)
+            colorHeader =               "#944197"
+            colorHeaderContent =        "#fff"
+            colorHeaderHighlight =      Qt.darker(colorHeader, 1.1)
+
+            colorSidebar =              "#292929"
+            colorSidebarContent =       "white"
+            colorSidebarHighlight =     Qt.lighter(colorSidebar, 1.5)
 
             colorActionbar = colorGreen
-            colorActionbarContent = "white"
-            colorActionbarHighlight = "#00a27d"
+            colorActionbarContent =     "white"
+            colorActionbarHighlight =   "#00a27d"
 
-            colorTabletmenu = "#292929"
-            colorTabletmenuContent = "#808080"
-            colorTabletmenuHighlight = "#ff9f1a"
+            colorTabletmenu =           "#292929"
+            colorTabletmenuContent =    "#808080"
+            colorTabletmenuHighlight =  "#ff9f1a"
 
-            colorBackground = "#313236"
-            colorForeground = "#292929"
+            colorBackground =           "#313236"
+            colorForeground =           "#292929"
 
-            colorPrimary = "#ff9f1a"
-            colorSecondary = "#ffb81a"
+            colorPrimary =              "#ff9f1a"
+            colorSecondary =            "#ffb81a"
 
-            colorText = "white"
-            colorSubText = "#bbb"
-            colorIcon = "#ccc"
-            colorSeparator = "#404040"
+            colorText =                 "white"
+            colorSubText =              "#bbb"
+            colorIcon =                 "#ccc"
+            colorSeparator =            "#404040"
 
-            colorSuccess = colorGreen
-            colorWarning = colorOrange
-            colorError = colorRed
+            colorSuccess =              colorGreen
+            colorWarning =              colorOrange
+            colorError =                colorRed
 
-            colorLowContrast = "#141414"
-            colorHighContrast = "white"
+            colorLowContrast =          "#141414"
+            colorHighContrast =         "white"
 
-            colorComponent = "#666666"
-            colorComponentText = "white"
-            colorComponentContent = "white"
-            colorComponentBorder = "#666666"
-            colorComponentDown = "#444444"
-            colorComponentBackground = "#505050"
+            colorComponent =            "#666666"
+            colorComponentText =        "white"
+            colorComponentContent =     "white"
+            colorComponentBorder =      "#666666"
+            colorComponentDown =        "#444444"
+            colorComponentBackground =  "#505050"
 
-            colorRipple = "#292929"
+            colorRipple =               "#292929"
 
         }
 

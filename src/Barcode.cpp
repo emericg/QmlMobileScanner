@@ -54,8 +54,8 @@ Barcode::Barcode(const QString &data, const QString &format, const QString &enc,
 }
 
 Barcode::Barcode(const QString &data, const QString &format, const QString &enc, const QString &ecc,
-                 const QDateTime &lastseen,
-                 const QPointF &p1, const QPointF &p2, const QPointF &p3, const QPointF &p4,
+                 const QDateTime &lastseen, const QColor &color,
+                 /*const QPointF &p1, const QPointF &p2, const QPointF &p3, const QPointF &p4,*/
                  QObject *parent) : QObject(parent)
 {
     m_data = data;
@@ -76,9 +76,10 @@ Barcode::Barcode(const QString &data, const QString &format, const QString &enc,
     else if (m_data.startsWith("BEGIN:VCARD") || m_data.startsWith("MECARD:")) m_content = "Contact";
     else if (m_data.startsWith("BEGIN:VEVENT")) m_content = "Calendar";
 
-    m_lastCoordinates << p1 << p2 << p3 << p4;
+    //m_lastCoordinates << p1 << p2 << p3 << p4;
     m_isOnScreen = true;
     m_lastSeen = lastseen;
+    m_color = color;
 
     if (m_lastSeen.isValid())
     {

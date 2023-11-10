@@ -129,33 +129,41 @@ QImage ZXingQtImageProvider::requestImage(const QString &id, QSize *size, const 
         if (data.isEmpty())
         {
             data = "empty";
+            if (format == ZXing::BarcodeFormat::EAN8) data = "1234567";
+            if (format == ZXing::BarcodeFormat::EAN13) data = "123456789123";
+            if (format == ZXing::BarcodeFormat::UPCA) data = "12345678912";
+            if (format == ZXing::BarcodeFormat::UPCE) data = "1234567";
+            if (format == ZXing::BarcodeFormat::Codabar) data = "A0123456789A";
+            if (format == ZXing::BarcodeFormat::ITF) data = "0011223344";
         }
 
         if (format == ZXing::BarcodeFormat::EAN8)
         {
             // numeric - 7 char + 1 char checksum
-            data = "1234567";
+            data.resize(7, '0');
         }
         else if (format == ZXing::BarcodeFormat::EAN13)
         {
             // numeric - 12 char + 1 char checksum
-            data = "123456789123";
-        }
-        else if (format == ZXing::BarcodeFormat::UPCA)
-        {
-            data = "12345678912";
+            data.resize(12, '0');
         }
         else if (format == ZXing::BarcodeFormat::UPCE)
         {
-            data = "1234567";
+            // numeric - 7 char + 1 char checksum
+            data.resize(7, '0');
+        }
+        else if (format == ZXing::BarcodeFormat::UPCA)
+        {
+            // numeric - 11 char + 1 char checksum
+            data.resize(11, '0');
         }
         else if (format == ZXing::BarcodeFormat::Codabar)
         {
-            data = "A0123456789A";
+            data.resize(12, '0');
         }
         else if (format == ZXing::BarcodeFormat::ITF)
         {
-            data = "0011223344";
+            data.resize(10, '0');
         }
     }
 

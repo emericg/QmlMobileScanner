@@ -30,6 +30,10 @@ Loader {
     sourceComponent: Item {
         anchors.fill: parent
 
+        function backAction() {
+            screenBarcodeReader.loadScreen()
+        }
+
         Flickable {
             anchors.fill: parent
 

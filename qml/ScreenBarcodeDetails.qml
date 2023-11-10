@@ -31,6 +31,11 @@ Item {
         loadScreen()
     }
 
+    function loadBarcode(bc) {
+        entryPoint = ""
+        barcode = bc
+    }
+
     function backAction() {
         if (entryPoint === "ScreenBarcodeHistory")
             screenBarcodeHistory.loadScreen()
@@ -181,13 +186,15 @@ Item {
 
                 ////
 
-                Rectangle {
+                Rectangle { // barcode content // single line
                     width: parent.width
                     height: barcodedata.height + Theme.componentMargin
                     radius: Theme.componentRadius
                     color: "white"
                     border.width: 2
                     border.color: Theme.colorComponentBorder
+
+                    visible: barcode.isLinear
 
                     Text {
                         id: barcodedata
@@ -214,13 +221,33 @@ Item {
 
                 ////
 
-                Rectangle {
+                Rectangle { // barcode content // multiple lines
                     width: parent.width
                     height: barcodedata2.contentHeight + Theme.componentMargin
                     radius: Theme.componentRadius
                     color: "white"
                     border.width: 2
                     border.color: Theme.colorComponentBorder
+
+                    visible: barcode.isMatrix
+
+                    IconSvg {
+                        width: 24
+                        height: 24
+                        anchors.right: parent.right
+                        anchors.rightMargin: 8
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        source: {
+                            if (barcode.content === "URL") return "qrc:/assets/icons_material/duotone-launch-24px.svg"
+                            if (barcode.content === "WiFi") return "qrc:/assets/icons_material/baseline-wifi-24px.svg"
+                            if (barcode.content === "Email") return "qrc:/assets/icons_material/outline-mail_outline-24px.svg"
+                            if (barcode.content === "Geolocation") return "qrc:/assets/icons_material/duotone-pin_drop-24px.svg"
+                            if (barcode.content === "Phone") return "qrc:/assets/icons_material/baseline-phone-24px.svg"
+                            if (barcode.content === "SMS") return "qrc:/assets/icons_material/duotone-question_answer-24px.svg"
+                            return ""
+                        }
+                    }
 
                     Text {
                         id: barcodedata2
@@ -277,7 +304,7 @@ Item {
                     }
                     Text {
                         anchors.verticalCenter: parent.verticalCenter
-                        text: barcode.date
+                        text: barcode.date.toLocaleString(Qt.locale(), "dddd d MMMM yyyy à hh:mm")
                         font.pixelSize: Theme.fontSizeContent
                         color: Theme.colorSubText
                     }

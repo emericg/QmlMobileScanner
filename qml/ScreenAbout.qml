@@ -36,6 +36,15 @@ Loader {
         ScrollBar.vertical: ScrollBar { visible: false }
 
         function backAction() {
+            if (appContent.state === "ScreenAboutPermissions") {
+                screenAboutPermissions.backAction()
+                return
+            }
+            if (appContent.state === "ScreenAboutFormats") {
+                screenAboutFormats.backAction()
+                return
+            }
+
             screenBarcodeReader.loadScreen()
         }
 

@@ -23,6 +23,8 @@
 #include "Barcode.h"
 #include "DatabaseManager.h"
 
+#include <QRandomGenerator>
+
 #include <QSqlDatabase>
 #include <QSqlDriver>
 #include <QSqlError>
@@ -80,6 +82,9 @@ BarcodeManager::BarcodeManager()
                        << loadBarcodes.lastError().type() << ":" << loadBarcodes.lastError().text();
         }
     }
+
+    // Colors
+    m_colorsLeft = m_colorsAvailable;
 }
 
 BarcodeManager::~BarcodeManager()
@@ -135,6 +140,26 @@ bool BarcodeManager::loadImage(const QUrl &fileUrl)
 
 /* ************************************************************************** */
 
+QString BarcodeManager::getAvailableColor()
+{
+    QString clr_str;
+
+    if (m_colorsLeft.size())
+    {
+        // unique colors
+        int clr_id = QRandomGenerator::global()->bounded(m_colorsLeft.size());
+        clr_str = m_colorsLeft.at(clr_id);
+        m_colorsLeft.remove(clr_id);
+    }
+    else
+    {
+        // start reusing colors
+        clr_str = m_colorsAvailable.at(QRandomGenerator::global()->bounded(m_colorsAvailable.size()));
+    }
+
+    return clr_str;
+}
+
 bool BarcodeManager::addBarcode(const QString &data, const QString &format,
                                 const QString &enc, const QString &ecc,
                                 const QPointF &p1, const QPointF &p2, const QPointF &p3, const QPointF &p4,
@@ -163,14 +188,15 @@ bool BarcodeManager::addBarcode(const QString &data, const QString &format,
 
         // add barcode to the onscreen list
         Barcode *bc = new Barcode(data, format, enc, ecc,
-                                  dt, p1, p2, p3, p4,
-                                  this);
+                                  dt, getAvailableColor(), this);
         if (bc)
         {
+            bc->setLastCoordinates(p1, p2, p3, p4);
+
             qDebug() << "addBarcode(" << data << ")";
             m_barcodes_onscreen.push_back(bc);
-
             Q_EMIT barcodesChanged();
+
             return true;
         }
     }

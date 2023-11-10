@@ -50,6 +50,21 @@ class BarcodeManager: public QObject
     QList <QObject *> m_barcodes_onscreen;
     QList <QObject *> m_barcodes_history;
 
+    QStringList m_colorsAvailable = {
+        "HotPink", "Tomato", "Yellow", "Orange", "Gold", "LimeGreen",
+        "HotPink", "White", "Tomato", "Yellow", "Red", "Orange", "Gold", "LimeGreen", "Green",
+        "MediumOrchid", "Purple", "YellowGreen", "LightYellow", "MediumVioletRed", "PeachPuff", "DodgerBlue",
+        "Indigo", "Ivory", "DeepSkyBlue", "MistyRose", "DarkBlue", "MintCream", "Black", "OrangeRed",
+        "PaleGreen", "Gainsboro", "PaleVioletRed", "Lavender", "Cyan", "MidnightBlue", "LightPink",
+        "FireBrick", "Crimson", "DarkMagenta", "SteelBlue", "GreenYellow", "Brown", "DarkOrange",
+        "Goldenrod", "DarkSeaGreen", "DarkRed", "LavenderBlush", "Violet", "Maroon", "Khaki",
+        "WhiteSmoke", "Salmon", "Olive", "Orchid", "Fuchsia", "Pink", "LawnGreen", "Peru",
+        "Grey", "Moccasin", "Beige", "Magenta", "DarkOrchid", "LightCyan", "RosyBrown", "GhostWhite",
+        "MediumSeaGreen", "LemonChiffon", "Chocolate", "BurlyWood"
+    };
+    QStringList m_colorsLeft;
+    QString getAvailableColor();
+
     static BarcodeManager *instance;
     BarcodeManager();
     ~BarcodeManager();

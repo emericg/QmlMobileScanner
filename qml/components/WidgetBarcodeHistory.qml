@@ -5,17 +5,23 @@ import QtQuick.Controls
 import ThemeEngine
 
 SwipeDelegate {
-    id: widgetBarcode
+    id: widgetBarcodeHistory
 
-    width: parent.width
-    height: 96
+    implicitWidth: 256
+    implicitHeight: 96
+
     clip: true
     padding: Theme.componentMargin
+
+    onClicked: {
+        //console.log("WidgetBarcodeHistory::onClicked()")
+        //screenBarcodeDetails.loadScreenFrom("ScreenBarcodeHistory", modelData)
+    }
 
     ////////////////////////////////////////////////////////////////////////////
 
     background: Rectangle {
-        color: widgetBarcode.pressed ? Qt.darker(Theme.colorLowContrast, 1.05) : Theme.colorLowContrast
+        color: widgetBarcodeHistory.pressed ? Qt.darker(Theme.colorLowContrast, 1.05) : Theme.colorLowContrast
 
         Rectangle {
             anchors.right: parent.right
@@ -171,11 +177,6 @@ SwipeDelegate {
         }
     }
 
-    onClicked: {
-        console.log("onClicked()")
-        screenBarcodeDetails.loadScreenFrom("ScreenBarcodeHistory", modelData)
-    }
-
     ////////////////////////////////////////////////////////////////////////////
 
     swipe.right: Row {
@@ -189,7 +190,7 @@ SwipeDelegate {
 
             Rectangle {
                 anchors.fill: parent
-                color: widgetBarcode.background.color
+                color: widgetBarcodeHistory.background.color
             }
 
             Rectangle {

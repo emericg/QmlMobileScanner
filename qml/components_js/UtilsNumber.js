@@ -5,7 +5,7 @@
 /* ************************************************************************** */
 
 /*!
- * Pad a number
+ * Pad a number (left)
  * \param n: number to pad
  * \param width: width after padding (default 2)
  * \param z: character to insert (default '0')
