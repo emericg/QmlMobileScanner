@@ -39,10 +39,14 @@ class Result : private ZXing::Result
 {
     Q_GADGET
 
+    Q_PROPERTY(bool hasText READ hasText)
+    Q_PROPERTY(QString text READ text)
+
+    Q_PROPERTY(bool hasBinaryData READ hasBinaryData)
+    Q_PROPERTY(QByteArray binaryData READ bytes)
+
     Q_PROPERTY(ZXing::BarcodeFormat format READ format)
     Q_PROPERTY(QString formatName READ formatName)
-    Q_PROPERTY(QString text READ text)
-    Q_PROPERTY(QByteArray bytes READ bytes)
     Q_PROPERTY(bool isValid READ isValid)
     Q_PROPERTY(ZXing::ContentType contentType READ contentType)
     Q_PROPERTY(Position position READ position)
@@ -66,6 +70,8 @@ public:
     int runTime = 0; // for debugging/development
     using ZXing::Result::isValid;
 
+    bool hasText() const { return (ZXing::Result::contentType() == ZXing::ContentType::Text); }
+    bool hasBinaryData() const { return (ZXing::Result::contentType() == ZXing::ContentType::Binary); }
     ZXing::BarcodeFormat format() const { return static_cast<ZXing::BarcodeFormat>(ZXing::Result::format()); }
     ZXing::ContentType contentType() const { return static_cast<ZXing::ContentType>(ZXing::Result::contentType()); }
     QString formatName() const { return QString::fromStdString(ZXing::ToString(ZXing::Result::format())); }

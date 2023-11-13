@@ -203,28 +203,41 @@ QImage ZXingQt::generateImage(const QString &data, const int width, const int he
                               const int format, const int encoding, const int eccLevel,
                               const QColor backgroundColor, const QColor foregroundColor)
 {
-    auto writer = ZXing::MultiFormatWriter((ZXing::BarcodeFormat)format).setEccLevel(eccLevel).setEncoding((ZXing::CharacterSet)encoding).setMargin(margins);
-    auto matrix = writer.encode(data.toStdString(), width, height);
+    try
+    {
+        auto writer = ZXing::MultiFormatWriter((ZXing::BarcodeFormat)format).setEccLevel(eccLevel).setEncoding((ZXing::CharacterSet)encoding).setMargin(margins);
+        auto matrix = writer.encode(data.toStdString(), width, height);
 
-    bool formatMatrix = (format & (int)BarcodeFormat::MatrixCodes);
+        bool formatMatrix = (format & (int)BarcodeFormat::MatrixCodes);
 
-    QColor bgc(0, 0, 0, 0);
-    QColor fgc(0, 0, 0, 255);
-    if (backgroundColor.isValid()) bgc = backgroundColor;
-    if (foregroundColor.isValid()) fgc = foregroundColor;
+        QColor bgc(0, 0, 0, 0);
+        QColor fgc(0, 0, 0, 255);
+        if (backgroundColor.isValid()) bgc = backgroundColor;
+        if (foregroundColor.isValid()) fgc = foregroundColor;
 
-    QImage image(width, height, QImage::Format_ARGB32);
-    for (int i = 0; i < width; i++) {
-        for (int j = 0; j < height; j++) {
-            if (formatMatrix) {
-                image.setPixel(i, j, matrix.get(j, i) ? fgc.rgba() : bgc.rgba()); // 2D codes
-            } else {
-                image.setPixel(i, j, matrix.get(i, j) ? fgc.rgba() : bgc.rgba()); // 1D codes
+        QImage image(width, height, QImage::Format_ARGB32);
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                if (formatMatrix) {
+                    image.setPixel(i, j, matrix.get(j, i) ? fgc.rgba() : bgc.rgba()); // 2D codes
+                } else {
+                    image.setPixel(i, j, matrix.get(i, j) ? fgc.rgba() : bgc.rgba()); // 1D codes
+                }
             }
         }
+
+        return image;
+    }
+    catch (std::invalid_argument const &ex)
+    {
+        qWarning() << "ZXingQt::generateImage() invalid_argument:" << ex.what();
+    }
+    catch (...)
+    {
+        qWarning() << "ZXingQt::generateImage() error";
     }
 
-    return image;
+    return QImage();
 }
 
 bool ZXingQt::saveImage(const QString &data, const int width, const int height, const int margins,
@@ -249,30 +262,38 @@ bool ZXingQt::saveImage(const QString &data, const int width, const int height, 
             int ww = 64;
             int hh = 64;
 
-            auto writer = ZXing::MultiFormatWriter((ZXing::BarcodeFormat)format).setEccLevel(eccLevel).setEncoding((ZXing::CharacterSet)encoding).setMargin(margins);
-            auto matrix = writer.encode(data.toStdString(), ww, hh);
+            try
+            {
+                auto writer = ZXing::MultiFormatWriter((ZXing::BarcodeFormat)format).setEccLevel(eccLevel).setEncoding((ZXing::CharacterSet)encoding).setMargin(margins);
+                auto matrix = writer.encode(data.toStdString(), ww, hh);
 
-            QString barcodePath;
-            for (int i = 0; i < ww; i++) {
-                for (int j = 0; j < hh; j++) {
-                    if (matrix.get(j, i)) {
-                        if (formatMatrix) {
-                            barcodePath += " M" + QString::number(i) + "," + QString::number(j) + "h1v1h-1z";
-                        } else {
-                            barcodePath += " M" + QString::number(i) + "," + QString::number(j) + "h1v1h-1z";
+                QString barcodePath;
+                for (int i = 0; i < ww; i++) {
+                    for (int j = 0; j < hh; j++) {
+                        if (matrix.get(j, i)) {
+                            if (formatMatrix) {
+                                barcodePath += " M" + QString::number(i) + "," + QString::number(j) + "h1v1h-1z";
+                            } else {
+                                barcodePath += " M" + QString::number(i) + "," + QString::number(j) + "h1v1h-1z";
+                            }
                         }
                     }
                 }
+
+                QTextStream eout(&efile);
+                eout << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"  << Qt::endl;
+                eout << "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" viewBox=\"0 0 " << QString::number(ww) << " " << QString::number(hh) << "\" stroke=\"none\">" << Qt::endl;
+                eout << "<style type=\"text/css\">" << Qt::endl;
+                eout << ".black {fill:#000000;}" << Qt::endl;
+                eout << "</style>" << Qt::endl;
+                eout << "<path class=\"black\"  d=\"" << barcodePath << "\"/>" << Qt::endl;
+                eout << "</svg>" << Qt::endl;
+            }
+            catch (...)
+            {
+                // error
             }
 
-            QTextStream eout(&efile);
-            eout << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"  << Qt::endl;
-            eout << "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" viewBox=\"0 0 " << QString::number(ww) << " " << QString::number(hh) << "\" stroke=\"none\">" << Qt::endl;
-            eout << "<style type=\"text/css\">" << Qt::endl;
-            eout << ".black {fill:#000000;}" << Qt::endl;
-            eout << "</style>" << Qt::endl;
-            eout << "<path class=\"black\"  d=\"" << barcodePath << "\"/>" << Qt::endl;
-            eout << "</svg>" << Qt::endl;
             efile.close();
         }
     }

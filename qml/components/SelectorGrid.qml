@@ -19,7 +19,7 @@ Item {
     property int btnHeight: 40
 
     signal menuSelected(var index)
-    property int currentSelection: 1
+    property int currentSelection: 0
 
     property var model: null
 

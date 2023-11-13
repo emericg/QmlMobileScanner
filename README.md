@@ -18,8 +18,8 @@ Demo barcode & QR code scanner based on qzxing and zxing-cpp libraries.
     - [x] Multi camera support
     - [x] Read from picture (WIP)
   - [x] Barcode writer
-    - [ ] Save to picture (WIP)
-    - [ ] Save to vector (WIP)
+    - [x] Save to picture (WIP)
+    - [x] Save to vector (WIP)
   - [x] Barcodes history
 
 

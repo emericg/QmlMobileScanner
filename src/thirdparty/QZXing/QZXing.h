@@ -37,7 +37,7 @@ class ImageHandler;
 
 #ifdef ENABLE_ENCODER_GENERIC
 struct QZXingEncoderConfig;
-#endif // ENABLE_ENCODER_GENERIC
+#endif
 
 /**
   * A class containing a very very small subset of the ZXing library.
@@ -58,10 +58,6 @@ class QZXing : public QObject {
     Q_PROPERTY(uint imageSourceFilter READ getSourceFilterType WRITE setSourceFilterType)
     Q_PROPERTY(bool tryHarder READ getTryHarder WRITE setTryHarder)
     Q_PROPERTY(QVariantList allowedExtensions READ getAllowedExtensions WRITE setAllowedExtensions)
-
-    Q_ENUM(DecoderFormat)
-    Q_ENUM(TryHarderBehaviour)
-    Q_ENUM(SourceFilter)
 
     QVariantMap metadataToMap(const zxing::ResultMetadata &metadata);
 
@@ -98,20 +94,24 @@ public:
                       DecoderFormat_UPC_EAN_EXTENSION |DecoderFormat_CODE_128_GS1,
         MatrixCodes = DecoderFormat_Aztec | DecoderFormat_DATA_MATRIX | DecoderFormat_MAXICODE |
                       DecoderFormat_PDF_417 | DecoderFormat_QR_CODE,
+
         Any         = LinearCodes | MatrixCodes
     };
+    Q_ENUM(DecoderFormat)
     typedef unsigned int DecoderFormatType;
 
     enum TryHarderBehaviour {
         TryHarderBehaviour_ThoroughScanning = 1 << 1,
         TryHarderBehaviour_Rotate = 1 << 2
     };
+    Q_ENUM(TryHarderBehaviour)
     typedef unsigned int TryHarderBehaviourType;
 
     enum SourceFilter {
         SourceFilter_ImageNormal = 1 << 1,
         SourceFilter_ImageInverted = 1 << 2
     };
+    Q_ENUM(SourceFilter)
     typedef unsigned int SourceFilterType;
 
     enum EncoderFormat {
@@ -151,9 +151,9 @@ public:
 public slots:
     /**
       * The decoding function. Will try to decode the given image based on the enabled decoders.
-      * If the image width is larger than maxWidth or image height is larger
-      * than maxHeight then the image will be scaled down. Either way, in case of scaling, the aspect
-      * ratio of the image will be kept.
+      * If the image width is larger than maxWidth or image height is larger than maxHeight
+      * then the image will be scaled down. Either way, in case of scaling, the aspect ratio
+      * of the image will be kept.
       *
       * The smoothTransformation flag determines whether the transformation will be smooth or fast.
       * Smooth transformation provides better results but fast transformation is...faster.

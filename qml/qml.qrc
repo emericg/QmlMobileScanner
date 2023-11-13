@@ -21,6 +21,8 @@
         <file>ScreenBarcodeWriter.qml</file>
         <file>Reader_QZXing.qml</file>
         <file>Reader_ZXingCpp.qml</file>
+        <file>Writer_QZXing.qml</file>
+        <file>Writer_ZXingCpp.qml</file>
 
         <file alias="SelectorGrid.qml">components/SelectorGrid.qml</file>
         <file alias="SelectorGridItem.qml">components/SelectorGridItem.qml</file>

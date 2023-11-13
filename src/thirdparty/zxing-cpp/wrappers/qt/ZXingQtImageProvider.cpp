@@ -5,6 +5,7 @@
  */
 
 #include "ZXingQtImageProvider.h"
+#include "ZXingQt.h"
 
 #include "BarcodeFormat.h"
 #include "BitMatrix.h"
@@ -171,20 +172,10 @@ QImage ZXingQtImageProvider::requestImage(const QString &id, QSize *size, const 
     int width = requestedSize.width(), height = requestedSize.height();
     if (!formatMatrix) height /= 3; // 1D codes
 
-    auto writer = ZXing::MultiFormatWriter(format).setEccLevel(eccLevel).setEncoding(encoding).setMargin(margins);
-    auto matrix = writer.encode(data.toStdString(), width, height);
+    QImage img = ZXingQt::generateImage(data, width, height, margins,
+                                        (int)format, (int)encoding, eccLevel,
+                                        bgc, fgc);
 
-    QImage image = QImage(width, height, QImage::Format_ARGB32);
-    for (int i = 0; i < width; i++) {
-        for (int j = 0; j < height; j++) {
-            if (formatMatrix) {
-                image.setPixel(i, j, matrix.get(j, i) ? fgc.rgba() : bgc.rgba()); // 2D codes
-            } else {
-                image.setPixel(i, j, matrix.get(i, j) ? fgc.rgba() : bgc.rgba()); // 1D codes
-            }
-        }
-    }
-
-    *size = image.size();
-    return image;
+    *size = img.size();
+    return img;
 }

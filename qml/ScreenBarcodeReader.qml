@@ -147,8 +147,7 @@ Loader {
             id: backendLoader
             active: true
             asynchronous: true
-
-            source: (settingsManager.backend === "qzxing") ? "Reader_QZXing.qml" : "Reader_ZXingCpp.qml"
+            source: (settingsManager.backend === "zxingcpp") ? "Reader_ZXingCpp.qml" : "Reader_QZXing.qml"
         }
         property alias barcodeReader: backendLoader.item
 
@@ -424,7 +423,7 @@ Loader {
                     Text {
                         id: msPerFrame
                         visible: (currentMode === "video")
-                        text: barcodeReader.timePerFrameDecode.toFixed(0) + " ms"
+                        text: barcodeReader && barcodeReader.timePerFrameDecode.toFixed(0) + " ms"
                         color: "white"
                     }
                 }

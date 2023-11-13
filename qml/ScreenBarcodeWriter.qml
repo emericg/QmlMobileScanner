@@ -1,4 +1,3 @@
-import QtCore
 import QtQuick
 import QtQuick.Dialogs
 import QtQuick.Layouts
@@ -6,7 +5,6 @@ import QtQuick.Controls
 
 import Qt5Compat.GraphicalEffects
 
-import ZXingCpp
 import ThemeEngine
 
 Loader {
@@ -46,6 +44,10 @@ Loader {
         function backAction() {
             if (barcodeTextField.focus) {
                 barcodeTextField.focus = false
+                return
+            }
+            if (barcodeTextArea.focus) {
+                barcodeTextArea.focus = false
                 return
             }
 
@@ -92,7 +94,7 @@ Loader {
                         anchors.fill: parent
 
                         radius: Theme.componentRadius
-                        color: "white"
+                        color: barcodeAdvanced.colorBg // was "white"
 
                         border.width: 2
                         border.color: Theme.colorComponentBorder
@@ -111,7 +113,7 @@ Loader {
                     Image {
                         id: barcodeImage
                         anchors.fill: parent
-                        anchors.margins: Theme.componentMargin
+                        anchors.margins: 4
 
                         cache: false
                         sourceSize.width: width
@@ -119,8 +121,8 @@ Loader {
                         fillMode: Image.PreserveAspectFit
 
                         source: (settingsManager.backend === "qzxing") ?
-                                    "image://QZXing/encode/" + barcodeAdvanced.barcode_string :
-                                    "image://ZXingCpp/encode/" + barcodeAdvanced.barcode_string + barcodeAdvanced.barcode_settings
+                                    "image://QZXing/encode/" + barcodeAdvanced.barcode_string + barcodeAdvanced.barcode_settings_qzxing :
+                                    "image://ZXingCpp/encode/" + barcodeAdvanced.barcode_string + barcodeAdvanced.barcode_settings_zxingcpp
                     }
 
                     MouseArea {
@@ -193,14 +195,22 @@ Loader {
                 height: singleColumn ? settingsarea.height : gridContent.hhh
 
                 property string barcode_string
-                property string barcode_settings: "?" + setting_format + "&" + setting_eccLevel + "&"
-                                                      + setting_margins + "&" + setting_colorBg + "&" + setting_colorFg
+                property string barcode_settings_qzxing: "?" + "format=" + format + "&"
+                                                             + "border=" + border + "&"
+                                                             + "correctionLevel=" + eccStr
+                property string barcode_settings_zxingcpp: "?" + "format=" + format + "&"
+                                                               + "eccLevel=" + eccLevel + "&"
+                                                               + "margins=" + margins + "&"
+                                                               + "backgroundColor=" + colorBg + "&"
+                                                               + "foregroundColor=" + colorFg
 
-                property string setting_format: "format=qrcode"
-                property string setting_eccLevel: "eccLevel=1"
-                property string setting_margins: "margins=8"
-                property string setting_colorBg: "backgroundColor=" + colorBg
-                property string setting_colorFg: "foregroundColor=" + colorFg
+                property string format: "qrcode"
+
+                property string eccStr: "L"
+                property bool border: true
+
+                property int eccLevel: 0
+                property int margins: 12
                 property color colorBg: "#fff"
                 property color colorFg: "#000"
 
@@ -219,23 +229,25 @@ Loader {
                         anchors.right: parent.right
                         height: 40
 
-                        visible: selectorBarcodes.currentSelection >= 5
+                        visible: (selectorBarcodes.currentSelection >= 3) // linear
+                        placeholderText: qsTr("type content here")
 
-                        IntValidator { bottom: 0; top: 999999999; }
                         maximumLength: 12
+                        validator: IntValidator { bottom: 0; top: 999999999; }
+
                         onDisplayTextChanged: {
                             var code = "0"
                             var codesize = 7
 
-                            if (selectorBarcodes.currentSelection === 5) codesize = 12 // EAN 13
-                            if (selectorBarcodes.currentSelection === 6) codesize = 7 // EAN 8
-                            if (selectorBarcodes.currentSelection === 7) codesize = 11 // UPC-A
-                            if (selectorBarcodes.currentSelection === 8) codesize = 7 // UPC-E
-                            if (selectorBarcodes.currentSelection === 9) codesize = 7 // Code 39
-                            if (selectorBarcodes.currentSelection === 10) codesize = 7 // Code 93
-                            if (selectorBarcodes.currentSelection === 11) codesize = 7 // Code 128
-                            if (selectorBarcodes.currentSelection === 12) codesize = 11 // codabar
-                            if (selectorBarcodes.currentSelection === 13) codesize = 10 // itf
+                            if (barcodeAdvanced.format === "ean13") codesize = 12
+                            if (barcodeAdvanced.format === "ean8") codesize = 7
+                            if (barcodeAdvanced.format === "upca") codesize = 11
+                            if (barcodeAdvanced.format === "upce") codesize = 7
+                            if (barcodeAdvanced.format === "code39") codesize = 39
+                            if (barcodeAdvanced.format === "code93") codesize = 93
+                            if (barcodeAdvanced.format === "code128") codesize = 128
+                            if (barcodeAdvanced.format === "codabar") codesize = 11
+                            if (barcodeAdvanced.format === "itf") codesize = 10
 
                             code = displayText.slice(0, codesize)
                             code = code.padEnd(codesize, '0');
@@ -256,9 +268,10 @@ Loader {
                         id: barcodeTextArea
                         anchors.left: parent.left
                         anchors.right: parent.right
-                        height: 128
+                        height: isPhone ? 96 : 128
 
-                        visible: selectorBarcodes.currentSelection < 5
+                        visible: (selectorBarcodes.currentSelection < 3) // matrix
+                        placeholderText: qsTr("type content here")
 
                         wrapMode: "WrapAnywhere"
                         selectByMouse: true
@@ -272,7 +285,10 @@ Loader {
                             visible: barcodeTextArea.text
 
                             text: qsTr("clear")
-                            onClicked: barcodeTextArea.clear()
+                            onClicked: {
+                                barcodeTextArea.clear()
+                                barcodeTextArea.focus = false
+                            }
                         }
                     }
 
@@ -283,105 +299,193 @@ Loader {
                         anchors.left: parent.left
                         anchors.right: parent.right
 
-                        currentSelection: 1
+                        visible: (settingsManager.backend === "zxingcpp")
+
+                        currentSelection: 0
                         model: ListModel {
                             id: lmSelectorBarcodes
 
                             // matrix
-                            ListElement { idx: 1; txt: "QR Code";       maxchar: 4296; maxbytes: 2953; ecc: 4; }
-                            ListElement { idx: 2; txt: "Aztec";         maxchar: 3067; maxbytes: 3067; ecc: 8; }
-                            ListElement { idx: 3; txt: "DataMatrix"; }
-                            //ListElement { idx: 4; txt: "PDF417"; }
+                            ListElement { idx: 0; txt: "QR Code"; format: "qrcode";         maxchar: 4296; maxbytes: 2953; ecc: 4; }
+                            ListElement { idx: 1; txt: "Aztec"; format: "aztec";            maxchar: 3067; maxbytes: 3067; ecc: 8; }
+                            ListElement { idx: 2; txt: "DataMatrix"; format: "datamatrix";  maxchar: 2335; maxbytes: 1556; ecc: 0; }
+                            //ListElement { idx: 3; txt: "PDF417"; format: "pdf417";        maxchar: 1850; maxbytes: 1108; ecc: 8; }
                             // linear
-                            ListElement { idx: 5; txt: "EAN 13"; }
-                            ListElement { idx: 6; txt: "EAN 8"; }
-                            ListElement { idx: 7; txt: "UPC-A"; }
-                            ListElement { idx: 8; txt: "UPC-E"; }
-                            ListElement { idx: 9; txt: "Code 39"; }
-                            ListElement { idx: 10; txt: "Code 93"; }
-                            ListElement { idx: 11; txt: "Code 128"; }
-                            ListElement { idx: 12; txt: "Codabar"; }
-                            ListElement { idx: 13; txt: "ITF"; }
+                            ListElement { idx: 3; txt: "Codabar"; format: "codabar";     maxchar: 12; }
+                            ListElement { idx: 4; txt: "EAN 13"; format: "ean13";       maxchar: 12; }
+                            ListElement { idx: 5; txt: "EAN 8"; format: "ean8";        maxchar: 7; }
+                            ListElement { idx: 6; txt: "UPC-A"; format: "upca";        maxchar: 11; }
+                            ListElement { idx: 7; txt: "UPC-E"; format: "upce";        maxchar: 7; }
+                            ListElement { idx: 8; txt: "Code 39"; format: "code39";      maxchar: 39; }
+                            ListElement { idx: 9; txt: "Code 93"; format: "code93";      maxchar: 93; }
+                            ListElement { idx: 10; txt: "Code 128"; format: "code128";     maxchar: 128; }
+                            ListElement { idx: 11; txt: "ITF"; format: "itf";         maxchar: 10; }
                         }
 
                         onMenuSelected: (index) => {
                             //console.log("SelectorMenu clicked #" + index)
-
                             currentSelection = index
-                            var selection = ""
 
-                            if (index === 1) selection = "format=qrcode"
-                            else if (index === 2) selection = "format=aztec"
-                            else if (index === 3) selection = "format=datamatrix"
-                            else if (index === 4) selection = "format=pdf417"
-                            else if (index === 5) selection = "format=ean13"
-                            else if (index === 6) selection = "format=ean8"
-                            else if (index === 7) selection = "format=upca"
-                            else if (index === 8) selection = "format=upce"
-                            else if (index === 9) selection = "format=code39"
-                            else if (index === 10) selection = "format=code93"
-                            else if (index === 11) selection = "format=code128"
-                            else if (index === 12) selection = "format=codabar"
-                            else if (index === 13) selection = "format=itf"
-
-                            barcodeAdvanced.setting_format = selection
+                            barcodeAdvanced.format = lmSelectorBarcodes.get(currentSelection).format
+                            barcodeTextField.maximumLength = lmSelectorBarcodes.get(currentSelection).maxchar
                         }
                     }
 
-                    RowLayout {
+                    Row {
                         anchors.left: parent.left
                         anchors.right: parent.right
 
+                        visible: (selectorBarcodes.currentSelection < 5) // matrix
+                        spacing: 16
+
                         Text {
-                            Layout.alignment: Qt.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
                             text: qsTr("Error correction:")
                             color: Theme.colorText
                             font.pixelSize: Theme.componentFontSize
                         }
 
-                        SliderThemed {
-                            id: barcodeEccSlider
-                            Layout.fillWidth: true
-                            Layout.alignment: Qt.AlignVCenter
+                        SelectorMenuThemed {
+                            id: barcodeEccSeclector
+                            anchors.verticalCenter: parent.verticalCenter
+                            height: 32
 
-                            snapMode: Slider.SnapAlways
-                            stepSize: 2
-                            value: 1
-                            from: 0
-                            to: 8
+                            ListModel {
+                                id: lmBarcodeEccQR
+                                ListElement { idx: 0; txt: "L"; redondancy: 7; ecc: 2; }
+                                ListElement { idx: 1; txt: "M"; redondancy: 15; ecc: 4; }
+                                ListElement { idx: 2; txt: "Q"; redondancy: 25; ecc: 6; }
+                                ListElement { idx: 3; txt: "H"; redondancy: 30; ecc: 8; }
+                            }
+                            ListModel {
+                                id: lmBarcodeEccAz
+                                ListElement { idx: 0; txt: "1%"; redondancy: 0; ecc: 0; }
+                                ListElement { idx: 1; txt: "12%"; redondancy: 12; ecc: 1; }
+                                ListElement { idx: 2; txt: "25%"; redondancy: 25; ecc: 2; }
+                                ListElement { idx: 3; txt: "37%"; redondancy: 37; ecc: 3; }
+                                ListElement { idx: 4; txt: "50%"; redondancy: 50; ecc: 4; }
+                                ListElement { idx: 5; txt: "62%"; redondancy: 62; ecc: 5; }
+                                ListElement { idx: 6; txt: "75%"; redondancy: 75; ecc: 6; }
+                                ListElement { idx: 7; txt: "87%"; redondancy: 87; ecc: 7; }
+                                ListElement { idx: 8; txt: "99%"; redondancy: 100; ecc: 8; }
+                            }
+                            ListModel {
+                                id: lmBarcodeEccPdf
+                                ListElement { idx: 0; txt: "0"; redondancy: 1; ecc: 0; }
+                                ListElement { idx: 1; txt: "1"; redondancy: 1; ecc: 1; }
+                                ListElement { idx: 2; txt: "2"; redondancy: 1; ecc: 2; }
+                                ListElement { idx: 3; txt: "3"; redondancy: 1; ecc: 3; }
+                                ListElement { idx: 4; txt: "4"; redondancy: 3; ecc: 4; }
+                                ListElement { idx: 5; txt: "5"; redondancy: 7; ecc: 5; }
+                                ListElement { idx: 6; txt: "6"; redondancy: 14; ecc: 6; }
+                                ListElement { idx: 7; txt: "7"; redondancy: 28; ecc: 7; }
+                                ListElement { idx: 8; txt: "8"; redondancy: 57; ecc: 8; }
+                            }
+                            ListModel {
+                                id: lmBarcodeEccDM
+                                ListElement { idx: 0; txt: "~25%"; redondancy: 0; ecc: 0; }
+                            }
 
-                            onMoved: barcodeAdvanced.setting_eccLevel = "eccLevel=" + parseInt(value)
+                            currentSelection: 0
+                            model: {
+                                if (barcodeAdvanced.format === "qrcode") return lmBarcodeEccQR
+                                if (barcodeAdvanced.format === "aztec") return lmBarcodeEccAz
+                                if (barcodeAdvanced.format === "datamatrix") return lmBarcodeEccDM
+                                if (barcodeAdvanced.format === "pdf417") return lmBarcodeEccPdf
+                            }
+
+                            onModelChanged: {
+                                //
+                            }
+                            onMenuSelected: (index) => {
+                                //console.log("lmBarcodeEccPd[index].ecc : " + lmBarcodeEccQR.get(index).ecc)
+                                currentSelection = index
+
+                                var vvv = 0
+                                if (barcodeAdvanced.format === "qrcode") vvv = lmBarcodeEccQR.get(index).ecc
+                                if (barcodeAdvanced.format === "aztec") vvv = lmBarcodeEccAz.get(index).ecc
+                                if (barcodeAdvanced.format === "datamatrix") vvv = lmBarcodeEccDM.get(index).ecc
+                                if (barcodeAdvanced.format === "pdf417") vvv = lmBarcodeEccPdf.get(index).ecc
+
+                                barcodeAdvanced.eccLevel = parseInt(vvv)
+                                barcodeAdvanced.eccStr = (settingsManager.backend === "qzxing") ? lmBarcodeEccQR.get(index).txt : "L"
+                            }
                         }
                     }
 
-                    RowLayout {
+                    Row {
                         anchors.left: parent.left
                         anchors.right: parent.right
 
+                        spacing: 16
+                        visible: (settingsManager.backend === "qzxing")
+
                         Text {
-                            Layout.alignment: Qt.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: qsTr("Borders:")
+                            color: Theme.colorText
+                            font.pixelSize: Theme.componentFontSize
+                        }
+
+                        SelectorMenuThemed {
+                            id: barcodeBorderSeclector
+                            anchors.verticalCenter: parent.verticalCenter
+                            height: 32
+
+                            currentSelection: 1
+                            model: ListModel {
+                                id: lmBoderSelector
+                                ListElement { idx: 0; txt: "no"; }
+                                ListElement { idx: 1; txt: "yes"; }
+                            }
+
+                            onMenuSelected: (index) => {
+                                currentSelection = index
+                                if (currentSelection === 1) barcodeAdvanced.border = true
+                                else barcodeAdvanced.border = false
+                            }
+                        }
+                    }
+
+                    Row {
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+
+                        spacing: 16
+                        visible: (settingsManager.backend === "zxingcpp")
+
+                        Text {
+                            anchors.verticalCenter: parent.verticalCenter
                             text: qsTr("Margins:")
                             color: Theme.colorText
                             font.pixelSize: Theme.componentFontSize
                         }
 
-                        SliderThemed {
-                            id: barcodeBorderSlider
-                            Layout.fillWidth: true
-                            Layout.alignment: Qt.AlignVCenter
+                        SelectorMenuThemed {
+                            id: barcodeMarginSeclector
+                            height: 32
+                            anchors.verticalCenter: parent.verticalCenter
 
-                            snapMode: Slider.SnapAlways
-                            stepSize: 8
-                            value: 0
-                            from: 0
-                            to: 32
+                            currentSelection: 1
+                            model: ListModel {
+                                id: lmMarginSelector
+                                ListElement { idx: 0; txt:  "0"; margin: 0; }
+                                ListElement { idx: 1; txt: "12"; margin: 12; }
+                                ListElement { idx: 2; txt: "24"; margin: 24; }
+                                ListElement { idx: 3; txt: "32"; margin: 32; }
+                            }
 
-                            onMoved: barcodeAdvanced.setting_margins = "margins=" + parseInt(value)
+                            onMenuSelected: (index) => {
+                                //console.log("lmMarginSelector[index].margin : " + lmMarginSelector.get(index).margin)
+                                currentSelection = index
+                                barcodeAdvanced.margins = parseInt(lmMarginSelector.get(index).margin)
+                            }
                         }
                     }
 
                     Row {
                         spacing: Theme.componentMargin
+                        visible: (settingsManager.backend === "zxingcpp")
 
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
@@ -428,59 +532,15 @@ Loader {
 
                     ////
 
-                    Row {
-                        spacing: Theme.componentMargin
+                    Loader {
+                        id: backendLoader
+                        width: gridContent.www
 
-                        enabled: barcodeAdvanced.barcode_string
-
-                        Text {
-                            anchors.verticalCenter: parent.verticalCenter
-
-                            text: qsTr("Save to file")
-                            color: Theme.colorText
-                            font.pixelSize: Theme.componentFontSize
-                        }
-
-                        ComboBoxThemed {
-                            id: fileSaveExtension
-                            width: 128
-                            height: 36
-
-                            model: ListModel {
-                                ListElement { text: "PNG"; }
-                                ListElement { text: "BMP"; }
-                                ListElement { text: "JPEG"; }
-                                ListElement { text: "WEBP"; }
-                                ListElement { text: "SVG"; }
-                            }
-                        }
-
-                        ButtonWireframeIcon {
-                            height: 36
-                            fullColor: true
-                            primaryColor: Theme.colorGrey
-                            font.bold: true
-
-                            text: qsTr("save")
-                            source: "qrc:/assets/icons_material/baseline-save-24px.svg"
-                            onClicked: fileSaveDialog.open()
-
-                            FileDialog {
-                                id: fileSaveDialog
-
-                                fileMode: FileDialog.SaveFile
-                                nameFilters: ["Vector files (*.svg)", "PNG files (*.png)", "BMP files (*.bmp)", "JPEG files (*.jpg *.jpeg)", "WebP files (*.webp)"]
-                                currentFolder: StandardPaths.standardLocations(StandardPaths.PicturesLocation)[0]
-                                currentFile: StandardPaths.standardLocations(StandardPaths.PicturesLocation)[0] + "/barcode." + fileSaveExtension.currentText.toLowerCase()
-
-                                onAccepted: {
-                                    console.log(" - " + fileSaveDialog.selectedFile)
-                                    console.log(" - " + fileSaveDialog.selectedNameFilter.name[0])
-                                    console.log(" - " + fileSaveDialog.selectedNameFilter.extensions[0])
-                                }
-                            }
-                        }
+                        active: true
+                        asynchronous: true
+                        source: (settingsManager.backend === "zxingcpp") ? "Writer_ZXingCpp.qml" : "Writer_QZXing.qml"
                     }
+                    property alias barcodeWriter: backendLoader.item
                 }
 
                 ////
