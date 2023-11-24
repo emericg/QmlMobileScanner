@@ -4,8 +4,8 @@
  * Copyright 2023 Emeric Grange
  */
 
-#include "ZXingQtImageProvider.h"
-#include "ZXingQt.h"
+#include "ZXingCppImageProvider.h"
+#include "ZXingCpp.h"
 
 #include "BarcodeFormat.h"
 #include "BitMatrix.h"
@@ -15,12 +15,12 @@
 #include <QUrlQuery>
 #include <QRegularExpression>
 
-ZXingQtImageProvider::ZXingQtImageProvider() : QQuickImageProvider(QQuickImageProvider::Image)
+ZXingCppImageProvider::ZXingCppImageProvider() : QQuickImageProvider(QQuickImageProvider::Image)
 {
     //
 }
 
-QImage ZXingQtImageProvider::requestImage(const QString &id, QSize *size, const QSize &requestedSize)
+QImage ZXingCppImageProvider::requestImage(const QString &id, QSize *size, const QSize &requestedSize)
 {
     if (id.isEmpty() || requestedSize.width() <= 0 || requestedSize.height() <= 0) return QImage();
     //qDebug() << "requestImage(" << id << ") size " << *size << " /  requestedSize" << requestedSize;
@@ -172,7 +172,7 @@ QImage ZXingQtImageProvider::requestImage(const QString &id, QSize *size, const 
     int width = requestedSize.width(), height = requestedSize.height();
     if (!formatMatrix) height /= 3; // 1D codes
 
-    QImage img = ZXingQt::generateImage(data, width, height, margins,
+    QImage img = ZXingCpp::generateImage(data, width, height, margins,
                                         (int)format, (int)encoding, eccLevel,
                                         bgc, fgc);
 

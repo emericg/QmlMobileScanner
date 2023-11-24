@@ -4,31 +4,31 @@
  * Copyright 2023 Emeric Grange
  */
 
-#include "ZXingQtVideoFilter.h"
+#include "ZXingCppVideoFilter.h"
 
 #include <QtConcurrent>
 #include <QElapsedTimer>
 #include <QImage>
 #include <QDebug>
 
-ZXingQtVideoFilter::ZXingQtVideoFilter(QObject *parent) : QObject(parent)
+ZXingCppVideoFilter::ZXingCppVideoFilter(QObject *parent) : QObject(parent)
 {
     m_decodeHints.setMinLineCount(3); // default is 2
     m_decodeHints.setMaxNumberOfSymbols(4); // default is 255
 }
 
-ZXingQtVideoFilter::~ZXingQtVideoFilter()
+ZXingCppVideoFilter::~ZXingCppVideoFilter()
 {
     if (m_videoSink) disconnect(m_videoSink, nullptr, this, nullptr);
 }
 
-void ZXingQtVideoFilter::stopFilter()
+void ZXingCppVideoFilter::stopFilter()
 {
     m_active = false;
     if (m_videoSink) disconnect(m_videoSink, nullptr, this, nullptr);
 }
 
-Result ZXingQtVideoFilter::process(const QVideoFrame &frame)
+Result ZXingCppVideoFilter::process(const QVideoFrame &frame)
 {
     if (m_active && !m_decoding && m_processThread.isFinished())
     {
@@ -42,7 +42,7 @@ Result ZXingQtVideoFilter::process(const QVideoFrame &frame)
             QImage image = frame.toImage(); // moved here, from outside the QtConcurrent::run()
             if (image.isNull())
             {
-                qWarning() << "ZXingQtVideoFilter error: Cant create image file to process.";
+                qWarning() << "ZXingCppVideoFilter error: Cant create image file to process.";
                 m_decoding = false;
                 return Result();
             }
@@ -53,8 +53,8 @@ Result ZXingQtVideoFilter::process(const QVideoFrame &frame)
                 imageToProcess = image.copy(m_captureRect);
             }
 
-            auto results = ZXingQt::ReadBarcodes(imageToProcess, m_decodeHints);
-            //auto results = ZXingQt::ReadBarcodes(frame, m_decodeHints, m_captureRect);
+            auto results = ZXingCpp::ReadBarcodes(imageToProcess, m_decodeHints);
+            //auto results = ZXingCpp::ReadBarcodes(frame, m_decodeHints, m_captureRect);
 
             for (auto &r: results)
             {
@@ -88,7 +88,7 @@ Result ZXingQtVideoFilter::process(const QVideoFrame &frame)
     return Result();
 }
 
-void ZXingQtVideoFilter::setTryHarder(const bool value)
+void ZXingCppVideoFilter::setTryHarder(const bool value)
 {
     if (m_decodeHints.tryHarder() != value)
     {
@@ -97,7 +97,7 @@ void ZXingQtVideoFilter::setTryHarder(const bool value)
     }
 }
 
-void ZXingQtVideoFilter::setTryRotate(const bool value)
+void ZXingCppVideoFilter::setTryRotate(const bool value)
 {
     if (m_decodeHints.tryRotate() != value)
     {
@@ -106,7 +106,7 @@ void ZXingQtVideoFilter::setTryRotate(const bool value)
     }
 }
 
-void ZXingQtVideoFilter::setTryInvert(const bool value)
+void ZXingCppVideoFilter::setTryInvert(const bool value)
 {
     if (m_decodeHints.tryInvert() != value)
     {
@@ -115,7 +115,7 @@ void ZXingQtVideoFilter::setTryInvert(const bool value)
     }
 }
 
-void ZXingQtVideoFilter::setTryDownscale(const bool value)
+void ZXingCppVideoFilter::setTryDownscale(const bool value)
 {
     if (m_decodeHints.tryDownscale() != value)
     {
@@ -124,13 +124,13 @@ void ZXingQtVideoFilter::setTryDownscale(const bool value)
     }
 }
 
-int ZXingQtVideoFilter::formats() const noexcept
+int ZXingCppVideoFilter::formats() const noexcept
 {
     auto fmts = m_decodeHints.formats();
     return *reinterpret_cast<int*>(&fmts);
 }
 
-void ZXingQtVideoFilter::setFormats(int newVal)
+void ZXingCppVideoFilter::setFormats(int newVal)
 {
     if (formats() != newVal)
     {
@@ -139,7 +139,7 @@ void ZXingQtVideoFilter::setFormats(int newVal)
     }
 }
 
-void ZXingQtVideoFilter::setCaptureRect(const QRect &captureRect)
+void ZXingCppVideoFilter::setCaptureRect(const QRect &captureRect)
 {
     if (captureRect == m_captureRect) return;
 
@@ -147,7 +147,7 @@ void ZXingQtVideoFilter::setCaptureRect(const QRect &captureRect)
     emit captureRectChanged();
 }
 
-void ZXingQtVideoFilter::setVideoSink(QVideoSink *sink)
+void ZXingCppVideoFilter::setVideoSink(QVideoSink *sink)
 {
     if (m_videoSink == sink) return;
     if (m_videoSink) disconnect(m_videoSink, nullptr, this, nullptr);
@@ -156,6 +156,6 @@ void ZXingQtVideoFilter::setVideoSink(QVideoSink *sink)
 
     m_active = true;
     connect(m_videoSink, &QVideoSink::videoFrameChanged,
-            this, &ZXingQtVideoFilter::process,
+            this, &ZXingCppVideoFilter::process,
             Qt::DirectConnection);
 }

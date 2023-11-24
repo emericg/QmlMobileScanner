@@ -80,7 +80,7 @@ public:
     const Position &position() const { return m_position; }
 };
 
-class ZXingQt : public QObject
+class ZXingCpp : public QObject
 {
     Q_OBJECT
 
@@ -188,7 +188,7 @@ public:
     Q_ENUM(CharacterSet)
 
 public:
-    explicit ZXingQt(QObject *parent = nullptr) : QObject(parent) {}
+    explicit ZXingCpp(QObject *parent = nullptr) : QObject(parent) {}
 
     static void registerQMLTypes();
     static void registerQMLImageProvider(QQmlEngine &engine);

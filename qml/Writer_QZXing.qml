@@ -4,7 +4,7 @@ import QtQuick.Layouts
 import ThemeEngine
 
 Item {
-    id: barcodeWriter
+    id: barcodeWriter_qzxing
 
     width: 512
     height: 32

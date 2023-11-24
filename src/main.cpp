@@ -30,11 +30,11 @@
 #include <MobileUI/MobileUI.h>
 
 #if defined(qzxing)
-#include <QZXing/QZXing>
+#include <QZXing>
 #endif
 
 #if defined(zxingcpp)
-#include <zxing-cpp/wrappers/qt/zxing-cpp>
+#include <ZXingCpp>
 #endif
 
 #include <QtGlobal>
@@ -119,8 +119,8 @@ int main(int argc, char *argv[])
 
 #if defined(zxingcpp)
     // Barcode (zxing-cpp)
-    ZXingQt::registerQMLTypes();
-    ZXingQt::registerQMLImageProvider(engine);
+    ZXingCpp::registerQMLTypes();
+    ZXingCpp::registerQMLImageProvider(engine);
 #endif
 
     // Then we start the UI

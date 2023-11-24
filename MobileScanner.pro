@@ -12,7 +12,7 @@ QT     += core concurrent qml quickcontrols2 svg sql
 
 # Build settings ###############################################################
 
-# Select primary backend (qzxing / zxingcpp)
+# Select primary backend (zxingcpp / qzxing)
 CONFIG += zxingcpp
 
 # Use Qt Quick compiler
@@ -61,18 +61,18 @@ include(src/thirdparty/AppUtils/AppUtils.pri)
 include(src/thirdparty/MobileUI/MobileUI.pri)
 include(src/thirdparty/MobileSharing/MobileSharing.pri)
 
-# Barcode scanner (QZXing)
-CONFIG(qzxing, qzxing|zxingcpp) {
-    message("Building MobileScanner with QZXing backend")
-    include(src/thirdparty/QZXing/QZXing.pri)
-    DEFINES += qzxing
-}
-
 # Barcode scanner (zxing-cpp)
-CONFIG(zxingcpp, qzxing|zxingcpp) {
+CONFIG(zxingcpp, zxingcpp|qzxing) {
     message("Building MobileScanner with zxing-cpp backend")
     include(src/thirdparty/zxing-cpp/zxing-cpp.pri)
     DEFINES += zxingcpp
+}
+
+# Barcode scanner (QZXing)
+CONFIG(qzxing, zxingcpp|qzxing) {
+    message("Building MobileScanner with QZXing backend")
+    include(src/thirdparty/QZXing/QZXing.pri)
+    DEFINES += qzxing
 }
 
 # Application deployment #######################################################

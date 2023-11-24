@@ -4,10 +4,10 @@
  * Copyright 2023 Emeric Grange
  */
 
-#ifndef ZXING_QT_VIDEOFILTER_H
-#define ZXING_QT_VIDEOFILTER_H
+#ifndef ZXINGCPP_VIDEOFILTER_H
+#define ZXINGCPP_VIDEOFILTER_H
 
-#include "ZXingQt.h"
+#include "ZXingCpp.h"
 
 #include <QObject>
 #include <QVideoFrame>
@@ -16,7 +16,7 @@
 #include <QPoint>
 #include <QRect>
 
-class ZXingQtVideoFilter : public QObject
+class ZXingCppVideoFilter : public QObject
 {
     Q_OBJECT
 
@@ -56,8 +56,8 @@ public slots:
     Result process(const QVideoFrame &frame);
 
 public:
-    ZXingQtVideoFilter(QObject *parent = nullptr);
-    ~ZXingQtVideoFilter();
+    ZXingCppVideoFilter(QObject *parent = nullptr);
+    ~ZXingCppVideoFilter();
 
     Q_INVOKABLE void stopFilter();
 
@@ -78,4 +78,4 @@ public:
     void setTryDownscale(const bool value);
 };
 
-#endif // ZXING_QT_VIDEOFILTER_H
+#endif // ZXINGCPP_VIDEOFILTER_H

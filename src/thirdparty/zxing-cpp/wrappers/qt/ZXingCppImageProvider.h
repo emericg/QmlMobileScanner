@@ -12,10 +12,10 @@
 #include <QImage>
 #include <QSize>
 
-class ZXingQtImageProvider : public QQuickImageProvider
+class ZXingCppImageProvider : public QQuickImageProvider
 {
 public:
-    ZXingQtImageProvider();
+    ZXingCppImageProvider();
 
     QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize);
 };

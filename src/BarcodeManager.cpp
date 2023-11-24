@@ -31,7 +31,7 @@
 #include <QSqlQuery>
 
 #if defined(zxingcpp)
-#include "ZXingQt.h"
+#include "ZXingCpp.h"
 #endif
 
 /* ************************************************************************** */
@@ -112,7 +112,7 @@ bool BarcodeManager::loadImage(const QUrl &fileUrl)
         qDeleteAll(m_barcodes_onscreen);
         m_barcodes_onscreen.clear();
 
-        QList<Result> results = ZXingQt::loadImage(fileUrl);
+        QList<Result> results = ZXingCpp::loadImage(fileUrl);
         for (auto r: results)
         {
             QPointF tl = r.position().topLeft();

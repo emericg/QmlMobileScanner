@@ -4,9 +4,9 @@
  * Copyright 2023 Emeric Grange
  */
 
-#include "ZXingQt.h"
-#include "ZXingQtVideoFilter.h"
-#include "ZXingQtImageProvider.h"
+#include "ZXingCpp.h"
+#include "ZXingCppVideoFilter.h"
+#include "ZXingCppImageProvider.h"
 
 #include <QFile>
 #include <QFileInfo>
@@ -19,30 +19,21 @@
 #include "BitMatrix.h"
 #include "MultiFormatWriter.h"
 
-////////////////////////////////////////////////////////////////////////////////
-
-void ZXingQt::registerQMLTypes()
+void ZXingCpp::registerQMLTypes()
 {
-    //qRegisterMetaType<ZXingQt::BarcodeFormat>("BarcodeFormat");
-    //qRegisterMetaType<ZXingQt::ContentType>("ContentType");
+    //qRegisterMetaType<ZXingCpp::BarcodeFormat>("BarcodeFormat");
+    //qRegisterMetaType<ZXingCpp::ContentType>("ContentType");
+    //qRegisterMetaType<ZXingCpp::Position>("Position");
+    //qRegisterMetaType<ZXingCpp::Result>("Result");
 
-    // supposedly the Q_DECLARE_METATYPE should be used with the overload without a custom name
-    // but then the qml side complains about "unregistered type"
-    //qRegisterMetaType<ZXingQt::Position>("Position");
-    //qRegisterMetaType<ZXingQt::Result>("Result");
-
-    //qmlRegisterUncreatableMetaObject(ZXingQt::staticMetaObject, "ZXingCpp", 1, 0, "ZXingCpp", "Access to enums & flags only");
-
-    qmlRegisterType<ZXingQt>("ZXingCpp", 1, 0, "ZXingQt");
-    qmlRegisterType<ZXingQtVideoFilter>("ZXingCpp", 1, 0, "ZXingQtVideoFilter");
+    qmlRegisterType<ZXingCpp>("ZXingCpp", 1, 0, "ZXingCpp");
+    qmlRegisterType<ZXingCppVideoFilter>("ZXingCpp", 1, 0, "ZXingCppVideoFilter");
 }
 
-void ZXingQt::registerQMLImageProvider(QQmlEngine &engine)
+void ZXingCpp::registerQMLImageProvider(QQmlEngine &engine)
 {
-    engine.addImageProvider("ZXingCpp", new ZXingQtImageProvider());
+    engine.addImageProvider("ZXingCpp", new ZXingCppImageProvider());
 }
-
-////////////////////////////////////////////////////////////////////////////////
 
 inline QList<Result> QListResults(ZXing::Results&& zxres)
 {
@@ -55,19 +46,19 @@ inline QList<Result> QListResults(ZXing::Results&& zxres)
     return res;
 }
 
-Result ZXingQt::ReadBarcode(const QImage &img, const ZXing::DecodeHints &hints)
+Result ZXingCpp::ReadBarcode(const QImage &img, const ZXing::DecodeHints &hints)
 {
     auto res = ReadBarcodes(img, ZXing::DecodeHints(hints).setMaxNumberOfSymbols(1));
     return !res.isEmpty() ? res.takeFirst() : Result();
 }
 
-Result ZXingQt::ReadBarcode(const QVideoFrame &frame, const ZXing::DecodeHints &hints, const QRect captureRect)
+Result ZXingCpp::ReadBarcode(const QVideoFrame &frame, const ZXing::DecodeHints &hints, const QRect captureRect)
 {
     auto res = ReadBarcodes(frame, ZXing::DecodeHints(hints).setMaxNumberOfSymbols(1), captureRect);
     return !res.isEmpty() ? res.takeFirst() : Result();
 }
 
-QList<Result> ZXingQt::ReadBarcodes(const QImage &img, const ZXing::DecodeHints &hints)
+QList<Result> ZXingCpp::ReadBarcodes(const QImage &img, const ZXing::DecodeHints &hints)
 {
     auto ImgFmtFromQImg = [](const QImage &img) {
         switch (img.format()) {
@@ -95,12 +86,12 @@ QList<Result> ZXingQt::ReadBarcodes(const QImage &img, const ZXing::DecodeHints 
     return (ImgFmtFromQImg(img) == ZXing::ImageFormat::None) ? exec(img.convertToFormat(QImage::Format_Grayscale8)) : exec(img);
 }
 
-QList<Result> ZXingQt::ReadBarcodes(const QVideoFrame &frame, const ZXing::DecodeHints &hints, const QRect captureRect)
+QList<Result> ZXingCpp::ReadBarcodes(const QVideoFrame &frame, const ZXing::DecodeHints &hints, const QRect captureRect)
 {
     auto img = frame; // shallow copy just get access to non-const map() function
     if (!frame.isValid() || !img.map(QVideoFrame::ReadOnly))
     {
-        qWarning() << "ZXingQtVideoFilter error: invalid QVideoFrame, could not map memory";
+        qWarning() << "ZXingCppVideoFilter error: invalid QVideoFrame, could not map memory";
         return {};
     }
     auto unmap = qScopeGuard([&] { img.unmap(); });
@@ -184,7 +175,7 @@ QList<Result> ZXingQt::ReadBarcodes(const QVideoFrame &frame, const ZXing::Decod
     }
 }
 
-QList<Result> ZXingQt::loadImage(const QUrl &fileUrl)
+QList<Result> ZXingCpp::loadImage(const QUrl &fileUrl)
 {
     QString filepath = fileUrl.toLocalFile();
     QImage img(filepath);
@@ -192,14 +183,14 @@ QList<Result> ZXingQt::loadImage(const QUrl &fileUrl)
     return ReadBarcodes(img);
 }
 
-QList<Result> ZXingQt::loadImage(const QImage &img)
+QList<Result> ZXingCpp::loadImage(const QImage &img)
 {
     return ReadBarcodes(img);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-QImage ZXingQt::generateImage(const QString &data, const int width, const int height, const int margins,
+QImage ZXingCpp::generateImage(const QString &data, const int width, const int height, const int margins,
                               const int format, const int encoding, const int eccLevel,
                               const QColor backgroundColor, const QColor foregroundColor)
 {
@@ -230,22 +221,22 @@ QImage ZXingQt::generateImage(const QString &data, const int width, const int he
     }
     catch (std::invalid_argument const &ex)
     {
-        qWarning() << "ZXingQt::generateImage() invalid_argument:" << ex.what();
+        qWarning() << "ZXingCpp::generateImage() invalid_argument:" << ex.what();
     }
     catch (...)
     {
-        qWarning() << "ZXingQt::generateImage() error";
+        qWarning() << "ZXingCpp::generateImage() error";
     }
 
     return QImage();
 }
 
-bool ZXingQt::saveImage(const QString &data, const int width, const int height, const int margins,
+bool ZXingCpp::saveImage(const QString &data, const int width, const int height, const int margins,
                         const int format, const int encoding, const int eccLevel,
                         const QColor backgroundColor, const QColor foregroundColor,
                         const QUrl &fileurl)
 {
-    //qDebug() << "ZXingQt::saveImage(" << data << fileurl;
+    //qDebug() << "ZXingCpp::saveImage(" << data << fileurl;
     if (data.isEmpty() || fileurl.isEmpty()) return false;
     bool status = false;
 
@@ -311,10 +302,8 @@ bool ZXingQt::saveImage(const QString &data, const int width, const int height, 
     }
     else
     {
-        qWarning() << "ZXingQt::saveImage() unknown format error:" << saveFileInfo.suffix();
+        qWarning() << "ZXingCpp::saveImage() unknown format error:" << saveFileInfo.suffix();
     }
 
     return status;
 }
-
-////////////////////////////////////////////////////////////////////////////////

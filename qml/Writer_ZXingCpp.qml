@@ -7,7 +7,7 @@ import ZXingCpp
 import ThemeEngine
 
 Row {
-    id: barcodeWriter
+    id: barcodeWriter_zxingcpp
 
     width: 512
     height: 36
@@ -48,7 +48,7 @@ Row {
         source: "qrc:/assets/icons_material/baseline-save-24px.svg"
         onClicked: fileSaveDialog.open()
 
-        ZXingQt {
+        ZXingCpp {
             id: zxingcpp_backend
         }
 

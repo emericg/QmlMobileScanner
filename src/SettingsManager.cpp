@@ -223,10 +223,10 @@ void SettingsManager::setAppThemeAuto(const bool value)
 
 QString SettingsManager::getBackend() const
 {
-#if defined(qzxing)
-    return "qzxing";
-#elif defined(zxingcpp)
+#if defined(zxingcpp)
     return "zxingcpp";
+#elif defined(qzxing)
+    return "qzxing";
 #endif
 
     qWarning() << "SettingsManager::getBackend() no backend set";
@@ -246,27 +246,27 @@ void SettingsManager::setDefaultTab(const QString &value)
 
 unsigned SettingsManager::getFormatsEnabled() const
 {
-#if defined(qzxing)
-    return m_formatsEnabled_qzxing;
-#elif defined(zxingcpp)
+#if defined(zxingcpp)
     return m_formatsEnabled_zxingcpp;
+#elif defined(qzxing)
+        return m_formatsEnabled_qzxing;
 #endif
 }
 
 void SettingsManager::setFormatsEnabled(const unsigned value)
 {
-#if defined(qzxing)
-    if (m_formatsEnabled_qzxing != value)
+#if defined(zxingcpp)
+    if (m_formatsEnabled_zxingcpp != value)
     {
-        m_formatsEnabled_qzxing = value;
+        m_formatsEnabled_zxingcpp = value;
         Q_EMIT formatsEnabledChanged();
 
         writeSettings();
     }
-#elif defined(zxingcpp)
-    if (m_formatsEnabled_zxingcpp != value)
+#elif defined(qzxing)
+    if (m_formatsEnabled_qzxing != value)
     {
-        m_formatsEnabled_zxingcpp = value;
+        m_formatsEnabled_qzxing = value;
         Q_EMIT formatsEnabledChanged();
 
         writeSettings();

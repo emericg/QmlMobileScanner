@@ -5,7 +5,7 @@ import ZXingCpp
 
 import ThemeEngine
 
-ZXingQtVideoFilter {
+ZXingCppVideoFilter {
     id: barcodeReader
 
     videoSink: videoOutput.videoSink

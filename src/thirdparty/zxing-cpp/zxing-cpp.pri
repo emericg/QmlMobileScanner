@@ -1,5 +1,5 @@
 #
-# qmake project file for zxing-cpp
+# qmake project file for zxing-cpp (with Qt/QML wrapper)
 # version 2.1+
 #
 
@@ -9,38 +9,16 @@ CONFIG += build_readers build_writers
 
 QT += multimedia concurrent
 
-INCLUDEPATH += $${PWD}
+win32-msvc* {
+    DEFINES += _SCL_SECURE_NO_WARNINGS
+    DEFINES += _CRT_SECURE_NO_WARNINGS
+    DEFINES += _CRT_NONSTDC_NO_WARNINGS
+    DEFINES += NOMINMAX
 
-################################################################################
-
-DEFINES += CMAKE_THREAD_PREFER_PTHREAD THREADS_PREFER_PTHREAD_FLAG
-
-DEFINES += QT_MULTIMEDIA_LIB QT_QML_LIB
-
-DEFINES += ZXING_CORE_DEFINES
-
-#if (MSVC)
-#    set (ZXING_CORE_DEFINES ${ZXING_CORE_DEFINES}
-#        /Zc:__cplusplus
-#    )
-#endif()
-
-#set (ZXING_CORE_LOCAL_DEFINES
-#    $<$<BOOL:${BUILD_READERS}>:-DZXING_BUILD_READERS>
-#    $<$<BOOL:${BUILD_WRITERS}>:-DZXING_BUILD_WRITERS>
-#    $<$<BOOL:${BUILD_UNIT_TESTS}>:-DZXING_BUILD_FOR_TEST>
-#)
-#if (MSVC)
-#    set (ZXING_CORE_LOCAL_DEFINES ${ZXING_CORE_LOCAL_DEFINES}
-#        -D_SCL_SECURE_NO_WARNINGS
-#        -D_CRT_SECURE_NO_WARNINGS
-#        -D_CRT_NONSTDC_NO_WARNINGS
-#        -DNOMINMAX
-#    )
-#else()
-#    set (ZXING_CORE_LOCAL_DEFINES ${ZXING_CORE_LOCAL_DEFINES}
-#        -Wall -Wextra -Wno-missing-braces -Werror=undef -Werror=return-type)
-#endif()
+    QMAKE_CXXFLAGS += /FS
+} else {
+    QMAKE_CXXFLAGS += -Wall -Wextra -Wno-missing-braces -Werror=undef -Werror=return-type
+}
 
 ## Source files ################################################################
 
@@ -48,13 +26,13 @@ DEFINES += ZXING_CORE_DEFINES
 
 INCLUDEPATH += $${PWD}/wrappers/qt/
 
-SOURCES += $${PWD}/wrappers/qt/ZXingQt.cpp \
-           $${PWD}/wrappers/qt/ZXingQtVideoFilter.cpp \
-           $${PWD}/wrappers/qt/ZXingQtImageProvider.cpp
+SOURCES += $${PWD}/wrappers/qt/ZXingCpp.cpp \
+           $${PWD}/wrappers/qt/ZXingCppVideoFilter.cpp \
+           $${PWD}/wrappers/qt/ZXingCppImageProvider.cpp
 
-HEADERS += $${PWD}/wrappers/qt/ZXingQt.h \
-           $${PWD}/wrappers/qt/ZXingQtVideoFilter.h \
-           $${PWD}/wrappers/qt/ZXingQtImageProvider.h
+HEADERS += $${PWD}/wrappers/qt/ZXingCpp.h \
+           $${PWD}/wrappers/qt/ZXingCppVideoFilter.h \
+           $${PWD}/wrappers/qt/ZXingCppImageProvider.h
 
 ################# COMMON_FILES
 
