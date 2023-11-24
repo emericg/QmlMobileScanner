@@ -344,6 +344,7 @@ Loader {
                             "MobileSharing (MIT)",
                             "qzxing (Apache v2)",
                             "zxing-cpp (Apache v2)",
+                            "zint (BSD 3 clause)",
                             "Google Material Icons (MIT)",
                         ]
                         delegate: Text {

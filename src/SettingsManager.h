@@ -47,6 +47,10 @@ class SettingsManager: public QObject
     Q_PROPERTY(bool appThemeAuto READ getAppThemeAuto WRITE setAppThemeAuto NOTIFY appThemeAutoChanged)
 
     Q_PROPERTY(QString backend READ getBackend CONSTANT)
+    Q_PROPERTY(bool backend_qzxing READ getBackendQZXing CONSTANT)
+    Q_PROPERTY(bool backend_zxingcpp READ getBackendZXingCpp CONSTANT)
+    Q_PROPERTY(bool backend_zint READ getBackendZint CONSTANT)
+
     Q_PROPERTY(QString defaultTab READ getDefaultTab WRITE setDefaultTab NOTIFY defaultTabChanged)
     Q_PROPERTY(unsigned formatsEnabled READ getFormatsEnabled WRITE setFormatsEnabled NOTIFY formatsEnabledChanged)
 
@@ -120,6 +124,10 @@ public:
     ////
 
     QString getBackend() const;
+    bool getBackendQZXing() const;
+    bool getBackendZXingCpp() const;
+    bool getBackendZint() const;
+
     QString getDefaultTab() const { return m_defaultTab; }
     void setDefaultTab(const QString &value);
     unsigned getFormatsEnabled() const;

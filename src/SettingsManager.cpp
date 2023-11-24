@@ -227,10 +227,35 @@ QString SettingsManager::getBackend() const
     return "zxingcpp";
 #elif defined(qzxing)
     return "qzxing";
+#elif defined(zint)
+    return "zint";
 #endif
 
     qWarning() << "SettingsManager::getBackend() no backend set";
     return "error";
+}
+
+bool SettingsManager::getBackendQZXing() const
+{
+#if defined(qzxing)
+    return true;
+#endif
+    return false;
+}
+
+bool SettingsManager::getBackendZXingCpp() const
+{
+#if defined(zxingcpp)
+    return true;
+#endif
+    return false;
+}
+bool SettingsManager::getBackendZint() const
+{
+#if defined(zint)
+    return true;
+#endif
+    return false;
 }
 
 void SettingsManager::setDefaultTab(const QString &value)

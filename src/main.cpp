@@ -37,6 +37,10 @@
 #include <ZXingCpp>
 #endif
 
+#if defined(zint)
+#include <ZintQml>
+#endif
+
 #include <QtGlobal>
 #include <QGuiApplication>
 #include <QIcon>
@@ -121,6 +125,12 @@ int main(int argc, char *argv[])
     // Barcode (zxing-cpp)
     ZXingCpp::registerQMLTypes();
     ZXingCpp::registerQMLImageProvider(engine);
+#endif
+
+#if defined(zint)
+    // Barcode generator (zint-qml)
+    ZintQml::registerQMLTypes();
+    ZintQml::registerQMLImageProvider(engine);
 #endif
 
     // Then we start the UI

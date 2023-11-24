@@ -116,13 +116,17 @@ Loader {
                         anchors.margins: 4
 
                         cache: false
+                        smooth: false
+
                         sourceSize.width: width
                         sourceSize.height: height
                         fillMode: Image.PreserveAspectFit
 
-                        source: (settingsManager.backend === "qzxing") ?
-                                    "image://QZXing/encode/" + barcodeAdvanced.barcode_string + barcodeAdvanced.barcode_settings_qzxing :
-                                    "image://ZXingCpp/encode/" + barcodeAdvanced.barcode_string + barcodeAdvanced.barcode_settings_zxingcpp
+                        source: {
+                            if (settingsManager.backend_zint) return "image://ZintQml/encode/" + barcodeAdvanced.barcode_string + barcodeAdvanced.barcode_settings_zxingcpp
+                            if (settingsManager.backend_zxingcpp) return "image://ZXingCpp/encode/" + barcodeAdvanced.barcode_string + barcodeAdvanced.barcode_settings_zxingcpp
+                            if (settingsManager.backend_qzxing) return "image://QZXing/encode/" + barcodeAdvanced.barcode_string + barcodeAdvanced.barcode_settings_qzxing
+                        }
                     }
 
                     MouseArea {
@@ -229,8 +233,8 @@ Loader {
                         anchors.right: parent.right
                         height: 40
 
-                        visible: (selectorBarcodes.currentSelection >= 3) // linear
-                        placeholderText: qsTr("type content here")
+                        visible: (selectorBarcodes.currentMode == "1d") // linear
+                        placeholderText: qsTr("type barcode content here")
 
                         maximumLength: 12
                         validator: IntValidator { bottom: 0; top: 999999999; }
@@ -270,8 +274,8 @@ Loader {
                         anchors.right: parent.right
                         height: isPhone ? 96 : 128
 
-                        visible: (selectorBarcodes.currentSelection < 3) // matrix
-                        placeholderText: qsTr("type content here")
+                        visible: (selectorBarcodes.currentMode === "2d") // matrix
+                        placeholderText: qsTr("type barcode content here")
 
                         wrapMode: "WrapAnywhere"
                         selectByMouse: true
@@ -301,33 +305,61 @@ Loader {
 
                         visible: (settingsManager.backend === "zxingcpp")
 
-                        currentSelection: 0
-                        model: ListModel {
-                            id: lmSelectorBarcodes
+                        ListModel {
+                            id: lmSelectorBarcodes_zintqml
 
                             // matrix
-                            ListElement { idx: 0; txt: "QR Code"; format: "qrcode";         maxchar: 4296; maxbytes: 2953; ecc: 4; }
-                            ListElement { idx: 1; txt: "Aztec"; format: "aztec";            maxchar: 3067; maxbytes: 3067; ecc: 8; }
-                            ListElement { idx: 2; txt: "DataMatrix"; format: "datamatrix";  maxchar: 2335; maxbytes: 1556; ecc: 0; }
-                            //ListElement { idx: 3; txt: "PDF417"; format: "pdf417";        maxchar: 1850; maxbytes: 1108; ecc: 8; }
-                            // linear
-                            ListElement { idx: 3; txt: "Codabar"; format: "codabar";     maxchar: 12; }
-                            ListElement { idx: 4; txt: "EAN 13"; format: "ean13";       maxchar: 12; }
-                            ListElement { idx: 5; txt: "EAN 8"; format: "ean8";        maxchar: 7; }
-                            ListElement { idx: 6; txt: "UPC-A"; format: "upca";        maxchar: 11; }
-                            ListElement { idx: 7; txt: "UPC-E"; format: "upce";        maxchar: 7; }
-                            ListElement { idx: 8; txt: "Code 39"; format: "code39";      maxchar: 39; }
-                            ListElement { idx: 9; txt: "Code 93"; format: "code93";      maxchar: 93; }
-                            ListElement { idx: 10; txt: "Code 128"; format: "code128";     maxchar: 128; }
-                            ListElement { idx: 11; txt: "ITF"; format: "itf";         maxchar: 10; }
+                            ListElement { idx:  0; type: "2d"; txt: "QrCode"; format: "qrcode";             maxnum: 0; maxchar: 4296; maxbytes: 2953; ecc: 4; }
+                            ListElement { idx:  1; type: "2d"; txt: "Micro QrCode"; format: "microqrcode";  maxnum: 0; maxchar: 21; maxbytes: 256; ecc: 4; }
+                            ListElement { idx:  2; type: "2d"; txt: "Rect. Micro QrCode"; format: "rmqr";   maxnum: 0; maxchar: 21; maxbytes: 256; ecc: 4; }
+                            ListElement { idx:  3; type: "2d"; txt: "Aztec"; format: "aztec";               maxnum: 0; maxchar: 3067; maxbytes: 3067; ecc: 8; }
+                            ListElement { idx:  4; type: "2d"; txt: "DataMatrix"; format: "datamatrix";     maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
+                            ListElement { idx:  5; type: "2d"; txt: "PDF417"; format: "pdf417";             maxnum: 0; maxchar: 1850; maxbytes: 1108; ecc: 8; }
+                            ListElement { idx:  6; type: "2d"; txt: "Micro PDF417"; format: "micropdf417";  maxnum: 0; maxchar: 256; maxbytes: 1108; ecc: 8; }
+                            ListElement { idx:  7; type: "2d"; txt: "GridMatrix"; format: "gridmatrix";     maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
+                            // esoteric (but fun)
+                            ListElement { idx: 8; type: "2d"; txt: "DotCode"; format: "dotcode";           maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
+                            ListElement { idx: 9; type: "2d"; txt: "MaxiCode"; format: "maxicode";         maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
+                            ListElement { idx: 10; type: "2d"; txt: "UltraCode"; format: "ultracode";       maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
+                            ListElement { idx: 11; type: "2d"; txt: "Code One"; format: "codeone";          maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
+                            // esoteric (but not particularly fun)
+                            //ListElement { idx: 8; type: "2d"; txt: "HanXin"; format: "hanxin";             maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
+                            //ListElement { idx: 9; type: "2d"; txt: "Code 49"; format: "code49";            maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
+                            //ListElement { idx: 10; type: "2d"; txt: "Code 16k"; format: "code16k";          maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
+                            //ListElement { idx: 11; type: "2d"; txt: "Codablock F"; format: "codablockf";    maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
                         }
+                        ListModel {
+                            id: lmSelectorBarcodes_zxingcpp
+
+                            // matrix
+                            ListElement { idx:  0; type: "2d"; txt: "QR Code"; format: "qrcode";        maxchar: 4296; maxbytes: 2953; ecc: 4; }
+                            ListElement { idx:  1; type: "2d"; txt: "Aztec"; format: "aztec";           maxchar: 3067; maxbytes: 3067; ecc: 8; }
+                            ListElement { idx:  2; type: "2d"; txt: "DataMatrix"; format: "datamatrix"; maxchar: 2335; maxbytes: 1556; ecc: 0; }
+                            // linear
+                            ListElement { idx:  3; type: "1d"; txt: "Codabar"; format: "codabar";       maxnum: 12; }
+                            ListElement { idx:  4; type: "1d"; txt: "EAN 13"; format: "ean13";          maxnum: 12; }
+                            ListElement { idx:  5; type: "1d"; txt: "EAN 8"; format: "ean8";            maxnum: 7; }
+                            ListElement { idx:  6; type: "1d"; txt: "UPC-A"; format: "upca";            maxnum: 11; }
+                            ListElement { idx:  7; type: "1d"; txt: "UPC-E"; format: "upce";            maxnum: 7; }
+                            ListElement { idx:  8; type: "1d"; txt: "Code 39"; format: "code39";        maxnum: 39; }
+                            ListElement { idx:  9; type: "1d"; txt: "Code 93"; format: "code93";        maxnum: 93; }
+                            ListElement { idx: 10; type: "1d"; txt: "Code 128"; format: "code128";      maxnum: 128; }
+                            ListElement { idx: 11; type: "1d"; txt: "ITF"; format: "itf";               maxnum: 10; }
+                        }
+                        model: {
+                            if (settingsManager.backend_zint) return lmSelectorBarcodes_zintqml
+                            if (settingsManager.backend_zxingcpp) return lmSelectorBarcodes_zxingcpp
+                        }
+
+                        currentSelection: 0
+                        property string currentMode: "2d"
 
                         onMenuSelected: (index) => {
                             //console.log("SelectorMenu clicked #" + index)
                             currentSelection = index
-
-                            barcodeAdvanced.format = lmSelectorBarcodes.get(currentSelection).format
-                            barcodeTextField.maximumLength = lmSelectorBarcodes.get(currentSelection).maxchar
+                            currentMode = model.get(currentSelection).type
+                            barcodeAdvanced.format = model.get(currentSelection).format
+                            barcodeTextField.maximumLength = model.get(currentSelection).maxchar
                         }
                     }
 
@@ -538,7 +570,11 @@ Loader {
 
                         active: true
                         asynchronous: true
-                        source: (settingsManager.backend === "zxingcpp") ? "Writer_ZXingCpp.qml" : "Writer_QZXing.qml"
+                        source: {
+                            if (settingsManager.backend === "zint") return "Writer_Zint.qml"
+                            if (settingsManager.backend === "zxingcpp") return "Writer_ZXingCpp.qml"
+                            if (settingsManager.backend === "qzxing") return "Writer_QZXing.qml"
+                        }
                     }
                     property alias barcodeWriter: backendLoader.item
                 }

@@ -23,6 +23,7 @@
         <file>Reader_ZXingCpp.qml</file>
         <file>Writer_QZXing.qml</file>
         <file>Writer_ZXingCpp.qml</file>
+        <file>Writer_Zint.qml</file>
 
         <file alias="SelectorGrid.qml">components/SelectorGrid.qml</file>
         <file alias="SelectorGridItem.qml">components/SelectorGridItem.qml</file>

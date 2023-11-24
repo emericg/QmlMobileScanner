@@ -14,6 +14,8 @@ QT     += core concurrent qml quickcontrols2 svg sql
 
 # Select primary backend (zxingcpp / qzxing)
 CONFIG += zxingcpp
+# Select secondary backend (zint)
+CONFIG += zint
 
 # Use Qt Quick compiler
 ios | android { CONFIG += qtquickcompiler }
@@ -73,6 +75,13 @@ CONFIG(qzxing, zxingcpp|qzxing) {
     message("Building MobileScanner with QZXing backend")
     include(src/thirdparty/QZXing/QZXing.pri)
     DEFINES += qzxing
+}
+
+# Barcode writer (zint)
+CONFIG(zint) {
+    message("Building MobileScanner with zint backend")
+    include(src/thirdparty/zint-qml/zint-qml.pri)
+    DEFINES += zint
 }
 
 # Application deployment #######################################################

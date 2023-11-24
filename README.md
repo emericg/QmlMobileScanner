@@ -59,6 +59,11 @@ Demo barcode & QR code scanner based on qzxing and zxing-cpp libraries.
 | ITF                  |                      |
 
 
+## Supported Formats (zint)
+
+[zint](https://github.com/zint/zint/) is a barcode encoding library supporting over 50 symbologies including Code 128, Data Matrix, USPS OneCode, EAN-128, UPC/EAN, ITF, QR Code, Code 16k, PDF417, MicroPDF417, LOGMARS, Maxicode, GS1 DataBar, Aztec, Composite Symbols and more.
+
+
 ## Third party projects used by MobileScanner
 
 * [Qt6](https://www.qt.io) ([LGPL v3](https://www.gnu.org/licenses/lgpl-3.0.txt))
@@ -66,6 +71,7 @@ Demo barcode & QR code scanner based on qzxing and zxing-cpp libraries.
 * [MobileSharing](src/thirdparty/MobileSharing/) ([MIT](https://opensource.org/licenses/MIT))
 * [QZXing](https://github.com/ftylitak/qzxing/) ([Apache v2](https://opensource.org/licenses/apache-2-0))
 * [zxing-cpp](https://github.com/zxing-cpp/zxing-cpp/) ([Apache v2](https://opensource.org/licenses/apache-2-0))
+* [zint](https://github.com/zint/zint) ([3-Clause BSD License](https://opensource.org/license/bsd-3-clause))
 * Graphical resources: [assets/COPYING](assets/COPYING)
 
 
