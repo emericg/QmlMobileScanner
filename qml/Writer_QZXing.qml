@@ -1,35 +1,76 @@
+import QtCore
 import QtQuick
-import QtQuick.Layouts
+import QtQuick.Dialogs
+import QtQuick.Controls
 
+import QZXing
 import ThemeEngine
 
-Item {
+Row {
     id: barcodeWriter_qzxing
 
     width: 512
-    height: 32
+    height: 36
 
-    RowLayout {
-        width: parent.width
-        spacing: Theme.componentMargin
+    spacing: Theme.componentMargin
 
-        IconSvg {
-            width: 24
-            height: 24
-            Layout.alignment: Qt.AlignVCenter
-            color: Theme.colorWarning
-            source: "qrc:/assets/icons_material/baseline-warning-24px.svg"
+    enabled: barcodeAdvanced.barcode_string
+
+    Text {
+        anchors.verticalCenter: parent.verticalCenter
+
+        text: qsTr("Save to file")
+        color: Theme.colorText
+        font.pixelSize: Theme.componentFontSize
+    }
+
+    ComboBoxThemed {
+        id: fileSaveExtension
+        width: 128
+        height: 36
+
+        model: ListModel {
+            ListElement { text: "PNG"; }
+            ListElement { text: "BMP"; }
+            ListElement { text: "JPEG"; }
+            ListElement { text: "WEBP"; }
+        }
+    }
+
+    ButtonWireframeIcon {
+        height: 36
+        fullColor: true
+        primaryColor: Theme.colorGrey
+        font.bold: true
+
+        text: qsTr("save")
+        source: "qrc:/assets/icons_material/baseline-save-24px.svg"
+        onClicked: fileSaveDialog.open()
+
+        QZXing {
+            id: qzxing_backend
         }
 
-        Text {
-            Layout.fillWidth: true
-            Layout.alignment: Qt.AlignVCenter
+        FileDialog {
+            id: fileSaveDialog
 
-            text: qsTr("QZXing backend cannot save barcodes to file")
-            textFormat: Text.PlainText
-            color: Theme.colorText
-            wrapMode: Text.WordWrap
-            font.pixelSize: Theme.componentFontSize
+            fileMode: FileDialog.SaveFile
+            nameFilters: ["Pictures (*.png *.bmp *.jpg *.jpeg *.webp)",
+                          "PNG files (*.png)", "BMP files (*.bmp)", "JPEG files (*.jpg *.jpeg)", "WebP files (*.webp)"]
+            currentFolder: StandardPaths.standardLocations(StandardPaths.PicturesLocation)[0]
+            currentFile: StandardPaths.standardLocations(StandardPaths.PicturesLocation)[0] + "/barcode." + fileSaveExtension.currentText.toLowerCase()
+
+            onAccepted: {
+                var eccLevel = 0
+                if (barcodeAdvanced.eccStr === "M") eccLevel = 1
+                if (barcodeAdvanced.eccStr === "Q") eccLevel = 2
+                if (barcodeAdvanced.eccStr === "H") eccLevel = 3
+
+                qzxing_backend.saveImage(barcodeAdvanced.barcode_string,
+                                         barcodeAdvanced.exportSize, barcodeAdvanced.exportSize, barcodeAdvanced.border,
+                                         eccLevel,
+                                         fileSaveDialog.selectedFile)
+            }
         }
     }
 }

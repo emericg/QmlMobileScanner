@@ -127,9 +127,8 @@ public:
     };
 
     QZXing(QObject *parent = Q_NULLPTR);
-    ~QZXing();
-
     QZXing(DecoderFormat decodeHints, QObject *parent = Q_NULLPTR);
+    ~QZXing();
 
     static void registerQMLTypes();
     static void registerQMLImageProvider(QQmlEngine& engine);
@@ -164,7 +163,8 @@ public slots:
       * The decoding function. Will try to decode the given image based on the enabled decoders.
       * The input image is read from a local image file.
       */
-    QString decodeImageFromFile(const QString& imageFilePath, int maxWidth=-1, int maxHeight=-1, bool smoothTransformation = false);
+    QString decodeImageFromFile(const QString& imageFilePath, int maxWidth =- 1, int maxHeight =- 1, bool smoothTransformation = false);
+
     /**
      * The decoding function accessible from QML. (Suggested for Qt 4.x)
      */
@@ -206,12 +206,18 @@ public slots:
     /**
      * Overloaded function of encodeData.
      */
-    static QImage encodeData(const QString& data,
+    static QImage encodeData(const QString &data,
                              const EncoderFormat encoderFormat = EncoderFormat_QR_CODE,
                              const QSize encoderImageSize = QSize(240, 240),
                              const EncodeErrorCorrectionLevel errorCorrectionLevel = EncodeErrorCorrectionLevel_L,
                              const bool border = false,
                              const bool transparent = false);
+
+    Q_INVOKABLE static bool saveImage(const QString &data,
+                                      const int width, const int height, const bool border,
+                                      const int eccLevel,
+                                      const QUrl &fileurl);
+
 #endif // ENABLE_ENCODER_GENERIC
 
     /**

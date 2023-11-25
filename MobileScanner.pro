@@ -15,7 +15,7 @@ QT     += core concurrent qml quickcontrols2 svg sql
 # Select primary backend (zxingcpp / qzxing)
 CONFIG += zxingcpp
 # Select secondary backend (zint)
-CONFIG += zint
+#CONFIG += zint
 
 # Use Qt Quick compiler
 ios | android { CONFIG += qtquickcompiler }

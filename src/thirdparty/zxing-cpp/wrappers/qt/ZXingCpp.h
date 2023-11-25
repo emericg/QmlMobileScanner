@@ -195,6 +195,11 @@ public:
 
     ///
 
+    Q_INVOKABLE static int stringToFormat(const QString &str);
+    Q_INVOKABLE static QString formatToString(const int fmt);
+
+    ///
+
     static Result ReadBarcode(const QImage &img, const ZXing::DecodeHints &hints = {});
 
     static Result ReadBarcode(const QVideoFrame &frame, const ZXing::DecodeHints &hints = {},
@@ -215,7 +220,7 @@ public:
                                             const int format, const int encoding, const int eccLevel,
                                             const QColor backgroundColor, const QColor foregroundColor);
 
-    Q_INVOKABLE static bool saveImage(const QString &data, const int width, const int height, const int margins,
+    Q_INVOKABLE static bool saveImage(const QString &data, int width, int height, int margins,
                                       const int format, const int encoding, const int eccLevel,
                                       const QColor backgroundColor, const QColor foregroundColor,
                                       const QUrl &fileurl);

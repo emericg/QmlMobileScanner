@@ -8,6 +8,8 @@
 #include "ZXingCppVideoFilter.h"
 #include "ZXingCppImageProvider.h"
 
+#include <QUrl>
+#include <QColor>
 #include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
@@ -33,6 +35,52 @@ void ZXingCpp::registerQMLTypes()
 void ZXingCpp::registerQMLImageProvider(QQmlEngine &engine)
 {
     engine.addImageProvider("ZXingCpp", new ZXingCppImageProvider());
+}
+
+int ZXingCpp::stringToFormat(const QString &str)
+{
+    if (str == "aztec") return (int)ZXing::BarcodeFormat::Aztec;
+    if (str == "codabar") return (int)ZXing::BarcodeFormat::Codabar;
+    if (str == "code39") return (int)ZXing::BarcodeFormat::Code39;
+    if (str == "code93") return (int)ZXing::BarcodeFormat::Code93;
+    if (str == "code128") return (int)ZXing::BarcodeFormat::Code128;
+    if (str == "databar") return (int)ZXing::BarcodeFormat::DataBar;
+    if (str == "databarexpanded") return (int)ZXing::BarcodeFormat::DataBarExpanded;
+    if (str == "datamatrix") return (int)ZXing::BarcodeFormat::DataMatrix;
+    if (str == "ean8") return (int)ZXing::BarcodeFormat::EAN8;
+    if (str == "ean13") return (int)ZXing::BarcodeFormat::EAN13;
+    if (str == "itf") return (int)ZXing::BarcodeFormat::ITF;
+    if (str == "maxicode") return (int)ZXing::BarcodeFormat::MaxiCode;
+    if (str == "pdf417") return (int)ZXing::BarcodeFormat::PDF417;
+    if (str == "qrcode") return (int)ZXing::BarcodeFormat::QRCode;
+    if (str == "upca") return (int)ZXing::BarcodeFormat::UPCA;
+    if (str == "upce") return (int)ZXing::BarcodeFormat::UPCE;
+    if (str == "microqrcode") return (int)ZXing::BarcodeFormat::MicroQRCode;
+
+    return 0;
+}
+
+QString ZXingCpp::formatToString(const int fmt)
+{
+    if (fmt == (int)ZXing::BarcodeFormat::Aztec) return "aztec";
+    if (fmt == (int)ZXing::BarcodeFormat::Codabar) return "codabar";
+    if (fmt == (int)ZXing::BarcodeFormat::Code39) return "code39";
+    if (fmt == (int)ZXing::BarcodeFormat::Code93) return "code93";
+    if (fmt == (int)ZXing::BarcodeFormat::Code128) return "code128";
+    if (fmt == (int)ZXing::BarcodeFormat::DataBar) return "databar";
+    if (fmt == (int)ZXing::BarcodeFormat::DataBarExpanded) return "databarexpanded";
+    if (fmt == (int)ZXing::BarcodeFormat::DataMatrix) return "datamatrix";
+    if (fmt == (int)ZXing::BarcodeFormat::EAN8) return "ean8";
+    if (fmt == (int)ZXing::BarcodeFormat::EAN13) return "ean13";
+    if (fmt == (int)ZXing::BarcodeFormat::ITF) return "itf";
+    if (fmt == (int)ZXing::BarcodeFormat::MaxiCode) return "maxicode";
+    if (fmt == (int)ZXing::BarcodeFormat::PDF417) return "pdf417";
+    if (fmt == (int)ZXing::BarcodeFormat::QRCode) return "qrcode";
+    if (fmt == (int)ZXing::BarcodeFormat::UPCA) return "upca";
+    if (fmt == (int)ZXing::BarcodeFormat::UPCE) return "upce";
+    if (fmt == (int)ZXing::BarcodeFormat::MicroQRCode) return "microqrcode";
+
+    return QString();
 }
 
 inline QList<Result> QListResults(ZXing::Results&& zxres)
@@ -188,11 +236,9 @@ QList<Result> ZXingCpp::loadImage(const QImage &img)
     return ReadBarcodes(img);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
 QImage ZXingCpp::generateImage(const QString &data, const int width, const int height, const int margins,
-                              const int format, const int encoding, const int eccLevel,
-                              const QColor backgroundColor, const QColor foregroundColor)
+                               const int format, const int encoding, const int eccLevel,
+                               const QColor backgroundColor, const QColor foregroundColor)
 {
     try
     {
@@ -231,18 +277,18 @@ QImage ZXingCpp::generateImage(const QString &data, const int width, const int h
     return QImage();
 }
 
-bool ZXingCpp::saveImage(const QString &data, const int width, const int height, const int margins,
-                        const int format, const int encoding, const int eccLevel,
-                        const QColor backgroundColor, const QColor foregroundColor,
-                        const QUrl &fileurl)
+bool ZXingCpp::saveImage(const QString &data, int width, int height, int margins,
+                         const int format, const int encoding, const int eccLevel,
+                         const QColor backgroundColor, const QColor foregroundColor,
+                         const QUrl &fileurl)
 {
     //qDebug() << "ZXingCpp::saveImage(" << data << fileurl;
     if (data.isEmpty() || fileurl.isEmpty()) return false;
     bool status = false;
 
     QString filepath = fileurl.toLocalFile();
-
     QFileInfo saveFileInfo(filepath);
+
     if (saveFileInfo.suffix() == "svg")
     {
         // to vector
@@ -282,7 +328,7 @@ bool ZXingCpp::saveImage(const QString &data, const int width, const int height,
             }
             catch (...)
             {
-                // error
+                qWarning() << "ZXingCpp::saveImage() writer.encode() error";
             }
 
             efile.close();
@@ -294,6 +340,9 @@ bool ZXingCpp::saveImage(const QString &data, const int width, const int height,
              saveFileInfo.suffix() == "jpeg" ||
              saveFileInfo.suffix() == "webp")
     {
+        bool formatMatrix = (format & (int)BarcodeFormat::MatrixCodes);
+        if (!formatMatrix) height = width / 3;
+
         QImage img = generateImage(data, width, height, margins,
                                    format, encoding, eccLevel,
                                    backgroundColor, foregroundColor);

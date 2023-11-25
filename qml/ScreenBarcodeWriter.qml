@@ -218,6 +218,10 @@ Loader {
                 property color colorBg: "#fff"
                 property color colorFg: "#000"
 
+                property int exportSize: 256
+
+                ////////
+
                 Column {
                     id: settingsarea
                     anchors.centerIn: parent
@@ -268,6 +272,7 @@ Loader {
                             onClicked: barcodeTextField.clear()
                         }
                     }
+
                     TextAreaThemed {
                         id: barcodeTextArea
                         anchors.left: parent.left
@@ -277,7 +282,7 @@ Loader {
                         visible: (selectorBarcodes.currentMode === "2d") // matrix
                         placeholderText: qsTr("type barcode content here")
 
-                        wrapMode: "WrapAnywhere"
+                        wrapMode: Text.WrapAnywhere
                         selectByMouse: true
                         onTextChanged: barcodeAdvanced.barcode_string = text
 
@@ -367,7 +372,7 @@ Loader {
                         anchors.left: parent.left
                         anchors.right: parent.right
 
-                        visible: (selectorBarcodes.currentSelection < 5) // matrix
+                        visible: (selectorBarcodes.currentMode === "2d") // matrix
                         spacing: 16
 
                         Text {
@@ -420,10 +425,13 @@ Loader {
 
                             currentSelection: 0
                             model: {
-                                if (barcodeAdvanced.format === "qrcode") return lmBarcodeEccQR
                                 if (barcodeAdvanced.format === "aztec") return lmBarcodeEccAz
                                 if (barcodeAdvanced.format === "datamatrix") return lmBarcodeEccDM
-                                if (barcodeAdvanced.format === "pdf417") return lmBarcodeEccPdf
+                                if (barcodeAdvanced.format === "qrcode" ||
+                                    barcodeAdvanced.format === "microqrcode" ||
+                                    barcodeAdvanced.format === "rmqr") return lmBarcodeEccQR
+                                if (barcodeAdvanced.format === "pdf417" ||
+                                    barcodeAdvanced.format === "micropdf417") return lmBarcodeEccPdf
                             }
 
                             onModelChanged: {
@@ -434,10 +442,13 @@ Loader {
                                 currentSelection = index
 
                                 var vvv = 0
-                                if (barcodeAdvanced.format === "qrcode") vvv = lmBarcodeEccQR.get(index).ecc
                                 if (barcodeAdvanced.format === "aztec") vvv = lmBarcodeEccAz.get(index).ecc
                                 if (barcodeAdvanced.format === "datamatrix") vvv = lmBarcodeEccDM.get(index).ecc
-                                if (barcodeAdvanced.format === "pdf417") vvv = lmBarcodeEccPdf.get(index).ecc
+                                if (barcodeAdvanced.format === "qrcode" ||
+                                    barcodeAdvanced.format === "microqrcode" ||
+                                    barcodeAdvanced.format === "rmqr") vvv = lmBarcodeEccQR.get(index).ecc
+                                if (barcodeAdvanced.format === "pdf417" ||
+                                    barcodeAdvanced.format === "micropdf417") vvv = lmBarcodeEccPdf.get(index).ecc
 
                                 barcodeAdvanced.eccLevel = parseInt(vvv)
                                 barcodeAdvanced.eccStr = (settingsManager.backend === "qzxing") ? lmBarcodeEccQR.get(index).txt : "L"
@@ -494,23 +505,23 @@ Loader {
                         }
 
                         SelectorMenuThemed {
-                            id: barcodeMarginSeclector
+                            id: barcodeMarginSelector
                             height: 32
                             anchors.verticalCenter: parent.verticalCenter
 
                             currentSelection: 1
                             model: ListModel {
                                 id: lmMarginSelector
-                                ListElement { idx: 0; txt:  "0"; margin: 0; }
-                                ListElement { idx: 1; txt: "12"; margin: 12; }
-                                ListElement { idx: 2; txt: "24"; margin: 24; }
-                                ListElement { idx: 3; txt: "32"; margin: 32; }
+                                ListElement { idx: 0; txt:  "0"; sz:  0; src: ""; }
+                                ListElement { idx: 1; txt: "12"; sz: 12; src: ""; }
+                                ListElement { idx: 2; txt: "24"; sz: 24; src: ""; }
+                                ListElement { idx: 3; txt: "32"; sz: 32; src: ""; }
                             }
 
                             onMenuSelected: (index) => {
-                                //console.log("lmMarginSelector[index].margin : " + lmMarginSelector.get(index).margin)
+                                //console.log("lmMarginSelector[index].sz : " + lmMarginSelector.get(index).sz)
                                 currentSelection = index
-                                barcodeAdvanced.margins = parseInt(lmMarginSelector.get(index).margin)
+                                barcodeAdvanced.margins = parseInt(lmMarginSelector.get(index).sz)
                             }
                         }
                     }
@@ -564,6 +575,42 @@ Loader {
 
                     ////
 
+                    Row {
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+
+                        spacing: 16
+
+                        Text {
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: qsTr("Export size:")
+                            color: Theme.colorText
+                            font.pixelSize: Theme.componentFontSize
+                        }
+
+                        SelectorMenuThemed {
+                            id: barcodeExportSizeSelector
+                            height: 32
+                            anchors.verticalCenter: parent.verticalCenter
+
+                            currentSelection: 1
+                            model: ListModel {
+                                id: lmExportSizeSelector
+                                ListElement { idx: 0; txt: "128x128"; sz: 128; src: ""; }
+                                ListElement { idx: 1; txt: "256x256"; sz: 256; src: ""; }
+                                ListElement { idx: 2; txt: "512x512"; sz: 512; src: ""; }
+                            }
+
+                            onMenuSelected: (index) => {
+                                //console.log("lmExportSizeSelector[index].sz : " + lmExportSizeSelector.get(index).sz)
+                                currentSelection = index
+                                barcodeAdvanced.exportSize = parseInt(lmExportSizeSelector.get(index).sz)
+                            }
+                        }
+                    }
+
+                    ////
+
                     Loader {
                         id: backendLoader
                         width: gridContent.www
@@ -571,15 +618,17 @@ Loader {
                         active: true
                         asynchronous: true
                         source: {
-                            if (settingsManager.backend === "zint") return "Writer_Zint.qml"
-                            if (settingsManager.backend === "zxingcpp") return "Writer_ZXingCpp.qml"
-                            if (settingsManager.backend === "qzxing") return "Writer_QZXing.qml"
+                            if (settingsManager.backend_zint) return "Writer_Zint.qml"
+                            if (settingsManager.backend_zxingcpp) return "Writer_ZXingCpp.qml"
+                            if (settingsManager.backend_qzxing) return "Writer_QZXing.qml"
                         }
                     }
                     property alias barcodeWriter: backendLoader.item
+
+                    ////
                 }
 
-                ////
+                ////////
             }
 
             ////////////////

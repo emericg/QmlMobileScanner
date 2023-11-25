@@ -140,61 +140,63 @@ QVariantList QZXing::getAllowedExtensions()
 
 QString QZXing::decoderFormatToString(int fmt)
 {
-    switch (fmt) {
-    case DecoderFormat_Aztec:
-        return "AZTEC";
+    switch (fmt)
+    {
+        case DecoderFormat_Aztec:
+            return "AZTEC";
 
-    case DecoderFormat_CODABAR:
-        return "CODABAR";
+        case DecoderFormat_CODABAR:
+            return "CODABAR";
 
-    case DecoderFormat_CODE_39:
-        return "CODE_39";
+        case DecoderFormat_CODE_39:
+            return "CODE_39";
 
-    case DecoderFormat_CODE_93:
-        return "CODE_93";
+        case DecoderFormat_CODE_93:
+            return "CODE_93";
 
-    case DecoderFormat_CODE_128:
-        return "CODE_128";
+        case DecoderFormat_CODE_128:
+            return "CODE_128";
 
-    case DecoderFormat_CODE_128_GS1:
-        return "CODE_128_GS1";
+        case DecoderFormat_CODE_128_GS1:
+            return "CODE_128_GS1";
 
-    case DecoderFormat_DATA_MATRIX:
-        return "DATA_MATRIX";
+        case DecoderFormat_DATA_MATRIX:
+            return "DATA_MATRIX";
 
-    case DecoderFormat_EAN_8:
-        return "EAN_8";
+        case DecoderFormat_EAN_8:
+            return "EAN_8";
 
-    case DecoderFormat_EAN_13:
-        return "EAN_13";
+        case DecoderFormat_EAN_13:
+            return "EAN_13";
 
-    case DecoderFormat_ITF:
-        return "ITF";
+        case DecoderFormat_ITF:
+            return "ITF";
 
-    case DecoderFormat_MAXICODE:
-        return "MAXICODE";
+        case DecoderFormat_MAXICODE:
+            return "MAXICODE";
 
-    case DecoderFormat_PDF_417:
-        return "PDF_417";
+        case DecoderFormat_PDF_417:
+            return "PDF_417";
 
-    case DecoderFormat_QR_CODE:
-        return "QR_CODE";
+        case DecoderFormat_QR_CODE:
+            return "QR_CODE";
 
-    case DecoderFormat_RSS_14:
-        return "RSS_14";
+        case DecoderFormat_RSS_14:
+            return "RSS_14";
 
-    case DecoderFormat_RSS_EXPANDED:
-        return "RSS_EXPANDED";
+        case DecoderFormat_RSS_EXPANDED:
+            return "RSS_EXPANDED";
 
-    case DecoderFormat_UPC_A:
-        return "UPC_A";
+        case DecoderFormat_UPC_A:
+            return "UPC_A";
 
-    case DecoderFormat_UPC_E:
-        return "UPC_E";
+        case DecoderFormat_UPC_E:
+            return "UPC_E";
 
-    case DecoderFormat_UPC_EAN_EXTENSION:
-        return "UPC_EAN_EXTENSION";
-    } // switch
+        case DecoderFormat_UPC_EAN_EXTENSION:
+            return "UPC_EAN_EXTENSION";
+    }
+
     return QString();
 }
 
@@ -478,7 +480,7 @@ QString QZXing::decodeImage(const QImage &image, int maxWidth, int maxHeight, bo
             try {
                 const QRectF rect = getTagRect(res->getResultPoints(), binz->getBlackMatrix());
                 emit tagFoundAdvanced(string, decodedFormat, charSet_, rect);
-            }catch(zxing::Exception &/*e*/){}
+            } catch(zxing::Exception &/*e*/){}
         }
         processingTime = t.elapsed();
         emit decodingFinished(true);
@@ -630,6 +632,38 @@ QImage QZXing::encodeData(const QString &data, const QZXingEncoderConfig &encode
     }
 
     return image;
+}
+
+bool QZXing::saveImage(const QString &data,
+                       const int width, const int height, const bool border,
+                       const int eccLevel,
+                       const QUrl &fileurl)
+{
+    //qDebug() << "QZXing::saveImage(" << data << fileurl;
+    if (data.isEmpty() || fileurl.isEmpty()) return false;
+    bool status = false;
+
+    QString filepath = fileurl.toLocalFile();
+
+    QFileInfo saveFileInfo(filepath);
+    if (saveFileInfo.suffix() == "bmp" || saveFileInfo.suffix() == "png" ||
+        saveFileInfo.suffix() == "jpg" || saveFileInfo.suffix() == "jpeg" ||
+        saveFileInfo.suffix() == "webp")
+    {
+        QImage img = encodeData(data, QZXingEncoderConfig(EncoderFormat_QR_CODE,
+                                                          QSize(width, height),
+                                                          (EncodeErrorCorrectionLevel)eccLevel,
+                                                          border,
+                                                          false));
+
+        status = img.save(filepath, saveFileInfo.suffix().toStdString().c_str(), -1);
+    }
+    else
+    {
+        qWarning() << "QZXing::saveImage() unknown format error:" << saveFileInfo.suffix();
+    }
+
+    return status;
 }
 #endif // ENABLE_ENCODER_GENERIC
 

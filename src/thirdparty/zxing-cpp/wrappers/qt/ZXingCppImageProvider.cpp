@@ -23,7 +23,7 @@ ZXingCppImageProvider::ZXingCppImageProvider() : QQuickImageProvider(QQuickImage
 QImage ZXingCppImageProvider::requestImage(const QString &id, QSize *size, const QSize &requestedSize)
 {
     if (id.isEmpty() || requestedSize.width() <= 0 || requestedSize.height() <= 0) return QImage();
-    //qDebug() << "requestImage(" << id << ") size " << *size << " /  requestedSize" << requestedSize;
+    //qDebug() << "ZXingCppImageProvider::requestImage(" << id << ") size " << *size << " /  requestedSize" << requestedSize;
 
     int slashIndex = id.indexOf('/');
     if (slashIndex == -1)
@@ -31,7 +31,7 @@ QImage ZXingCppImageProvider::requestImage(const QString &id, QSize *size, const
         qWarning() << "Can't parse url" << id << ". Usage is encode/<data>?params";
         return QImage();
     }
-    int exmarkIndex = id.indexOf('?');
+    int exmarkIndex = id.lastIndexOf('?');
     if (exmarkIndex == -1)
     {
         exmarkIndex = id.size();
@@ -65,21 +65,9 @@ QImage ZXingCppImageProvider::requestImage(const QString &id, QSize *size, const
         if (optionQuery.hasQueryItem("format"))
         {
             QString formatString = optionQuery.queryItemValue("format").toLower().remove('-');
+            format = (ZXing::BarcodeFormat)ZXingCpp::stringToFormat(formatString);
 
-            if (formatString == "aztec") format = ZXing::BarcodeFormat::Aztec;
-            else if (formatString == "codabar") format = ZXing::BarcodeFormat::Codabar;
-            else if (formatString == "code39") format = ZXing::BarcodeFormat::Code39;
-            else if (formatString == "code93") format = ZXing::BarcodeFormat::Code93;
-            else if (formatString == "code128") format = ZXing::BarcodeFormat::Code128;
-            else if (formatString == "datamatrix") format = ZXing::BarcodeFormat::DataMatrix;
-            else if (formatString == "ean8") format = ZXing::BarcodeFormat::EAN8;
-            else if (formatString == "ean13") format = ZXing::BarcodeFormat::EAN13;
-            else if (formatString == "itf") format = ZXing::BarcodeFormat::ITF;
-            else if (formatString == "pdf417") format = ZXing::BarcodeFormat::PDF417;
-            else if (formatString == "qrcode") format = ZXing::BarcodeFormat::QRCode;
-            else if (formatString == "upca") format = ZXing::BarcodeFormat::UPCA;
-            else if (formatString == "upce") format = ZXing::BarcodeFormat::UPCE;
-            else
+            if (format <= ZXing::BarcodeFormat::None)
             {
                 qWarning() << "Format not supported: " << formatString;
                 format = ZXing::BarcodeFormat::QRCode;
@@ -121,9 +109,6 @@ QImage ZXingCppImageProvider::requestImage(const QString &id, QSize *size, const
             fgc = QColor(optionQuery.queryItemValue("foregroundColor"));
         }
     }
-
-    //
-    bool formatMatrix = ((int)format & (int)ZXing::BarcodeFormat::MatrixCodes);
 
     // TODO // Validate data, depending on the format selected
     {
@@ -170,11 +155,12 @@ QImage ZXingCppImageProvider::requestImage(const QString &id, QSize *size, const
 
     // Generate barcode
     int width = requestedSize.width(), height = requestedSize.height();
+    bool formatMatrix = ((int)format & (int)ZXing::BarcodeFormat::MatrixCodes);
     if (!formatMatrix) height /= 3; // 1D codes
 
     QImage img = ZXingCpp::generateImage(data, width, height, margins,
-                                        (int)format, (int)encoding, eccLevel,
-                                        bgc, fgc);
+                                         (int)format, (int)encoding, eccLevel,
+                                         bgc, fgc);
 
     *size = img.size();
     return img;

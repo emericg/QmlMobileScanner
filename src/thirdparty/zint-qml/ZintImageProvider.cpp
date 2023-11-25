@@ -3,9 +3,10 @@
  */
 
 #include "ZintImageProvider.h"
+#include "ZintQml.h"
 
-#include "backend/zint.h"   // Use the embedded copy
-//#include <zint.h>         // Use the system copy
+#include "backend/zint.h"   // Use the embedded zint copy
+//#include <zint.h>         // Use the system zint copy
 
 #include <QDebug>
 #include <QUrlQuery>
@@ -47,8 +48,6 @@ QImage ZintImageProvider::requestImage(const QString &id, QSize *size, const QSi
 
     // Settings
     int format = BARCODE_QRCODE;
-    bool format_rgb = false;
-    bool format_rotated = false;
     int encoding = UNICODE_MODE;
     int eccLevel = 0;
     int margins = 0;
@@ -63,35 +62,9 @@ QImage ZintImageProvider::requestImage(const QString &id, QSize *size, const QSi
         if (optionQuery.hasQueryItem("format"))
         {
             QString formatString = optionQuery.queryItemValue("format").toLower().remove('-');
+            format = ZintQml::stringToFormat(formatString);
 
-            if (formatString == "aztec") format = BARCODE_AZTEC;
-            else if (formatString == "datamatrix") format = BARCODE_DATAMATRIX;
-            else if (formatString == "qrcode") format = BARCODE_QRCODE;
-            else if (formatString == "microqrcode") format = BARCODE_MICROQR;
-            else if (formatString == "rmqr") format = BARCODE_RMQR;
-            else if (formatString == "pdf417") format = BARCODE_PDF417;
-            else if (formatString == "micropdf417") format = BARCODE_MICROPDF417;
-            else if (formatString == "gridmatrix") format = BARCODE_GRIDMATRIX;
-            else if (formatString == "dotcode") format = BARCODE_DOTCODE;
-            else if (formatString == "maxicode") format = BARCODE_MAXICODE;
-            else if (formatString == "ultracode") format = BARCODE_ULTRA;
-            else if (formatString == "codeone") format = BARCODE_CODEONE;
-            else if (formatString == "hanxin") format = BARCODE_HANXIN;
-            else if (formatString == "code49") format = BARCODE_CODE49;
-            else if (formatString == "code16k") format = BARCODE_CODE16K;
-            else if (formatString == "codablockf") format = BARCODE_CODABLOCKF;
-
-            else if (formatString == "codabar") format = BARCODE_CODABAR;
-            else if (formatString == "code39") format = BARCODE_CODE39;
-            else if (formatString == "code93") format = BARCODE_CODE93;
-            else if (formatString == "code128") format = BARCODE_CODE128;
-            //else if (formatString == "ean8") format = BARCODE_EAN8;
-            //else if (formatString == "ean13") format = BARCODE_EAN13;
-            else if (formatString == "itf") format = BARCODE_ITF14;
-            else if (formatString == "upca") format = BARCODE_UPCA;
-            else if (formatString == "upce") format = BARCODE_UPCE;
-
-            else
+            if (format <= 0)
             {
                 qWarning() << "Format not supported: " << formatString;
                 format = BARCODE_QRCODE;
@@ -120,61 +93,15 @@ QImage ZintImageProvider::requestImage(const QString &id, QSize *size, const QSi
         {
             fgc = QColor(optionQuery.queryItemValue("foregroundColor"));
         }
-
-    // rgb
-    if (format == BARCODE_ULTRA)
-    {
-        format_rgb = true;
-    }
-
-    // rotated
-    if (format == BARCODE_PDF417 || format == BARCODE_MICROPDF417 ||
-        format == BARCODE_CODE49 || format == BARCODE_CODE16K || format == BARCODE_CODABLOCKF)
-    {
-        format_rotated = true;
     }
 
     // Generate barcode
+    int width = requestedSize.width(), height = requestedSize.height();
+    //if (!format_matrix) height /= 3; // 1D codes
 
-    struct zint_symbol *zint_symbol = ZBarcode_Create();
-    zint_symbol->height = requestedSize.height();
-    zint_symbol->scale = 1.0;
-    zint_symbol->symbology = format;
-    zint_symbol->input_mode = encoding;
-    //zint_symbol->border_width = margins;
-    zint_symbol->whitespace_width = margins;
-    zint_symbol->whitespace_height = margins;
-    zint_symbol->output_options |= format_rgb ? 0 : OUT_BUFFER_INTERMEDIATE;
-/*
-    QByteArray bstr = data.toUtf8();
-    int error = ZBarcode_Encode_and_Buffer(zint_symbol, (unsigned char *)bstr.data(), bstr.size(), format_rotated ? 0 : 0);
-
-    int width = zint_symbol->bitmap_width, height = zint_symbol->bitmap_height;
-
-    QImage img(width, height, QImage::Format_ARGB32);
-
-    if (error < ZINT_ERROR)
-    {
-        int i = 0;
-        for (int row = 0; row < zint_symbol->bitmap_height; row++)
-        {
-            for (int col = 0; col < zint_symbol->bitmap_width; col++)
-            {
-                if (format_rgb)
-                {
-                    img.setPixel(col, row, QColor(zint_symbol->bitmap[i], zint_symbol->bitmap[i + 1], zint_symbol->bitmap[i + 2]).rgba());
-                    i += 3;
-                }
-                else
-                {
-                    img.setPixel(col, row, zint_symbol->bitmap[i] == '1' ? fgc.rgba() : bgc.rgba());
-                    i++;
-                }
-            }
-        }
-    }
-
-    ZBarcode_Delete(zint_symbol);
+    QImage img = ZintQml::generateImage(data, width, height, margins,
+                                        (int)format, (int)encoding, eccLevel,
+                                        bgc, fgc);
 
     *size = img.size();
     return img;

@@ -174,8 +174,8 @@ Item {
             colorHeaderContent =        "#353637"
             colorHeaderHighlight =      Qt.darker(colorHeader, 1.1)
 
-            colorSidebar =              "#3A3A3A"
-            colorSidebarContent =       "white"
+            colorSidebar =              "#E9E9E9"
+            colorSidebarContent =       "grey"
             colorSidebarHighlight =     Qt.lighter(colorSidebar, 1.5)
 
             colorActionbar =            "#8CD200"

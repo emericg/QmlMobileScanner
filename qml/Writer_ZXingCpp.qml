@@ -56,17 +56,15 @@ Row {
             id: fileSaveDialog
 
             fileMode: FileDialog.SaveFile
-            nameFilters: ["Vector files (*.svg)", "PNG files (*.png)", "BMP files (*.bmp)", "JPEG files (*.jpg *.jpeg)", "WebP files (*.webp)"]
+            nameFilters: ["Pictures (*.png *.bmp *.jpg *.jpeg *.webp *.svg)",
+                          "PNG files (*.png)", "BMP files (*.bmp)", "JPEG files (*.jpg *.jpeg)", "WebP files (*.webp)", "Vector files (*.svg)"]
             currentFolder: StandardPaths.standardLocations(StandardPaths.PicturesLocation)[0]
             currentFile: StandardPaths.standardLocations(StandardPaths.PicturesLocation)[0] + "/barcode." + fileSaveExtension.currentText.toLowerCase()
 
             onAccepted: {
-                console.log(" - " + fileSaveDialog.selectedFile)
-                console.log(" - " + fileSaveDialog.selectedNameFilter.name[0])
-                console.log(" - " + fileSaveDialog.selectedNameFilter.extensions[0])
-
-                zxingcpp_backend.saveImage(barcodeAdvanced.barcode_string, 512, 512, 16,
-                                           8192, 0, 0,
+                zxingcpp_backend.saveImage(barcodeAdvanced.barcode_string,
+                                           barcodeAdvanced.exportSize, barcodeAdvanced.exportSize, barcodeAdvanced.margins,
+                                           zxingcpp_backend.stringToFormat(barcodeAdvanced.format), 0, barcodeAdvanced.eccLevel,
                                            barcodeAdvanced.colorBg, barcodeAdvanced.colorFg,
                                            fileSaveDialog.selectedFile)
             }
