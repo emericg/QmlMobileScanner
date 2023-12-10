@@ -19,6 +19,7 @@
 
 #include "Result.h"
 #include "Quadrilateral.h"
+#include "ReaderOptions.h"
 
 class Position : public ZXing::Quadrilateral<QPoint>
 {
@@ -124,12 +125,13 @@ public:
         MaxiCode        = (1 << 11), ///< MaxiCode
         PDF417          = (1 << 12), ///< PDF417
         QRCode          = (1 << 13), ///< QR Code
-        UPCA            = (1 << 14), ///< UPC-A
-        UPCE            = (1 << 15), ///< UPC-E
-        MicroQRCode     = (1 << 16), ///< Micro QR Code
+        MicroQRCode     = (1 << 14), ///< Micro QR Code
+        RMQRCode        = (1 << 15), ///< rMQR Code
+        UPCA            = (1 << 16), ///< UPC-A
+        UPCE            = (1 << 17), ///< UPC-E
 
         LinearCodes = Codabar | Code39 | Code93 | Code128 | EAN8 | EAN13 | ITF | DataBar | DataBarExpanded | UPCA | UPCE,
-        MatrixCodes = Aztec | DataMatrix | MaxiCode | PDF417 | QRCode | MicroQRCode,
+        MatrixCodes = Aztec | DataMatrix | MaxiCode | PDF417 | QRCode | RMQRCode | MicroQRCode,
         Any         = LinearCodes | MatrixCodes,
     };
     Q_ENUM(BarcodeFormat)
@@ -200,14 +202,14 @@ public:
 
     ///
 
-    static Result ReadBarcode(const QImage &img, const ZXing::DecodeHints &hints = {});
+    static Result ReadBarcode(const QImage &img, const ZXing::ReaderOptions &opts = {});
 
-    static Result ReadBarcode(const QVideoFrame &frame, const ZXing::DecodeHints &hints = {},
+    static Result ReadBarcode(const QVideoFrame &frame, const ZXing::ReaderOptions &opts = {},
                               const QRect captureRect = QRect());
 
-    static QList<Result> ReadBarcodes(const QImage &img, const ZXing::DecodeHints &hints = {});
+    static QList<Result> ReadBarcodes(const QImage &img, const ZXing::ReaderOptions &opts = {});
 
-    static QList<Result> ReadBarcodes(const QVideoFrame &frame, const ZXing::DecodeHints &hints = {},
+    static QList<Result> ReadBarcodes(const QVideoFrame &frame, const ZXing::ReaderOptions &opts = {},
                                       const QRect captureRect = QRect());
 
     ///

@@ -34,7 +34,7 @@ class ZXingCppVideoFilter : public QObject
     QFuture <void> m_processThread;
 
     QRect m_captureRect;
-    ZXing::DecodeHints m_decodeHints;
+    ZXing::ReaderOptions m_readerOptions;
 
     QVideoSink *m_videoSink = nullptr;
     void setVideoSink(QVideoSink *sink);
@@ -65,16 +65,16 @@ public:
     QRect captureRect() const { return m_captureRect; }
     void setCaptureRect(const QRect &captureRect);
 
-    // decode hints
+    // barcode reader options
     int formats() const noexcept;
     void setFormats(int newVal);
-    bool tryHarder() const { return m_decodeHints.tryHarder(); }
+    bool tryHarder() const { return m_readerOptions.tryHarder(); }
     void setTryHarder(const bool value);
-    bool tryRotate() const { return m_decodeHints.tryRotate(); }
+    bool tryRotate() const { return m_readerOptions.tryRotate(); }
     void setTryRotate(const bool value);
-    bool tryInvert() const { return m_decodeHints.tryInvert(); }
+    bool tryInvert() const { return m_readerOptions.tryInvert(); }
     void setTryInvert(const bool value);
-    bool tryDownscale() const { return m_decodeHints.tryDownscale(); }
+    bool tryDownscale() const { return m_readerOptions.tryDownscale(); }
     void setTryDownscale(const bool value);
 };
 

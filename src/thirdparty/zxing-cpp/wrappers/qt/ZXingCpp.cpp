@@ -94,19 +94,19 @@ inline QList<Result> QListResults(ZXing::Results&& zxres)
     return res;
 }
 
-Result ZXingCpp::ReadBarcode(const QImage &img, const ZXing::DecodeHints &hints)
+Result ZXingCpp::ReadBarcode(const QImage &img, const ZXing::ReaderOptions &opts)
 {
-    auto res = ReadBarcodes(img, ZXing::DecodeHints(hints).setMaxNumberOfSymbols(1));
+    auto res = ReadBarcodes(img, ZXing::ReaderOptions(opts).setMaxNumberOfSymbols(1));
     return !res.isEmpty() ? res.takeFirst() : Result();
 }
 
-Result ZXingCpp::ReadBarcode(const QVideoFrame &frame, const ZXing::DecodeHints &hints, const QRect captureRect)
+Result ZXingCpp::ReadBarcode(const QVideoFrame &frame, const ZXing::ReaderOptions &opts, const QRect captureRect)
 {
-    auto res = ReadBarcodes(frame, ZXing::DecodeHints(hints).setMaxNumberOfSymbols(1), captureRect);
+    auto res = ReadBarcodes(frame, ZXing::ReaderOptions(opts).setMaxNumberOfSymbols(1), captureRect);
     return !res.isEmpty() ? res.takeFirst() : Result();
 }
 
-QList<Result> ZXingCpp::ReadBarcodes(const QImage &img, const ZXing::DecodeHints &hints)
+QList<Result> ZXingCpp::ReadBarcodes(const QImage &img, const ZXing::ReaderOptions &opts)
 {
     auto ImgFmtFromQImg = [](const QImage &img) {
         switch (img.format()) {
@@ -128,13 +128,13 @@ QList<Result> ZXingCpp::ReadBarcodes(const QImage &img, const ZXing::DecodeHints
     auto exec = [&](const QImage &img) {
         return QListResults(ZXing::ReadBarcodes({img.bits(), img.width(), img.height(),
                                                  ImgFmtFromQImg(img), static_cast<int>(img.bytesPerLine())},
-                                                hints));
+                                                opts));
     };
 
     return (ImgFmtFromQImg(img) == ZXing::ImageFormat::None) ? exec(img.convertToFormat(QImage::Format_Grayscale8)) : exec(img);
 }
 
-QList<Result> ZXingCpp::ReadBarcodes(const QVideoFrame &frame, const ZXing::DecodeHints &hints, const QRect captureRect)
+QList<Result> ZXingCpp::ReadBarcodes(const QVideoFrame &frame, const ZXing::ReaderOptions &opts, const QRect captureRect)
 {
     auto img = frame; // shallow copy just get access to non-const map() function
     if (!frame.isValid() || !img.map(QVideoFrame::ReadOnly))
@@ -215,11 +215,11 @@ QList<Result> ZXingCpp::ReadBarcodes(const QVideoFrame &frame, const ZXing::Deco
         return QListResults(ZXing::ReadBarcodes(
             ZXing::ImageView(img.bits(FIRST_PLANE) + pixOffset, img.width(), img.height(), fmt,
                              img.bytesPerLine(FIRST_PLANE), pixStride).cropped(captureRect.left(), captureRect.top(),
-                                                                               captureRect.width(), captureRect.height()), hints));
+                                                                               captureRect.width(), captureRect.height()), opts));
     }
     else
     {
-        return ReadBarcodes(img.toImage().copy(captureRect), hints);
+        return ReadBarcodes(img.toImage().copy(captureRect), opts);
     }
 }
 
@@ -282,7 +282,10 @@ bool ZXingCpp::saveImage(const QString &data, int width, int height, int margins
                          const QColor backgroundColor, const QColor foregroundColor,
                          const QUrl &fileurl)
 {
-    //qDebug() << "ZXingCpp::saveImage(" << data << fileurl;
+    qDebug() << "ZXingCpp::saveImage(" << data << fileurl << ")";
+    qDebug() << "width:" << width << "height:" << height << "margins:" << margins;
+    qDebug() << "format:" << format << "encoding:" << encoding << "eccLevel:" << eccLevel;
+
     if (data.isEmpty() || fileurl.isEmpty()) return false;
     bool status = false;
 

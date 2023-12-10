@@ -117,6 +117,7 @@ build_readers {
                $${PWD}/core/src/MultiFormatReader.h \
                $${PWD}/core/src/PerspectiveTransform.h \
                $${PWD}/core/src/Reader.h \
+               $${PWD}/core/src/ReaderOptions.h \
                $${PWD}/core/src/ReadBarcode.h \
                $${PWD}/core/src/ReedSolomonDecoder.h \
                $${PWD}/core/src/Result.h \

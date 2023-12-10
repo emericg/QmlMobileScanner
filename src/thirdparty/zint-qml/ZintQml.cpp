@@ -86,6 +86,10 @@ QImage ZintQml::generateImage(const QString &data, const int width, const int he
                               const int format, const int encoding, const int eccLevel,
                               const QColor backgroundColor, const QColor foregroundColor)
 {
+    Q_UNUSED(width)
+    Q_UNUSED(height)
+    Q_UNUSED(eccLevel)
+
     bool format_rgb = (format == BARCODE_ULTRA);
     bool format_rotated = false;
 

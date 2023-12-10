@@ -13,8 +13,8 @@
 
 ZXingCppVideoFilter::ZXingCppVideoFilter(QObject *parent) : QObject(parent)
 {
-    m_decodeHints.setMinLineCount(3); // default is 2
-    m_decodeHints.setMaxNumberOfSymbols(4); // default is 255
+    m_readerOptions.setMinLineCount(3); // default is 2
+    m_readerOptions.setMaxNumberOfSymbols(4); // default is 255
 }
 
 ZXingCppVideoFilter::~ZXingCppVideoFilter()
@@ -53,8 +53,8 @@ Result ZXingCppVideoFilter::process(const QVideoFrame &frame)
                 imageToProcess = image.copy(m_captureRect);
             }
 
-            auto results = ZXingCpp::ReadBarcodes(imageToProcess, m_decodeHints);
-            //auto results = ZXingCpp::ReadBarcodes(frame, m_decodeHints, m_captureRect);
+            auto results = ZXingCpp::ReadBarcodes(imageToProcess, m_readerOptions);
+            //auto results = ZXingCpp::ReadBarcodes(frame, m_readerOptions, m_captureRect);
 
             for (auto &r: results)
             {
@@ -90,43 +90,43 @@ Result ZXingCppVideoFilter::process(const QVideoFrame &frame)
 
 void ZXingCppVideoFilter::setTryHarder(const bool value)
 {
-    if (m_decodeHints.tryHarder() != value)
+    if (m_readerOptions.tryHarder() != value)
     {
-        m_decodeHints.setTryHarder(value);
+        m_readerOptions.setTryHarder(value);
         emit tryHarderChanged();
     }
 }
 
 void ZXingCppVideoFilter::setTryRotate(const bool value)
 {
-    if (m_decodeHints.tryRotate() != value)
+    if (m_readerOptions.tryRotate() != value)
     {
-        m_decodeHints.setTryRotate(value);
+        m_readerOptions.setTryRotate(value);
         emit tryRotateChanged();
     }
 }
 
 void ZXingCppVideoFilter::setTryInvert(const bool value)
 {
-    if (m_decodeHints.tryInvert() != value)
+    if (m_readerOptions.tryInvert() != value)
     {
-        m_decodeHints.setTryInvert(value);
+        m_readerOptions.setTryInvert(value);
         emit tryInvertChanged();
     }
 }
 
 void ZXingCppVideoFilter::setTryDownscale(const bool value)
 {
-    if (m_decodeHints.tryDownscale() != value)
+    if (m_readerOptions.tryDownscale() != value)
     {
-        m_decodeHints.setTryDownscale(value);
+        m_readerOptions.setTryDownscale(value);
         emit tryDownscaleChanged();
     }
 }
 
 int ZXingCppVideoFilter::formats() const noexcept
 {
-    auto fmts = m_decodeHints.formats();
+    auto fmts = m_readerOptions.formats();
     return *reinterpret_cast<int*>(&fmts);
 }
 
@@ -134,7 +134,7 @@ void ZXingCppVideoFilter::setFormats(int newVal)
 {
     if (formats() != newVal)
     {
-        m_decodeHints.setFormats(static_cast<ZXing::BarcodeFormat>(newVal));
+        m_readerOptions.setFormats(static_cast<ZXing::BarcodeFormat>(newVal));
         emit formatsChanged();
     }
 }
