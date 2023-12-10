@@ -16,6 +16,8 @@ namespace ZXing::QRCode {
 static constexpr uint32_t FORMAT_INFO_MASK_MODEL2 = 0x5412;
 static constexpr uint32_t FORMAT_INFO_MASK_MODEL1 = 0x2825;
 static constexpr uint32_t FORMAT_INFO_MASK_MICRO = 0x4445;
+static constexpr uint32_t FORMAT_INFO_MASK_RMQR = 0x1FAB2; // Finder pattern side
+static constexpr uint32_t FORMAT_INFO_MASK_RMQR_SUB = 0x20A7B; // Finder sub pattern side
 
 class FormatInformation
 {
@@ -34,8 +36,9 @@ public:
 
 	static FormatInformation DecodeQR(uint32_t formatInfoBits1, uint32_t formatInfoBits2);
 	static FormatInformation DecodeMQR(uint32_t formatInfoBits);
+	static FormatInformation DecodeRMQR(uint32_t formatInfoBits1, uint32_t formatInfoBits2);
 
-	// Hamming distance of the 32 masked codes is 7, by construction, so <= 3 bits differing means we found a match
+	// Hamming distance of the 32 masked codes is 7 (64 and 8 for rMQR), by construction, so <= 3 bits differing means we found a match
 	bool isValid() const { return hammingDistance <= 3; }
 
 	Type type() const
@@ -43,6 +46,8 @@ public:
 		switch (mask) {
 		case FORMAT_INFO_MASK_MODEL1: return Type::Model1;
 		case FORMAT_INFO_MASK_MICRO: return Type::Micro;
+		case FORMAT_INFO_MASK_RMQR: [[fallthrough]];
+		case FORMAT_INFO_MASK_RMQR_SUB: return Type::rMQR;
 		default: return Type::Model2;
 		}
 	}
