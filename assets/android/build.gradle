@@ -1,7 +1,7 @@
 buildscript {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 
     dependencies {
@@ -11,19 +11,19 @@ buildscript {
 
 repositories {
     google()
-    jcenter()
+    mavenCentral()
 }
 
 apply plugin: 'com.android.application'
-
-def getTimestampStr() { return new Date().format('yyyyMMddHHmmss') }
-def timestampInt = (int)(new Date().getTime() / 1000 / 1)
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.core:core:1.6.1'
 }
+
+def getTimestampStr() { return new Date().format('yyyyMMddHHmmss') }
+def timestampInt = (int)(new Date().getTime() / 1000 / 1)
 
 android {
     /*******************************************************

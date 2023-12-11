@@ -25,15 +25,13 @@
         <file>Writer_ZXingCpp.qml</file>
         <file>Writer_Zint.qml</file>
 
-        <file alias="SelectorGrid.qml">components/SelectorGrid.qml</file>
-        <file alias="SelectorGridItem.qml">components/SelectorGridItem.qml</file>
-        <file alias="WidgetBarcodeHistory.qml">components/WidgetBarcodeHistory.qml</file>
-        <file alias="WidgetBarcodeResult.qml">components/WidgetBarcodeResult.qml</file>
+        <file alias="PopupBarcodeFullscreen.qml">popups/PopupBarcodeFullscreen.qml</file>
 
         <file alias="MenuDebug.qml">components/MenuDebug.qml</file>
         <file alias="MenuCamera.qml">components/MenuCamera.qml</file>
         <file alias="MenuFormats.qml">components/MenuFormats.qml</file>
         <file alias="MenuScreens.qml">components/MenuScreens.qml</file>
-        <file alias="PopupBarcodeFullscreen.qml">popups/PopupBarcodeFullscreen.qml</file>
+        <file alias="WidgetBarcodeHistory.qml">components/WidgetBarcodeHistory.qml</file>
+        <file alias="WidgetBarcodeResult.qml">components/WidgetBarcodeResult.qml</file>
     </qresource>
 </RCC>

@@ -34,7 +34,7 @@ Column {
     }
 
     Repeater {
-        model: (settingsManager.backend === "zxingcpp") ? formatsAvailable_zxingcpp :formatsAvailable_qzxing
+        model: (settingsManager.backend === "zxingcpp") ? formatsAvailable_zxingcpp : formatsAvailable_qzxing
 
         Item {
             width: parent.width
