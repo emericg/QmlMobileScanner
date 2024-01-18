@@ -1,7 +1,7 @@
 MobileScanner
 =============
 
-[![GitHub action](https://img.shields.io/github/actions/workflow/status/emericg/MobileScanner/builds_desktop.yml?style=flat-square)](https://github.com/emericg/MobileScanner/actions)
+[![GitHub action](https://img.shields.io/github/actions/workflow/status/emericg/MobileScanner/builds_mobile.yml?style=flat-square)](https://github.com/emericg/MobileScanner/actions)
 [![GitHub issues](https://img.shields.io/github/issues/emericg/MobileScanner.svg?style=flat-square)](https://github.com/emericg/MobileScanner/issues)
 [![License: GPL v3](https://img.shields.io/badge/license-GPL%20v3-brightgreen.svg?style=flat-square)](http://www.gnu.org/licenses/gpl-3.0)
 

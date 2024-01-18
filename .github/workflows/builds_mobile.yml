@@ -1,0 +1,108 @@
+#-------------------------------------------------------------------------------
+# Workflow configuration
+#-------------------------------------------------------------------------------
+
+name: "Mobile CI builds"
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+#-------------------------------------------------------------------------------
+# Define application name & version
+#-------------------------------------------------------------------------------
+
+env:
+  APP_NAME: "MobileScanner"
+  APP_VERSION: "0.1"
+  QT_VERSION: "6.6.1"
+
+#-------------------------------------------------------------------------------
+# Workflow jobs
+#-------------------------------------------------------------------------------
+
+jobs:
+  ## Android build #############################################################
+  build-android:
+    name: "Android CI build"
+    runs-on: ubuntu-20.04
+    steps:
+      # Checkout the repository (and submodules)
+      - name: Checkout repository (and submodules)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      # Java environment (already installed in 'ubuntu-20.04')
+      #- name: Install JDK environment
+      #  uses: actions/setup-java@v2
+      #  with:
+      #    distribution: 'zulu'
+      #    java-version: '11'
+
+      # Android environment (already installed in 'ubuntu-20.04')
+      #- name: Setup Android SDK
+      #  uses: android-actions/setup-android@v2
+      #- name: Install Android SDK / NDK / tools
+      #  run: |
+      #       sdkmanager "platforms;android-34"
+      #       sdkmanager "ndk;26.1.10909125"
+      #       sdkmanager "build-tools;34.0.0"
+
+      # Install Qt (Android & desktop)
+      - name: Install Qt (Android & desktop)
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: ${{env.QT_VERSION}}
+          host: 'linux'
+          target: 'android'
+          arch: 'android_arm64_v8a'
+          modules: qtshadertools qt5compat
+          aqtversion: '==3.1.*'
+          py7zrversion: '==0.20.*'
+          extra: '--autodesktop'
+
+      # Setup env
+      - name: Setup env
+        run: |
+             qmake --version
+
+      # Build application
+      - name: Build application
+        run: |
+             qmake ${{env.APP_NAME}}.pro CONFIG+=release
+             make -j$(nproc)
+
+  ## iOS build #################################################################
+  build-ios:
+    name: "iOS CI build"
+    runs-on: macos-12
+    steps:
+      # Checkout the repository (and submodules)
+      - name: Checkout repository (and submodules)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      # Install Qt (iOS & desktop)
+      - name: Install Qt (iOS & desktop)
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: ${{env.QT_VERSION}}
+          host: 'mac'
+          target: 'ios'
+          modules: qtshadertools qt5compat
+          aqtversion: '==3.1.*'
+          py7zrversion: '==0.20.*'
+          extra: '--autodesktop'
+
+      # Setup env
+      - name: Setup env
+        run: |
+             qmake --version
+
+      # Build application
+      - name: Build application
+        run: |
+             qmake ${{env.APP_NAME}}.pro CONFIG+=release
+             make -j`sysctl -n hw.logicalcpu`
