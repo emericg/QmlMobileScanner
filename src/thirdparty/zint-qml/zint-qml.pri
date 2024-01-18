@@ -1,6 +1,6 @@
 #
-# qmake project file for zint
-# version 2.12+
+# qmake project file for zint-qml
+# version 2.13
 #
 
 CONFIG += c++17

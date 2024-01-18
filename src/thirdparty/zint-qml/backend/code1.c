@@ -37,6 +37,16 @@
 #include "reedsol.h"
 #include "large.h"
 
+#define C1_MAX_CWS  1480 /* Max data codewords for Version H */
+#define C1_MAX_ECCS 560 /* Max ECC codewords for Version H */
+
+#define C1_ASCII    1
+#define C1_C40      2
+#define C1_DECIMAL  3
+#define C1_TEXT     4
+#define C1_EDI      5
+#define C1_BYTE     6
+
 /* Add solid bar */
 static void c1_horiz(struct zint_symbol *symbol, const int row_no, const int full) {
     int i;
@@ -447,6 +457,10 @@ static int c1_c40text_cnt(const int current_mode, const int gs1, unsigned char i
         return 2;
     }
     cnt = 1;
+    if (input & 0x80) {
+        cnt += 2;
+        input -= 128;
+    }
     if ((current_mode == C1_C40 && c40_shift[input]) || (current_mode == C1_TEXT && text_shift[input])) {
         cnt += 1;
     }
@@ -473,7 +487,7 @@ static void c1_eci_escape(const int eci, unsigned char source[], const int lengt
 /* Convert to codewords */
 static int c1_encode(struct zint_symbol *symbol, unsigned char source[], int length, const int eci,
             const int seg_count, const int gs1, unsigned int target[], int *p_tp, int *p_last_mode) {
-    int current_mode, next_mode;
+    int current_mode, next_mode, last_mode;
     int sp = 0;
     int tp = *p_tp;
     int i;
@@ -559,6 +573,7 @@ static int c1_encode(struct zint_symbol *symbol, unsigned char source[], int len
     }
 
     do {
+        last_mode = current_mode;
         if (current_mode != next_mode) {
             /* Change mode */
             switch (next_mode) {
@@ -621,6 +636,9 @@ static int c1_encode(struct zint_symbol *symbol, unsigned char source[], int len
 
                         /* Step B6 */
                         next_mode = c1_look_ahead_test(source, length, sp, current_mode, gs1);
+                        if (next_mode == last_mode) { /* Avoid looping on latch (ticket #300 (#8) Andre Maute) */
+                            next_mode = C1_ASCII;
+                        }
 
                         if (next_mode == C1_ASCII) {
                             if (debug_print) printf("ASC(%d) ", source[sp]);
@@ -836,7 +854,7 @@ static int c1_encode(struct zint_symbol *symbol, unsigned char source[], int len
             }
         }
 
-        if (tp > 1480) {
+        if (tp > C1_MAX_CWS) {
             if (debug_print) fputc('\n', stdout);
             /* Data is too large for symbol */
             return 0;
@@ -938,7 +956,7 @@ static int c1_encode(struct zint_symbol *symbol, unsigned char source[], int len
     }
 
     /* Re-check length of data */
-    if (tp > 1480) {
+    if (tp > C1_MAX_CWS) {
         /* Data is too large for symbol */
         return 0;
     }
@@ -1120,7 +1138,7 @@ INTERNAL int codeone(struct zint_symbol *symbol, struct zint_seg segs[], const i
 
     } else if (symbol->option_2 == 10) {
         /* Version T */
-        unsigned int target[90 + 2]; /* Allow for 90 BYTE mode (+ latch and byte count) */
+        unsigned int target[C1_MAX_CWS + C1_MAX_ECCS]; /* Use same buffer size as A to H to avail of loop checks */
         unsigned int ecc[22];
         int data_length;
         int data_cw, ecc_cw, block_width;
@@ -1206,7 +1224,7 @@ INTERNAL int codeone(struct zint_symbol *symbol, struct zint_seg segs[], const i
 
     } else {
         /* Versions A to H */
-        unsigned int target[1480 + 560];
+        unsigned int target[C1_MAX_CWS + C1_MAX_ECCS];
         unsigned int sub_data[185], sub_ecc[70];
         int data_length;
         int data_cw;

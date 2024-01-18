@@ -31,9 +31,7 @@
 /* SPDX-License-Identifier: BSD-3-Clause */
 
 #include <assert.h>
-#ifdef ZINT_TEST
 #include <stdio.h>
-#endif
 #include "common.h"
 
 /* Converts a character 0-9, A-F to its equivalent integer value */
@@ -592,6 +590,21 @@ INTERNAL void segs_cpy(const struct zint_symbol *symbol, const struct zint_seg s
     }
 }
 
+/* Helper for ZINT_DEBUG_PRINT to put all but graphical ASCII in angle brackets */
+INTERNAL char *debug_print_escape(const unsigned char *source, const int first_len, char *buf) {
+    int i, j = 0;
+    for (i = 0; i < first_len; i++) {
+        const unsigned char ch = source[i];
+        if (ch < 32 || ch >= 127) {
+            j += sprintf(buf + j, "<%03o>", ch & 0xFF);
+        } else {
+            buf[j++] = ch;
+        }
+    }
+    buf[j] = '\0';
+    return buf;
+}
+
 #ifdef ZINT_TEST
 /* Dumps hex-formatted codewords in symbol->errtxt (for use in testing) */
 INTERNAL void debug_test_codeword_dump(struct zint_symbol *symbol, const unsigned char *codewords, const int length) {
@@ -603,6 +616,24 @@ INTERNAL void debug_test_codeword_dump(struct zint_symbol *symbol, const unsigne
     }
     for (i = 0; i < max; i++) {
         sprintf(symbol->errtxt + cnt_len + i * 3, "%02X ", codewords[i]);
+    }
+    symbol->errtxt[strlen(symbol->errtxt) - 1] = '\0'; /* Zap last space */
+}
+
+/* Dumps decimal-formatted codewords in symbol->errtxt (for use in testing) */
+INTERNAL void debug_test_codeword_dump_short(struct zint_symbol *symbol, const short *codewords, const int length) {
+    int i, max = 0, cnt_len, errtxt_len;
+    char temp[20];
+    errtxt_len = sprintf(symbol->errtxt, "(%d) ", length); /* Place the number of codewords at the front */
+    for (i = 0, cnt_len = errtxt_len; i < length; i++) {
+        cnt_len += sprintf(temp, "%d ", codewords[i]);
+        if (cnt_len > 92) {
+            break;
+        }
+        max++;
+    }
+    for (i = 0; i < max; i++) {
+        errtxt_len += sprintf(symbol->errtxt + errtxt_len, "%d ", codewords[i]);
     }
     symbol->errtxt[strlen(symbol->errtxt) - 1] = '\0'; /* Zap last space */
 }
