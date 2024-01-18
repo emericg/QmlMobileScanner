@@ -63,14 +63,14 @@ include(src/thirdparty/AppUtils/AppUtils.pri)
 include(src/thirdparty/MobileUI/MobileUI.pri)
 include(src/thirdparty/MobileSharing/MobileSharing.pri)
 
-# Barcode scanner (zxing-cpp)
+# Barcode reader/writer (zxing-cpp)
 CONFIG(zxingcpp, zxingcpp|qzxing) {
     message("Building MobileScanner with zxing-cpp backend")
     include(src/thirdparty/zxing-cpp/zxing-cpp.pri)
     DEFINES += zxingcpp
 }
 
-# Barcode scanner (QZXing)
+# Barcode reader/writer (QZXing)
 CONFIG(qzxing, zxingcpp|qzxing) {
     message("Building MobileScanner with QZXing backend")
     include(src/thirdparty/QZXing/QZXing.pri)

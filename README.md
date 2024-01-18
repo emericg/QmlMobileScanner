@@ -64,6 +64,27 @@ Demo barcode & QR code scanner based on qzxing and zxing-cpp libraries.
 [zint](https://github.com/zint/zint/) is a barcode encoding library supporting over 50 symbologies including Code 128, Data Matrix, USPS OneCode, EAN-128, UPC/EAN, ITF, QR Code, Code 16k, PDF417, MicroPDF417, LOGMARS, Maxicode, GS1 DataBar, Aztec, Composite Symbols and more.
 
 
+## Documentation
+
+#### Dependencies
+
+You will need a C++17 compiler and Qt 6.5+ with the following 'additional librairies':  
+- Qt 5 Compatibility Module
+
+For Android builds, you'll need the appropriates JDK (11) SDK (23+) and NDK (25+). You can customize Android build environment using the `assets/android/gradle.properties` file.  
+For Windows builds, you'll need the MSVC 2019+ compiler. Bluetooth won't work with MinGW.  
+For macOS and iOS builds, you'll need Xcode 13+ installed.  
+
+#### Building MobileScanner
+
+```bash
+$ git clone https://github.com/emericg/MobileScanner.git
+$ cd MobileScanner/
+$ qmake6
+$ make
+```
+
+
 ## Third party projects used by MobileScanner
 
 * [Qt6](https://www.qt.io) ([LGPL v3](https://www.gnu.org/licenses/lgpl-3.0.txt))

@@ -15,8 +15,8 @@ Column {
 
     Repeater {
         model: ListModel {
-            ListElement { idx: 1; txt: "Barcode scanner"; src: "qrc:/assets/icons_material/duotone-qr_code_scanner-24px.svg"; }
-            ListElement { idx: 2; txt: "Barcode generator"; src: "qrc:/assets/icons_material/baseline-qr_code_2-24px.svg"; }
+            ListElement { idx: 1; txt: "Barcode reader"; src: "qrc:/assets/icons_material/duotone-qr_code_scanner-24px.svg"; }
+            ListElement { idx: 2; txt: "Barcode writer"; src: "qrc:/assets/icons_material/baseline-qr_code_2-24px.svg"; }
             ListElement { idx: 3; txt: "Barcode history"; src: "qrc:/assets/icons_material/duotone-list-24px.svg"; }
             ListElement { idx: 4; txt: "Settings"; src: "qrc:/assets/icons_material/outline-settings-24px.svg"; }
             ListElement { idx: 5; txt: "About"; src: "qrc:/assets/icons_material/outline-info-24px.svg"; }

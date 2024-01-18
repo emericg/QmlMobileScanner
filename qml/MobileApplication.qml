@@ -313,7 +313,7 @@ ApplicationWindow {
             },
             State {
                 name: "ScreenBarcodeReader"
-                PropertyChanges { target: appHeader; headerTitle: qsTr("MobileScanner"); }
+                PropertyChanges { target: appHeader; headerTitle: ""; }
                 PropertyChanges { target: screenTutorial; visible: false; }
                 PropertyChanges { target: screenMainMenu; visible: false; }
                 PropertyChanges { target: screenBarcodeReader; visible: true; }
@@ -326,7 +326,7 @@ ApplicationWindow {
             },
             State {
                 name: "ScreenBarcodeWriter"
-                PropertyChanges { target: appHeader; headerTitle: qsTr("MobileScanner"); }
+                PropertyChanges { target: appHeader; headerTitle: qsTr("Barcode writer"); }
                 PropertyChanges { target: screenTutorial; visible: false; }
                 PropertyChanges { target: screenMainMenu; visible: false; }
                 PropertyChanges { target: screenBarcodeReader; visible: false; }
@@ -339,7 +339,7 @@ ApplicationWindow {
             },
             State {
                 name: "ScreenBarcodeHistory"
-                PropertyChanges { target: appHeader; headerTitle: qsTr("Barcodes"); }
+                PropertyChanges { target: appHeader; headerTitle: qsTr("Barcodes history"); }
                 PropertyChanges { target: screenTutorial; visible: false; }
                 PropertyChanges { target: screenMainMenu; visible: false; }
                 PropertyChanges { target: screenBarcodeReader; visible: false; }

@@ -117,7 +117,7 @@ Loader {
                         fullColor: true
                         primaryColor: (Theme.currentTheme === ThemeEngine.THEME_NIGHT) ? Theme.colorHeader : "#5483EF"
 
-                        onClicked: Qt.openUrlExternally("https://emeric.io/MobileScanner")
+                        onClicked: Qt.openUrlExternally("https://github.com/emericg/MobileScanner")
                     }
 
                     ButtonWireframeIconCentered {
@@ -129,7 +129,7 @@ Loader {
                         fullColor: true
                         primaryColor: (Theme.currentTheme === ThemeEngine.THEME_NIGHT) ? Theme.colorHeader : "#5483EF"
 
-                        onClicked: Qt.openUrlExternally("https://emeric.io/MobileScanner/support.html")
+                        onClicked: Qt.openUrlExternally("https://github.com/emericg/MobileScanner/issues")
                     }
 
                     ButtonWireframeIconCentered {
@@ -179,7 +179,8 @@ Loader {
                     fullColor: true
                     primaryColor: (Theme.currentTheme === ThemeEngine.THEME_NIGHT) ? Theme.colorHeader : "#5483EF"
 
-                    onClicked: Qt.openUrlExternally("https://emeric.io/MobileScanner")
+                    onClicked: Qt.openUrlExternally("https://github.com/emericg/MobileScanner")
+                    //onClicked: Qt.openUrlExternally("https://emeric.io/MobileScanner")
                 }
                 ButtonWireframeIconCentered {
                     anchors.verticalCenter: parent.verticalCenter
@@ -191,7 +192,8 @@ Loader {
                     fullColor: true
                     primaryColor: (Theme.currentTheme === ThemeEngine.THEME_NIGHT) ? Theme.colorHeader : "#5483EF"
 
-                    onClicked: Qt.openUrlExternally("https://emeric.io/MobileScanner/support.html")
+                    onClicked: Qt.openUrlExternally("https://github.com/emericg/MobileScanner/issues")
+                    //onClicked: Qt.openUrlExternally("https://emeric.io/MobileScanner/support.html")
                 }
             }
 
@@ -201,7 +203,7 @@ Loader {
 
             ListItem { // description
                 width: parent.width
-                text: qsTr("Demo barcode & qrcode scanner based on qzxing and zxing-cpp libraries.")
+                text: qsTr("Barcode & QRcode scanner reader/writer based on qzxing and zxing-cpp libraries.")
                 iconSource: "qrc:/assets/icons_material/outline-info-24px.svg"
             }
 
@@ -363,44 +365,66 @@ Loader {
 
             ListSeparatorPadded { visible: settingsManager.showDebug }
 
-            Column { // list debug stuff
+            Item { // list debug stuff
                 anchors.left: parent.left
-                anchors.leftMargin: screenPaddingLeft + appHeader.headerPosition
+                anchors.leftMargin: screenPaddingLeft + Theme.componentMargin
                 anchors.right: parent.right
                 anchors.rightMargin: screenPaddingRight + Theme.componentMargin
 
                 visible: settingsManager.showDebug
-                spacing: Theme.componentMargin * 0.4
+                height: 16 + debugColumn.height
 
-                Text {
+                IconSvg {
+                    width: 24
+                    height: 24
+                    anchors.top: debugColumn.top
+                    anchors.topMargin: 4
+                    anchors.left: parent.left
+                    anchors.leftMargin: 4
+
+                    source: "qrc:/assets/icons_material/duotone-info-24px.svg"
                     color: Theme.colorSubText
-                    text: "app name: %1".arg(utilsApp.appName())
-                    font.pixelSize: Theme.fontSizeContent
                 }
-                Text {
-                    color: Theme.colorSubText
-                    text: "app version: %1".arg(utilsApp.appVersion())
-                    font.pixelSize: Theme.fontSizeContent
-                }
-                Text {
-                    color: Theme.colorSubText
-                    text: "backend: %1".arg(settingsManager.backend)
-                    font.pixelSize: Theme.fontSizeContent
-                }
-                Text {
-                    color: Theme.colorSubText
-                    text: "build mode: %1".arg(utilsApp.appBuildModeFull())
-                    font.pixelSize: Theme.fontSizeContent
-                }
-                Text {
-                    color: Theme.colorSubText
-                    text: "build date: %1".arg(utilsApp.appBuildDateTime())
-                    font.pixelSize: Theme.fontSizeContent
-                }
-                Text {
-                    color: Theme.colorSubText
-                    text: "Qt version: %1".arg(utilsApp.qtVersion())
-                    font.pixelSize: Theme.fontSizeContent
+
+                Column {
+                    id: debugColumn
+                    anchors.left: parent.left
+                    anchors.leftMargin: appHeader.headerPosition - parent.anchors.leftMargin
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    spacing: Theme.componentMargin * 0.4
+
+                    Text {
+                        color: Theme.colorSubText
+                        text: "App name: %1".arg(utilsApp.appName())
+                        font.pixelSize: Theme.fontSizeContent
+                    }
+                    Text {
+                        color: Theme.colorSubText
+                        text: "App version: %1".arg(utilsApp.appVersion())
+                        font.pixelSize: Theme.fontSizeContent
+                    }
+                    Text {
+                        color: Theme.colorSubText
+                        text: "Backend(s): %1".arg(settingsManager.backend) + (settingsManager.backend_zint ? " + zint" : "")
+                        font.pixelSize: Theme.fontSizeContent
+                    }
+                    Text {
+                        color: Theme.colorSubText
+                        text: "Build mode: %1".arg(utilsApp.appBuildModeFull())
+                        font.pixelSize: Theme.fontSizeContent
+                    }
+                    Text {
+                        color: Theme.colorSubText
+                        text: "Build date: %1".arg(utilsApp.appBuildDateTime())
+                        font.pixelSize: Theme.fontSizeContent
+                    }
+                    Text {
+                        color: Theme.colorSubText
+                        text: "Qt version: %1".arg(utilsApp.qtVersion())
+                        font.pixelSize: Theme.fontSizeContent
+                    }
                 }
             }
 

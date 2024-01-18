@@ -93,7 +93,7 @@ DrawerThemed {
 
                 DrawerItem {
                     highlighted: (appContent.state === "ScreenBarcodeReader")
-                    text: qsTr("Barcode sanner")
+                    text: qsTr("Barcode reader")
                     iconSource: "qrc:/assets/icons_material/duotone-qr_code_scanner-24px.svg"
 
                     onClicked: {
@@ -104,7 +104,7 @@ DrawerThemed {
 
                 DrawerItem {
                     highlighted: (appContent.state === "ScreenBarcodeWriter")
-                    text: qsTr("Barcode generator")
+                    text: qsTr("Barcode writer")
                     iconSource: "qrc:/assets/icons_material/baseline-qr_code_2-24px.svg"
 
                     onClicked: {
@@ -175,7 +175,7 @@ DrawerThemed {
             anchors.bottom: parent.bottom
 
             height: Math.max(screenPaddingBottom, screenPaddingNavbar)
-            color: Theme.colorStatusbar // so we can read the navigation bar
+            color: Theme.colorForeground // so we can read the navigation bar
             opacity: 0.85
         }
 
