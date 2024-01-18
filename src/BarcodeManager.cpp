@@ -30,6 +30,14 @@
 #include <QSqlError>
 #include <QSqlQuery>
 
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
+
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QJsonDocument>
+
 #if defined(zxingcpp)
 #include "ZXingCpp.h"
 #endif

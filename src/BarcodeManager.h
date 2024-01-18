@@ -28,6 +28,9 @@
 #include <QString>
 #include <QDateTime>
 
+class QNetworkAccessManager;
+class QNetworkReply;
+
 class Barcode;
 
 /* ************************************************************************** */
@@ -49,6 +52,9 @@ class BarcodeManager: public QObject
 
     QList <QObject *> m_barcodes_onscreen;
     QList <QObject *> m_barcodes_history;
+
+    QNetworkAccessManager *m_nwManager = nullptr;
+    QNetworkReply *firmwareReply = nullptr;
 
     QStringList m_colorsAvailable = {
         "HotPink", "Tomato", "Yellow", "Orange", "Gold", "LimeGreen",
