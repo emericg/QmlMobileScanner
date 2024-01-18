@@ -96,24 +96,38 @@ bool SettingsManager::readSettings()
         if (settings.contains("settings/defaultTab"))
             m_defaultTab = settings.value("settings/defaultTab").toString();
 
+        if (settings.contains("settings/backendWriter"))
+            m_backendWriter = settings.value("settings/backendWriter").toString();
+
         if (settings.contains("settings/formatsEnabled_zxingcpp"))
             m_formatsEnabled_zxingcpp = settings.value("settings/formatsEnabled_zxingcpp").toUInt();
         if (settings.contains("settings/formatsEnabled_qzxing"))
             m_formatsEnabled_qzxing = settings.value("settings/formatsEnabled_qzxing").toUInt();
 
+        ////
+
+        if (settings.contains("settings/saveBarcodes"))
+            m_save_barcodes = settings.value("settings/saveBarcodes").toBool();
+        if (settings.contains("settings/saveCamera"))
+            m_save_camera = settings.value("settings/saveCamera").toBool();
+        if (settings.contains("settings/saveGPS"))
+            m_save_gps = settings.value("settings/saveGPS").toBool();
+
+        ////
+
         if (settings.contains("settings/showDebug"))
             m_showDebug = settings.value("settings/showDebug").toBool();
 
-        if (settings.contains("settings/scanfullscreen"))
-            m_scan_fullscreen = settings.value("settings/scanfullscreen").toBool();
-        if (settings.contains("settings/tryHarder"))
-            m_scan_tryHarder = settings.value("settings/tryHarder").toBool();
-        if (settings.contains("settings/tryRotate"))
-            m_scan_tryRotate = settings.value("settings/tryRotate").toBool();
-        if (settings.contains("settings/tryInvert"))
-            m_scan_tryInvert = settings.value("settings/tryInvert").toBool();
-        if (settings.contains("settings/tryDownscale"))
-            m_scan_tryDownscale = settings.value("settings/tryDownscale").toBool();
+        if (settings.contains("settings/scanFullscreen"))
+            m_scan_fullscreen = settings.value("settings/scanFullscreen").toBool();
+        if (settings.contains("settings/scanTryHarder"))
+            m_scan_tryHarder = settings.value("settings/scanTryHarder").toBool();
+        if (settings.contains("settings/scanTryRotate"))
+            m_scan_tryRotate = settings.value("settings/scanTryRotate").toBool();
+        if (settings.contains("settings/scanTryInvert"))
+            m_scan_tryInvert = settings.value("settings/scanTryInvert").toBool();
+        if (settings.contains("settings/scanTryDownscale"))
+            m_scan_tryDownscale = settings.value("settings/scanTryDownscale").toBool();
 
         status = true;
     }
@@ -145,14 +159,20 @@ bool SettingsManager::writeSettings()
         settings.setValue("settings/appThemeAuto", m_appThemeAuto);
 
         settings.setValue("settings/defaultTab", m_defaultTab);
+        settings.setValue("settings/backendWriter", m_backendWriter);
         settings.setValue("settings/formatsEnabled_zxingcpp", m_formatsEnabled_zxingcpp);
         settings.setValue("settings/formatsEnabled_qzxing", m_formatsEnabled_qzxing);
+
+        settings.setValue("settings/saveBarcodes", m_save_barcodes);
+        settings.setValue("settings/saveCamera", m_save_camera);
+        settings.setValue("settings/saveGPS", m_save_gps);
+
         settings.setValue("settings/showDebug", m_showDebug);
-        settings.setValue("settings/scanfullscreen", m_scan_fullscreen);
-        settings.setValue("settings/tryHarder", m_scan_tryHarder);
-        settings.setValue("settings/tryRotate", m_scan_tryRotate);
-        settings.setValue("settings/tryInvert", m_scan_tryInvert);
-        settings.setValue("settings/tryDownscale", m_scan_tryDownscale);
+        settings.setValue("settings/scanFullscreen", m_scan_fullscreen);
+        settings.setValue("settings/scanTryHarder", m_scan_tryHarder);
+        settings.setValue("settings/scanTryRotate", m_scan_tryRotate);
+        settings.setValue("settings/scanTryInvert", m_scan_tryInvert);
+        settings.setValue("settings/scanTryDownscale", m_scan_tryDownscale);
 
         if (settings.status() == QSettings::NoError)
         {
@@ -181,10 +201,15 @@ void SettingsManager::resetSettings()
     Q_EMIT appThemeAutoChanged();
 
     m_defaultTab = "reader";
+    m_backendWriter = "";
     m_formatsEnabled_zxingcpp = 0xffffffff; // ZXing::LinearCodes | ZXing::MatrixCodes;
     m_formatsEnabled_qzxing = 0xffffffff; // QZXing::LinearCodes | QZXing::MatrixCodes;
-    m_showDebug = false;
 
+    m_save_barcodes = false;
+    m_save_camera = false;
+    m_save_gps = false;
+
+    m_showDebug = false;
     m_scan_fullscreen = false;
     m_scan_tryHarder = true;
     m_scan_tryRotate = true;
@@ -221,18 +246,45 @@ void SettingsManager::setAppThemeAuto(const bool value)
 
 /* ************************************************************************** */
 
-QString SettingsManager::getBackend() const
+QString SettingsManager::getBackendReader() const
 {
 #if defined(zxingcpp)
     return "zxingcpp";
 #elif defined(qzxing)
     return "qzxing";
-#elif defined(zint)
-    return "zint";
 #endif
 
-    qWarning() << "SettingsManager::getBackend() no backend set";
+    qWarning() << "SettingsManager::getBackendReader() no backend set";
     return "error";
+}
+
+QString SettingsManager::getBackendWriter() const
+{
+    if (m_backendWriter == "qzxing" && getBackendQZXing()) return "qzxing";
+    if (m_backendWriter == "zxingcpp" && getBackendZXingCpp()) return "zxingcpp";
+    if (m_backendWriter == "zint" && getBackendZint()) return "zint";
+
+    // fallbacks
+    if (getBackendZint()) return "zint";
+    if (getBackendZXingCpp()) return "zxingcpp";
+    if (getBackendQZXing()) return "qzxing";
+
+    qWarning() << "SettingsManager::getBackendWriter() no backend set";
+    return "error";
+}
+
+void SettingsManager::setBackendWriter(const QString &value)
+{
+    if (value == "" || value == "qzxing" || value == "zxingcpp" || value == "zint")
+    {
+        if (m_backendWriter != value)
+        {
+            m_backendWriter = value;
+            Q_EMIT backendWriterChanged();
+
+            writeSettings();
+        }
+    }
 }
 
 bool SettingsManager::getBackendQZXing() const
@@ -297,6 +349,39 @@ void SettingsManager::setFormatsEnabled(const unsigned value)
         writeSettings();
     }
 #endif
+}
+
+void SettingsManager::setSaveBarcode(const bool value)
+{
+    if (m_save_barcodes != value)
+    {
+        m_save_barcodes = value;
+        Q_EMIT saveChanged();
+
+        writeSettings();
+    }
+}
+
+void SettingsManager::setSaveCamera(const bool value)
+{
+    if (m_save_camera != value)
+    {
+        m_save_camera = value;
+        Q_EMIT saveChanged();
+
+        writeSettings();
+    }
+}
+
+void SettingsManager::setSaveGPS(const bool value)
+{
+    if (m_save_gps != value)
+    {
+        m_save_gps = value;
+        Q_EMIT saveChanged();
+
+        writeSettings();
+    }
 }
 
 void SettingsManager::setShowDebug(const bool value)

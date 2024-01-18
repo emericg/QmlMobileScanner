@@ -407,7 +407,7 @@ Loader {
                     }
                     Text {
                         color: Theme.colorSubText
-                        text: "Backend(s): %1".arg(settingsManager.backend) + (settingsManager.backend_zint ? " + zint" : "")
+                        text: "Backend(s): %1".arg(settingsManager.backend_reader) + (settingsManager.backend_zint ? " + zint" : "")
                         font.pixelSize: Theme.fontSizeContent
                     }
                     Text {

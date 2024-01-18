@@ -21,7 +21,7 @@ Column {
         ListElement { text: "MaxiCode"; value: 2048; }
         ListElement { text: "PDF417"; value: 4096; }
         ListElement { text: "QRCode"; value: 8192; }
-        ListElement { text: "MicroQRCode"; value: 65536; }
+        ListElement { text: "µQRCode"; value: 65536; }
     }
     ListModel {
         id: formatsAvailable_qzxing
@@ -34,7 +34,7 @@ Column {
     }
 
     Repeater {
-        model: (settingsManager.backend === "zxingcpp") ? formatsAvailable_zxingcpp : formatsAvailable_qzxing
+        model: (settingsManager.backend_writer === "zxingcpp") ? formatsAvailable_zxingcpp : formatsAvailable_qzxing
 
         Item {
             width: parent.width

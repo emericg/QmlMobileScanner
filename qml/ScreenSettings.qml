@@ -301,11 +301,252 @@ Loader {
                     }
                 }
 
+                Item {
+                    anchors.left: parent.left
+                    anchors.leftMargin: screenPaddingLeft + contentColumn.padMargin
+                    anchors.right: parent.right
+                    anchors.rightMargin: screenPaddingRight + contentColumn.padMargin
+                    height: 48
+
+                    Item {
+                        width: 56
+                        height: 48
+
+                        IconSvg {
+                            anchors.centerIn: parent
+                            width: 24
+                            height: 24
+                            color: Theme.colorIcon
+                            source: "qrc:/assets/icons_material/baseline-stars-24px.svg"
+                        }
+                    }
+
+                    Text {
+                        anchors.left: parent.left
+                        anchors.leftMargin: 64
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        text: qsTr("Default reader")
+                        textFormat: Text.PlainText
+                        font.pixelSize: Theme.fontSizeContent
+                        color: Theme.colorText
+                        wrapMode: Text.WordWrap
+                    }
+
+                    SelectorMenu {
+                        anchors.right: parent.right
+                        anchors.rightMargin: 12
+                        anchors.verticalCenter: parent.verticalCenter
+                        z: 1
+                        enabled: false
+
+                        model: ListModel {
+                            ListElement { idx: 1; txt: "qzxing"; src: ""; sz: 0; }
+                            ListElement { idx: 2; txt: "zxingcpp"; src: ""; sz: 0; }
+                        }
+                        currentSelection: {
+                            if (settingsManager.backend_reader === "qzxing") return 1
+                            if (settingsManager.backend_reader === "zxingcpp") return 2
+                            return 0
+                        }
+                    }
+                }
+
+                Item {
+                    anchors.left: parent.left
+                    anchors.leftMargin: screenPaddingLeft + contentColumn.padMargin
+                    anchors.right: parent.right
+                    anchors.rightMargin: screenPaddingRight + contentColumn.padMargin
+                    height: 48
+
+                    Item {
+                        width: 56
+                        height: 48
+
+                        IconSvg {
+                            anchors.centerIn: parent
+                            width: 24
+                            height: 24
+                            color: Theme.colorIcon
+                            source: "qrc:/assets/icons_material/baseline-stars-24px.svg"
+                        }
+                    }
+
+                    Text {
+                        anchors.left: parent.left
+                        anchors.leftMargin: 64
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        text: qsTr("Default writer")
+                        textFormat: Text.PlainText
+                        font.pixelSize: Theme.fontSizeContent
+                        color: Theme.colorText
+                        wrapMode: Text.WordWrap
+                    }
+
+                    SelectorMenu {
+                        anchors.right: parent.right
+                        anchors.rightMargin: 12
+                        anchors.verticalCenter: parent.verticalCenter
+                        z: 1
+
+                        model: ListModel {
+                            ListElement { idx: 1; txt: "qzxing"; src: ""; sz: 0; }
+                            ListElement { idx: 2; txt: "zxingcpp"; src: ""; sz: 0; }
+                            ListElement { idx: 3; txt: "zint"; src: ""; sz: 0; }
+                        }
+                        currentSelection: {
+                            if (settingsManager.backend_writer === "qzxing") return 1
+                            if (settingsManager.backend_writer === "zxingcpp") return 2
+                            if (settingsManager.backend_writer === "zint") return 3
+                            return 0
+                        }
+
+                        onMenuSelected: (index) => {
+                            console.log("SelectorMenu clicked #" + index)
+                            currentSelection = index
+
+                            if (index === 1) settingsManager.backend_writer = "qzxing"
+                            else if (index === 2) settingsManager.backend_writer = "zxingcpp"
+                            else if (index === 3) settingsManager.backend_writer = "zint"
+                        }
+                    }
+                }
+
                 ////////////////
 
                 ListTitle {
                     text: qsTr("Scanner")
                     icon: "qrc:/assets/icons_material/duotone-qr_code_2-24px.svg"
+                }
+
+                ////////////////
+
+                RowLayout { // save barcodes
+                    anchors.left: parent.left
+                    anchors.leftMargin: screenPaddingLeft + contentColumn.padMargin
+                    anchors.right: parent.right
+                    anchors.rightMargin: screenPaddingRight + contentColumn.padMargin
+                    height: 48
+
+                    Item {
+                        Layout.preferredWidth: 56
+
+                        IconSvg {
+                            anchors.centerIn: parent
+                            width: 24
+                            height: 24
+                            color: Theme.colorIcon
+                            source: "qrc:/assets/icons_material/baseline-save-24px.svg"
+                        }
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        Layout.alignment: Qt.AlignVCenter
+
+                        text: qsTr("Save barcode automatically")
+                        textFormat: Text.PlainText
+                        font.pixelSize: Theme.fontSizeContent
+                        color: Theme.colorText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    SwitchThemed {
+                        Layout.alignment: Qt.AlignVCenter
+                        z: 1
+
+                        checked: settingsManager.save_barcodes
+                        onClicked: settingsManager.save_barcodes = checked
+                    }
+                }
+
+                RowLayout { // save camera
+                    anchors.left: parent.left
+                    anchors.leftMargin: screenPaddingLeft + contentColumn.padMargin
+                    anchors.right: parent.right
+                    anchors.rightMargin: screenPaddingRight + contentColumn.padMargin
+                    height: 48
+
+                    Item {
+                        Layout.preferredWidth: 56
+
+                        IconSvg {
+                            anchors.centerIn: parent
+                            width: 24
+                            height: 24
+                            color: Theme.colorIcon
+                            source: "qrc:/assets/icons_material/duotone-camera-24px.svg"
+                        }
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        Layout.alignment: Qt.AlignVCenter
+
+                        text: qsTr("Save camera picture")
+                        textFormat: Text.PlainText
+                        font.pixelSize: Theme.fontSizeContent
+                        color: Theme.colorText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    SwitchThemed {
+                        Layout.alignment: Qt.AlignVCenter
+                        z: 1
+
+                        checked: settingsManager.save_camera
+                        onClicked: settingsManager.save_camera = checked
+                    }
+                }
+
+                RowLayout { // save GPS position
+                    anchors.left: parent.left
+                    anchors.leftMargin: screenPaddingLeft + contentColumn.padMargin
+                    anchors.right: parent.right
+                    anchors.rightMargin: screenPaddingRight + contentColumn.padMargin
+                    height: 48
+
+                    Item {
+                        Layout.preferredWidth: 56
+
+                        IconSvg {
+                            anchors.centerIn: parent
+                            width: 24
+                            height: 24
+                            color: Theme.colorIcon
+                            source: "qrc:/assets/icons_material/duotone-pin_drop-24px.svg"
+                        }
+                    }
+
+                    Text {
+                        Layout.fillWidth: true
+                        Layout.alignment: Qt.AlignVCenter
+
+                        text: qsTr("Save GPS position")
+                        textFormat: Text.PlainText
+                        font.pixelSize: Theme.fontSizeContent
+                        color: Theme.colorText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    SwitchThemed {
+                        Layout.alignment: Qt.AlignVCenter
+                        z: 1
+
+                        checked: settingsManager.save_gps
+                        onClicked: settingsManager.save_gps = checked
+                    }
+                }
+
+                ////////////////
+
+                ListTitle {
+                    text: qsTr("Debug")
+                    icon: "qrc:/assets/icons_material/duotone-bug_report-24px.svg"
                 }
 
                 ////////////////

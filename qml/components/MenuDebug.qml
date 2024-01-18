@@ -63,7 +63,7 @@ Column {
         width: parent.width
         height: 40
 
-        visible: (settingsManager.backend === "zxingcpp")
+        visible: (settingsManager.backend_reader === "zxingcpp")
 
         Rectangle {
             anchors.fill: parent
@@ -88,7 +88,7 @@ Column {
         width: parent.width
         height: 40
 
-        visible: (settingsManager.backend === "zxingcpp")
+        visible: (settingsManager.backend_reader === "zxingcpp")
 
         Rectangle {
             anchors.fill: parent
@@ -113,7 +113,7 @@ Column {
         width: parent.width
         height: 40
 
-        visible: (settingsManager.backend === "zxingcpp")
+        visible: (settingsManager.backend_reader === "zxingcpp")
 
         Rectangle {
             anchors.fill: parent

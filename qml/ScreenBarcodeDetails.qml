@@ -125,7 +125,7 @@ Item {
                         sourceSize.height: height
                         //fillMode: Image.PreserveAspectFit
 
-                        source: (settingsManager.backend === "qzxing") ?
+                        source: (settingsManager.backend_writer === "qzxing") ?
                                     "image://QZXing/encode/" + screenBarcodeDetails.barcode_string :
                                     "image://ZXingCpp/encode/" + screenBarcodeDetails.barcode_string + screenBarcodeDetails.barcode_settings
                     }

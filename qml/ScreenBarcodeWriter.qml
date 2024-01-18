@@ -308,15 +308,15 @@ Loader {
                         anchors.left: parent.left
                         anchors.right: parent.right
 
-                        visible: (settingsManager.backend === "zxingcpp")
+                        visible: (settingsManager.backend_writer !== "qzxing")
 
                         ListModel {
                             id: lmSelectorBarcodes_zintqml
 
                             // matrix
                             ListElement { idx:  0; type: "2d"; txt: "QrCode"; format: "qrcode";             maxnum: 0; maxchar: 4296; maxbytes: 2953; ecc: 4; }
-                            ListElement { idx:  1; type: "2d"; txt: "Micro QrCode"; format: "microqrcode";  maxnum: 0; maxchar: 21; maxbytes: 256; ecc: 4; }
-                            ListElement { idx:  2; type: "2d"; txt: "Rect. Micro QrCode"; format: "rmqr";   maxnum: 0; maxchar: 21; maxbytes: 256; ecc: 4; }
+                            ListElement { idx:  1; type: "2d"; txt: "µ QrCode"; format: "microqrcode";  maxnum: 0; maxchar: 21; maxbytes: 256; ecc: 4; }
+                            ListElement { idx:  2; type: "2d"; txt: "rµ QrCode"; format: "rmqr";   maxnum: 0; maxchar: 21; maxbytes: 256; ecc: 4; }
                             ListElement { idx:  3; type: "2d"; txt: "Aztec"; format: "aztec";               maxnum: 0; maxchar: 3067; maxbytes: 3067; ecc: 8; }
                             ListElement { idx:  4; type: "2d"; txt: "DataMatrix"; format: "datamatrix";     maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
                             ListElement { idx:  5; type: "2d"; txt: "PDF417"; format: "pdf417";             maxnum: 0; maxchar: 1850; maxbytes: 1108; ecc: 8; }
@@ -352,8 +352,8 @@ Loader {
                             ListElement { idx: 11; type: "1d"; txt: "ITF"; format: "itf";               maxnum: 10; }
                         }
                         model: {
-                            if (settingsManager.backend_zint) return lmSelectorBarcodes_zintqml
-                            if (settingsManager.backend_zxingcpp) return lmSelectorBarcodes_zxingcpp
+                            if (settingsManager.backend_writer === "zint") return lmSelectorBarcodes_zintqml
+                            if (settingsManager.backend_writer === "zxingcpp") return lmSelectorBarcodes_zxingcpp
                         }
 
                         currentSelection: 0
@@ -451,7 +451,7 @@ Loader {
                                     barcodeAdvanced.format === "micropdf417") vvv = lmBarcodeEccPdf.get(index).ecc
 
                                 barcodeAdvanced.eccLevel = parseInt(vvv)
-                                barcodeAdvanced.eccStr = (settingsManager.backend === "qzxing") ? lmBarcodeEccQR.get(index).txt : "L"
+                                barcodeAdvanced.eccStr = (settingsManager.backend_writer === "qzxing") ? lmBarcodeEccQR.get(index).txt : "L"
                             }
                         }
                     }
@@ -461,7 +461,7 @@ Loader {
                         anchors.right: parent.right
 
                         spacing: 16
-                        visible: (settingsManager.backend === "qzxing")
+                        visible: (settingsManager.backend_writer === "qzxing")
 
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
@@ -495,7 +495,7 @@ Loader {
                         anchors.right: parent.right
 
                         spacing: 16
-                        visible: (settingsManager.backend === "zxingcpp")
+                        visible: (settingsManager.backend_writer !== "qzxing")
 
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
@@ -528,7 +528,7 @@ Loader {
 
                     Row {
                         spacing: Theme.componentMargin
-                        visible: (settingsManager.backend === "zxingcpp")
+                        visible: (settingsManager.backend_writer !== "qzxing")
 
                         Text {
                             anchors.verticalCenter: parent.verticalCenter

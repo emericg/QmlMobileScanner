@@ -147,7 +147,7 @@ Loader {
             id: backendLoader
             active: true
             asynchronous: true
-            source: (settingsManager.backend === "zxingcpp") ? "Reader_ZXingCpp.qml" : "Reader_QZXing.qml"
+            source: (settingsManager.backend_reader === "zxingcpp") ? "Reader_ZXingCpp.qml" : "Reader_QZXing.qml"
         }
         property alias barcodeReader: backendLoader.item
 

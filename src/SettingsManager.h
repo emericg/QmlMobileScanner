@@ -46,13 +46,18 @@ class SettingsManager: public QObject
     Q_PROPERTY(QString appTheme READ getAppTheme WRITE setAppTheme NOTIFY appThemeChanged)
     Q_PROPERTY(bool appThemeAuto READ getAppThemeAuto WRITE setAppThemeAuto NOTIFY appThemeAutoChanged)
 
-    Q_PROPERTY(QString backend READ getBackend CONSTANT)
+    Q_PROPERTY(QString backend_reader READ getBackendReader CONSTANT)
+    Q_PROPERTY(QString backend_writer READ getBackendWriter WRITE setBackendWriter NOTIFY backendWriterChanged)
     Q_PROPERTY(bool backend_qzxing READ getBackendQZXing CONSTANT)
     Q_PROPERTY(bool backend_zxingcpp READ getBackendZXingCpp CONSTANT)
     Q_PROPERTY(bool backend_zint READ getBackendZint CONSTANT)
 
     Q_PROPERTY(QString defaultTab READ getDefaultTab WRITE setDefaultTab NOTIFY defaultTabChanged)
     Q_PROPERTY(unsigned formatsEnabled READ getFormatsEnabled WRITE setFormatsEnabled NOTIFY formatsEnabledChanged)
+
+    Q_PROPERTY(bool save_barcodes READ getSaveBarcode WRITE setSaveBarcode NOTIFY saveChanged)
+    Q_PROPERTY(bool save_camera READ getSaveCamera WRITE setSaveCamera NOTIFY saveChanged)
+    Q_PROPERTY(bool save_gps READ getSaveGPS WRITE setSaveGPS NOTIFY saveChanged)
 
     Q_PROPERTY(bool showDebug READ getShowDebug WRITE setShowDebug NOTIFY debugChanged)
     Q_PROPERTY(bool scan_fullscreen READ getScanFullscreen WRITE setScanFullscreen NOTIFY fullscreenChanged)
@@ -74,8 +79,14 @@ class SettingsManager: public QObject
 
     // Application specific
     QString m_defaultTab = "reader";
+    QString m_backendWriter = "";
     unsigned m_formatsEnabled_zxingcpp = 0xffffffff;
     unsigned m_formatsEnabled_qzxing = 0xffffffff;
+
+    bool m_save_barcodes = false;
+    bool m_save_camera = false;
+    bool m_save_gps = false;
+
     bool m_showDebug = false;
     bool m_scan_fullscreen = false;
     bool m_scan_tryHarder = true;
@@ -95,8 +106,10 @@ Q_SIGNALS:
     void initialSizeChanged();
     void appThemeChanged();
     void appThemeAutoChanged();
-    void debugChanged();
     void defaultTabChanged();
+    void backendWriterChanged();
+    void saveChanged();
+    void debugChanged();
     void formatsEnabledChanged();
     void fullscreenChanged();
     void tryHarderChanged();
@@ -123,15 +136,28 @@ public:
 
     ////
 
-    QString getBackend() const;
+    QString getBackendReader() const;
+    QString getBackendWriter() const;
+    void setBackendWriter(const QString &value);
+
     bool getBackendQZXing() const;
     bool getBackendZXingCpp() const;
     bool getBackendZint() const;
+
+    ////
 
     QString getDefaultTab() const { return m_defaultTab; }
     void setDefaultTab(const QString &value);
     unsigned getFormatsEnabled() const;
     void setFormatsEnabled(const unsigned value);
+
+    bool getSaveBarcode() const { return m_save_barcodes; }
+    void setSaveBarcode(const bool value);
+    bool getSaveCamera() const { return m_save_camera; }
+    void setSaveCamera(const bool value);
+    bool getSaveGPS() const { return m_save_gps; }
+    void setSaveGPS(const bool value);
+
     bool getShowDebug() const { return m_showDebug; }
     void setShowDebug(const bool value);
     bool getScanFullscreen() const { return m_scan_fullscreen; }

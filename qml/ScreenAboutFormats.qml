@@ -84,7 +84,7 @@ Item {
             anchors.bottom: parent.bottom
             width: parent.width
 
-            model: (settingsManager.backend === "zxingcpp") ? zxingcpp : qzxing
+            model: (settingsManager.backend_reader === "zxingcpp") ? zxingcpp : qzxing
             delegate: RowLayout {
                 required property string name
                 required property var decode
