@@ -73,7 +73,7 @@ BarcodeManager::BarcodeManager()
 
                 Barcode *bc = new Barcode(barcodeData, barcodeFormat, barcodeEncoding, barcodeEcc,
                                           barcodeDateTime, barcodeLatitude, barcodeLongitude, barcodeStarred, this);
-                if (bc) m_barcodes_history.push_back(bc);
+                if (bc) m_barcodes_history.push_front(bc);
             }
         }
         else
@@ -230,7 +230,7 @@ void BarcodeManager::addHistory(const QString &data, const QString &format,
             qDebug() << "addHistory(" << data << ")";
 
             // add barcode to the history list
-            m_barcodes_history.push_back(bc);
+            m_barcodes_history.push_front(bc);
             Q_EMIT historyChanged();
 
             // add barcode to the history database

@@ -28,17 +28,20 @@ Item {
 
     ////////////////////////////////////////////////////////////////////////////
 
+    enum SupportLevel {
+        None,
+        Supported,
+        Incomplete
+    }
+
     Item {
         anchors.fill: parent
-        anchors.margins: Theme.componentMarginL
+        anchors.topMargin: Theme.componentMarginL
+        anchors.leftMargin: isDesktop ? Theme.componentMarginL : Theme.componentMargin
+        anchors.rightMargin: isDesktop ? Theme.componentMarginL : Theme.componentMargin
+        anchors.bottomMargin: Theme.componentMarginL
 
         ////////
-
-        enum SupportLevel {
-            None,
-            Supported,
-            Incomplete
-        }
 
         ListModel {
             id: qzxing
@@ -76,6 +79,10 @@ Item {
             ListElement { type: "matrix"; name: "PDF 417"; decode: 1; encode: 1; }
             ListElement { type: "matrix"; name: "MaxiCode"; decode: 2; encode: 0; }
         }
+        ListModel {
+            id: zint
+            ListElement { type: "linear"; name: "UPC-A"; decode: 0; encode: 1; }
+        }
 
         ////////
 
@@ -84,14 +91,19 @@ Item {
             anchors.bottom: parent.bottom
             width: parent.width
 
+            ////
+
             model: (settingsManager.backend_reader === "zxingcpp") ? zxingcpp : qzxing
             delegate: RowLayout {
                 required property string name
                 required property var decode
                 required property var encode
 
+                anchors.left: parent.left
+                anchors.leftMargin: 16
+                anchors.right: parent.right
+                anchors.rightMargin: 4
                 height: 32
-                width: parent.width
 
                 Text {
                     Layout.fillHeight: true
@@ -112,8 +124,8 @@ Item {
                     radius: 4
 
                     color: {
-                        if (decode === 1) return Theme.colorGreen
-                        if (decode === 2) return Theme.colorOrange
+                        if (decode === ScreenAboutFormats.SupportLevel.Supported) return Theme.colorGreen
+                        if (decode === ScreenAboutFormats.SupportLevel.Incomplete) return Theme.colorOrange
                         return Theme.colorBackground
                     }
                 }
@@ -125,16 +137,18 @@ Item {
                     radius: 4
 
                     color: {
-                        if (encode === 1) return Theme.colorGreen
-                        if (encode === 2) return Theme.colorOrange
+                        if (encode === ScreenAboutFormats.SupportLevel.Supported) return Theme.colorGreen
+                        if (encode === ScreenAboutFormats.SupportLevel.Incomplete) return Theme.colorOrange
                         return Theme.colorBackground
                     }
                 }
             }
 
+            ////
+
             section.property: "type"
             section.criteria: ViewSection.FullString
-            section.delegate: Item {
+            section.delegate: Item { // SECTION
                 width: ListView.view.width
                 height: 48
 
@@ -148,19 +162,61 @@ Item {
                     radius: 4
                     color: Theme.colorForeground
 
-                    Text {
-                        anchors.left: parent.left
-                        anchors.leftMargin: Theme.componentMargin
-                        anchors.verticalCenter: parent.verticalCenter
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.leftMargin: 16
+                        anchors.rightMargin: 4
+                        height: 32
 
-                        text: section
-                        color: Theme.colorText
-                        font.bold: true
-                        font.pixelSize: Theme.fontSizeContent
-                        font.capitalization: Font.Capitalize
+                        Text {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            Layout.preferredWidth: 128
+
+                            text: section
+                            textFormat: Text.PlainText
+                            color: Theme.colorText
+                            font.bold: true
+                            font.pixelSize: Theme.fontSizeContent
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                        Rectangle {
+                            Layout.fillWidth: true
+                            Layout.preferredWidth: 64
+                            Layout.preferredHeight: 28
+                            Layout.margins: 2
+                            radius: 4
+                            color: Qt.darker(Theme.colorForeground, 1.02)
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: qsTr("read")
+                                textFormat: Text.PlainText
+                                color: Theme.colorSubText
+                                font.pixelSize: Theme.fontSizeContentSmall
+                            }
+                        }
+                        Rectangle {
+                            Layout.fillWidth: true
+                            Layout.preferredWidth: 64
+                            Layout.preferredHeight: 28
+                            Layout.margins: 2
+                            radius: 4
+                            color: Qt.darker(Theme.colorForeground, 1.02)
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: qsTr("write")
+                                textFormat: Text.PlainText
+                                color: Theme.colorSubText
+                                font.pixelSize: Theme.fontSizeContentSmall
+                            }
+                        }
                     }
                 }
             }
+
+            ////
         }
 
         ////////
