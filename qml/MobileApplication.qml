@@ -15,10 +15,10 @@ ApplicationWindow {
     visible: true
 
     property bool isHdpi: (utilsScreen.screenDpi >= 128 || utilsScreen.screenPar >= 2.0)
-    property bool isDesktop: (Qt.platform.os !== "ios" && Qt.platform.os !== "android")
-    property bool isMobile: (Qt.platform.os === "ios" || Qt.platform.os === "android")
-    property bool isPhone: ((Qt.platform.os === "ios" || Qt.platform.os === "android") && (utilsScreen.screenSize < 7.0))
-    property bool isTablet: ((Qt.platform.os === "ios" || Qt.platform.os === "android") && (utilsScreen.screenSize >= 7.0))
+    property bool isDesktop: (Qt.platform.os !== "android" || Qt.platform.os !== "ios")
+    property bool isMobile: (Qt.platform.os === "android" || Qt.platform.os === "ios")
+    property bool isPhone: ((Qt.platform.os === "android" || Qt.platform.os === "ios") && (utilsScreen.screenSize < 7.0))
+    property bool isTablet: ((Qt.platform.os === "android" || Qt.platform.os === "ios") && (utilsScreen.screenSize >= 7.0))
 
     property bool singleColumn: (width < height)
     property bool wideMode: (isDesktop && width >= 640) || (isTablet && width >= 480)

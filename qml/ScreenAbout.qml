@@ -263,11 +263,11 @@ Loader {
 
             ////////
 
-            ListSeparator { visible: (Qt.platform.os === "android") }
+            ListSeparator { visible: (Qt.platform.os === "android" || Qt.platform.os === "ios") }
 
             ListItemClickable { // permissions
                 width: parent.width
-                visible: (Qt.platform.os === "android")
+                visible: (Qt.platform.os === "android" || Qt.platform.os === "ios")
 
                 text: qsTr("About app permissions")
                 iconSource: "qrc:/assets/icons_material/baseline-flaky-24px.svg"

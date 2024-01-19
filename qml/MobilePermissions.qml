@@ -15,6 +15,7 @@ Item {
         // Refresh permissions
         button_network_test.validperm = true
         button_camera_test.validperm = utilsApp.checkMobileCameraPermission()
+        button_position_test.validperm = utilsApp.checkMobileLocationPermission()
 
         // Change screen
         appContent.state = "ScreenAboutPermissions"
@@ -37,6 +38,7 @@ Item {
             // Refresh permissions
             button_network_test.validperm = true
             button_camera_test.validperm = utilsApp.checkMobileCameraPermission()
+            button_position_test.validperm = utilsApp.checkMobileLocationPermission()
         }
     }
 
@@ -58,13 +60,13 @@ Item {
 
             topPadding: 24
             bottomPadding: 24
-            spacing: 20
+            spacing: 16
 
             ////////
 
             Item {
                 id: element_network
-                height: 24
+                height: 20
                 anchors.left: parent.left
                 anchors.right: parent.right
 
@@ -124,7 +126,7 @@ Item {
 
             Item {
                 id: element_camera
-                height: 24
+                height: 20
                 anchors.left: parent.left
                 anchors.right: parent.right
 
@@ -184,61 +186,139 @@ Item {
             ////////
 
             Item {
-                height: 16
+                id: element_position
+                height: 20
                 anchors.left: parent.left
                 anchors.right: parent.right
 
-                Rectangle {
-                    height: 1
-                    color: Theme.colorSeparator
+                RoundButtonIcon {
+                    id: button_position_test
+                    width: 32
+                    height: 32
                     anchors.left: parent.left
-                    anchors.leftMargin: -screenPaddingLeft
-                    anchors.right: parent.right
-                    anchors.rightMargin: -screenPaddingRight
+                    anchors.leftMargin: 16
                     anchors.verticalCenter: parent.verticalCenter
+                    z: 1
+
+                    property bool validperm: true
+
+                    source: (validperm) ? "qrc:/assets/icons_material/baseline-check-24px.svg" : "qrc:/assets/icons_material/baseline-close-24px.svg"
+                    iconColor: (validperm) ? "white" : "white"
+                    backgroundColor: (validperm) ? Theme.colorSuccess : Theme.colorSubText
+                    backgroundVisible: true
+
+                    onClicked: {
+                        utilsApp.getMobileLocationPermission()
+                        refreshPermissions.start()
+                    }
                 }
+
+                Text {
+                    id: text_position
+                    height: 16
+                    anchors.left: parent.left
+                    anchors.leftMargin: 64
+                    anchors.right: parent.right
+                    anchors.rightMargin: 16
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    text: qsTr("Position (GPS)")
+                    textFormat: Text.PlainText
+                    wrapMode: Text.WordWrap
+                    font.pixelSize: Theme.fontSizeContentBig
+                    color: Theme.colorText
+                    verticalAlignment: Text.AlignVCenter
+                }
+            }
+            Text {
+                id: legend_position
+                anchors.left: parent.left
+                anchors.leftMargin: 64
+                anchors.right: parent.right
+                anchors.rightMargin: 16
+
+                text: qsTr("You can save GPS position along with scanned barcodes.")
+                textFormat: Text.PlainText
+                wrapMode: Text.WordWrap
+                color: Theme.colorSubText
+                font.pixelSize: Theme.fontSizeContentSmall
             }
 
             ////////
 
-            Text {
-                anchors.left: parent.left
-                anchors.leftMargin: 64
-                anchors.right: parent.right
-                anchors.rightMargin: 12
+            ListSeparatorPadded { height: 16+1 }
 
-                text: qsTr("Click on the icons to request a permission.")
-                textFormat: Text.StyledText
-                wrapMode: Text.WordWrap
-                color: Theme.colorSubText
-                font.pixelSize: Theme.fontSizeContentSmall
+            ////////
+
+            Item {
+                id: element_infos
+                anchors.left: parent.left
+                anchors.right: parent.right
+                height: 32
 
                 IconSvg {
+                    anchors.left: parent.left
+                    anchors.leftMargin: Theme.componentMargin
+                    anchors.verticalCenter: parent.verticalCenter
                     width: 32
                     height: 32
+
+                    opacity: 0.66
+                    color: Theme.colorSubText
+                    source: "qrc:/assets/icons_material/duotone-info-24px.svg"
+                }
+
+                Text {
                     anchors.left: parent.left
-                    anchors.leftMargin: -48
+                    anchors.leftMargin: appHeader.headerPosition
+                    anchors.right: parent.right
+                    anchors.rightMargin: Theme.componentMargin
                     anchors.verticalCenter: parent.verticalCenter
 
-                    source: "qrc:/assets/icons_material/outline-info-24px.svg"
-                    color: Theme.colorSubText
+                    text: qsTr("Click on the checkmarks to request missing permissions.")
+                    textFormat: Text.StyledText
+                    lineHeight : 0.8
+                    wrapMode: Text.WordWrap
+                    color: Theme.colorText
+                    font.pixelSize: Theme.fontSizeContent
                 }
             }
 
             Text {
                 anchors.left: parent.left
-                anchors.leftMargin: 64
+                anchors.leftMargin: appHeader.headerPosition
                 anchors.right: parent.right
-                anchors.rightMargin: 12
+                anchors.rightMargin: Theme.componentMargin
 
-                text: qsTr("If it has no effect, you may have previously clicked on \"don't ask again\". Go to Android application settings to fix that.")
+                visible: (Qt.platform.os === "android")
+
+                text: qsTr("If it has no effect, you may have previously refused a permission and clicked on \"don't ask again\".") + "<br>" +
+                      qsTr("You can go to the Android \"application info\" panel to change a permission manually.")
                 textFormat: Text.StyledText
                 wrapMode: Text.WordWrap
                 color: Theme.colorSubText
                 font.pixelSize: Theme.fontSizeContentSmall
+            }
+
+            ButtonWireframeIcon {
+                anchors.left: parent.left
+                anchors.leftMargin: appHeader.headerPosition
+                height: 36
+
+                visible: (Qt.platform.os === "android")
+                primaryColor: Theme.colorPrimary
+                secondaryColor: Theme.colorBackground
+
+                text: qsTr("Application info")
+                source: "qrc:/assets/icons_material/duotone-tune-24px.svg"
+                sourceSize: 20
+
+                onClicked: utilsApp.openAndroidAppInfo("io.emeric.mobilescanner")
             }
 
             ////////
         }
     }
+
+    ////////////////////////////////////////////////////////////////////////////
 }
