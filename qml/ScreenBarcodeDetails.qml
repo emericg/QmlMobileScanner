@@ -190,7 +190,7 @@ Item {
                     width: parent.width
                     height: barcodedata.height + Theme.componentMargin
                     radius: Theme.componentRadius
-                    color: "white"
+                    color: Theme.colorComponentBackground
                     border.width: 2
                     border.color: Theme.colorComponentBorder
 
@@ -225,7 +225,7 @@ Item {
                     width: parent.width
                     height: barcodedata2.contentHeight + Theme.componentMargin
                     radius: Theme.componentRadius
-                    color: "white"
+                    color: Theme.colorComponentBackground
                     border.width: 2
                     border.color: Theme.colorComponentBorder
 

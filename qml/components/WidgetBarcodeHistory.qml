@@ -84,11 +84,9 @@ SwipeDelegate {
                     anchors.right: parent.right
                     spacing: 8
 
-                    Text {
+                    ItemTagSmall {
                         visible: modelData.content
                         text: modelData.content
-                        font.pixelSize: Theme.fontSizeContentBig
-                        color: Theme.colorSubText
                     }
                     Text {
                         text: modelData.data
@@ -218,7 +216,7 @@ SwipeDelegate {
                 }
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
-                    text: qsTr("Supprimer")
+                    text: qsTr("Remove")
                     font.bold: true
                     color: "white"
                 }

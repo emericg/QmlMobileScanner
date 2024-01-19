@@ -100,7 +100,7 @@ Item {
                 required property var encode
 
                 anchors.left: parent.left
-                anchors.leftMargin: 16
+                anchors.leftMargin: Theme.componentMargin
                 anchors.right: parent.right
                 anchors.rightMargin: 4
                 height: 32
@@ -164,7 +164,7 @@ Item {
 
                     RowLayout {
                         anchors.fill: parent
-                        anchors.leftMargin: 16
+                        anchors.leftMargin: Theme.componentMargin
                         anchors.rightMargin: 4
                         height: 32
 

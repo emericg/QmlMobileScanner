@@ -61,7 +61,7 @@ Loader {
             ListView {
                 model: barcodeManager.barcodesHistory
                 delegate: WidgetBarcodeHistory {
-                    width: parent.width
+                    width: ListView.view.width
                     onClicked: {
                         stackView.push(detailsView)
                         stackView.get(1).loadBarcode(modelData)

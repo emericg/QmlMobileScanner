@@ -126,6 +126,39 @@ Loader {
                             if (settingsManager.backend_zint) return "image://ZintQml/encode/" + barcodeAdvanced.barcode_string + barcodeAdvanced.barcode_settings_zxingcpp
                             if (settingsManager.backend_zxingcpp) return "image://ZXingCpp/encode/" + barcodeAdvanced.barcode_string + barcodeAdvanced.barcode_settings_zxingcpp
                             if (settingsManager.backend_qzxing) return "image://QZXing/encode/" + barcodeAdvanced.barcode_string + barcodeAdvanced.barcode_settings_qzxing
+                            return ""
+                        }
+
+                        IconSvg {
+                            width: 80
+                            height: 80
+                            anchors.centerIn: parent
+                            visible: !barcodeAdvanced.barcode_string
+                            source: "qrc:/assets/icons_material/duotone-edit-24px.svg"
+                            color: Theme.colorIcon
+                        }
+                    }
+
+                    Rectangle {
+                        id: errorarea
+                        anchors.fill: parent
+
+                        radius: Theme.componentRadius
+                        color: Theme.colorWarning
+
+                        opacity: (barcodeImage.status == Image.Error &&
+                                  barcodeAdvanced.barcode_string) ? 0.5 : 0
+                        Behavior on opacity { NumberAnimation { duration: 233 } }
+
+                        border.width: 2
+                        border.color: Theme.colorError
+
+                        IconSvg {
+                            width: 80
+                            height: 80
+                            anchors.centerIn: parent
+                            source: "qrc:/assets/icons_material/baseline-broken_image-24px.svg"
+                            color: Theme.colorError
                         }
                     }
 
@@ -238,7 +271,7 @@ Loader {
                         height: 40
 
                         visible: (selectorBarcodes.currentMode == "1d") // linear
-                        placeholderText: qsTr("type barcode content here")
+                        placeholderText: qsTr("Type barcode content here!")
 
                         maximumLength: 12
                         validator: IntValidator { bottom: 0; top: 999999999; }
@@ -265,8 +298,10 @@ Loader {
                             anchors.top: parent.top
                             anchors.right: parent.right
                             anchors.bottom: parent.bottom
+
                             fullColor: true
-                            visible: barcodeTextField.text
+                            opacity: barcodeTextField.text ? 1 : 0
+                            Behavior on opacity { NumberAnimation { duration: 200 } }
 
                             text: qsTr("clear")
                             onClicked: barcodeTextField.clear()
@@ -280,18 +315,40 @@ Loader {
                         height: isPhone ? 96 : 128
 
                         visible: (selectorBarcodes.currentMode === "2d") // matrix
-                        placeholderText: qsTr("type barcode content here")
+                        placeholderText: qsTr("Type barcode content here!")
 
                         wrapMode: Text.WrapAnywhere
                         selectByMouse: true
                         onTextChanged: barcodeAdvanced.barcode_string = text
 
+                        SelectorMenuThemed {
+                            id: barcodeEncodingSeclector
+                            anchors.left: parent.left
+                            anchors.bottom: parent.bottom
+                            height: 32
+
+                            opacity: 0.66
+                            currentSelection: 0
+                            model: ListModel {
+                                id: lmEncodingSelector
+                                ListElement { idx: 0; txt: "UTF-8"; }
+                                ListElement { idx: 1; txt: "ASCII"; }
+                                ListElement { idx: 2; txt: "BYTE"; }
+                            }
+
+                            onMenuSelected: (index) => {
+                                //
+                            }
+                        }
+
                         ButtonWireframe {
                             anchors.right: parent.right
                             anchors.bottom: parent.bottom
-                            height: 36
+                            height: 32
+
                             fullColor: true
-                            visible: barcodeTextArea.text
+                            opacity: barcodeTextArea.text ? 1 : 0
+                            Behavior on opacity { NumberAnimation { duration: 200 } }
 
                             text: qsTr("clear")
                             onClicked: {
@@ -308,19 +365,19 @@ Loader {
                         anchors.left: parent.left
                         anchors.right: parent.right
 
-                        visible: (settingsManager.backend_writer !== "qzxing")
+                        visible: (selectorBarcodes.model !== null)
 
                         ListModel {
                             id: lmSelectorBarcodes_zintqml
 
                             // matrix
                             ListElement { idx:  0; type: "2d"; txt: "QrCode"; format: "qrcode";             maxnum: 0; maxchar: 4296; maxbytes: 2953; ecc: 4; }
-                            ListElement { idx:  1; type: "2d"; txt: "µ QrCode"; format: "microqrcode";  maxnum: 0; maxchar: 21; maxbytes: 256; ecc: 4; }
-                            ListElement { idx:  2; type: "2d"; txt: "rµ QrCode"; format: "rmqr";   maxnum: 0; maxchar: 21; maxbytes: 256; ecc: 4; }
+                            ListElement { idx:  1; type: "2d"; txt: "µQrCode"; format: "microqrcode";  maxnum: 0; maxchar: 21; maxbytes: 256; ecc: 4; }
+                            ListElement { idx:  2; type: "2d"; txt: "rect. µQrCode"; format: "rmqr";   maxnum: 0; maxchar: 21; maxbytes: 256; ecc: 4; }
                             ListElement { idx:  3; type: "2d"; txt: "Aztec"; format: "aztec";               maxnum: 0; maxchar: 3067; maxbytes: 3067; ecc: 8; }
                             ListElement { idx:  4; type: "2d"; txt: "DataMatrix"; format: "datamatrix";     maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
                             ListElement { idx:  5; type: "2d"; txt: "PDF417"; format: "pdf417";             maxnum: 0; maxchar: 1850; maxbytes: 1108; ecc: 8; }
-                            ListElement { idx:  6; type: "2d"; txt: "Micro PDF417"; format: "micropdf417";  maxnum: 0; maxchar: 256; maxbytes: 1108; ecc: 8; }
+                            ListElement { idx:  6; type: "2d"; txt: "µPDF417"; format: "micropdf417";  maxnum: 0; maxchar: 256; maxbytes: 1108; ecc: 8; }
                             ListElement { idx:  7; type: "2d"; txt: "GridMatrix"; format: "gridmatrix";     maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
                             // esoteric (but fun)
                             ListElement { idx: 8; type: "2d"; txt: "DotCode"; format: "dotcode";           maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
@@ -354,6 +411,7 @@ Loader {
                         model: {
                             if (settingsManager.backend_writer === "zint") return lmSelectorBarcodes_zintqml
                             if (settingsManager.backend_writer === "zxingcpp") return lmSelectorBarcodes_zxingcpp
+                            return null
                         }
 
                         currentSelection: 0
@@ -372,7 +430,7 @@ Loader {
                         anchors.left: parent.left
                         anchors.right: parent.right
 
-                        visible: (selectorBarcodes.currentMode === "2d") // matrix
+                        visible: (barcodeEccSeclector.model !== null)
                         spacing: 16
 
                         Text {
@@ -432,6 +490,7 @@ Loader {
                                     barcodeAdvanced.format === "rmqr") return lmBarcodeEccQR
                                 if (barcodeAdvanced.format === "pdf417" ||
                                     barcodeAdvanced.format === "micropdf417") return lmBarcodeEccPdf
+                                return null
                             }
 
                             onModelChanged: {

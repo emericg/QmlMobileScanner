@@ -12,7 +12,7 @@
         <file alias="ButtonWireframeIcon.qml">components_generic/ButtonWireframeIcon.qml</file>
         <file alias="ButtonWireframeIconCentered.qml">components_generic/ButtonWireframeIconCentered.qml</file>
         <file alias="IconSvg.qml">components_generic/IconSvg.qml</file>
-        <file alias="RoundButtonText.qml">components_generic/RoundButtonText.qml</file>
+        <file alias="ItemTagSmall.qml">components_generic/ItemTagSmall.qml</file>
         <file alias="RoundButtonIcon.qml">components_generic/RoundButtonIcon.qml</file>
         <file alias="SimpleShadow.qml">components_generic/SimpleShadow6.qml</file>
         <file alias="SelectorMenu.qml">components_generic/SelectorMenu.qml</file>

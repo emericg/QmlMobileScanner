@@ -399,7 +399,7 @@ Loader {
                             if (settingsManager.backend_writer === "qzxing") return 1
                             if (settingsManager.backend_writer === "zxingcpp") return 2
                             if (settingsManager.backend_writer === "zint") return 3
-                            return 0
+                            return 3
                         }
 
                         onMenuSelected: (index) => {
