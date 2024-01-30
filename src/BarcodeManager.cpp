@@ -155,14 +155,14 @@ QString BarcodeManager::getAvailableColor()
     if (m_colorsLeft.size())
     {
         // unique colors
-        int clr_id = QRandomGenerator::global()->bounded(m_colorsLeft.size());
+        int clr_id = QRandomGenerator::global()->bounded(m_colorsLeft.size() - 1);
         clr_str = m_colorsLeft.at(clr_id);
         m_colorsLeft.remove(clr_id);
     }
     else
     {
         // start reusing colors
-        clr_str = m_colorsAvailable.at(QRandomGenerator::global()->bounded(m_colorsAvailable.size()));
+        clr_str = m_colorsAvailable.at(QRandomGenerator::global()->bounded(m_colorsAvailable.size()) - 1);
     }
 
     return clr_str;
