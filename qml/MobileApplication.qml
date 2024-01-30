@@ -118,8 +118,6 @@ ApplicationWindow {
     // Events handling /////////////////////////////////////////////////////////
 
     Component.onCompleted: {
-        handleSafeAreas()
-
         if (settingsManager.defaultTab === "writer") {
             screenBarcodeWriter.loadScreen()
         } else {

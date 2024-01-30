@@ -52,6 +52,7 @@ RESOURCES   += qml/qml.qrc \
                assets/assets.qrc
 
 OTHER_FILES += .gitignore \
+               .github/workflows/builds_mobile.yml \
                README.md
 
 # Project dependencies #########################################################

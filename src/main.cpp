@@ -58,6 +58,7 @@ int main(int argc, char *argv[])
 {
 #if defined(Q_OS_ANDROID)
     // Force "old" Android native multimedia backend
+    // ffmpeg multimedia backend is buggy as hell...
     qputenv("QT_MEDIA_BACKEND", "android");
 #endif
 
