@@ -1,8 +1,9 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.20)
 
 project(MobileSharing LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
 
 ################################################################################
@@ -38,9 +39,8 @@ if (ANDROID)
         find_package(Qt${QT_DEFAULT_MAJOR_VERSION} REQUIRED COMPONENTS AndroidExtras)
         set(PLATFORM_LIBRARIES Qt::AndroidExtras)
     endif()
-endif()
 
-if (IOS)
+elseif (IOS)
     find_package(Qt${QT_DEFAULT_MAJOR_VERSION} REQUIRED COMPONENTS Quick)
     set(PLATFORM_LIBRARIES Qt::Quick)
     set(PLATFORM_SOURCES

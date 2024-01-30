@@ -3,7 +3,7 @@
 # version 2.1+
 #
 
-CONFIG += c++17
+CONFIG += c++20
 CONFIG += qt warn_on
 CONFIG += build_readers build_writers
 
