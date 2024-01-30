@@ -36,10 +36,7 @@ void QZXingFilter::handleDecodingFinished(bool succeeded)
 
 void QZXingFilter::setOrientation(int orientation)
 {
-    if (m_orientation == orientation)
-    {
-        return;
-    }
+    if (m_orientation == orientation) return;
 
     m_orientation = orientation;
     emit orientationChanged(m_orientation);
@@ -47,6 +44,14 @@ void QZXingFilter::setOrientation(int orientation)
 
 void QZXingFilter::setVideoSink(QObject *videoSink)
 {
+    if (m_videoSink == videoSink) return;
+    if (!videoSink) return;
+
+    if (m_videoSink)
+    {
+        disconnect(m_videoSink, &QVideoSink::videoFrameChanged, this, &QZXingFilter::processFrame);
+    }
+
     m_videoSink = qobject_cast<QVideoSink*>(videoSink);
 
     connect(m_videoSink, &QVideoSink::videoFrameChanged,
@@ -56,6 +61,9 @@ void QZXingFilter::setVideoSink(QObject *videoSink)
 
 void QZXingFilter::processFrame(const QVideoFrame &frame)
 {
+    if (m_decoder.getEnabledFormats() == QZXing::DecoderFormat_None) return;
+    if (!m_videoSink) return;
+
     if (!isDecoding() && m_processThread.isFinished())
     {
         m_decoding = true;
