@@ -18,8 +18,9 @@ QMAKE_BUNDLE = qmlmobilescanner
 
 # Select primary backend (zxingcpp / qzxing)
 CONFIG += zxingcpp
+
 # Select secondary backend (zint)
-CONFIG += zint
+!ios { CONFIG += zint }
 
 # Use Qt Quick compiler
 ios | android { CONFIG += qtquickcompiler }
