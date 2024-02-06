@@ -17,7 +17,7 @@ Rectangle {
 
     property int headerPosition: 64
 
-    property string headerTitle: "MobileScanner"
+    property string headerTitle: utilsApp.appName()
 
     ////////////////////////////////////////////////////////////////////////////
 

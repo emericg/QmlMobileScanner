@@ -59,7 +59,7 @@ DrawerThemed {
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.verticalCenterOffset: 0
 
-                    text: "MobileScanner"
+                    text: utilsApp.appName()
                     color: Theme.colorText
                     font.bold: false
                     font.pixelSize: Theme.fontSizeTitle

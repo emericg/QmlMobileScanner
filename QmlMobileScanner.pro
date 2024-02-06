@@ -1,4 +1,4 @@
-TARGET  = MobileScanner
+TARGET  = QmlMobileScanner
 
 VERSION = 0.1
 DEFINES+= APP_NAME=\\\"$$TARGET\\\"
@@ -6,6 +6,10 @@ DEFINES+= APP_VERSION=\\\"$$VERSION\\\"
 
 CONFIG += c++17
 QT     += core concurrent qml quickcontrols2 svg sql
+
+# Bundle name
+QMAKE_TARGET_BUNDLE_PREFIX = io.emeric
+QMAKE_BUNDLE = qmlmobilescanner
 
 # Validate Qt version
 !versionAtLeast(QT_VERSION, 6.5) : error("You need at least Qt version 6.5 for $${TARGET}")
@@ -66,21 +70,21 @@ include(src/thirdparty/MobileSharing/MobileSharing.pri)
 
 # Barcode reader/writer (zxing-cpp)
 CONFIG(zxingcpp, zxingcpp|qzxing) {
-    message("Building MobileScanner with zxing-cpp backend")
+    message("Building QmlMobileScanner with zxing-cpp backend")
     include(src/thirdparty/zxing-cpp/zxing-cpp.pri)
     DEFINES += zxingcpp
 }
 
 # Barcode reader/writer (QZXing)
 CONFIG(qzxing, zxingcpp|qzxing) {
-    message("Building MobileScanner with QZXing backend")
+    message("Building QmlMobileScanner with QZXing backend")
     include(src/thirdparty/QZXing/QZXing.pri)
     DEFINES += qzxing
 }
 
 # Barcode writer (zint)
 CONFIG(zint) {
-    message("Building MobileScanner with zint backend")
+    message("Building QmlMobileScanner with zint backend")
     include(src/thirdparty/zint-qml/zint-qml.pri)
     DEFINES += zint
 }
@@ -95,9 +99,6 @@ android {
     # ANDROID_TARGET_ARCH: [x86_64, armeabi-v7a, arm64-v8a]
     #message("ANDROID_TARGET_ARCH: $$ANDROID_TARGET_ARCH")
 
-    # Bundle name
-    QMAKE_TARGET_BUNDLE_PREFIX = io.emeric
-    QMAKE_BUNDLE = mobilescanner
 
     ANDROID_PACKAGE_SOURCE_DIR = $${PWD}/assets/android
 
@@ -107,24 +108,17 @@ android {
 }
 
 macx {
-    #QMAKE_MACOSX_DEPLOYMENT_TARGET = 11.0
+    QMAKE_MACOSX_DEPLOYMENT_TARGET = 11.0
     #message("QMAKE_MACOSX_DEPLOYMENT_TARGET: $$QMAKE_MACOSX_DEPLOYMENT_TARGET")
 
-    # Bundle name
-    QMAKE_TARGET_BUNDLE_PREFIX = io.emeric
-    QMAKE_BUNDLE = mobilescanner
     CONFIG += app_bundle
 }
 
 ios {
-    #QMAKE_IOS_DEPLOYMENT_TARGET = 12.0
+    QMAKE_IOS_DEPLOYMENT_TARGET = 14.0
     #message("QMAKE_IOS_DEPLOYMENT_TARGET: $$QMAKE_IOS_DEPLOYMENT_TARGET")
 
     CONFIG += no_autoqmake
-
-    # Bundle name
-    QMAKE_TARGET_BUNDLE_PREFIX = io.emeric
-    QMAKE_BUNDLE = mobilescanner
 
     # OS infos
     QMAKE_INFO_PLIST = $${PWD}/assets/ios/Info.plist

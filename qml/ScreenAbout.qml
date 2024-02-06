@@ -86,7 +86,7 @@ Loader {
                         anchors.verticalCenterOffset: -1
 
                         Text {
-                            text: "MobileScanner"
+                            text: utilsApp.appName()
                             color: Theme.colorText
                             font.pixelSize: Theme.fontSizeTitle
                         }
@@ -117,7 +117,7 @@ Loader {
                         fullColor: true
                         primaryColor: (Theme.currentTheme === ThemeEngine.THEME_NIGHT) ? Theme.colorHeader : "#5483EF"
 
-                        onClicked: Qt.openUrlExternally("https://github.com/emericg/MobileScanner")
+                        onClicked: Qt.openUrlExternally("https://github.com/emericg/QmlMobileScanner")
                     }
 
                     ButtonWireframeIconCentered {
@@ -129,7 +129,7 @@ Loader {
                         fullColor: true
                         primaryColor: (Theme.currentTheme === ThemeEngine.THEME_NIGHT) ? Theme.colorHeader : "#5483EF"
 
-                        onClicked: Qt.openUrlExternally("https://github.com/emericg/MobileScanner/issues")
+                        onClicked: Qt.openUrlExternally("https://github.com/emericg/QmlMobileScanner/issues")
                     }
 
                     ButtonWireframeIconCentered {
@@ -142,7 +142,7 @@ Loader {
                         fullColor: true
                         primaryColor: (Theme.currentTheme === ThemeEngine.THEME_NIGHT) ? Theme.colorHeader : "#5483EF"
 
-                        onClicked: Qt.openUrlExternally("https://github.com/emericg/MobileScanner")
+                        onClicked: Qt.openUrlExternally("https://github.com/emericg/QmlMobileScanner")
                     }
                 }
 
@@ -179,8 +179,8 @@ Loader {
                     fullColor: true
                     primaryColor: (Theme.currentTheme === ThemeEngine.THEME_NIGHT) ? Theme.colorHeader : "#5483EF"
 
-                    onClicked: Qt.openUrlExternally("https://github.com/emericg/MobileScanner")
-                    //onClicked: Qt.openUrlExternally("https://emeric.io/MobileScanner")
+                    onClicked: Qt.openUrlExternally("https://github.com/emericg/QmlMobileScanner")
+                    //onClicked: Qt.openUrlExternally("https://emeric.io/QmlMobileScanner")
                 }
                 ButtonWireframeIconCentered {
                     anchors.verticalCenter: parent.verticalCenter
@@ -192,8 +192,8 @@ Loader {
                     fullColor: true
                     primaryColor: (Theme.currentTheme === ThemeEngine.THEME_NIGHT) ? Theme.colorHeader : "#5483EF"
 
-                    onClicked: Qt.openUrlExternally("https://github.com/emericg/MobileScanner/issues")
-                    //onClicked: Qt.openUrlExternally("https://emeric.io/MobileScanner/support.html")
+                    onClicked: Qt.openUrlExternally("https://github.com/emericg/QmlMobileScanner/issues")
+                    //onClicked: Qt.openUrlExternally("https://emeric.io/QmlMobileScanner/support.html")
                 }
             }
 
@@ -227,11 +227,11 @@ Loader {
 
                 onClicked: {
                     if (Qt.platform.os === "android")
-                        Qt.openUrlExternally("market://details?id=io.emeric.mobilescanner")
+                        Qt.openUrlExternally("market://details?id=io.emeric.qmlmobilescanner")
                     else if (Qt.platform.os === "ios")
                         Qt.openUrlExternally("itms-apps://itunes.apple.com/app/1476046123")
                     else
-                        Qt.openUrlExternally("https://github.com/emericg/MobileScanner/stargazers")
+                        Qt.openUrlExternally("https://github.com/emericg/QmlMobileScanner/stargazers")
                 }
             }
 
@@ -243,7 +243,7 @@ Loader {
                 iconSize: 28
                 indicatorSource: "qrc:/assets/icons_material/duotone-launch-24px.svg"
 
-                onClicked: Qt.openUrlExternally("https://github.com/emericg/MobileScanner/releases")
+                onClicked: Qt.openUrlExternally("https://github.com/emericg/QmlMobileScanner/releases")
             }
 
             ////////

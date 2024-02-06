@@ -1,8 +1,8 @@
-MobileScanner
-=============
+QmlMobileScanner
+================
 
-[![GitHub action](https://img.shields.io/github/actions/workflow/status/emericg/MobileScanner/builds_mobile.yml?style=flat-square)](https://github.com/emericg/MobileScanner/actions)
-[![GitHub issues](https://img.shields.io/github/issues/emericg/MobileScanner.svg?style=flat-square)](https://github.com/emericg/MobileScanner/issues)
+[![GitHub action](https://img.shields.io/github/actions/workflow/status/emericg/QmlMobileScanner/builds_mobile.yml?style=flat-square)](https://github.com/emericg/QmlMobileScanner/actions)
+[![GitHub issues](https://img.shields.io/github/issues/emericg/QmlMobileScanner.svg?style=flat-square)](https://github.com/emericg/QmlMobileScanner/issues)
 [![License: GPL v3](https://img.shields.io/badge/license-GPL%20v3-brightgreen.svg?style=flat-square)](http://www.gnu.org/licenses/gpl-3.0)
 
 Demo barcode & QR code scanner based on qzxing and zxing-cpp libraries.
@@ -75,17 +75,17 @@ For Android builds, you'll need the appropriates JDK (11) SDK (23+) and NDK (25+
 For Windows builds, you'll need the MSVC 2019+ compiler. Bluetooth won't work with MinGW.  
 For macOS and iOS builds, you'll need Xcode 13+ installed.  
 
-#### Building MobileScanner
+#### Building QmlMobileScanner
 
 ```bash
-$ git clone https://github.com/emericg/MobileScanner.git
-$ cd MobileScanner/
+$ git clone https://github.com/emericg/QmlMobileScanner.git
+$ cd QmlMobileScanner/
 $ qmake6
 $ make
 ```
 
 
-## Third party projects used by MobileScanner
+## Third party projects used by QmlMobileScanner
 
 * [Qt6](https://www.qt.io) ([LGPL v3](https://www.gnu.org/licenses/lgpl-3.0.txt))
 * [MobileUI](src/thirdparty/MobileUI/) ([MIT](https://opensource.org/licenses/MIT))
@@ -109,7 +109,7 @@ You can help us find and report bugs, suggest new features, help with translatio
 
 ## License
 
-MobileScanner is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.  
+QmlMobileScanner is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.  
 Read the [LICENSE](LICENSE) file or [consult the license on the FSF website](https://www.gnu.org/licenses/gpl-3.0.txt) directly.
 
 > Emeric Grange <emeric.grange@gmail.com>

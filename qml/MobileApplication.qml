@@ -284,7 +284,7 @@ ApplicationWindow {
         states: [
             State {
                 name: "ScreenTutorial"
-                PropertyChanges { target: appHeader; headerTitle: qsTr("MobileScanner"); }
+                PropertyChanges { target: appHeader; headerTitle: utilsApp.appName(); }
                 PropertyChanges { target: screenTutorial; visible: true; }
                 PropertyChanges { target: screenMainMenu; visible: false; }
                 PropertyChanges { target: screenBarcodeReader; visible: false; }
@@ -298,7 +298,7 @@ ApplicationWindow {
 
             State {
                 name: "ScreenMainMenu"
-                PropertyChanges { target: appHeader; headerTitle: qsTr("MobileScanner"); }
+                PropertyChanges { target: appHeader; headerTitle: utilsApp.appName(); }
                 PropertyChanges { target: screenTutorial; visible: false; }
                 PropertyChanges { target: screenMainMenu; visible: true; }
                 PropertyChanges { target: screenBarcodeReader; visible: false; }

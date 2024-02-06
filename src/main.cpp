@@ -1,5 +1,5 @@
 /*!
- * This file is part of MobileScanner.
+ * This file is part of QmlMobileScanner.
  * Copyright (c) 2023 Emeric Grange - All Rights Reserved
  *
  * This program is free software: you can redistribute it and/or modify
@@ -70,8 +70,8 @@ int main(int argc, char *argv[])
 #endif
 
     // Application name
-    app.setApplicationName("MobileScanner");
-    app.setApplicationDisplayName("MobileScanner");
+    app.setApplicationName("QmlMobileScanner");
+    app.setApplicationDisplayName("QmlMobileScanner");
     app.setOrganizationName("emeric");
     app.setOrganizationDomain("emeric");
 

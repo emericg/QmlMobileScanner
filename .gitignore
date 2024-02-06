@@ -5,11 +5,11 @@ contribs/*
 appdir/*
 
 # QtCreator temporary project files
-MobileScanner.config
-MobileScanner.creator*
-MobileScanner.files
-MobileScanner.includes
-MobileScanner.pro.*
+QmlMobileScanner.config
+QmlMobileScanner.creator*
+QmlMobileScanner.files
+QmlMobileScanner.includes
+QmlMobileScanner.pro.*
 
 # Qt Quick Compiler
 qrc_resources.cpp
@@ -26,7 +26,7 @@ CMakeLists.txt.user
 # XCode related
 Debug/*
 Release/*
-WatchFlower.xcodeproj/*
+QmlMobileScanner.xcodeproj/*
 asset_catalog_compiler.Info.plist
 
 # XCode signatures

@@ -313,7 +313,7 @@ Item {
                 source: "qrc:/assets/icons_material/duotone-tune-24px.svg"
                 sourceSize: 20
 
-                onClicked: utilsApp.openAndroidAppInfo("io.emeric.mobilescanner")
+                onClicked: utilsApp.openAndroidAppInfo("io.emeric.qmlmobilescanner")
             }
 
             ////////

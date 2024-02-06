@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDisplayName</key>
-	<string>MobileScanner</string>
+	<string>QmlMobileScanner</string>
 	<key>CFBundleExecutable</key>
-	<string>${EXECUTABLE_NAME}</string>
+	<string>QmlMobileScanner</string>
 	<key>CFBundleGetInfoString</key>
 	<string>Created by Qt/QMake</string>
 	<key>CFBundleIconFile</key>
@@ -38,7 +38,7 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>NSCameraUsageDescription</key>
-	<string>MobileScanner uses camera for its barcode and qr code scanner</string>
+	<string>QmlMobileScanner uses camera for its barcode and qr code scanner</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 </dict>
