@@ -85,6 +85,13 @@ $ make
 ```
 
 
+## Screenshots
+
+![GUI_MOBILE](https://i.imgur.com/Yc5TCwk.png)
+
+![GUI_DESKTOP](https://i.imgur.com/H4HYNdN.png)
+
+
 ## Third party projects used by QmlMobileScanner
 
 * [Qt6](https://www.qt.io) ([LGPL v3](https://www.gnu.org/licenses/lgpl-3.0.txt))
