@@ -5,7 +5,9 @@ QmlMobileScanner
 [![GitHub issues](https://img.shields.io/github/issues/emericg/QmlMobileScanner.svg?style=flat-square)](https://github.com/emericg/QmlMobileScanner/issues)
 [![License: GPL v3](https://img.shields.io/badge/license-GPL%20v3-brightgreen.svg?style=flat-square)](http://www.gnu.org/licenses/gpl-3.0)
 
-Demo barcode & QR code scanner based on qzxing and zxing-cpp libraries.
+Demo barcode & QR code scanner based on qzxing and zxing-cpp libraries to scan and generate barcodes, and zint to generate some extra formats.
+
+> Works on Linux, macOS, Windows, Android and iOS!
 
 ### Features
 

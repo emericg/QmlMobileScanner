@@ -13,7 +13,7 @@
 
 ZXingCppVideoFilter::ZXingCppVideoFilter(QObject *parent) : QObject(parent)
 {
-    m_readerOptions.setMinLineCount(3); // default is 2
+    m_readerOptions.setMinLineCount(4); // default is 2
     m_readerOptions.setMaxNumberOfSymbols(4); // default is 255
 }
 
@@ -35,7 +35,7 @@ Result ZXingCppVideoFilter::process(const QVideoFrame &frame)
         //qDebug() << "Decoding : Time between last decode : " << m_processTimer.elapsed();
 
         m_decoding = true;
-        m_processThread = QtConcurrent::run([=]() {
+        m_processThread = QtConcurrent::run([=, this]() {
             QElapsedTimer t;
             t.start();
 

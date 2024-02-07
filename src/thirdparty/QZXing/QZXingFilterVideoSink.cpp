@@ -68,7 +68,7 @@ void QZXingFilter::processFrame(const QVideoFrame &frame)
     {
         m_decoding = true;
 
-        m_processThread = QtConcurrent::run([=]() {
+        m_processThread = QtConcurrent::run([=, this]() {
 
             QImage image = frame.toImage(); // moved here, from outside the QtConcurrent::run()
             if (image.isNull())

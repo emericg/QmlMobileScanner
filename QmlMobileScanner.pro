@@ -100,7 +100,6 @@ android {
     # ANDROID_TARGET_ARCH: [x86_64, armeabi-v7a, arm64-v8a]
     #message("ANDROID_TARGET_ARCH: $$ANDROID_TARGET_ARCH")
 
-
     ANDROID_PACKAGE_SOURCE_DIR = $${PWD}/assets/android
 
     DISTFILES += $${PWD}/assets/android/AndroidManifest.xml \
@@ -118,8 +117,6 @@ macx {
 ios {
     QMAKE_IOS_DEPLOYMENT_TARGET = 14.0
     #message("QMAKE_IOS_DEPLOYMENT_TARGET: $$QMAKE_IOS_DEPLOYMENT_TARGET")
-
-    CONFIG += no_autoqmake
 
     # OS infos
     QMAKE_INFO_PLIST = $${PWD}/assets/ios/Info.plist

@@ -202,14 +202,18 @@ public:
 
     ///
 
-    static Result ReadBarcode(const QImage &img, const ZXing::ReaderOptions &opts = {});
+    static Result ReadBarcode(const QImage &img,
+                              const ZXing::ReaderOptions &opts = {});
 
-    static Result ReadBarcode(const QVideoFrame &frame, const ZXing::ReaderOptions &opts = {},
+    static Result ReadBarcode(const QVideoFrame &frame,
+                              const ZXing::ReaderOptions &opts = {},
                               const QRect captureRect = QRect());
 
-    static QList<Result> ReadBarcodes(const QImage &img, const ZXing::ReaderOptions &opts = {});
+    static QList<Result> ReadBarcodes(const QImage &img,
+                                      const ZXing::ReaderOptions &opts = {});
 
-    static QList<Result> ReadBarcodes(const QVideoFrame &frame, const ZXing::ReaderOptions &opts = {},
+    static QList<Result> ReadBarcodes(const QVideoFrame &frame,
+                                      const ZXing::ReaderOptions &opts = {},
                                       const QRect captureRect = QRect());
 
     ///

@@ -126,8 +126,9 @@ QList<Result> ZXingCpp::ReadBarcodes(const QImage &img, const ZXing::ReaderOptio
     };
 
     auto exec = [&](const QImage &img) {
-        return QListResults(ZXing::ReadBarcodes({img.bits(), img.width(), img.height(),
-                                                 ImgFmtFromQImg(img), static_cast<int>(img.bytesPerLine())},
+
+        return QListResults(ZXing::ReadBarcodes(ZXing::ImageView { img.constBits(), img.width(), img.height(),
+                                                                   ImgFmtFromQImg(img), static_cast<int>(img.bytesPerLine()) },
                                                 opts));
     };
 
