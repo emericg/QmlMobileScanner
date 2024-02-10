@@ -45,7 +45,7 @@ Loader {
 
         if (screenBarcodeReader.status === Loader.Ready) {
             screenBarcodeReader.item.close()
-            if (isMobile) screenBarcodeReader.active = false // crash on desktop !?!
+            //if (isMobile) screenBarcodeReader.active = false // crash !?!
         }
     }
 
@@ -81,6 +81,7 @@ Loader {
         function open_video() {
             console.log(">> open_video()")
             currentMode = "video"
+
             camera.active = true
             videoOutput.visible = true
             imageOutput.visible = false
@@ -88,6 +89,7 @@ Loader {
         function open_image(file) {
             console.log(">> open_image()")
             currentMode = "image"
+
             if (file) imageOutput.source = file
             videoOutput.visible = false
             imageOutput.visible = true
@@ -95,7 +97,7 @@ Loader {
         function close() {
             //console.log(">> close()")
 
-            //camera.active = false // crash !?!
+            camera.active = false // crash !?!
 
             if (isMobile) {
                 //appWindow.showNormal()
@@ -133,10 +135,14 @@ Loader {
 
             camera: Camera {
                 id: camera
-                active: true
+
+                active: false
                 focusMode: Camera.FocusModeAutoNear
 
                 cameraDevice: mediaDevices.videoInputs[mediaDevices.selectedDevice] ? mediaDevices.videoInputs[mediaDevices.selectedDevice] : mediaDevices.defaultVideoInput
+                cameraFormat: utilsCamera.selectCameraFormat(mediaDevices.selectedDevice)
+
+                //onCameraDeviceChanged: cameraFormat = utilsCamera.selectCameraFormat(mediaDevices.selectedDevice)
                 onErrorOccurred: (errorString) => { console.log("CaptureSession::Camera ERROR " + errorString) }
             }
         }
@@ -190,13 +196,14 @@ Loader {
                 anchors.bottom: parent.bottom
                 color: "black"
                 opacity: 0.4
-                visible: !captureZone.visible
+                visible: !settingsManager.scan_fullscreen && !captureZone.visible
             }
             Item {
                 id: captureZone
                 anchors.fill: parent
 
-                visible: !(appDrawer.visible ||
+                visible: !settingsManager.scan_fullscreen &&
+                         !(appDrawer.visible ||
                            imageOutput.visible ||
                            menuDebug.visible || menuFormats.visible ||
                            menuCamera.visible || menuScreens.visible)

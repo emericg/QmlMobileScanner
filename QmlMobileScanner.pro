@@ -43,12 +43,14 @@ SOURCES  += src/main.cpp \
             src/SettingsManager.cpp \
             src/DatabaseManager.cpp \
             src/BarcodeManager.cpp \
-            src/Barcode.cpp
+            src/Barcode.cpp \
+            src/utils_camera.cpp
 
 HEADERS  += src/DatabaseManager.h  \
             src/SettingsManager.h \
             src/BarcodeManager.h \
-            src/Barcode.h
+            src/Barcode.h \
+            src/utils_camera.h
 
 INCLUDEPATH += src/ src/thirdparty/
 
