@@ -184,10 +184,14 @@ Loader {
             function printInfos() {
                 console.log("> Camera > " + mediaDevices.selectedDevice.description)
                 console.log("- videoOutput sz: " + videoOutput.x + "," + videoOutput.y + " - " + videoOutput.width + "x" + videoOutput.height)
+                console.log("- videoOutput2sz: (SCALED) " + videoOutput.x*utilsScreen.screenPar + "," + videoOutput.y*utilsScreen.screenPar + " - " +
+                                                            videoOutput.width*utilsScreen.screenPar + "x" + videoOutput.height*utilsScreen.screenPar)
                 console.log("- sourceRect  sz: " + videoOutput.sourceRect.x.toFixed() + "," + videoOutput.sourceRect.y + " - " +
                                                    videoOutput.sourceRect.width + "x" + videoOutput.sourceRect.height)
                 console.log("- contentRect sz: " + videoOutput.contentRect.x.toFixed() + "," + videoOutput.contentRect.y.toFixed() + " - " +
                                                    videoOutput.contentRect.width.toFixed() + "x" + videoOutput.contentRect.height.toFixed())
+                console.log("- contentRect sz: (SCALED) " + videoOutput.contentRect.x.toFixed()*utilsScreen.screenPar + "," + videoOutput.contentRect.y.toFixed()*utilsScreen.screenPar + " - " +
+                                                            videoOutput.contentRect.width.toFixed()*utilsScreen.screenPar + "x" + videoOutput.contentRect.height.toFixed()*utilsScreen.screenPar)
                 console.log("- captureRect sz: " + barcodeReader.captureRect.x.toFixed() + "," + barcodeReader.captureRect.y.toFixed() + " - " +
                                                    barcodeReader.captureRect.width.toFixed() + "x" + barcodeReader.captureRect.height.toFixed())
             }
@@ -318,34 +322,35 @@ Loader {
                 }
 
                 ////////
+            }
 
-                Repeater {
-                    model: barcodeManager.barcodes
+            ////////
 
-                    Shape {
-                        anchors.fill: parent
+            Repeater {
+                model: barcodeManager.barcodes
 
-                        antialiasing: true
-                        opacity: modelData.isOnScreen ? 0.80 : 0
-                        Behavior on opacity { NumberAnimation { duration: 133 } }
+                Shape {
+                    anchors.fill: parent
+                    //scale: 0.5
 
-                        ShapePath {
-                            strokeWidth: 4
-                            strokeColor: modelData.color
-                            strokeStyle: ShapePath.SolidLine
-                            fillColor: "transparent"
+                    antialiasing: true
+                    opacity: modelData.isOnScreen ? 0.80 : 0
+                    Behavior on opacity { NumberAnimation { duration: 133 } }
 
-                            startX: modelData.lastCoordinates[3].x
-                            startY: modelData.lastCoordinates[3].y
-                            PathLine { x: modelData.lastCoordinates[0].x; y: modelData.lastCoordinates[0].y; }
-                            PathLine { x: modelData.lastCoordinates[1].x; y: modelData.lastCoordinates[1].y; }
-                            PathLine { x: modelData.lastCoordinates[2].x; y: modelData.lastCoordinates[2].y; }
-                            PathLine { x: modelData.lastCoordinates[3].x; y: modelData.lastCoordinates[3].y; }
-                        }
+                    ShapePath {
+                        strokeWidth: 4
+                        strokeColor: modelData.color
+                        strokeStyle: ShapePath.SolidLine
+                        fillColor: "transparent"
+
+                        startX: modelData.lastCoordinates[3].x
+                        startY: modelData.lastCoordinates[3].y
+                        PathLine { x: modelData.lastCoordinates[0].x; y: modelData.lastCoordinates[0].y; }
+                        PathLine { x: modelData.lastCoordinates[1].x; y: modelData.lastCoordinates[1].y; }
+                        PathLine { x: modelData.lastCoordinates[2].x; y: modelData.lastCoordinates[2].y; }
+                        PathLine { x: modelData.lastCoordinates[3].x; y: modelData.lastCoordinates[3].y; }
                     }
                 }
-
-                ////////
             }
 
             ////

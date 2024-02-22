@@ -181,7 +181,7 @@ bool BarcodeManager::addBarcode(const QString &data, const QString &format,
             Barcode *bbc = qobject_cast<Barcode*>(bc);
             if (bbc && (bbc->getData() == data))
             {
-                qDebug() << "tag exist (" << data << ")";
+                //qDebug() << "addBarcode(" << data << ") EXIST ALREADY";
 
                 bbc->setLastSeen(QDateTime::currentDateTime());
                 bbc->setLastCoordinates(p1, p2, p3, p4);
@@ -199,12 +199,13 @@ bool BarcodeManager::addBarcode(const QString &data, const QString &format,
                                   dt, getAvailableColor(), this);
         if (bc)
         {
+            qDebug() << "addBarcode(" << data << ")";
+
+            bc->setLastSeen(QDateTime::currentDateTime());
             bc->setLastCoordinates(p1, p2, p3, p4);
 
-            qDebug() << "addBarcode(" << data << ")";
             m_barcodes_onscreen.push_back(bc);
             Q_EMIT barcodesChanged();
-
             return true;
         }
     }
@@ -225,7 +226,7 @@ void BarcodeManager::addHistory(const QString &data, const QString &format,
             Barcode *bbc = qobject_cast<Barcode*>(bc);
             if (bbc && (bbc->getData() == data))
             {
-                qDebug() << "tag exist (" << data << ")";
+                //qDebug() << "addHistory(" << data << ") EXIST ALREADY";
                 return;
             }
         }

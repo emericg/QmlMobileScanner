@@ -30,7 +30,6 @@ class ZXingCppVideoFilter : public QObject
     Q_PROPERTY(bool tryDownscale READ tryDownscale WRITE setTryDownscale NOTIFY tryDownscaleChanged)
 
     bool m_active = true;
-    bool m_decoding = false;
     QFuture <void> m_processThread;
 
     QRect m_captureRect;

@@ -15,6 +15,7 @@ ZXingCppVideoFilter::ZXingCppVideoFilter(QObject *parent) : QObject(parent)
 {
     m_readerOptions.setMinLineCount(4); // default is 2
     m_readerOptions.setMaxNumberOfSymbols(4); // default is 255
+    //m_readerOptions.setBinarizer(ZXing::Binarizer::GlobalHistogram); // default is LocalAverage
 }
 
 ZXingCppVideoFilter::~ZXingCppVideoFilter()
@@ -30,11 +31,10 @@ void ZXingCppVideoFilter::stopFilter()
 
 Result ZXingCppVideoFilter::process(const QVideoFrame &frame)
 {
-    if (m_active && !m_decoding && m_processThread.isFinished())
+    if (m_active && m_processThread.isFinished())
     {
-        //qDebug() << "Decoding : Time between last decode : " << m_processTimer.elapsed();
+        //qWarning() << ">>> ZXingCppVideoFilter::process() >>> surfaceFormat(" << frame.surfaceFormat();
 
-        m_decoding = true;
         m_processThread = QtConcurrent::run([=, this]() {
             QElapsedTimer t;
             t.start();
@@ -43,7 +43,6 @@ Result ZXingCppVideoFilter::process(const QVideoFrame &frame)
             if (image.isNull())
             {
                 qWarning() << "ZXingCppVideoFilter error: Cant create image file to process.";
-                m_decoding = false;
                 return Result();
             }
 
@@ -66,8 +65,6 @@ Result ZXingCppVideoFilter::process(const QVideoFrame &frame)
                     emit tagFound(r);
                 }
             }
-
-            m_decoding = false;
 
             if (results.size())
             {

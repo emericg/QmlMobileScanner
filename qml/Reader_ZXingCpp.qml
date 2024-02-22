@@ -75,8 +75,10 @@ ZXingCppVideoFilter {
 
         if (result.isValid && result.text !== "") {
             var newbarcode = barcodeManager.addBarcode(result.text, result.formatName, result.contentType, "",
-                                                       mapPointToItem(result.position.topLeft), mapPointToItem(result.position.topRight),
-                                                       mapPointToItem(result.position.bottomRight), mapPointToItem(result.position.bottomLeft))
+                                                       mapPointToItem(result.position.topLeft),
+                                                       mapPointToItem(result.position.topRight),
+                                                       mapPointToItem(result.position.bottomRight),
+                                                       mapPointToItem(result.position.bottomLeft))
 
             if (newbarcode) {
                 utilsApp.vibrate(33)
@@ -85,9 +87,6 @@ ZXingCppVideoFilter {
         }
     }
 
-    onDecodingStarted: {
-        //console.log("ZXingCpp::onDecodingStarted()")
-    }
     onDecodingFinished: (result) => {
         if (framesDecodedTable.length >= 60) framesDecodedTotal -= framesDecodedTable.shift()
         framesDecodedTable.push(result.runTime)

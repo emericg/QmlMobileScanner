@@ -35,8 +35,10 @@ Item {
             height: 12
             radius: 12
             z: -1
-            opacity: 0.85
             color: barcode.color
+
+            opacity: barcode.isOnScreen ? 0.80 : 0
+            Behavior on opacity { NumberAnimation { duration: 133 } }
         }
     }
 

@@ -94,6 +94,8 @@ inline QList<Result> QListResults(ZXing::Results&& zxres)
     return res;
 }
 
+/* ************************************************************************** */
+
 Result ZXingCpp::ReadBarcode(const QImage &img, const ZXing::ReaderOptions &opts)
 {
     auto res = ReadBarcodes(img, ZXing::ReaderOptions(opts).setMaxNumberOfSymbols(1));
@@ -340,8 +342,7 @@ bool ZXingCpp::saveImage(const QString &data, int width, int height, int margins
     }
     else if (saveFileInfo.suffix() == "bmp" ||
              saveFileInfo.suffix() == "png" ||
-             saveFileInfo.suffix() == "jpg" ||
-             saveFileInfo.suffix() == "jpeg" ||
+             saveFileInfo.suffix() == "jpg" || saveFileInfo.suffix() == "jpeg" ||
              saveFileInfo.suffix() == "webp")
     {
         bool formatMatrix = (format & (int)BarcodeFormat::MatrixCodes);
