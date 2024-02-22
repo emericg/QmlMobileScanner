@@ -51,27 +51,54 @@ QCameraFormat UtilsCamera::selectCameraFormat(int idx)
         formats = QMediaDevices::videoInputs().at(idx).videoFormats();
     }
 
-    for (const auto &format : formats) {
-        //qDebug() << "QCameraFormat(" << idx << ") res: " << format.resolution() << " pix: " << format.pixelFormat();
+    int optimalPixelFormat = QVideoFrameFormat::Format_Invalid;
 
-        // square
+    for (const auto &format : formats)
+    {
+        //qWarning() << "QCameraFormat(" << idx << ") res: " << format.resolution() << " pix: " << format.pixelFormat();
 
-        if (format.resolution() == QSize(1080, 1080) &&
-            format.pixelFormat() == QVideoFrameFormat::Format_NV21) return format;
+        // square formats
 
-        if (format.resolution() == QSize(1200, 1200) &&
-            format.pixelFormat() == QVideoFrameFormat::Format_NV21) return format;
-
+        //if (format.resolution() == QSize(2448, 2448) &&
+        //    (!optimalPixelFormat || (optimalPixelFormat && format.pixelFormat() == optimalPixelFormat)))
+        //{
+        //    qWarning() << "SELECTED FORMAT res: " << format.resolution() << " pix: " << format.pixelFormat();
+        //    return format;
+        //}
         if (format.resolution() == QSize(1440, 1440) &&
-            format.pixelFormat() == QVideoFrameFormat::Format_NV21) return format;
+            (!optimalPixelFormat || (optimalPixelFormat && format.pixelFormat() == optimalPixelFormat)))
+        {
+            qWarning() << "SELECTED FORMAT res: " << format.resolution() << " pix: " << format.pixelFormat();
+            return format;
+        }
+        if (format.resolution() == QSize(1200, 1200) &&
+            (!optimalPixelFormat || (optimalPixelFormat && format.pixelFormat() == optimalPixelFormat)))
+        {
+            qWarning() << "SELECTED FORMAT res: " << format.resolution() << " pix: " << format.pixelFormat();
+            return format;
+        }
+        if (format.resolution() == QSize(1080, 1080) &&
+            (!optimalPixelFormat || (optimalPixelFormat && format.pixelFormat() == optimalPixelFormat)))
+        {
+            qWarning() << "SELECTED FORMAT res: " << format.resolution() << " pix: " << format.pixelFormat();
+            return format;
+        }
 
-        // non square
+        // non square formats
 
         if (format.resolution() == QSize(1440, 1080) &&
-            format.pixelFormat() == QVideoFrameFormat::Format_NV21) return format;
+            (!optimalPixelFormat || (optimalPixelFormat && format.pixelFormat() == optimalPixelFormat)))
+        {
+            qWarning() << "SELECTED FORMAT res: " << format.resolution() << " pix: " << format.pixelFormat();
+            return format;
+        }
 
         if (format.resolution() == QSize(2560, 1440) &&
-            format.pixelFormat() == QVideoFrameFormat::Format_NV21) return format;
+            (!optimalPixelFormat || (optimalPixelFormat && format.pixelFormat() == optimalPixelFormat)))
+        {
+            qWarning() << "SELECTED FORMAT res: " << format.resolution() << " pix: " << format.pixelFormat();
+            return format;
+        }
     }
 
     return QCameraFormat();

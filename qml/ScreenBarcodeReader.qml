@@ -140,10 +140,15 @@ Loader {
                 focusMode: Camera.FocusModeAutoNear
 
                 cameraDevice: mediaDevices.videoInputs[mediaDevices.selectedDevice] ? mediaDevices.videoInputs[mediaDevices.selectedDevice] : mediaDevices.defaultVideoInput
-                cameraFormat: utilsCamera.selectCameraFormat(mediaDevices.selectedDevice)
+                //cameraFormat: utilsCamera.selectCameraFormat(mediaDevices.selectedDevice)
 
-                //onCameraDeviceChanged: cameraFormat = utilsCamera.selectCameraFormat(mediaDevices.selectedDevice)
-                onErrorOccurred: (errorString) => { console.log("CaptureSession::Camera ERROR " + errorString) }
+                onCameraDeviceChanged: {
+                    console.log("CaptureSession::onCameraDeviceChanged()")
+                    //cameraFormat = utilsCamera.selectCameraFormat(mediaDevices.selectedDevice)
+                }
+                onErrorOccurred: (errorString) => {
+                    console.log("CaptureSession::onErrorOccurred() " + errorString)
+                }
             }
         }
 
