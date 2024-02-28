@@ -371,24 +371,24 @@ Loader {
                             id: lmSelectorBarcodes_zintqml
 
                             // matrix
-                            ListElement { idx:  0; type: "2d"; txt: "QrCode"; format: "qrcode";             maxnum: 0; maxchar: 4296; maxbytes: 2953; ecc: 4; }
-                            ListElement { idx:  1; type: "2d"; txt: "µQrCode"; format: "microqrcode";  maxnum: 0; maxchar: 21; maxbytes: 256; ecc: 4; }
-                            ListElement { idx:  2; type: "2d"; txt: "rect. µQrCode"; format: "rmqr";   maxnum: 0; maxchar: 21; maxbytes: 256; ecc: 4; }
-                            ListElement { idx:  3; type: "2d"; txt: "Aztec"; format: "aztec";               maxnum: 0; maxchar: 3067; maxbytes: 3067; ecc: 8; }
-                            ListElement { idx:  4; type: "2d"; txt: "DataMatrix"; format: "datamatrix";     maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
-                            ListElement { idx:  5; type: "2d"; txt: "PDF417"; format: "pdf417";             maxnum: 0; maxchar: 1850; maxbytes: 1108; ecc: 8; }
-                            ListElement { idx:  6; type: "2d"; txt: "µPDF417"; format: "micropdf417";  maxnum: 0; maxchar: 256; maxbytes: 1108; ecc: 8; }
-                            ListElement { idx:  7; type: "2d"; txt: "GridMatrix"; format: "gridmatrix";     maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
+                            ListElement { idx:  0; type: "2d"; txt: "QrCode"; format: "qrcode";         maxnum: 0; maxchar: 4296; maxbytes: 2953; ecc: 4; }
+                            ListElement { idx:  1; type: "2d"; txt: "µQrCode"; format: "microqrcode";   maxnum: 0; maxchar: 21; maxbytes: 256; ecc: 4; }
+                            ListElement { idx:  2; type: "2d"; txt: "rect. µQrCode"; format: "rmqr";    maxnum: 0; maxchar: 21; maxbytes: 256; ecc: 4; }
+                            ListElement { idx:  3; type: "2d"; txt: "Aztec"; format: "aztec";           maxnum: 0; maxchar: 3067; maxbytes: 3067; ecc: 8; }
+                            ListElement { idx:  4; type: "2d"; txt: "DataMatrix"; format: "datamatrix"; maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
+                            ListElement { idx:  5; type: "2d"; txt: "PDF417"; format: "pdf417";         maxnum: 0; maxchar: 1850; maxbytes: 1108; ecc: 8; }
+                            ListElement { idx:  6; type: "2d"; txt: "µPDF417"; format: "micropdf417";   maxnum: 0; maxchar: 256; maxbytes: 1108; ecc: 8; }
+                            ListElement { idx:  7; type: "2d"; txt: "GridMatrix"; format: "gridmatrix"; maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
                             // esoteric (but fun)
-                            ListElement { idx: 8; type: "2d"; txt: "DotCode"; format: "dotcode";           maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
-                            ListElement { idx: 9; type: "2d"; txt: "MaxiCode"; format: "maxicode";         maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
-                            ListElement { idx: 10; type: "2d"; txt: "UltraCode"; format: "ultracode";       maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
-                            ListElement { idx: 11; type: "2d"; txt: "Code One"; format: "codeone";          maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
+                            ListElement { idx: 8; type: "2d"; txt: "DotCode"; format: "dotcode";        maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
+                            ListElement { idx: 9; type: "2d"; txt: "MaxiCode"; format: "maxicode";      maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
+                            ListElement { idx: 10; type: "2d"; txt: "UltraCode"; format: "ultracode";   maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
+                            ListElement { idx: 11; type: "2d"; txt: "Code One"; format: "codeone";      maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
                             // esoteric (but not particularly fun)
-                            //ListElement { idx: 8; type: "2d"; txt: "HanXin"; format: "hanxin";             maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
-                            //ListElement { idx: 9; type: "2d"; txt: "Code 49"; format: "code49";            maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
-                            //ListElement { idx: 10; type: "2d"; txt: "Code 16k"; format: "code16k";          maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
-                            //ListElement { idx: 11; type: "2d"; txt: "Codablock F"; format: "codablockf";    maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
+                            //ListElement { idx: 8; type: "2d"; txt: "HanXin"; format: "hanxin";            maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
+                            //ListElement { idx: 9; type: "2d"; txt: "Code 49"; format: "code49";           maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
+                            //ListElement { idx: 10; type: "2d"; txt: "Code 16k"; format: "code16k";        maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
+                            //ListElement { idx: 11; type: "2d"; txt: "Codablock F"; format: "codablockf";  maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
                         }
                         ListModel {
                             id: lmSelectorBarcodes_zxingcpp

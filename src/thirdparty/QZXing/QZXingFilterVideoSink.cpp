@@ -4,35 +4,50 @@
 
 QZXingFilter::QZXingFilter(QObject *parent) : QObject(parent)
 {
-    /// Connecting signals to handlers that will send signals to QML
-    connect(&m_decoder, &QZXing::decodingStarted,
-            this, &QZXingFilter::handleDecodingStarted);
-    connect(&m_decoder, &QZXing::decodingFinished,
-            this, &QZXingFilter::handleDecodingFinished);
+    connect(&m_decoder, &QZXing::decodingStarted, this, &QZXingFilter::handleDecodingStarted);
+    connect(&m_decoder, &QZXing::decodingFinished, this, &QZXingFilter::handleDecodingFinished);
 }
 
 QZXingFilter::~QZXingFilter()
 {
-    if(!m_processThread.isFinished())
+    stopFilter();
+}
+
+void QZXingFilter::stopFilter()
+{
+    if (!m_processThread.isFinished())
     {
         m_processThread.cancel();
         m_processThread.waitForFinished();
     }
+
+    m_active = false;
+    if (m_videoSink) disconnect(m_videoSink, nullptr, this, nullptr);
 }
 
-void QZXingFilter::handleDecodingStarted()
+void QZXingFilter::setVideoSink(QObject *sink)
 {
-    m_decoding = true;
-    emit decodingStarted();
-    emit isDecodingChanged();
+    if (!sink) return;
+    if (m_videoSink == sink) return;
+    if (m_videoSink) disconnect(m_videoSink, nullptr, this, nullptr);
+
+    m_active = true;
+
+    m_videoSink = qobject_cast<QVideoSink*>(sink);
+
+    connect(m_videoSink, &QVideoSink::videoFrameChanged,
+            this, &QZXingFilter::processFrame,
+            Qt::QueuedConnection);
 }
 
-void QZXingFilter::handleDecodingFinished(bool succeeded)
+void QZXingFilter::setCaptureRect(const QRect &captureRect)
 {
-    m_decoding = false;
-    emit decodingFinished(succeeded, m_decoder.getProcessTimeOfLastDecoding());
-    emit isDecodingChanged();
+    if (captureRect == m_captureRect) return;
+
+    m_captureRect = captureRect;
+    emit captureRectChanged();
 }
+
 
 void QZXingFilter::setOrientation(int orientation)
 {
@@ -42,52 +57,42 @@ void QZXingFilter::setOrientation(int orientation)
     emit orientationChanged(m_orientation);
 }
 
-void QZXingFilter::setVideoSink(QObject *videoSink)
+void QZXingFilter::handleDecodingStarted()
 {
-    if (m_videoSink == videoSink) return;
-    if (!videoSink) return;
+    emit decodingStarted();
+}
 
-    if (m_videoSink)
-    {
-        disconnect(m_videoSink, &QVideoSink::videoFrameChanged, this, &QZXingFilter::processFrame);
-    }
-
-    m_videoSink = qobject_cast<QVideoSink*>(videoSink);
-
-    connect(m_videoSink, &QVideoSink::videoFrameChanged,
-            this, &QZXingFilter::processFrame,
-            Qt::DirectConnection);
+void QZXingFilter::handleDecodingFinished(bool succeeded)
+{
+    emit decodingFinished(succeeded, m_decoder.getProcessTimeOfLastDecoding());
 }
 
 void QZXingFilter::processFrame(const QVideoFrame &frame)
 {
     if (m_decoder.getEnabledFormats() == QZXing::DecoderFormat_None) return;
-    if (!m_videoSink) return;
 
-    if (!isDecoding() && m_processThread.isFinished())
+    if (m_active && m_videoSink && m_processThread.isFinished())
     {
-        m_decoding = true;
+        //qWarning() << ">>> QZXingFilter::process() >>> surfaceFormat > " << frame.surfaceFormat() << " > rotation > " << frame.rotationAngle();
 
         m_processThread = QtConcurrent::run([=, this]() {
             QImage image = frame.toImage(); // moved here, from outside the QtConcurrent::run()
             if (image.isNull())
             {
                 qWarning() << "QZXingFilter error: Cant create image file to process.";
-                m_decoding = false;
                 return;
             }
 
             QImage frameToProcess(image);
-            const QRect &rect = m_captureRect.toRect();
 
-            if (m_captureRect.isValid() && frameToProcess.size() != rect.size())
+            if (m_captureRect.isValid() && frameToProcess.size() != m_captureRect.size())
             {
-                frameToProcess = image.copy(rect);
+                frameToProcess = image.copy(m_captureRect);
             }
 
             if (!m_orientation)
             {
-                m_decoder.decodeImage(frameToProcess); //, frameToProcess.width(), frameToProcess.height());
+                m_decoder.decodeImage(frameToProcess/*, frameToProcess.width(), frameToProcess.height()*/);
             }
             else
             {

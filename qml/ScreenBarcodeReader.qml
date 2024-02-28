@@ -18,6 +18,7 @@ Loader {
         appContent.state = "ScreenBarcodeReader"
 
         mobileUI.setScreenAlwaysOn(true)
+
         screenBarcodeReader.active = true
 
         if (screenBarcodeReader.status === Loader.Ready)
@@ -144,7 +145,6 @@ Loader {
 
                 onCameraDeviceChanged: {
                     console.log("CaptureSession::onCameraDeviceChanged()")
-                    //cameraFormat = utilsCamera.selectCameraFormat(mediaDevices.selectedDevice)
                 }
                 onErrorOccurred: (errorString) => {
                     console.log("CaptureSession::onErrorOccurred() " + errorString)
@@ -170,8 +170,8 @@ Loader {
 
             orientation: 0
 
-            // Stretch / PreserveAspectFit / PreserveAspectCrop
             fillMode: VideoOutput.PreserveAspectCrop
+            //fillMode: VideoOutput.PreserveAspectFit
 
             // Capture rectangle
             property double captureRectStartFactorX: 0.05
@@ -182,7 +182,8 @@ Loader {
             ////
 
             function printInfos() {
-                console.log("> Camera > " + mediaDevices.selectedDevice.description)
+                console.log("> Camera > " + mediaDevices.videoInputs[mediaDevices.selectedDevice].description)
+
                 console.log("- videoOutput sz: " + videoOutput.x + "," + videoOutput.y + " - " + videoOutput.width + "x" + videoOutput.height)
                 console.log("- videoOutput2sz: (SCALED) " + videoOutput.x*utilsScreen.screenPar + "," + videoOutput.y*utilsScreen.screenPar + " - " +
                                                             videoOutput.width*utilsScreen.screenPar + "x" + videoOutput.height*utilsScreen.screenPar)
@@ -365,8 +366,8 @@ Loader {
             visible: false
             source: ""
 
-            // Stretch / PreserveAspectFit / PreserveAspectCrop
             fillMode: VideoOutput.PreserveAspectFit
+            //fillMode: VideoOutput.PreserveAspectCrop
 
             ////
 
@@ -416,9 +417,20 @@ Loader {
             id: overlays
             anchors.fill: parent
 
+            MouseArea {
+                anchors.fill: parent
+                enabled: (menuDebug.visible || menuFormats.visible || menuCamera.visible || menuScreens.visible)
+                onClicked: {
+                    menuDebug.visible = false
+                    menuFormats.visible = false
+                    menuCamera.visible = false
+                    menuScreens.visible = false
+                }
+            }
+
             ////////
 
-            Item { // debug infos
+            Item { // debug infos (top/left)
                 anchors.top: parent.top
                 anchors.topMargin: Theme.componentMargin + Math.max(screenPaddingTop, screenPaddingStatusbar)
                 anchors.left: parent.left
@@ -448,18 +460,8 @@ Loader {
 
             ////////
 
-            MouseArea {
-                anchors.fill: parent
-                enabled: (menuDebug.visible || menuFormats.visible || menuCamera.visible || menuScreens.visible)
-                onClicked: {
-                    menuDebug.visible = false
-                    menuFormats.visible = false
-                    menuCamera.visible = false
-                    menuScreens.visible = false
-                }
-            }
-            Row { // top/right menu
-                id: toprightmenu
+            Row { // menus (top/right)
+                id: toprightmenus
                 anchors.top: parent.top
                 anchors.topMargin: Theme.componentMargin + Math.max(screenPaddingStatusbar, screenPaddingTop)
                 anchors.right: parent.right
@@ -667,6 +669,8 @@ Loader {
                 ////
             }
 
+            ////////
+
             MenuDebug {
                 id: menuDebug
             }
@@ -683,8 +687,8 @@ Loader {
 
             ////////
 
-            Column { // bottom menu
-                id: bottomemnu
+            Column { // bottom menus
+                id: bottomemnus
                 anchors.left: parent.left
                 anchors.leftMargin: Theme.componentMarginXL
                 anchors.right: parent.right

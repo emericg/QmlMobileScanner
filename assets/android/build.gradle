@@ -98,6 +98,7 @@ android {
         exclude 'lib/*/*_Controls_Fusion_*'
         exclude 'lib/*/*_Controls_Imagine_*'
         exclude 'lib/*/*_Controls_Universal_*'
+
         // image formats
         exclude 'lib/*/*_imageformats_qgif_*'
         exclude 'lib/*/*_imageformats_qico_*'
@@ -107,8 +108,9 @@ android {
         exclude 'lib/*/*_imageformats_qtiff_*'
         exclude 'lib/*/*_imageformats_qwbmp_*'
         //exclude 'lib/*/*_imageformats_qwebp_*'
+
         // multimedia backend
         //exclude 'lib/*/*_multimedia_androidmediaplugin_*'
-        exclude 'lib/*/*_multimedia_ffmpegmediaplugin_*'
+        //exclude 'lib/*/*_multimedia_ffmpegmediaplugin_*'
     }
 }

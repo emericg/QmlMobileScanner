@@ -15,7 +15,7 @@ Rectangle {
 
     property int headerHeight: 52
 
-    property int headerPosition: 64
+    property int headerPosition: 60
 
     property string headerTitle: utilsApp.appName()
 

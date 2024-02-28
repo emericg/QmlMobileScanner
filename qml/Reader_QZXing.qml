@@ -8,6 +8,10 @@ import ThemeEngine
 QZXingFilter {
     id: barcodeReader
 
+    property real timePerFrameDecode: 0
+    property int framesDecodedTotal: 0
+    property var framesDecodedTable: []
+
     videoSink: videoOutput.videoSink
     captureRect: settingsManager.scan_fullscreen ?
                      Qt.rect(videoOutput.sourceRect.x, videoOutput.sourceRect.y,
@@ -16,10 +20,6 @@ QZXingFilter {
                              videoOutput.sourceRect.height * videoOutput.captureRectStartFactorY,
                              videoOutput.sourceRect.width * videoOutput.captureRectFactorWidth,
                              videoOutput.sourceRect.height * videoOutput.captureRectFactorHeight)
-
-    property real timePerFrameDecode: 0
-    property int framesDecodedTotal: 0
-    property var framesDecodedTable: []
 
     decoder {
         tryHarder: settingsManager.scan_tryHarder

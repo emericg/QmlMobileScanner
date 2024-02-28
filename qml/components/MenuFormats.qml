@@ -5,9 +5,9 @@ import ThemeEngine 1.0
 
 Column {
     id: formatsCol
-    anchors.top: toprightmenu.bottom
+    anchors.top: toprightmenus.bottom
     anchors.topMargin: Theme.componentMargin
-    anchors.right: toprightmenu.right
+    anchors.right: toprightmenus.right
 
     width: singleColumn ? screenBarcodeReader.width - Theme.componentMargin*2 : 300
     spacing: Theme.componentMargin /2
@@ -15,32 +15,32 @@ Column {
 
     ListModel {
         id: formatsAvailable_zxingcpp
-        ListElement { text: "Linear codes"; value: 51070; }
-        ListElement { text: "Aztec"; value: 1; }
-        ListElement { text: "DataMatrix"; value: 128; }
-        ListElement { text: "MaxiCode"; value: 2048; }
-        ListElement { text: "PDF417"; value: 4096; }
-        ListElement { text: "QRCode"; value: 8192; }
-        ListElement { text: "µQRCode"; value: 65536; }
+        ListElement { txt: "Linear codes"; value: 51070; }
+        ListElement { txt: "Aztec"; value: 1; }
+        ListElement { txt: "DataMatrix"; value: 128; }
+        ListElement { txt: "MaxiCode"; value: 2048; }
+        ListElement { txt: "PDF417"; value: 4096; }
+        ListElement { txt: "QRCode"; value: 8192; }
+        ListElement { txt: "µQRCode"; value: 65536; }
     }
     ListModel {
         id: formatsAvailable_qzxing
-        ListElement { text: "Linear codes"; value: 517052; }
-        ListElement { text: "Aztec"; value: 2; }
-        ListElement { text: "DataMatrix"; value: 64; }
-        ListElement { text: "MaxiCode"; value: 1024; }
-        ListElement { text: "PDF417"; value: 2048; }
-        ListElement { text: "QRCode"; value: 4096; }
+        ListElement { txt: "Linear codes"; value: 517052; }
+        ListElement { txt: "Aztec"; value: 2; }
+        ListElement { txt: "DataMatrix"; value: 64; }
+        ListElement { txt: "MaxiCode"; value: 1024; }
+        ListElement { txt: "PDF417"; value: 2048; }
+        ListElement { txt: "QRCode"; value: 4096; }
     }
 
     Repeater {
         model: (settingsManager.backend_reader === "zxingcpp") ? formatsAvailable_zxingcpp : formatsAvailable_qzxing
 
-        Item {
+        delegate: Item {
             width: parent.width
             height: 40
 
-            required property var modelData
+            //required property var modelData
 
             Rectangle {
                 anchors.fill: parent
@@ -54,10 +54,10 @@ Column {
                 width: parent.width - 16
                 LayoutMirroring.enabled: true
 
-                text: modelData.text
+                text: txt
                 colorText: "white"
                 colorSubText: "grey"
-                checked: (settingsManager.formatsEnabled & modelData.value)
+                checked: (settingsManager.formatsEnabled & value)
                 onClicked: {
                     if (settingsManager.formatsEnabled & modelData.value)
                         settingsManager.formatsEnabled -= modelData.value

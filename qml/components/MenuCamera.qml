@@ -5,9 +5,9 @@ import ThemeEngine 1.0
 
 Column {
     id: cameraCol
-    anchors.top: toprightmenu.bottom
+    anchors.top: toprightmenus.bottom
     anchors.topMargin: Theme.componentMargin
-    anchors.right: toprightmenu.right
+    anchors.right: toprightmenus.right
 
     width: singleColumn ? screenBarcodeReader.width - Theme.componentMargin*2 : 320
     spacing: Theme.componentMargin
@@ -16,9 +16,11 @@ Column {
     Repeater {
         model: mediaDevices.videoInputs
 
-        Item {
+        delegate: Item {
             width: parent.width
             height: 40
+
+            //required property var modelData
 
             Rectangle {
                 anchors.fill: parent

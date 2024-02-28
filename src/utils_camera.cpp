@@ -53,18 +53,11 @@ QCameraFormat UtilsCamera::selectCameraFormat(int idx)
 
     int optimalPixelFormat = QVideoFrameFormat::Format_Invalid;
 
+    // square formats
     for (const auto &format : formats)
     {
-        //qWarning() << "QCameraFormat(" << idx << ") res: " << format.resolution() << " pix: " << format.pixelFormat();
+        qWarning() << "QCameraFormat(" << idx << ") res: " << format.resolution() << " pix: " << format.pixelFormat();
 
-        // square formats
-
-        //if (format.resolution() == QSize(2448, 2448) &&
-        //    (!optimalPixelFormat || (optimalPixelFormat && format.pixelFormat() == optimalPixelFormat)))
-        //{
-        //    qWarning() << "SELECTED FORMAT res: " << format.resolution() << " pix: " << format.pixelFormat();
-        //    return format;
-        //}
         if (format.resolution() == QSize(1440, 1440) &&
             (!optimalPixelFormat || (optimalPixelFormat && format.pixelFormat() == optimalPixelFormat)))
         {
@@ -83,8 +76,12 @@ QCameraFormat UtilsCamera::selectCameraFormat(int idx)
             qWarning() << "SELECTED FORMAT res: " << format.resolution() << " pix: " << format.pixelFormat();
             return format;
         }
+    }
 
-        // non square formats
+    // non square formats
+    for (const auto &format : formats)
+    {
+        qWarning() << "QCameraFormat(" << idx << ") res: " << format.resolution() << " pix: " << format.pixelFormat();
 
         if (format.resolution() == QSize(1440, 1080) &&
             (!optimalPixelFormat || (optimalPixelFormat && format.pixelFormat() == optimalPixelFormat)))

@@ -20,69 +20,34 @@ ZXingCppVideoFilter::ZXingCppVideoFilter(QObject *parent) : QObject(parent)
 
 ZXingCppVideoFilter::~ZXingCppVideoFilter()
 {
-    if (m_videoSink) disconnect(m_videoSink, nullptr, this, nullptr);
+    stopFilter();
 }
 
 void ZXingCppVideoFilter::stopFilter()
 {
+    if (!m_processThread.isFinished())
+    {
+        m_processThread.cancel();
+        m_processThread.waitForFinished();
+    }
+
     m_active = false;
     if (m_videoSink) disconnect(m_videoSink, nullptr, this, nullptr);
 }
 
-Result ZXingCppVideoFilter::process(const QVideoFrame &frame)
+void ZXingCppVideoFilter::setVideoSink(QVideoSink *sink)
 {
-    if (m_active && m_processThread.isFinished())
-    {
-        //qWarning() << ">>> ZXingCppVideoFilter::process() >>> surfaceFormat(" << frame.surfaceFormat();
+    if (!sink) return;
+    if (m_videoSink == sink) return;
+    if (m_videoSink) disconnect(m_videoSink, nullptr, this, nullptr);
 
-        m_processThread = QtConcurrent::run([=, this]() {
-            QElapsedTimer t;
-            t.start();
+    m_active = true;
 
-            QImage image = frame.toImage(); // moved here, from outside the QtConcurrent::run()
-            if (image.isNull())
-            {
-                qWarning() << "ZXingCppVideoFilter error: Cant create image file to process.";
-                return Result();
-            }
+    m_videoSink = qobject_cast<QVideoSink*>(sink);
 
-            QImage imageToProcess(image);
-            if (m_captureRect.isValid() && imageToProcess.size() != m_captureRect.size())
-            {
-                imageToProcess = image.copy(m_captureRect);
-            }
-
-            auto results = ZXingCpp::ReadBarcodes(imageToProcess, m_readerOptions);
-            //auto results = ZXingCpp::ReadBarcodes(frame, m_readerOptions, m_captureRect);
-
-            for (auto &r: results)
-            {
-                //qDebug() << "+ barcode " << ZXing::ToString(r.format()) << ": " << r.text();
-
-                if (r.isValid() && m_active)
-                {
-                    r.runTime = t.elapsed();
-                    emit tagFound(r);
-                }
-            }
-
-            if (results.size())
-            {
-                results.first().runTime = t.elapsed();
-                emit decodingFinished(results.first());
-                return results.first();
-            }
-            else
-            {
-                Result r;
-                r.runTime = t.elapsed();
-                emit decodingFinished(r);
-                return r;
-            }
-        });
-    }
-
-    return Result();
+    connect(m_videoSink, &QVideoSink::videoFrameChanged,
+            this, &ZXingCppVideoFilter::process,
+            Qt::QueuedConnection);
 }
 
 void ZXingCppVideoFilter::setTryHarder(const bool value)
@@ -144,15 +109,44 @@ void ZXingCppVideoFilter::setCaptureRect(const QRect &captureRect)
     emit captureRectChanged();
 }
 
-void ZXingCppVideoFilter::setVideoSink(QVideoSink *sink)
+Result ZXingCppVideoFilter::process(const QVideoFrame &frame)
 {
-    if (m_videoSink == sink) return;
-    if (m_videoSink) disconnect(m_videoSink, nullptr, this, nullptr);
+    if (m_active && m_videoSink && m_processThread.isFinished())
+    {
+        //qWarning() << ">>> ZXingCppVideoFilter::process() >>> surfaceFormat > " << frame.surfaceFormat() << " > rotation > " << frame.rotationAngle();
 
-    m_videoSink = qobject_cast<QVideoSink*>(sink);
+        m_processThread = QtConcurrent::run([=, this]() {
+            QElapsedTimer t;
+            t.start();
 
-    m_active = true;
-    connect(m_videoSink, &QVideoSink::videoFrameChanged,
-            this, &ZXingCppVideoFilter::process,
-            Qt::DirectConnection);
+            auto results = ZXingCpp::ReadBarcodes2(frame, m_readerOptions, m_captureRect);
+
+            for (auto &r: results)
+            {
+                //qDebug() << "+ barcode " << ZXing::ToString(r.format()) << ": " << r.text();
+
+                if (r.isValid())
+                {
+                    r.runTime = t.elapsed();
+                    emit tagFound(r);
+                }
+            }
+
+            if (results.size())
+            {
+                results.first().runTime = t.elapsed();
+                emit decodingFinished(results.first());
+                return results.first();
+            }
+            else
+            {
+                Result r;
+                r.runTime = t.elapsed();
+                emit decodingFinished(r);
+                return r;
+            }
+        });
+    }
+
+    return Result();
 }

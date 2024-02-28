@@ -5,9 +5,9 @@ import ThemeEngine 1.0
 
 Column {
     id: screensCol
-    anchors.bottom: bottomemnu.top
+    anchors.bottom: bottomemnus.top
     anchors.bottomMargin: Theme.componentMarginXL
-    anchors.right: bottomemnu.right
+    anchors.right: bottomemnus.right
 
     width: singleColumn ? screenBarcodeReader.width - Theme.componentMarginXL*2 : 320
     spacing: Theme.componentMargin
@@ -22,7 +22,7 @@ Column {
             ListElement { idx: 5; txt: "About"; src: "qrc:/assets/icons_material/outline-info-24px.svg"; }
         }
 
-        Item {
+        delegate: Item {
             width: parent.width
             height: 40
 

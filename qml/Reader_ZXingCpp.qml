@@ -8,6 +8,10 @@ import ThemeEngine
 ZXingCppVideoFilter {
     id: barcodeReader
 
+    property real timePerFrameDecode: 0
+    property int framesDecodedTotal: 0
+    property var framesDecodedTable: []
+
     videoSink: videoOutput.videoSink
     captureRect: settingsManager.scan_fullscreen ?
                      Qt.rect(videoOutput.sourceRect.x, videoOutput.sourceRect.y,
@@ -16,6 +20,11 @@ ZXingCppVideoFilter {
                              videoOutput.sourceRect.height * videoOutput.captureRectStartFactorY,
                              videoOutput.sourceRect.width * videoOutput.captureRectFactorWidth,
                              videoOutput.sourceRect.height * videoOutput.captureRectFactorHeight)
+
+    tryHarder: settingsManager.scan_tryHarder
+    tryRotate: settingsManager.scan_tryRotate
+    tryInvert: settingsManager.scan_tryInvert
+    tryDownscale: settingsManager.scan_tryDownscale
 
     formats: settingsManager.formatsEnabled
 /*
@@ -32,15 +41,6 @@ ZXingCppVideoFilter {
              ZXingCpp.PDF417 |
              ZXingCpp.QRCode | ZXingCpp.MicroQRCode
 */
-    tryHarder: settingsManager.scan_tryHarder
-    tryRotate: settingsManager.scan_tryRotate
-    tryInvert: settingsManager.scan_tryInvert
-    tryDownscale: settingsManager.scan_tryDownscale
-
-    property real timePerFrameDecode: 0
-    property int framesDecodedTotal: 0
-    property var framesDecodedTable: []
-
     function mapPointToItem(point) {
         //console.log("mapPointToItem(" + point + ")")
 

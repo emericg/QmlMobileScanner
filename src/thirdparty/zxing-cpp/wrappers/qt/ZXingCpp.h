@@ -200,6 +200,9 @@ public:
     Q_INVOKABLE static int stringToFormat(const QString &str);
     Q_INVOKABLE static QString formatToString(const int fmt);
 
+    static int qimageFormatToXZingFormat(const QImage &img);
+    static int qvideoframeFormatToXZingFormat(const QVideoFrame &frame);
+
     ///
 
     static Result ReadBarcode(const QImage &img,
@@ -212,11 +215,16 @@ public:
     ///
 
     static QList<Result> ReadBarcodes(const QImage &img,
-                                      const ZXing::ReaderOptions &opts = {});
+                                      const ZXing::ReaderOptions &opts = {},
+                                      const QRect captureRect = QRect());
 
     static QList<Result> ReadBarcodes(const QVideoFrame &frame,
                                       const ZXing::ReaderOptions &opts = {},
                                       const QRect captureRect = QRect());
+
+    static QList<Result> ReadBarcodes2(const QVideoFrame &frame,
+                                       const ZXing::ReaderOptions &opts = {},
+                                       const QRect captureRect = QRect());
 
     ///
 

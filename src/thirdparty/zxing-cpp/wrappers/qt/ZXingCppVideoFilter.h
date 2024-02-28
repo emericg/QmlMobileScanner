@@ -10,17 +10,18 @@
 #include "ZXingCpp.h"
 
 #include <QObject>
-#include <QVideoFrame>
-#include <QVideoSink>
-#include <QFuture>
-#include <QPoint>
 #include <QRect>
+#include <QPoint>
+#include <QVideoSink>
+#include <QVideoFrame>
+#include <QFuture>
 
 class ZXingCppVideoFilter : public QObject
 {
     Q_OBJECT
 
     Q_PROPERTY(QVideoSink *videoSink MEMBER m_videoSink WRITE setVideoSink)
+
     Q_PROPERTY(QRect captureRect READ captureRect WRITE setCaptureRect NOTIFY captureRectChanged)
     Q_PROPERTY(int formats READ formats WRITE setFormats NOTIFY formatsChanged)
 
@@ -56,7 +57,7 @@ public slots:
 
 public:
     ZXingCppVideoFilter(QObject *parent = nullptr);
-    ~ZXingCppVideoFilter();
+    virtual ~ZXingCppVideoFilter();
 
     Q_INVOKABLE void stopFilter();
 

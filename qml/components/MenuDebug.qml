@@ -5,9 +5,9 @@ import ThemeEngine 1.0
 
 Column {
     id: debugCol
-    anchors.top: toprightmenu.bottom
+    anchors.top: toprightmenus.bottom
     anchors.topMargin: Theme.componentMargin
-    anchors.right: toprightmenu.right
+    anchors.right: toprightmenus.right
 
     width: singleColumn ? screenBarcodeReader.width - Theme.componentMargin*2 : 300
     spacing: Theme.componentMargin / 2
