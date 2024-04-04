@@ -15,7 +15,7 @@ on:
 env:
   APP_NAME: "QmlMobileScanner"
   APP_VERSION: "0.1"
-  QT_VERSION: "6.6.1"
+  QT_VERSION: "6.6.3"
 
 #-------------------------------------------------------------------------------
 # Workflow jobs
@@ -59,7 +59,6 @@ jobs:
           arch: 'android_arm64_v8a'
           modules: qtmultimedia qtpositioning qtshadertools qt5compat
           aqtversion: '==3.1.*'
-          py7zrversion: '==0.20.*'
           extra: '--autodesktop'
 
       # Setup env
@@ -93,7 +92,6 @@ jobs:
           target: 'ios'
           modules: qtmultimedia qtpositioning qtshadertools qt5compat
           aqtversion: '==3.1.*'
-          py7zrversion: '==0.20.*'
           extra: '--autodesktop'
 
       # Setup env
