@@ -26,6 +26,9 @@
 #include "utils_os_android.h"
 #elif defined(Q_OS_IOS)
 #include "utils_os_ios.h"
+#if defined(UTILS_NOTIFICATIONS_ENABLED)
+#include "utils_os_ios_notif.h"
+#endif
 #endif
 
 #include <QDir>
@@ -41,7 +44,13 @@
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 6, 0))
 #include <QQuickWindow>
 #include <rhi/qrhi.h> // <QRhi> // ?
-#endif
+#endif // Qt 6.6
+
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 5, 0))
+#include <QGuiApplication>
+#include <QStyleHints>
+#include <QPalette>
+#endif // Qt 6.5
 
 /* ************************************************************************** */
 
@@ -263,6 +272,28 @@ bool UtilsApp::isQColorLight(const QColor &color)
 {
     double darkness = 1.0 - (0.299 * color.red() + 0.587 * color.green() + 0.114 * color.blue()) / 255.0;
     return (darkness < 0.2);
+}
+
+/* ************************************************************************** */
+
+bool UtilsApp::isOsThemeDark()
+{
+    bool isDark = false;
+
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 5, 0))
+
+    const QStyleHints *styleHints = static_cast<QGuiApplication*>qApp->styleHints();
+    isDark = (styleHints && styleHints->colorScheme() == Qt::ColorScheme::Dark);
+
+#else
+
+    const QPalette defaultPalette = static_cast<QGuiApplication*>qApp->palette();
+    isDark = (defaultPalette.color(QPalette::WindowText).lightness() >
+              defaultPalette.color(QPalette::Window).lightness());
+
+#endif
+
+    return isDark;
 }
 
 /* ************************************************************************** */
@@ -570,8 +601,8 @@ bool UtilsApp::checkMobileNotificationPermission()
 {
 #if defined(Q_OS_ANDROID)
     return UtilsAndroid::checkPermission_notification();
-#elif defined(Q_OS_IOS)
-    return UtilsIOS::checkPermission_notification();
+#elif defined(Q_OS_IOS) && defined(UTILS_NOTIFICATIONS_ENABLED)
+    return UtilsIOSNotifications::checkPermission_notification();
 #endif
 
     return true;
@@ -581,8 +612,8 @@ bool UtilsApp::getMobileNotificationPermission()
 {
 #if defined(Q_OS_ANDROID)
     return UtilsAndroid::getPermission_notification();
-#elif defined(Q_OS_IOS)
-    return UtilsIOS::getPermission_notification();
+#elif defined(Q_OS_IOS) && defined(UTILS_NOTIFICATIONS_ENABLED)
+    return UtilsIOSNotifications::getPermission_notification();
 #endif
 
     return true;

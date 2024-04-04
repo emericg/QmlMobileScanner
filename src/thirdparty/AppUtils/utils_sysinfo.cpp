@@ -85,10 +85,6 @@ UtilsSysInfo::UtilsSysInfo()
         if (m_os_displayserver.isEmpty()) m_os_displayserver = "x11";
         else m_os_displayserver = "wayland";
     }
-    if (m_os_displayserver.isEmpty())
-    {
-        // TODO // check QT_QPA_PLATFORM
-    }
 #endif
 }
 
