@@ -1,9 +1,8 @@
 import QtCore
 import QtQuick
+import QtQuick.Effects
 import QtQuick.Layouts
 import QtQuick.Controls
-
-import Qt5Compat.GraphicalEffects
 
 import ThemeEngine
 
@@ -103,16 +102,13 @@ Item {
 
                         border.width: 2
                         border.color: Theme.colorComponentBorder
-                    }
-                    DropShadow {
-                        anchors.fill: shadowarea
-                        cached: true
-                        horizontalOffset: 0
-                        verticalOffset: 2
-                        radius: 6.0
-                        samples: 12
-                        color: "#20000000"
-                        source: shadowarea
+
+                        layer.enabled: true
+                        layer.effect:  MultiEffect {
+                            autoPaddingEnabled: true
+                            shadowEnabled: true
+                            shadowColor: "#20000000"
+                        }
                     }
 
                     Image {
@@ -172,13 +168,20 @@ Item {
                         }
 
                         layer.enabled: true
-                        layer.effect: OpacityMask {
-                            maskSource: Rectangle {
-                                x: qrcodearea.x
-                                y: qrcodearea.y
-                                width: qrcodearea.width
-                                height: qrcodearea.height
-                                radius: Theme.componentRadius
+                        layer.effect: MultiEffect {
+                            maskEnabled: true
+                            maskInverted: false
+                            maskThresholdMin: 0.5
+                            maskSpreadAtMin: 1.0
+                            maskSpreadAtMax: 0.0
+                            maskSource: ShaderEffectSource {
+                                sourceItem: Rectangle {
+                                    x: qrcodearea.x
+                                    y: qrcodearea.y
+                                    width: qrcodearea.width
+                                    height: qrcodearea.height
+                                    radius: Theme.componentRadius
+                                }
                             }
                         }
                     }
