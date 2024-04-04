@@ -36,7 +36,7 @@ Column {
 
                 text: modelData.description
                 font.pixelSize: Theme.componentFontSize
-                color: "white"
+                color: (index === mediaDevices.selectedDevice) ? Theme.colorPrimary : "white"
             }
             MouseArea {
                 anchors.fill: parent
@@ -52,7 +52,7 @@ Column {
                 anchors.right: parent.right
                 anchors.rightMargin: Theme.componentMargin
                 anchors.verticalCenter: parent.verticalCenter
-                color: "white"
+                color: (index === mediaDevices.selectedDevice) ? Theme.colorPrimary : "white"
                 source: {
                     if (index === mediaDevices.selectedDevice) return  "qrc:/assets/icons_material/baseline-check_circle-24px.svg"
                     if (modelData.isDefault) return  "qrc:/assets/icons_material/baseline-stars-24px.svg"

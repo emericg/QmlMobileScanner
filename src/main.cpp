@@ -57,9 +57,11 @@
 
 int main(int argc, char *argv[])
 {
-#if defined(Q_OS_ANDROID)
+#if defined(Q_OS_ANDROID) && (QT_VERSION <= QT_VERSION_CHECK(6,6,1))
     // Force "old" Android native multimedia backend
-    // ffmpeg multimedia backend is buggy as hell...
+    // android backend doesn't work past Qt 6.6.1
+    // ffmpeg backend doesn't work below Qt 6.6.2
+    // (ffmpeg multimedia backend is buggy as hell...)
     qputenv("QT_MEDIA_BACKEND", "android");
 #endif
 

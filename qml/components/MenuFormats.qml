@@ -59,10 +59,10 @@ Column {
                 colorSubText: "grey"
                 checked: (settingsManager.formatsEnabled & value)
                 onClicked: {
-                    if (settingsManager.formatsEnabled & modelData.value)
-                        settingsManager.formatsEnabled -= modelData.value
+                    if (settingsManager.formatsEnabled & value)
+                        settingsManager.formatsEnabled -= value
                     else
-                        settingsManager.formatsEnabled += modelData.value
+                        settingsManager.formatsEnabled += value
                 }
             }
         }
