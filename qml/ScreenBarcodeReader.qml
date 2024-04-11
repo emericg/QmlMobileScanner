@@ -118,7 +118,7 @@ Loader {
             width: 64; height: 64;
             anchors.centerIn: parent
             color: "#ccc"
-            source: "qrc:/assets/icons_material/baseline-hourglass_empty-24px.svg"
+            source: "qrc:/assets/icons/material-icons/outlined/hourglass_empty.svg"
         }
 
         ////////////////////////
@@ -491,7 +491,7 @@ Loader {
                         height: parent.height * 0.6
                         anchors.centerIn: parent
                         color: fileOpenDialog.visible ? Theme.colorYellow : "white"
-                        source: "qrc:/assets/icons_material/duotone-photo_library-24px.svg"
+                        source: "qrc:/assets/icons/material-icons/duotone/photo_library.svg"
                     }
                     MouseArea {
                         anchors.fill: parent
@@ -546,7 +546,7 @@ Loader {
                         height: parent.height * 0.6
                         anchors.centerIn: parent
                         color: "white"
-                        source: "qrc:/assets/icons_material/duotone-camera-24px.svg"
+                        source: "qrc:/assets/icons/material-icons/duotone/camera.svg"
                     }
                     MouseArea {
                         anchors.fill: parent
@@ -582,7 +582,7 @@ Loader {
                         height: parent.height * 0.6
                         anchors.centerIn: parent
                         color: menuDebug.visible ? Theme.colorYellow : "white"
-                        source: "qrc:/assets/icons_material/duotone-bug_report-24px.svg"
+                        source: "qrc:/assets/icons/material-icons/duotone/bug_report.svg"
                     }
                     MouseArea {
                         anchors.fill: parent
@@ -617,7 +617,7 @@ Loader {
                         height: parent.height * 0.6
                         anchors.centerIn: parent
                         color: menuFormats.visible ? Theme.colorYellow : "white"
-                        source: "qrc:/assets/icons_material/baseline-qr_code-24px.svg"
+                        source: "qrc:/assets/icons/material-symbols/qr_code.svg"
                     }
                     MouseArea {
                         anchors.fill: parent
@@ -652,7 +652,7 @@ Loader {
                         height: parent.height * 0.66
                         anchors.centerIn: parent
                         color: menuCamera.visible ? Theme.colorYellow : "white"
-                        source: "qrc:/assets/icons_material/duotone-cameraswitch-24px.svg"
+                        source: "qrc:/assets/icons/material-icons/duotone/cameraswitch.svg"
                     }
                     MouseArea {
                         anchors.fill: parent
@@ -739,7 +739,7 @@ Loader {
                             width: parent.height * 0.666
                             height: parent.height * 0.666
                             color: "white"
-                            source: "qrc:/assets/icons_material/baseline-search-24px.svg"
+                            source: "qrc:/assets/icons/material-symbols/search.svg"
 
                             SequentialAnimation {
                                 running: true
@@ -778,9 +778,9 @@ Loader {
                             color: (camera.torchMode === Camera.TorchOn) ? Theme.colorYellow : "white"
                             source: {
                                 if (camera.torchMode !== Camera.TorchOn)
-                                    return "qrc:/assets/icons_material/baseline-flash_off-24px.svg"
+                                    return "qrc:/assets/icons/material-symbols/media/flash_off.svg"
                                 else
-                                    return "qrc:/assets/icons_material/baseline-flash_on-24px.svg"
+                                    return "qrc:/assets/icons/material-symbols/media/flash_on.svg"
                             }
                         }
                         MouseArea {
@@ -810,7 +810,7 @@ Loader {
                             height: parent.height * 0.666
                             anchors.centerIn: parent
                             color: (appDrawer.opened || menuScreens.visible) ? Theme.colorYellow : "white"
-                            source: "qrc:/assets/icons_material/baseline-menu-24px.svg"
+                            source: "qrc:/assets/icons/material-symbols/menu.svg"
                         }
                         MouseArea {
                             anchors.fill: parent

@@ -54,8 +54,8 @@ Column {
                 anchors.verticalCenter: parent.verticalCenter
                 color: (index === mediaDevices.selectedDevice) ? Theme.colorPrimary : "white"
                 source: {
-                    if (index === mediaDevices.selectedDevice) return  "qrc:/assets/icons_material/baseline-check_circle-24px.svg"
-                    if (modelData.isDefault) return  "qrc:/assets/icons_material/baseline-stars-24px.svg"
+                    if (index === mediaDevices.selectedDevice) return  "qrc:/assets/icons/material-symbols/check_circle.svg"
+                    if (modelData.isDefault) return  "qrc:/assets/icons/material-symbols/stars-fill.svg"
                     return ""
                 }
             }

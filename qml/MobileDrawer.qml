@@ -48,7 +48,7 @@ DrawerThemed {
 
                     width: 40
                     height: 40
-                    source: "qrc:/assets/logos/logo_black.svg"
+                    source: "qrc:/assets/gfx/logos/logo_black.svg"
                     //sourceSize: Qt.size(width, height)
                     color: Theme.colorIcon
                 }
@@ -94,7 +94,7 @@ DrawerThemed {
                 DrawerItem {
                     highlighted: (appContent.state === "ScreenBarcodeReader")
                     text: qsTr("Barcode reader")
-                    iconSource: "qrc:/assets/icons_material/duotone-qr_code_scanner-24px.svg"
+                    source: "qrc:/assets/icons/material-icons/duotone/qr_code_scanner.svg"
 
                     onClicked: {
                         screenBarcodeReader.loadScreen()
@@ -105,7 +105,7 @@ DrawerThemed {
                 DrawerItem {
                     highlighted: (appContent.state === "ScreenBarcodeWriter")
                     text: qsTr("Barcode writer")
-                    iconSource: "qrc:/assets/icons_material/baseline-qr_code_2-24px.svg"
+                    source: "qrc:/assets/icons/material-symbols/qr_code_2.svg"
 
                     onClicked: {
                         screenBarcodeWriter.loadScreen()
@@ -120,7 +120,7 @@ DrawerThemed {
                 DrawerItem {
                     highlighted: (appContent.state === "ScreenBarcodeHistory")
                     text: qsTr("Barcodes history")
-                    iconSource: "qrc:/assets/icons_material/duotone-list-24px.svg"
+                    source: "qrc:/assets/icons/material-icons/duotone/list.svg"
 
                     onClicked: {
                         screenBarcodeHistory.loadScreen()
@@ -136,7 +136,7 @@ DrawerThemed {
 
                 DrawerItem {
                     text: qsTr("Settings")
-                    iconSource: "qrc:/assets/icons_material/outline-settings-24px.svg"
+                    source: "qrc:/assets/icons/material-symbols/settings.svg"
                     highlighted: (appContent.state === "ScreenSettings")
 
                     onClicked: {
@@ -147,7 +147,7 @@ DrawerThemed {
 
                 DrawerItem {
                     text: qsTr("About")
-                    iconSource: "qrc:/assets/icons_material/outline-info-24px.svg"
+                    source: "qrc:/assets/icons/material-symbols/info.svg"
                     highlighted: (appContent.state === "ScreenAbout" ||
                                   appContent.state === "ScreenAboutFormats" ||
                                   appContent.state === "ScreenAboutPermissions")

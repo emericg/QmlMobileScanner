@@ -27,8 +27,8 @@ Item {
         anchors.leftMargin: Theme.componentMargin
         anchors.verticalCenter: parent.verticalCenter
         color: "white"
-        source: barcode.isMatrix ? "qrc:/assets/icons_material/baseline-qr_code_2-24px.svg" :
-                                   "qrc:/assets/icons_bootstrap/upc.svg"
+        source: barcode.isMatrix ? "qrc:/assets/icons/material-symbols/qr_code_2.svg" :
+                                   "qrc:/assets/icons/material-symbols/barcode.svg"
 
         Rectangle {
             width: 12

@@ -130,7 +130,7 @@ Loader {
                             height: 80
                             anchors.centerIn: parent
                             visible: !barcodeAdvanced.barcode_string
-                            source: "qrc:/assets/icons_material/duotone-edit-24px.svg"
+                            source: "qrc:/assets/icons/material-icons/duotone/edit.svg"
                             color: Theme.colorIcon
                         }
                     }
@@ -153,7 +153,7 @@ Loader {
                             width: 80
                             height: 80
                             anchors.centerIn: parent
-                            source: "qrc:/assets/icons_material/baseline-broken_image-24px.svg"
+                            source: "qrc:/assets/icons/material-symbols/media/broken_image.svg"
                             color: Theme.colorError
                         }
                     }

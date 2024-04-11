@@ -44,7 +44,7 @@ Row {
         font.bold: true
 
         text: qsTr("save")
-        source: "qrc:/assets/icons_material/baseline-save-24px.svg"
+        source: "qrc:/assets/icons/material-symbols/save.svg"
         onClicked: fileSaveDialog.open()
 
         QZXing {

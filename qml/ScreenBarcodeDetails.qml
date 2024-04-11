@@ -242,12 +242,12 @@ Item {
                         anchors.verticalCenter: parent.verticalCenter
 
                         source: {
-                            if (barcode.content === "URL") return "qrc:/assets/icons_material/duotone-launch-24px.svg"
-                            if (barcode.content === "WiFi") return "qrc:/assets/icons_material/baseline-wifi-24px.svg"
-                            if (barcode.content === "Email") return "qrc:/assets/icons_material/outline-mail_outline-24px.svg"
-                            if (barcode.content === "Geolocation") return "qrc:/assets/icons_material/duotone-pin_drop-24px.svg"
-                            if (barcode.content === "Phone") return "qrc:/assets/icons_material/baseline-phone-24px.svg"
-                            if (barcode.content === "SMS") return "qrc:/assets/icons_material/duotone-question_answer-24px.svg"
+                            if (barcode.content === "URL") return "qrc:/assets/icons/material-icons/duotone/launch.svg"
+                            if (barcode.content === "WiFi") return "qrc:/assets/icons/material-symbols/wifi.svg"
+                            if (barcode.content === "Email") return "qrc:/assets/icons/material-symbols/outline-mail_outline.svg"
+                            if (barcode.content === "Geolocation") return "qrc:/assets/icons/material-icons/duotone/pin_drop.svg"
+                            if (barcode.content === "Phone") return "qrc:/assets/icons/material-symbols/phone.svg"
+                            if (barcode.content === "SMS") return "qrc:/assets/icons/material-icons/duotone/question_answer.svg"
                             return ""
                         }
                     }
@@ -278,8 +278,8 @@ Item {
                         width: 20
                         height: 20
 
-                        source: barcode.isMatrix ? "qrc:/assets/icons_material/baseline-qr_code_2-24px.svg" :
-                                                   "qrc:/assets/icons_bootstrap/barcode.svg"
+                        source: barcode.isMatrix ? "qrc:/assets/icons/material-symbols/qr_code_2.svg" :
+                                                   "qrc:/assets/icons/material-symbols/barcode.svg"
                         color: Theme.colorIcon
                     }
                     Text {
@@ -302,7 +302,7 @@ Item {
                         width: 20
                         height: 20
 
-                        source: "qrc:/assets/icons_material/duotone-date_range-24px.svg"
+                        source: "qrc:/assets/icons/material-icons/duotone/date_range.svg"
                         color: Theme.colorIcon
                     }
                     Text {
@@ -325,7 +325,7 @@ Item {
                         width: 20
                         height: 20
 
-                        source: "qrc:/assets/icons_material/duotone-pin_drop-24px.svg"
+                        source: "qrc:/assets/icons/material-icons/duotone/pin_drop.svg"
                         color: Theme.colorIcon
                     }
                     Text {

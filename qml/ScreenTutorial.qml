@@ -97,7 +97,7 @@ Rectangle {
                             height: width*0.229
                             anchors.horizontalCenter: parent.horizontalCenter
 
-                            source: "qrc:/assets/logos/logo_black.svg"
+                            source: "qrc:/assets/gfx/logos/logo_black.svg"
                             color: Theme.colorHeaderContent
                             fillMode: Image.PreserveAspectFit
                         }
@@ -120,7 +120,7 @@ Rectangle {
                             fullColor: true
                             primaryColor: Theme.colorHeaderHighlight
                             text: qsTr("a button")
-                            source: "qrc:/assets/icons_material/duotone-launch-24px.svg"
+                            source: "qrc:/assets/icons/material-icons/duotone/launch.svg"
                         }
                     }
                 }

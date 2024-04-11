@@ -39,7 +39,7 @@ Popup {
         width: appHeader.headerHeight
         height: appHeader.headerHeight
 
-        source: "qrc:/assets/icons_material/baseline-arrow_back-24px.svg"
+        source: "qrc:/assets/icons/material-symbols/arrow_back.svg"
         sourceSize: 28
         iconColor: Theme.colorHeaderContent
 

@@ -60,7 +60,7 @@ Loader {
 
                 ListTitle {
                     text: qsTr("Application")
-                    icon: "qrc:/assets/icons_material/baseline-settings-20px.svg"
+                    source: "qrc:/assets/icons/material-symbols/settings.svg"
                 }
 
                 ////////////////
@@ -82,7 +82,7 @@ Loader {
                         anchors.verticalCenter: parent.verticalCenter
 
                         color: Theme.colorIcon
-                        source: "qrc:/assets/icons_material/duotone-style-24px.svg"
+                        source: "qrc:/assets/icons/material-icons/duotone/style.svg"
                     }
 
                     Text {
@@ -188,7 +188,7 @@ Loader {
                         anchors.verticalCenter: parent.verticalCenter
 
                         color: Theme.colorIcon
-                        source: "qrc:/assets/icons_material/duotone-brightness_4-24px.svg"
+                        source: "qrc:/assets/icons/material-icons/duotone/brightness_4.svg"
                     }
 
                     Text {
@@ -260,7 +260,7 @@ Loader {
                             width: 24
                             height: 24
                             color: Theme.colorIcon
-                            source: "qrc:/assets/icons_material/baseline-stars-24px.svg"
+                            source: "qrc:/assets/icons/material-symbols/stars-fill.svg"
                         }
                     }
 
@@ -317,7 +317,7 @@ Loader {
                             width: 24
                             height: 24
                             color: Theme.colorIcon
-                            source: "qrc:/assets/icons_material/baseline-stars-24px.svg"
+                            source: "qrc:/assets/icons/material-symbols/stars-fill.svg"
                         }
                     }
 
@@ -368,7 +368,7 @@ Loader {
                             width: 24
                             height: 24
                             color: Theme.colorIcon
-                            source: "qrc:/assets/icons_material/baseline-stars-24px.svg"
+                            source: "qrc:/assets/icons/material-symbols/stars-fill.svg"
                         }
                     }
 
@@ -417,7 +417,7 @@ Loader {
 
                 ListTitle {
                     text: qsTr("Scanner")
-                    icon: "qrc:/assets/icons_material/duotone-qr_code_2-24px.svg"
+                    source: "qrc:/assets/icons/material-icons/duotone/qr_code_2.svg"
                 }
 
                 ////////////////
@@ -437,7 +437,7 @@ Loader {
                             width: 24
                             height: 24
                             color: Theme.colorIcon
-                            source: "qrc:/assets/icons_material/baseline-save-24px.svg"
+                            source: "qrc:/assets/icons/material-symbols/save.svg"
                         }
                     }
 
@@ -477,7 +477,7 @@ Loader {
                             width: 24
                             height: 24
                             color: Theme.colorIcon
-                            source: "qrc:/assets/icons_material/duotone-camera-24px.svg"
+                            source: "qrc:/assets/icons/material-icons/duotone/camera.svg"
                         }
                     }
 
@@ -517,7 +517,7 @@ Loader {
                             width: 24
                             height: 24
                             color: Theme.colorIcon
-                            source: "qrc:/assets/icons_material/duotone-pin_drop-24px.svg"
+                            source: "qrc:/assets/icons/material-icons/duotone/pin_drop.svg"
                         }
                     }
 
@@ -546,7 +546,7 @@ Loader {
 
                 ListTitle {
                     text: qsTr("Debug")
-                    icon: "qrc:/assets/icons_material/duotone-bug_report-24px.svg"
+                    source: "qrc:/assets/icons/material-icons/duotone/bug_report.svg"
                 }
 
                 ////////////////
@@ -568,7 +568,7 @@ Loader {
                         anchors.verticalCenter: parent.verticalCenter
 
                         color: Theme.colorIcon
-                        source: "qrc:/assets/icons_material/duotone-bug_report-24px.svg"
+                        source: "qrc:/assets/icons/material-icons/duotone/bug_report.svg"
                     }
 
                     Text {
@@ -619,7 +619,7 @@ Loader {
                             width: 24
                             height: 24
                             color: Theme.colorIcon
-                            source: "qrc:/assets/icons_material/duotone-qr_code_2-24px.svg"
+                            source: "qrc:/assets/icons/material-icons/duotone/qr_code_2.svg"
                         }
                     }
 
@@ -659,7 +659,7 @@ Loader {
                             width: 24
                             height: 24
                             color: Theme.colorIcon
-                            source: "qrc:/assets/icons_material/duotone-qr_code_2-24px.svg"
+                            source: "qrc:/assets/icons/material-icons/duotone/qr_code_2.svg"
                         }
                     }
 
@@ -699,7 +699,7 @@ Loader {
                             width: 24
                             height: 24
                             color: Theme.colorIcon
-                            source: "qrc:/assets/icons_material/duotone-qr_code_2-24px.svg"
+                            source: "qrc:/assets/icons/material-icons/duotone/qr_code_2.svg"
                         }
                     }
 
@@ -739,7 +739,7 @@ Loader {
                             width: 24
                             height: 24
                             color: Theme.colorIcon
-                            source: "qrc:/assets/icons_material/duotone-qr_code_2-24px.svg"
+                            source: "qrc:/assets/icons/material-icons/duotone/qr_code_2.svg"
                         }
                     }
 
@@ -779,7 +779,7 @@ Loader {
                             width: 24
                             height: 24
                             color: Theme.colorIcon
-                            source: "qrc:/assets/icons_material/duotone-qr_code_2-24px.svg"
+                            source: "qrc:/assets/icons/material-icons/duotone/qr_code_2.svg"
                         }
                     }
 

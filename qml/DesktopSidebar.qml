@@ -38,19 +38,19 @@ Rectangle {
         spacing: 0
 
         DesktopSidebarItem {
-            source: "qrc:/assets/icons_material/duotone-qr_code_scanner-24px.svg"
+            source: "qrc:/assets/icons/material-icons/duotone/qr_code_scanner.svg"
             sourceSize: 40
 
             highlightMode: "background"
             highlighted: (appContent.state === "ScreenBarcodeReader")
 
             indicatorVisible: false
-            indicatorSource: "qrc:/assets/icons_material/baseline-camera-24px.svg"
+            indicatorSource: "qrc:/assets/icons/material-symbols/media/camera.svg"
 
             onClicked: screenBarcodeReader.loadScreen()
         }
         DesktopSidebarItem {
-            source: "qrc:/assets/icons_material/duotone-qr_code_2-24px.svg"
+            source: "qrc:/assets/icons/material-icons/duotone/qr_code_2.svg"
             sourceSize: 40
 
             highlightMode: "background"
@@ -59,7 +59,7 @@ Rectangle {
             onClicked: screenBarcodeWriter.loadScreen()
         }
         DesktopSidebarItem {
-            source: "qrc:/assets/icons_material/duotone-list-24px.svg"
+            source: "qrc:/assets/icons/material-icons/duotone/list.svg"
             sourceSize: 40
 
             highlightMode: "background"
@@ -82,7 +82,7 @@ Rectangle {
         spacing: 0
 
         DesktopSidebarItem {
-            source: "qrc:/assets/icons_material/duotone-tune-24px.svg"
+            source: "qrc:/assets/icons/material-icons/duotone/tune.svg"
             sourceSize: 40
 
             highlightMode: (Theme.sidebarSelector) ? "indicator" : "background"
@@ -91,7 +91,7 @@ Rectangle {
             onClicked: screenSettings.loadScreen()
         }
         DesktopSidebarItem {
-            source: "qrc:/assets/icons_material/duotone-info-24px.svg"
+            source: "qrc:/assets/icons/material-icons/duotone/info.svg"
             sourceSize: 40
 
             highlightMode: (Theme.sidebarSelector) ? "indicator" : "background"
@@ -102,7 +102,7 @@ Rectangle {
             onClicked: screenAbout.loadScreen()
         }
         DesktopSidebarItem {
-            source: "qrc:/assets/icons_material/duotone-exit_to_app-24px.svg"
+            source: "qrc:/assets/icons/material-icons/duotone/exit_to_app.svg"
             sourceSize: 40
             highlightMode: "circle"
             onClicked: appWindow.close()

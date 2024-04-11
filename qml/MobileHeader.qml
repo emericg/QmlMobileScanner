@@ -85,11 +85,11 @@ Rectangle {
                     height: (headerHeight / 2)
 
                     source: {
-                        if (leftMenuMode === "drawer") return "qrc:/assets/icons_material/baseline-menu-24px.svg"
-                        if (leftMenuMode === "close") return "qrc:/assets/icons_material/baseline-close-24px.svg"
-                        if (leftMenuMode === "lock") return "qrc:/assets/icons_material/baseline-lock-24px.svg"
-                        if (leftMenuMode === "login") return "qrc:/assets/icons_material/baseline-supervised_user_circle-24px.svg"
-                        return "qrc:/assets/icons_material/baseline-arrow_back-24px.svg"
+                        if (leftMenuMode === "drawer") return "qrc:/assets/icons/material-symbols/menu.svg"
+                        if (leftMenuMode === "close") return "qrc:/assets/icons/material-symbols/close.svg"
+                        if (leftMenuMode === "lock") return "qrc:/assets/icons/material-symbols/lock.svg"
+                        if (leftMenuMode === "login") return "qrc:/assets/icons/material-symbols/supervised_user_circle.svg"
+                        return "qrc:/assets/icons/material-symbols/arrow_back.svg"
                     }
                     color: Theme.colorHeaderContent
                 }
