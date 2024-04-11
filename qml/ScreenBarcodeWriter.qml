@@ -324,11 +324,14 @@ Loader {
                         onTextChanged: barcodeAdvanced.barcode_string = text
 
                         SelectorMenu {
-                            id: barcodeEncodingSeclector
+                            id: barcodeEncodingSelector
                             anchors.left: parent.left
+                            anchors.leftMargin: 4
                             anchors.bottom: parent.bottom
-                            height: 32
+                            anchors.bottomMargin: 4
 
+                            visible: isDesktop
+                            height: 32
                             opacity: 0.66
                             currentSelection: 0
                             model: ListModel {
@@ -431,7 +434,7 @@ Loader {
                         anchors.left: parent.left
                         anchors.right: parent.right
 
-                        visible: (barcodeEccSeclector.model !== null)
+                        visible: (barcodeEccSelector.model !== null)
                         spacing: 16
 
                         Text {
@@ -442,7 +445,7 @@ Loader {
                         }
 
                         SelectorMenu {
-                            id: barcodeEccSeclector
+                            id: barcodeEccSelector
                             anchors.verticalCenter: parent.verticalCenter
                             height: 32
 
@@ -531,7 +534,7 @@ Loader {
                         }
 
                         SelectorMenu {
-                            id: barcodeBorderSeclector
+                            id: barcodeBorderSelector
                             anchors.verticalCenter: parent.verticalCenter
                             height: 32
 

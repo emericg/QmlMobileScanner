@@ -27,10 +27,10 @@ Rectangle {
     property string rightMenuMode: "off" // on / off
     signal rightMenuClicked()
 
-    ////////////////////////////////////////////////////////////////////////////
-
     function rightMenuIsOpen() { return actionMenu.visible; }
     function rightMenuClose() { actionMenu.close(); }
+
+    ////////////////////////////////////////////////////////////////////////////
 
     // prevent clicks below this area
     MouseArea { anchors.fill: parent; acceptedButtons: Qt.AllButtons; }
@@ -45,8 +45,6 @@ Rectangle {
         height: Math.max(screenPaddingStatusbar, screenPaddingTop)
         color: Theme.colorStatusbar
     }
-
-    ////////////////////////////////////////////////////////////////////////////
 
     Item {
         anchors.fill: parent
@@ -76,7 +74,7 @@ Rectangle {
 
                     pressed: parent.pressed
                     //active: enabled && parent.down
-                    color: Qt.rgba(Theme.colorForeground.r, Theme.colorForeground.g, Theme.colorForeground.b, 0.1)
+                    color: Qt.rgba(Theme.colorHeaderHighlight.r, Theme.colorHeaderHighlight.g, Theme.colorHeaderHighlight.b, 0.33)
                 }
 
                 IconSvg {
@@ -129,6 +127,7 @@ Rectangle {
 
         height: 2
         opacity: 0.66
+
         color: Theme.colorHeaderHighlight
         visible: (appContent.state !== "ScreenTutorial")
     }

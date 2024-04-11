@@ -74,7 +74,7 @@ class SettingsManager: public QObject
     int m_appVisibility = 1;                        //!< QWindow::Visibility
 
     // Application generic
-    QString m_appTheme = "light";
+    QString m_appTheme = "THEME_MOBILE_LIGHT";
     bool m_appThemeAuto = false;
 
     // Application specific

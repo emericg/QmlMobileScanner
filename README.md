@@ -13,8 +13,8 @@ Demo barcode & QR code scanner based on qzxing and zxing-cpp libraries to scan a
 
 - UIs
   - [x] Phone UI
-  - [ ] Tablet (WIP)
-  - [x] Desktop UI (WIP)
+  - [x] Tablet UI
+  - [x] Desktop UI
 - General features
   - [x] Barcode reader
     - [x] Multi camera support

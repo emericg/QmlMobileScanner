@@ -141,10 +141,12 @@ Loader {
                 focusMode: Camera.FocusModeAutoNear
 
                 cameraDevice: mediaDevices.videoInputs[mediaDevices.selectedDevice] ? mediaDevices.videoInputs[mediaDevices.selectedDevice] : mediaDevices.defaultVideoInput
-                //cameraFormat: utilsCamera.selectCameraFormat(mediaDevices.selectedDevice)
+                cameraFormat: utilsCamera.selectCameraFormat(mediaDevices.selectedDevice)
 
                 onCameraDeviceChanged: {
                     console.log("CaptureSession::onCameraDeviceChanged()")
+                    console.log("- correctionAngle: " + cameraDevice.correctionAngle)
+                    console.log("- cameraFormat: " + cameraFormat)
                 }
                 onErrorOccurred: (errorString) => {
                     console.log("CaptureSession::onErrorOccurred() " + errorString)
@@ -175,9 +177,57 @@ Loader {
 
             // Capture rectangle
             property double captureRectStartFactorX: 0.05
-            property double captureRectStartFactorY: 0.25
+            property double captureRectStartFactorY: 0.20
             property double captureRectFactorWidth: 0.9
-            property double captureRectFactorHeight: 0.5
+            property double captureRectFactorHeight: 0.45
+
+            // Capture rectangles
+            property rect captureRect
+            property rect captureRect_full: Qt.rect(0, 0, videoOutput.sourceRect.width, videoOutput.sourceRect.height)
+            property rect captureRect_mapped
+            property rect captureRect_mapped_str
+
+            property rect captureRect_mobile_top: Qt.rect(0.05, 0.20, 0.9, 0.45) // default
+            property rect captureRect_mobile_mid: Qt.rect(0.05, 0.25, 0.9, 0.5)
+            property rect captureRect_wide_left: Qt.rect(0.10, 0.12, 0.5, 0.76)
+            property rect captureRect_wide_right: Qt.rect(0.4, 0.12, 0.5, 0.76)
+
+            // Select capture rectangle
+            onWidthChanged: {
+                if (isTablet) {
+                    videoOutput.mapCaptureRect(videoOutput.captureRect_wide_left)
+                }
+                if (isPhone) {
+                    videoOutput.mapCaptureRect(videoOutput.captureRect_mobile_top)
+                }
+                if (isDesktop) {
+                    if (singleColumn) {
+                        videoOutput.mapCaptureRect(videoOutput.captureRect_mobile_mid)
+                    } else {
+                        videoOutput.mapCaptureRect(videoOutput.captureRect_wide_left)
+                    }
+                }
+            }
+
+            ////
+
+            function mapCaptureRect(newrect) {
+                videoOutput.captureRect = newrect
+
+                videoOutput.captureRectStartFactorX = videoOutput.captureRect.x
+                videoOutput.captureRectStartFactorY = videoOutput.captureRect.y
+                videoOutput.captureRectFactorWidth  = videoOutput.captureRect.width
+                videoOutput.captureRectFactorHeight = videoOutput.captureRect.height
+
+                captureRect_mapped = Qt.rect((videoOutput.sourceRect.width - videoOutput.contentRect.x) * videoOutput.captureRectStartFactorX,
+                                             (videoOutput.sourceRect.height - videoOutput.contentRect.y) * videoOutput.captureRectStartFactorY,
+                                             (videoOutput.sourceRect.width) * videoOutput.captureRectFactorWidth,
+                                             (videoOutput.sourceRect.height) * videoOutput.captureRectFactorHeight)
+
+                videoOutput.printInfos()
+                console.log(" >> captureRect_mapped >> " + captureRect_mapped)
+                console.log(" >> captureRect_full >> " + captureRect_full)
+            }
 
             ////
 
@@ -204,10 +254,12 @@ Loader {
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
+
+                visible: !settingsManager.scan_fullscreen && !captureZone.visible
                 color: "black"
                 opacity: 0.4
-                visible: !settingsManager.scan_fullscreen && !captureZone.visible
             }
+
             Item {
                 id: captureZone
                 anchors.fill: parent
@@ -435,14 +487,13 @@ Loader {
                 anchors.topMargin: Theme.componentMargin + Math.max(screenPaddingTop, screenPaddingStatusbar)
                 anchors.left: parent.left
                 anchors.leftMargin: Theme.componentMargin
-                anchors.right: parent.right
-                anchors.rightMargin: Theme.componentMargin
+                height: 48
 
                 visible: settingsManager.showDebug
 
                 Column {
-                    anchors.top: parent.top
                     anchors.left: parent.left
+                    anchors.verticalCenter: parent.verticalCenter
 
                     Text {
                         id: fpsCounter
@@ -668,7 +719,33 @@ Loader {
 
                 ////
             }
+/*
+            Row { // debug row 2 (top/left)
+                anchors.top: toprightmenus.bottom
+                anchors.topMargin: 8
+                anchors.left: parent.left
+                anchors.leftMargin: Theme.componentMargin
 
+                visible: (currentMode === "video" && settingsManager.showDebug)
+
+                RoundButton {
+                    text: "1"
+                    onClicked: videoOutput.mapCaptureRect(videoOutput.captureRect_mobile_mid)
+                }
+                RoundButton {
+                    text: "2"
+                    onClicked: videoOutput.mapCaptureRect(videoOutput.captureRect_mobile_top)
+                }
+                RoundButton {
+                    text: "3"
+                    onClicked: videoOutput.mapCaptureRect(videoOutput.captureRect_wide_left)
+                }
+                RoundButton {
+                    text: "4"
+                    onClicked: videoOutput.mapCaptureRect(videoOutput.captureRect_wide_right)
+                }
+            }
+*/
             ////////
 
             MenuDebug {
