@@ -37,10 +37,9 @@ Row {
         }
     }
 
-    ButtonWireframeIcon {
+    ButtonFlat {
         height: 36
-        fullColor: true
-        primaryColor: Theme.colorGrey
+        color: Theme.colorGrey
         font.bold: true
 
         text: qsTr("save")

@@ -297,12 +297,11 @@ Loader {
                             code = code.padEnd(codesize, '0');
                             barcodeAdvanced.barcode_string = code
                         }
-                        ButtonWireframe {
+                        ButtonFlat {
                             anchors.top: parent.top
                             anchors.right: parent.right
                             anchors.bottom: parent.bottom
 
-                            fullColor: true
                             opacity: barcodeTextField.text ? 1 : 0
                             Behavior on opacity { NumberAnimation { duration: 200 } }
 
@@ -324,7 +323,7 @@ Loader {
                         selectByMouse: true
                         onTextChanged: barcodeAdvanced.barcode_string = text
 
-                        SelectorMenuThemed {
+                        SelectorMenu {
                             id: barcodeEncodingSeclector
                             anchors.left: parent.left
                             anchors.bottom: parent.bottom
@@ -344,12 +343,11 @@ Loader {
                             }
                         }
 
-                        ButtonWireframe {
+                        ButtonFlat {
                             anchors.right: parent.right
                             anchors.bottom: parent.bottom
                             height: 32
 
-                            fullColor: true
                             opacity: barcodeTextArea.text ? 1 : 0
                             Behavior on opacity { NumberAnimation { duration: 200 } }
 
@@ -443,7 +441,7 @@ Loader {
                             font.pixelSize: Theme.componentFontSize
                         }
 
-                        SelectorMenuThemed {
+                        SelectorMenu {
                             id: barcodeEccSeclector
                             anchors.verticalCenter: parent.verticalCenter
                             height: 32
@@ -532,7 +530,7 @@ Loader {
                             font.pixelSize: Theme.componentFontSize
                         }
 
-                        SelectorMenuThemed {
+                        SelectorMenu {
                             id: barcodeBorderSeclector
                             anchors.verticalCenter: parent.verticalCenter
                             height: 32
@@ -566,7 +564,7 @@ Loader {
                             font.pixelSize: Theme.componentFontSize
                         }
 
-                        SelectorMenuThemed {
+                        SelectorMenu {
                             id: barcodeMarginSelector
                             height: 32
                             anchors.verticalCenter: parent.verticalCenter
@@ -600,11 +598,9 @@ Loader {
                             font.pixelSize: Theme.componentFontSize
                         }
 
-                        ButtonWireframe {
-                            height: 36
-                            fullColor: true
-                            primaryColor: barcodeAdvanced.colorBg
-                            fulltextColor: utilsApp.isQColorLight(barcodeAdvanced.colorBg) ? "#333" : "#f4f4f4"
+                        ButtonFlat {
+                            color: barcodeAdvanced.colorBg
+                            colorText: utilsApp.isQColorLight(barcodeAdvanced.colorBg) ? "#333" : "#f4f4f4"
                             font.bold: true
 
                             text: qsTr("background color")
@@ -617,11 +613,9 @@ Loader {
                             }
                         }
 
-                        ButtonWireframe {
-                            height: 36
-                            fullColor: true
-                            primaryColor: barcodeAdvanced.colorFg
-                            fulltextColor: utilsApp.isQColorLight(barcodeAdvanced.colorFg) ? "#333" : "#f4f4f4"
+                        ButtonFlat {
+                            color: barcodeAdvanced.colorFg
+                            colorText: utilsApp.isQColorLight(barcodeAdvanced.colorFg) ? "#333" : "#f4f4f4"
                             font.bold: true
 
                             text: qsTr("foreground color")
@@ -650,7 +644,7 @@ Loader {
                             font.pixelSize: Theme.componentFontSize
                         }
 
-                        SelectorMenuThemed {
+                        SelectorMenu {
                             id: barcodeExportSizeSelector
                             height: 32
                             anchors.verticalCenter: parent.verticalCenter

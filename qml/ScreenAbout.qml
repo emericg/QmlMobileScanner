@@ -108,39 +108,36 @@ Loader {
                     visible: wideMode
                     spacing: Theme.componentMargin
 
-                    ButtonWireframeIconCentered {
+                    ButtonSolid {
                         width: 160
 
                         text: qsTr("WEBSITE")
                         source: "qrc:/assets/icons/material-symbols/link.svg"
                         sourceSize: 28
-                        fullColor: true
-                        primaryColor: (Theme.currentTheme === ThemeEngine.THEME_NIGHT) ? Theme.colorHeader : "#5483EF"
+                        color: (Theme.currentTheme === ThemeEngine.THEME_NIGHT) ? Theme.colorHeader : "#5483EF"
 
                         onClicked: Qt.openUrlExternally("https://github.com/emericg/QmlMobileScanner")
                     }
 
-                    ButtonWireframeIconCentered {
+                    ButtonSolid {
                         width: 160
 
                         text: qsTr("SUPPORT")
                         source: "qrc:/assets/icons/material-symbols/support.svg"
                         sourceSize: 22
-                        fullColor: true
-                        primaryColor: (Theme.currentTheme === ThemeEngine.THEME_NIGHT) ? Theme.colorHeader : "#5483EF"
+                        color: (Theme.currentTheme === ThemeEngine.THEME_NIGHT) ? Theme.colorHeader : "#5483EF"
 
                         onClicked: Qt.openUrlExternally("https://github.com/emericg/QmlMobileScanner/issues")
                     }
 
-                    ButtonWireframeIconCentered {
+                    ButtonSolid {
                         width: 160
                         visible: (appWindow.width > 800)
 
                         text: qsTr("GitHub")
                         source: "qrc:/assets/gfx/logos/github.svg"
                         sourceSize: 22
-                        fullColor: true
-                        primaryColor: (Theme.currentTheme === ThemeEngine.THEME_NIGHT) ? Theme.colorHeader : "#5483EF"
+                        color: (Theme.currentTheme === ThemeEngine.THEME_NIGHT) ? Theme.colorHeader : "#5483EF"
 
                         onClicked: Qt.openUrlExternally("https://github.com/emericg/QmlMobileScanner")
                     }
@@ -169,28 +166,26 @@ Loader {
                 visible: !wideMode
                 spacing: Theme.componentMargin
 
-                ButtonWireframeIconCentered {
+                ButtonSolid {
                     anchors.verticalCenter: parent.verticalCenter
                     width: ((parent.width - parent.spacing) / 2)
 
                     text: qsTr("WEBSITE")
                     source: "qrc:/assets/icons/material-symbols/link.svg"
                     sourceSize: 28
-                    fullColor: true
-                    primaryColor: (Theme.currentTheme === ThemeEngine.THEME_NIGHT) ? Theme.colorHeader : "#5483EF"
+                    color: (Theme.currentTheme === ThemeEngine.THEME_NIGHT) ? Theme.colorHeader : "#5483EF"
 
                     onClicked: Qt.openUrlExternally("https://github.com/emericg/QmlMobileScanner")
                     //onClicked: Qt.openUrlExternally("https://emeric.io/QmlMobileScanner")
                 }
-                ButtonWireframeIconCentered {
+                ButtonSolid {
                     anchors.verticalCenter: parent.verticalCenter
                     width: ((parent.width - parent.spacing) / 2)
 
                     text: qsTr("SUPPORT")
                     source: "qrc:/assets/icons/material-symbols/support.svg"
                     sourceSize: 22
-                    fullColor: true
-                    primaryColor: (Theme.currentTheme === ThemeEngine.THEME_NIGHT) ? Theme.colorHeader : "#5483EF"
+                    color: (Theme.currentTheme === ThemeEngine.THEME_NIGHT) ? Theme.colorHeader : "#5483EF"
 
                     onClicked: Qt.openUrlExternally("https://github.com/emericg/QmlMobileScanner/issues")
                     //onClicked: Qt.openUrlExternally("https://emeric.io/QmlMobileScanner/support.html")

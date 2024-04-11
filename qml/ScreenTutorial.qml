@@ -114,11 +114,10 @@ Rectangle {
                             horizontalAlignment: Text.AlignHCenter
                             wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                         }
-                        ButtonWireframeIcon {
+                        ButtonFlat {
                             anchors.horizontalCenter: parent.horizontalCenter
                             layoutDirection: Qt.RightToLeft
-                            fullColor: true
-                            primaryColor: Theme.colorHeaderHighlight
+                            color: Theme.colorHeaderHighlight
                             text: qsTr("a button")
                             source: "qrc:/assets/icons/material-icons/duotone/launch.svg"
                         }

@@ -54,9 +54,8 @@ HEADERS  += src/DatabaseManager.h  \
 
 INCLUDEPATH += src/ src/thirdparty/
 
-RESOURCES   += qml/qml.qrc \
-               qml/components.qrc \
-               assets/assets.qrc
+RESOURCES   += qml/ComponentLibrary/ComponentLibrary.qrc
+RESOURCES   += qml/qml.qrc assets/assets.qrc assets/icons.qrc
 
 OTHER_FILES += .gitignore \
                .github/workflows/builds_mobile.yml \

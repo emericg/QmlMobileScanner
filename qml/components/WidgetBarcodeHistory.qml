@@ -84,7 +84,7 @@ SwipeDelegate {
                     anchors.right: parent.right
                     spacing: 8
 
-                    ItemTagSmall {
+                    TagClear {
                         visible: modelData.content
                         text: modelData.content
                     }

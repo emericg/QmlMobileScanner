@@ -71,7 +71,7 @@ Demo barcode & QR code scanner based on qzxing and zxing-cpp libraries to scan a
 #### Dependencies
 
 You will need a C++17 compiler and Qt 6.5+ with the following 'additional librairies':  
-- Qt 5 Compatibility Module
+- Qt Multimedia
 
 For Android builds, you'll need the appropriates JDK (11) SDK (23+) and NDK (25+). You can customize Android build environment using the `assets/android/gradle.properties` file.  
 For Windows builds, you'll need the MSVC 2019+ compiler. Bluetooth won't work with MinGW.  

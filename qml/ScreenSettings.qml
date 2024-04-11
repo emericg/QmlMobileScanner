@@ -3,7 +3,7 @@ import QtQuick.Layouts
 import QtQuick.Controls
 
 import ThemeEngine
-import "qrc:/js/UtilsNumber.js" as UtilsNumber
+import "qrc:/utils/UtilsNumber.js" as UtilsNumber
 
 Loader {
     id: screenSettings
@@ -118,14 +118,14 @@ Loader {
                             anchors.verticalCenter: parent.verticalCenter
 
                             radius: 2
-                            color: (Theme.currentTheme === ThemeEngine.THEME_LIGHT) ? Theme.colorForeground : "#dddddd"
+                            color: (Theme.currentTheme === ThemeEngine.THEME_MOBILE_LIGHT) ? Theme.colorForeground : "#dddddd"
                             border.color: Theme.colorSecondary
-                            border.width: (settingsManager.appTheme === "light") ? 2 : 0
+                            border.width: (settingsManager.appTheme === "THEME_MOBILE_LIGHT") ? 2 : 0
 
                             MouseArea {
                                 anchors.fill: parent
                                 onClicked: {
-                                    settingsManager.appTheme = "light"
+                                    settingsManager.appTheme = "THEME_MOBILE_LIGHT"
                                 }
                             }
 
@@ -146,14 +146,14 @@ Loader {
                             anchors.verticalCenter: parent.verticalCenter
 
                             radius: 2
-                            color: (Theme.currentTheme === ThemeEngine.THEME_DARK) ? Theme.colorForeground : "#313236"
+                            color: (Theme.currentTheme === ThemeEngine.THEME_MOBILE_DARK) ? Theme.colorForeground : "#313236"
                             border.color: Theme.colorSecondary
-                            border.width: (settingsManager.appTheme === "dark") ? 2 : 0
+                            border.width: (settingsManager.appTheme === "THEME_MOBILE_DARK") ? 2 : 0
 
                             MouseArea {
                                 anchors.fill: parent
                                 onClicked: {
-                                    settingsManager.appTheme = "dark"
+                                    settingsManager.appTheme = "THEME_MOBILE_DARK"
                                 }
                             }
 
@@ -208,7 +208,7 @@ Loader {
                         verticalAlignment: Text.AlignVCenter
                     }
 
-                    SwitchThemed {
+                    SwitchThemedDesktop {
                         id: switch_appThemeAuto
                         anchors.right: parent.right
                         anchors.rightMargin: 0
@@ -267,6 +267,8 @@ Loader {
                     Text {
                         anchors.left: parent.left
                         anchors.leftMargin: 64
+                        anchors.right: menuDefTab.left
+                        anchors.rightMargin: 12
                         anchors.verticalCenter: parent.verticalCenter
 
                         text: qsTr("Default tab")
@@ -277,6 +279,7 @@ Loader {
                     }
 
                     SelectorMenu {
+                        id: menuDefTab
                         anchors.right: parent.right
                         anchors.rightMargin: 12
                         anchors.verticalCenter: parent.verticalCenter
@@ -324,6 +327,8 @@ Loader {
                     Text {
                         anchors.left: parent.left
                         anchors.leftMargin: 64
+                        anchors.right: menuDefReader.left
+                        anchors.rightMargin: 12
                         anchors.verticalCenter: parent.verticalCenter
 
                         text: qsTr("Default reader")
@@ -334,6 +339,7 @@ Loader {
                     }
 
                     SelectorMenu {
+                        id: menuDefReader
                         anchors.right: parent.right
                         anchors.rightMargin: 12
                         anchors.verticalCenter: parent.verticalCenter
@@ -375,6 +381,8 @@ Loader {
                     Text {
                         anchors.left: parent.left
                         anchors.leftMargin: 64
+                        anchors.right: menuDefWriter.left
+                        anchors.rightMargin: 12
                         anchors.verticalCenter: parent.verticalCenter
 
                         text: qsTr("Default writer")
@@ -385,6 +393,7 @@ Loader {
                     }
 
                     SelectorMenu {
+                        id: menuDefWriter
                         anchors.right: parent.right
                         anchors.rightMargin: 12
                         anchors.verticalCenter: parent.verticalCenter
@@ -453,7 +462,7 @@ Loader {
                         verticalAlignment: Text.AlignVCenter
                     }
 
-                    SwitchThemed {
+                    SwitchThemedDesktop {
                         Layout.alignment: Qt.AlignVCenter
                         z: 1
 
@@ -493,7 +502,7 @@ Loader {
                         verticalAlignment: Text.AlignVCenter
                     }
 
-                    SwitchThemed {
+                    SwitchThemedDesktop {
                         Layout.alignment: Qt.AlignVCenter
                         z: 1
 
@@ -533,7 +542,7 @@ Loader {
                         verticalAlignment: Text.AlignVCenter
                     }
 
-                    SwitchThemed {
+                    SwitchThemedDesktop {
                         Layout.alignment: Qt.AlignVCenter
                         z: 1
 
@@ -588,7 +597,7 @@ Loader {
                         verticalAlignment: Text.AlignVCenter
                     }
 
-                    SwitchThemed {
+                    SwitchThemedDesktop {
                         id: switch_showDebug
                         anchors.right: parent.right
                         anchors.rightMargin: 0
@@ -634,7 +643,7 @@ Loader {
                         wrapMode: Text.WordWrap
                     }
 
-                    SwitchThemed {
+                    SwitchThemedDesktop {
                         Layout.alignment: Qt.AlignVCenter
                         z: 1
 
@@ -674,7 +683,7 @@ Loader {
                         wrapMode: Text.WordWrap
                     }
 
-                    SwitchThemed {
+                    SwitchThemedDesktop {
                         Layout.alignment: Qt.AlignVCenter
                         z: 1
 
@@ -714,7 +723,7 @@ Loader {
                         wrapMode: Text.WordWrap
                     }
 
-                    SwitchThemed {
+                    SwitchThemedDesktop {
                         Layout.alignment: Qt.AlignVCenter
                         z: 1
 
@@ -754,7 +763,7 @@ Loader {
                         wrapMode: Text.WordWrap
                     }
 
-                    SwitchThemed {
+                    SwitchThemedDesktop {
                         Layout.alignment: Qt.AlignVCenter
                         z: 1
 
@@ -794,7 +803,7 @@ Loader {
                         wrapMode: Text.WordWrap
                     }
 
-                    SwitchThemed {
+                    SwitchThemedDesktop {
                         Layout.alignment: Qt.AlignVCenter
                         z: 1
 

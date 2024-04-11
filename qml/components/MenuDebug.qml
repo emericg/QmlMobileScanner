@@ -24,7 +24,7 @@ Column {
             opacity: 0.33
         }
 
-        SwitchThemed {
+        SwitchThemedDesktop {
             anchors.centerIn: parent
             width: parent.width - 16
             LayoutMirroring.enabled: true
@@ -47,7 +47,7 @@ Column {
             opacity: 0.33
         }
 
-        SwitchThemed {
+        SwitchThemedDesktop {
             anchors.centerIn: parent
             width: parent.width - 16
             LayoutMirroring.enabled: true
@@ -72,7 +72,7 @@ Column {
             opacity: 0.33
         }
 
-        SwitchThemed {
+        SwitchThemedDesktop {
             anchors.centerIn: parent
             width: parent.width - 16
             LayoutMirroring.enabled: true
@@ -97,7 +97,7 @@ Column {
             opacity: 0.33
         }
 
-        SwitchThemed {
+        SwitchThemedDesktop {
             anchors.centerIn: parent
             width: parent.width - 16
             LayoutMirroring.enabled: true
@@ -122,7 +122,7 @@ Column {
             opacity: 0.33
         }
 
-        SwitchThemed {
+        SwitchThemedDesktop {
             anchors.centerIn: parent
             width: parent.width - 16
             LayoutMirroring.enabled: true
