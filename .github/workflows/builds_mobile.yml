@@ -15,7 +15,7 @@ on:
 env:
   APP_NAME: "QmlMobileScanner"
   APP_VERSION: "0.1"
-  QT_VERSION: "6.7.1"
+  QT_VERSION: "6.6.3"
 
 #-------------------------------------------------------------------------------
 # Workflow jobs
@@ -38,7 +38,7 @@ jobs:
       #  uses: actions/setup-java@v2
       #  with:
       #    distribution: 'zulu'
-      #    java-version: '11'
+      #    java-version: '17'
 
       # Android environment (already installed in 'ubuntu-20.04')
       #- name: Setup Android SDK
@@ -51,14 +51,13 @@ jobs:
 
       # Install Qt (Android & desktop)
       - name: Install Qt (Android & desktop)
-        uses: jurplel/install-qt-action@v3
+        uses: jurplel/install-qt-action@v4
         with:
           version: ${{env.QT_VERSION}}
           host: 'linux'
           target: 'android'
           arch: 'android_arm64_v8a'
-          modules: qtmultimedia qtpositioning qtshadertools qt5compat
-          aqtversion: '==3.1.*'
+          modules: qtmultimedia qtpositioning
           extra: '--autodesktop'
 
       # Setup env
@@ -85,13 +84,12 @@ jobs:
 
       # Install Qt (iOS & desktop)
       - name: Install Qt (iOS & desktop)
-        uses: jurplel/install-qt-action@v3
+        uses: jurplel/install-qt-action@v4
         with:
           version: ${{env.QT_VERSION}}
           host: 'mac'
           target: 'ios'
-          modules: qtmultimedia qtpositioning qtshadertools qt5compat
-          aqtversion: '==3.1.*'
+          modules: qtmultimedia qtpositioning
           extra: '--autodesktop'
 
       # Setup env
