@@ -5,7 +5,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.1.2' // works with Qt 6.5+ // Java 17
+        classpath 'com.android.tools.build:gradle:8.1.4' // works with Qt 6.5+ // Java 17
     }
 }
 
@@ -61,8 +61,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     packagingOptions {
@@ -82,8 +82,8 @@ android {
 
     defaultConfig {
         resConfig "en"
-        minSdkVersion 23 // qtMinSdkVersion
-        targetSdkVersion 34 // qtTargetSdkVersion
+        minSdkVersion qtMinSdkVersion
+        targetSdkVersion qtTargetSdkVersion
         ndk.abiFilters = qtTargetAbiList.split(",")
 
         namespace 'io.emeric.qmlmobilescanner'
@@ -98,7 +98,6 @@ android {
         exclude 'lib/*/*_Controls_Fusion_*'
         exclude 'lib/*/*_Controls_Imagine_*'
         exclude 'lib/*/*_Controls_Universal_*'
-
         // image formats
         exclude 'lib/*/*_imageformats_qgif_*'
         exclude 'lib/*/*_imageformats_qico_*'

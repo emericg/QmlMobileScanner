@@ -58,35 +58,6 @@ T.Button {
     ////////////////
 
     contentItem: Item {
-/*
-        MultiEffect {
-            source: contentImage
-            anchors.fill: contentImage
-            //anchors.margins: -4
-            autoPaddingEnabled: true
-
-            //maskEnabled: true
-            //maskInverted: false
-            //maskThresholdMin: 0.5
-            //maskSpreadAtMin: 1.0
-            //maskSpreadAtMax: 0.0
-            //maskSource: ShaderEffectSource {
-            //    sourceItem: contentImage
-            //}
-
-            shadowEnabled: (control.hoverMode === "glow")
-            shadowScale: 1.1
-            //shadowColor: "blue"
-            //shadowColor: Theme.colorPrimary
-            //shadowColor: Qt.rgba(control.colorHighlight.r, control.colorHighlight.g, control.colorHighlight.b, 1.0)
-
-            colorization: 1.0
-            colorizationColor: Theme.colorPrimary
-
-            opacity: control.hovered ? 1.0 : 0
-            Behavior on opacity { NumberAnimation { duration: 233 } }
-        }
-*/
         Image {
             id: contentImage
             anchors.centerIn: parent

@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
     BarcodeManager *bch = BarcodeManager::getInstance();
     if (!bch) return EXIT_FAILURE;
 
-    // Init utils
+    // Init app utils
     UtilsScreen *utilsScreen = UtilsScreen::getInstance();
     if (!utilsScreen) return EXIT_FAILURE;
 

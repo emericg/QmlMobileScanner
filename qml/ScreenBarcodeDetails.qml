@@ -226,7 +226,7 @@ Item {
 
                 Rectangle { // barcode content // multiple lines
                     width: parent.width
-                    height: barcodedata2.contentHeight + Theme.componentMargin
+                    height: barcodecontent.contentHeight + Theme.componentMargin
                     radius: Theme.componentRadius
                     color: Theme.colorComponentBackground
                     border.width: 2
@@ -235,12 +235,14 @@ Item {
                     visible: barcode.isMatrix
 
                     IconSvg {
+                        id: barcodecontent_icon
                         width: 24
                         height: 24
                         anchors.right: parent.right
                         anchors.rightMargin: 8
                         anchors.verticalCenter: parent.verticalCenter
 
+                        color: Theme.colorIcon
                         source: {
                             if (barcode.content === "URL") return "qrc:/assets/icons/material-icons/duotone/launch.svg"
                             if (barcode.content === "WiFi") return "qrc:/assets/icons/material-symbols/wifi.svg"
@@ -253,9 +255,11 @@ Item {
                     }
 
                     Text {
-                        id: barcodedata2
+                        id: barcodecontent
                         anchors.left: parent.left
+                        anchors.leftMargin: Theme.componentMargin
                         anchors.right: parent.right
+                        anchors.rightMargin: Theme.componentMargin + 24
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.margins: Theme.componentMargin
 
