@@ -107,7 +107,6 @@ android {
         exclude 'lib/*/*_imageformats_qtiff_*'
         exclude 'lib/*/*_imageformats_qwbmp_*'
         //exclude 'lib/*/*_imageformats_qwebp_*'
-
         // multimedia backend
         //exclude 'lib/*/*_multimedia_androidmediaplugin_*'
         //exclude 'lib/*/*_multimedia_ffmpegmediaplugin_*'

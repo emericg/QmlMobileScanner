@@ -13,9 +13,7 @@ Item {
 
     function loadScreen() {
         // Refresh permissions
-        button_network_test.validperm = true
-        button_camera_test.validperm = utilsApp.checkMobileCameraPermission()
-        button_position_test.validperm = utilsApp.checkMobileLocationPermission()
+        refreshPermissions()
 
         // Change screen
         appContent.state = "ScreenAboutPermissions"
@@ -30,16 +28,18 @@ Item {
         screenAbout.loadScreen()
     }
 
+    function refreshPermissions() {
+        // Refresh permissions
+        button_network_test.validperm = true
+        button_location_test.validperm = utilsApp.checkMobileBleLocationPermission()
+        button_camera_test.validperm = utilsApp.checkMobileCameraPermission()
+    }
+
     Timer {
-        id: refreshPermissions
+        id: retryPermissions
         interval: 333
         repeat: false
-        onTriggered: {
-            // Refresh permissions
-            button_network_test.validperm = true
-            button_camera_test.validperm = utilsApp.checkMobileCameraPermission()
-            button_position_test.validperm = utilsApp.checkMobileLocationPermission()
-        }
+        onTriggered: refreshPermissions()
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -66,17 +66,18 @@ Item {
 
             Item {
                 id: element_network
-                height: 20
                 anchors.left: parent.left
                 anchors.right: parent.right
+                height: 20
 
                 RoundButtonIcon {
                     id: button_network_test
-                    width: 32
-                    height: 32
                     anchors.left: parent.left
                     anchors.leftMargin: 16
                     anchors.verticalCenter: parent.verticalCenter
+
+                    width: 32
+                    height: 32
                     z: 1
 
                     property bool validperm: true
@@ -93,12 +94,12 @@ Item {
 
                 Text {
                     id: text_network
-                    height: 16
                     anchors.left: parent.left
                     anchors.leftMargin: 64
                     anchors.right: parent.right
                     anchors.rightMargin: 16
                     anchors.verticalCenter: parent.verticalCenter
+                    height: 16
 
                     text: qsTr("Network access")
                     textFormat: Text.PlainText
@@ -126,17 +127,18 @@ Item {
 
             Item {
                 id: element_camera
-                height: 20
                 anchors.left: parent.left
                 anchors.right: parent.right
+                height: 20
 
                 RoundButtonIcon {
                     id: button_camera_test
-                    width: 32
-                    height: 32
                     anchors.left: parent.left
                     anchors.leftMargin: 16
                     anchors.verticalCenter: parent.verticalCenter
+
+                    width: 32
+                    height: 32
                     z: 1
 
                     property bool validperm: true
@@ -154,12 +156,12 @@ Item {
 
                 Text {
                     id: text_camera
-                    height: 16
                     anchors.left: parent.left
                     anchors.leftMargin: 64
                     anchors.right: parent.right
                     anchors.rightMargin: 16
                     anchors.verticalCenter: parent.verticalCenter
+                    height: 16
 
                     text: qsTr("Camera")
                     textFormat: Text.PlainText
@@ -187,12 +189,12 @@ Item {
 
             Item {
                 id: element_position
-                height: 20
                 anchors.left: parent.left
                 anchors.right: parent.right
+                height: 20
 
                 RoundButtonIcon {
-                    id: button_position_test
+                    id: button_location_test
                     width: 32
                     height: 32
                     anchors.left: parent.left
@@ -215,12 +217,12 @@ Item {
 
                 Text {
                     id: text_position
-                    height: 16
                     anchors.left: parent.left
                     anchors.leftMargin: 64
                     anchors.right: parent.right
                     anchors.rightMargin: 16
                     anchors.verticalCenter: parent.verticalCenter
+                    height: 16
 
                     text: qsTr("Position (GPS)")
                     textFormat: Text.PlainText
@@ -250,15 +252,14 @@ Item {
 
             ////////
 
-            Item {
-                id: element_infos
+            Item { // element_infos
                 anchors.left: parent.left
                 anchors.right: parent.right
                 height: 32
 
                 IconSvg {
                     anchors.left: parent.left
-                    anchors.leftMargin: Theme.componentMargin
+                    anchors.leftMargin: Theme.componentMargin + 4
                     anchors.verticalCenter: parent.verticalCenter
                     width: 32
                     height: 32
@@ -306,6 +307,7 @@ Item {
                 height: 36
 
                 visible: (Qt.platform.os === "android")
+                colorBackground: Theme.colorForeground
 
                 text: qsTr("Application info")
                 source: "qrc:/assets/icons/material-icons/duotone/tune.svg"

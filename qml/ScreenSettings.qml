@@ -278,7 +278,7 @@ Loader {
                         wrapMode: Text.WordWrap
                     }
 
-                    SelectorMenu {
+                    SelectorMenuColorful {
                         id: menuDefTab
                         anchors.right: parent.right
                         anchors.rightMargin: 12
@@ -338,7 +338,7 @@ Loader {
                         wrapMode: Text.WordWrap
                     }
 
-                    SelectorMenu {
+                    SelectorMenuColorful {
                         id: menuDefReader
                         anchors.right: parent.right
                         anchors.rightMargin: 12
@@ -392,7 +392,7 @@ Loader {
                         wrapMode: Text.WordWrap
                     }
 
-                    SelectorMenu {
+                    SelectorMenuColorful {
                         id: menuDefWriter
                         anchors.right: parent.right
                         anchors.rightMargin: 12

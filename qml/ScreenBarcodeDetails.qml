@@ -1,8 +1,7 @@
-import QtCore
 import QtQuick
-import QtQuick.Effects
 import QtQuick.Layouts
 import QtQuick.Controls
+import QtQuick.Effects
 
 import ThemeEngine
 
@@ -234,39 +233,40 @@ Item {
 
                     visible: barcode.isMatrix
 
-                    IconSvg {
-                        id: barcodecontent_icon
-                        width: 24
-                        height: 24
-                        anchors.right: parent.right
-                        anchors.rightMargin: 8
-                        anchors.verticalCenter: parent.verticalCenter
-
-                        color: Theme.colorIcon
-                        source: {
-                            if (barcode.content === "URL") return "qrc:/assets/icons/material-icons/duotone/launch.svg"
-                            if (barcode.content === "WiFi") return "qrc:/assets/icons/material-symbols/wifi.svg"
-                            if (barcode.content === "Email") return "qrc:/assets/icons/material-symbols/outline-mail_outline.svg"
-                            if (barcode.content === "Geolocation") return "qrc:/assets/icons/material-icons/duotone/pin_drop.svg"
-                            if (barcode.content === "Phone") return "qrc:/assets/icons/material-symbols/phone.svg"
-                            if (barcode.content === "SMS") return "qrc:/assets/icons/material-icons/duotone/question_answer.svg"
-                            return ""
-                        }
-                    }
-
-                    Text {
-                        id: barcodecontent
+                    RowLayout {
                         anchors.left: parent.left
                         anchors.leftMargin: Theme.componentMargin
                         anchors.right: parent.right
-                        anchors.rightMargin: Theme.componentMargin + 24
+                        anchors.rightMargin: Theme.componentMargin / 2
                         anchors.verticalCenter: parent.verticalCenter
-                        anchors.margins: Theme.componentMargin
 
-                        text: barcode.data
-                        color: Theme.colorText
-                        wrapMode: Text.WrapAnywhere
-                        font.pixelSize: Theme.fontSizeContentBig
+                        Text {
+                            id: barcodecontent
+                            Layout.fillWidth: true
+
+                            text: barcode.data
+                            color: Theme.colorText
+                            wrapMode: Text.WrapAnywhere
+                            font.pixelSize: Theme.fontSizeContentBig
+                        }
+
+                        IconSvg {
+                            Layout.preferredWidth: 24
+                            Layout.preferredHeight: 24
+                            Layout.alignment: Qt.AlignVCenter
+                            visible: source.toString().length
+
+                            color: Theme.colorIcon
+                            source: {
+                                if (barcode.content === "URL") return "qrc:/assets/icons/material-icons/duotone/launch.svg"
+                                if (barcode.content === "WiFi") return "qrc:/assets/icons/material-symbols/wifi.svg"
+                                if (barcode.content === "Email") return "qrc:/assets/icons/material-symbols/outline-mail_outline.svg"
+                                if (barcode.content === "Geolocation") return "qrc:/assets/icons/material-icons/duotone/pin_drop.svg"
+                                if (barcode.content === "Phone") return "qrc:/assets/icons/material-symbols/phone.svg"
+                                if (barcode.content === "SMS") return "qrc:/assets/icons/material-icons/duotone/question_answer.svg"
+                                return ""
+                            }
+                        }
                     }
                 }
 

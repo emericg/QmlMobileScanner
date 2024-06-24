@@ -46,7 +46,7 @@ Loader {
 
         if (screenBarcodeReader.status === Loader.Ready) {
             screenBarcodeReader.item.close()
-            //if (isMobile) screenBarcodeReader.active = false // crash !?!
+            if (isMobile) screenBarcodeReader.active = false // crash !?!
         }
     }
 
@@ -855,9 +855,9 @@ Loader {
                             color: (camera.torchMode === Camera.TorchOn) ? Theme.colorYellow : "white"
                             source: {
                                 if (camera.torchMode !== Camera.TorchOn)
-                                    return "qrc:/assets/icons/material-symbols/media/flash_off.svg"
-                                else
                                     return "qrc:/assets/icons/material-symbols/media/flash_on.svg"
+                                else
+                                    return "qrc:/assets/icons/material-symbols/media/flash_off.svg"
                             }
                         }
                         MouseArea {

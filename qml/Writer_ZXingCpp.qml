@@ -4,6 +4,7 @@ import QtQuick.Dialogs
 import QtQuick.Controls
 
 import ZXingCpp
+
 import ThemeEngine
 
 Row {
