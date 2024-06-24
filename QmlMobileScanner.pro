@@ -1,6 +1,6 @@
 TARGET  = QmlMobileScanner
 
-VERSION = 0.1
+VERSION = 0.2
 DEFINES+= APP_NAME=\\\"$$TARGET\\\"
 DEFINES+= APP_VERSION=\\\"$$VERSION\\\"
 

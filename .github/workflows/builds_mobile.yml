@@ -14,8 +14,8 @@ on:
 
 env:
   APP_NAME: "QmlMobileScanner"
-  APP_VERSION: "0.1"
-  QT_VERSION: "6.6.3"
+  APP_VERSION: "0.2"
+  QT_VERSION: "6.7.2"
 
 #-------------------------------------------------------------------------------
 # Workflow jobs
