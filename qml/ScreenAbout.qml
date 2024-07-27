@@ -92,6 +92,7 @@ Loader {
                         }
                         Text {
                             text: qsTr("version %1 %2").arg(utilsApp.appVersion()).arg(utilsApp.appBuildMode())
+                            textFormat: Text.PlainText
                             color: Theme.colorSubText
                             font.pixelSize: Theme.fontSizeContentBig
                         }
@@ -197,13 +198,16 @@ Loader {
             ////////////////
 
             ListItem { // description
-                width: parent.width
+                anchors.left: parent.left
+                anchors.right: parent.right
+
                 text: qsTr("Barcode & QRcode scanner reader/writer based on qzxing and zxing-cpp libraries.")
                 source: "qrc:/assets/icons/material-symbols/info.svg"
             }
 
             ListItemClickable { // authors
-                width: parent.width
+                anchors.left: parent.left
+                anchors.right: parent.right
 
                 text: qsTr("Application by <a href=\"https://emeric.io\">Emeric Grange</a>")
                 source: "qrc:/assets/icons/material-symbols/supervised_user_circle.svg"
@@ -213,7 +217,9 @@ Loader {
             }
 
             ListItemClickable { // rate
-                width: parent.width
+                anchors.left: parent.left
+                anchors.right: parent.right
+
                 visible: (Qt.platform.os === "android" || Qt.platform.os === "ios")
 
                 text: qsTr("Rate the application")
@@ -231,7 +237,8 @@ Loader {
             }
 
             ListItemClickable { // release notes
-                width: parent.width
+                anchors.left: parent.left
+                anchors.right: parent.right
 
                 text: qsTr("Release notes")
                 source: "qrc:/assets/icons/material-symbols/new_releases.svg"
@@ -246,7 +253,8 @@ Loader {
             ListSeparator { }
 
             ListItemClickable { // tutorial
-                width: parent.width
+                anchors.left: parent.left
+                anchors.right: parent.right
 
                 text: qsTr("Open the tutorial")
                 source: "qrc:/assets/icons/material-symbols/import_contacts-fill.svg"
@@ -261,7 +269,9 @@ Loader {
             ListSeparator { visible: (Qt.platform.os === "android" || Qt.platform.os === "ios") }
 
             ListItemClickable { // permissions
-                width: parent.width
+                anchors.left: parent.left
+                anchors.right: parent.right
+
                 visible: (Qt.platform.os === "android" || Qt.platform.os === "ios")
 
                 text: qsTr("About app permissions")
@@ -275,7 +285,8 @@ Loader {
             ListSeparator { }
 
             ListItemClickable { // supported formats
-                width: parent.width
+                anchors.left: parent.left
+                anchors.right: parent.right
 
                 text: qsTr("Supported barcode formats")
                 source: "qrc:/assets/icons/material-symbols/check_circle.svg"
@@ -345,7 +356,9 @@ Loader {
                             "Google Material Icons (MIT)",
                         ]
                         delegate: Text {
-                            width: parent.width
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+
                             text: "- " + modelData
                             textFormat: Text.PlainText
                             color: Theme.colorSubText
@@ -393,31 +406,37 @@ Loader {
                     Text {
                         color: Theme.colorSubText
                         text: "App name: %1".arg(utilsApp.appName())
+                        textFormat: Text.PlainText
                         font.pixelSize: Theme.fontSizeContent
                     }
                     Text {
                         color: Theme.colorSubText
                         text: "App version: %1".arg(utilsApp.appVersion())
+                        textFormat: Text.PlainText
                         font.pixelSize: Theme.fontSizeContent
                     }
                     Text {
                         color: Theme.colorSubText
                         text: "Backend(s): %1".arg(settingsManager.backend_reader) + (settingsManager.backend_zint ? " + zint" : "")
+                        textFormat: Text.PlainText
                         font.pixelSize: Theme.fontSizeContent
                     }
                     Text {
                         color: Theme.colorSubText
                         text: "Build mode: %1".arg(utilsApp.appBuildModeFull())
+                        textFormat: Text.PlainText
                         font.pixelSize: Theme.fontSizeContent
                     }
                     Text {
                         color: Theme.colorSubText
                         text: "Build date: %1".arg(utilsApp.appBuildDateTime())
+                        textFormat: Text.PlainText
                         font.pixelSize: Theme.fontSizeContent
                     }
                     Text {
                         color: Theme.colorSubText
                         text: "Qt version: %1".arg(utilsApp.qtVersion())
+                        textFormat: Text.PlainText
                         font.pixelSize: Theme.fontSizeContent
                     }
                 }

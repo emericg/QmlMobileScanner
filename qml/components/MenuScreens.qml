@@ -23,7 +23,8 @@ Column {
         }
 
         delegate: Item {
-            width: parent.width
+            anchors.left: parent.left
+            anchors.right: parent.right
             height: 40
 
             Rectangle {

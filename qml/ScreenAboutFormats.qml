@@ -87,9 +87,7 @@ Item {
         ////////
 
         ListView {
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
-            width: parent.width
+            anchors.fill: parent
 
             ////
 

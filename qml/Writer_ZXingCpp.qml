@@ -21,6 +21,7 @@ Row {
         anchors.verticalCenter: parent.verticalCenter
 
         text: qsTr("Save to file")
+        textFormat: Text.PlainText
         color: Theme.colorText
         font.pixelSize: Theme.componentFontSize
     }

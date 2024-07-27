@@ -68,9 +68,8 @@ Rectangle {
                 onClicked: leftMenuClicked()
 
                 RippleThemed {
+                    anchors.fill: parent
                     anchor: parent
-                    width: parent.width
-                    height: parent.height
 
                     pressed: parent.pressed
                     //active: enabled && parent.down

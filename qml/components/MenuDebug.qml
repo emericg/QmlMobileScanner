@@ -14,7 +14,8 @@ Column {
     visible: false
 
     Item {
-        width: parent.width
+        anchors.left: parent.left
+        anchors.right: parent.right
         height: 40
 
         Rectangle {
@@ -37,7 +38,8 @@ Column {
         }
     }
     Item {
-        width: parent.width
+        anchors.left: parent.left
+        anchors.right: parent.right
         height: 40
 
         Rectangle {
@@ -60,7 +62,8 @@ Column {
         }
     }
     Item {
-        width: parent.width
+        anchors.left: parent.left
+        anchors.right: parent.right
         height: 40
 
         visible: (settingsManager.backend_reader === "zxingcpp")
@@ -85,7 +88,8 @@ Column {
         }
     }
     Item {
-        width: parent.width
+        anchors.left: parent.left
+        anchors.right: parent.right
         height: 40
 
         visible: (settingsManager.backend_reader === "zxingcpp")
@@ -110,7 +114,8 @@ Column {
         }
     }
     Item {
-        width: parent.width
+        anchors.left: parent.left
+        anchors.right: parent.right
         height: 40
 
         visible: (settingsManager.backend_reader === "zxingcpp")

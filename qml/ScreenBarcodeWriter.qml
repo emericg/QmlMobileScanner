@@ -439,7 +439,9 @@ Loader {
 
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
+
                             text: qsTr("Error correction:")
+                            textFormat: Text.PlainText
                             color: Theme.colorText
                             font.pixelSize: Theme.componentFontSize
                         }
@@ -528,7 +530,9 @@ Loader {
 
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
+
                             text: qsTr("Borders:")
+                            textFormat: Text.PlainText
                             color: Theme.colorText
                             font.pixelSize: Theme.componentFontSize
                         }
@@ -562,7 +566,9 @@ Loader {
 
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
+
                             text: qsTr("Margins:")
+                            textFormat: Text.PlainText
                             color: Theme.colorText
                             font.pixelSize: Theme.componentFontSize
                         }
@@ -597,6 +603,7 @@ Loader {
                             anchors.verticalCenter: parent.verticalCenter
 
                             text: qsTr("Colors:")
+                            textFormat: Text.PlainText
                             color: Theme.colorText
                             font.pixelSize: Theme.componentFontSize
                         }
@@ -642,7 +649,9 @@ Loader {
 
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
+
                             text: qsTr("Export size:")
+                            textFormat: Text.PlainText
                             color: Theme.colorText
                             font.pixelSize: Theme.componentFontSize
                         }

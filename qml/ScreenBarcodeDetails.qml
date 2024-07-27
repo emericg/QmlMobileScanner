@@ -89,7 +89,8 @@ Item {
 
                 Item {
                     id: qrcodearea
-                    width: parent.width
+                    anchors.left: parent.left
+                    anchors.right: parent.right
                     height: barcode.isLinear ? (parent.width / 2) : parent.width
 
                     Rectangle {
@@ -189,7 +190,8 @@ Item {
                 ////
 
                 Rectangle { // barcode content // single line
-                    width: parent.width
+                    anchors.left: parent.left
+                    anchors.right: parent.right
                     height: barcodedata.height + Theme.componentMargin
                     radius: Theme.componentRadius
                     color: Theme.colorComponentBackground
@@ -224,7 +226,8 @@ Item {
                 ////
 
                 Rectangle { // barcode content // multiple lines
-                    width: parent.width
+                    anchors.left: parent.left
+                    anchors.right: parent.right
                     height: barcodecontent.contentHeight + Theme.componentMargin
                     radius: Theme.componentRadius
                     color: Theme.colorComponentBackground

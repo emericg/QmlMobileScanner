@@ -217,6 +217,7 @@ SwipeDelegate {
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
                     text: qsTr("Remove")
+                    textFormat: Text.PlainText
                     font.bold: true
                     color: "white"
                 }

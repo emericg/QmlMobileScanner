@@ -335,8 +335,8 @@ Loader {
                                     anchors.right: parent.right; }
                     }
                     Item {
-                        anchors.bottom: parent.bottom
                         anchors.left: parent.left
+                        anchors.bottom: parent.bottom
                         width: 16; height: 16;
 
                         Rectangle { width: 16; height: 4; color: "white";
@@ -773,7 +773,6 @@ Loader {
                 anchors.bottom: parent.bottom
                 anchors.bottomMargin: Theme.componentMarginXL + Math.max(screenPaddingBottom, screenPaddingNavbar)
 
-                width: parent.width
                 spacing: Theme.componentMargin
 
                 ////
@@ -782,7 +781,8 @@ Loader {
                     model: barcodeManager.barcodes
 
                     WidgetBarcodeResult {
-                        width: parent.width
+                        anchors.left: parent.left
+                        anchors.right: parent.right
                         barcode: modelData
                     }
                 }
@@ -790,11 +790,13 @@ Loader {
                 ////
 
                 RowLayout { // buttons bar
-                    visible: !exitTimer.running
-
-                    width: parent.width
+                    anchors.left: parent.left
+                    anchors.right: parent.right
                     height: 48
+
                     spacing: Theme.componentMarginXL
+
+                    visible: !exitTimer.running
 
                     Item {
                         Layout.fillWidth: true
@@ -829,7 +831,9 @@ Loader {
                             anchors.left: scanImg.right
                             anchors.leftMargin: Theme.componentMargin
                             anchors.verticalCenter: parent.verticalCenter
+
                             text: qsTr("Scanning...")
+                            textFormat: Text.PlainText
                             color: "white"
                             font.pixelSize: Theme.fontSizeContentBig
                         }
@@ -908,7 +912,8 @@ Loader {
                 ////
 
                 Item { // exit warning
-                    width: parent.width
+                    anchors.left: parent.left
+                    anchors.right: parent.right
                     height: 48
 
                     visible: exitTimer.running
@@ -941,8 +946,8 @@ Loader {
                 anchors.top: parent.top
                 anchors.left: parent.left
                 anchors.right: parent.right
-
                 height: screenPaddingStatusbar
+
                 color: "black"
                 opacity: 0.33
                 visible: true
@@ -952,8 +957,8 @@ Loader {
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
-
                 height: screenPaddingNavbar
+
                 color: "black"
                 opacity: 0.33
                 visible: true

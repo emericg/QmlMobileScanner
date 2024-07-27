@@ -64,8 +64,7 @@ Item {
 
             ////////
 
-            Item {
-                id: element_network
+            Item { // element_network
                 anchors.left: parent.left
                 anchors.right: parent.right
                 height: 20
@@ -92,8 +91,7 @@ Item {
                     }
                 }
 
-                Text {
-                    id: text_network
+                Text { // text_network
                     anchors.left: parent.left
                     anchors.leftMargin: 64
                     anchors.right: parent.right
@@ -109,8 +107,7 @@ Item {
                     verticalAlignment: Text.AlignVCenter
                 }
             }
-            Text {
-                id: legend_network
+            Text { // legend_network
                 anchors.left: parent.left
                 anchors.leftMargin: 64
                 anchors.right: parent.right
@@ -125,8 +122,7 @@ Item {
 
             ////////
 
-            Item {
-                id: element_camera
+            Item { // element_camera
                 anchors.left: parent.left
                 anchors.right: parent.right
                 height: 20
@@ -154,8 +150,7 @@ Item {
                     }
                 }
 
-                Text {
-                    id: text_camera
+                Text { // text_camera
                     anchors.left: parent.left
                     anchors.leftMargin: 64
                     anchors.right: parent.right
@@ -171,8 +166,7 @@ Item {
                     verticalAlignment: Text.AlignVCenter
                 }
             }
-            Text {
-                id: legend_camera
+            Text { // legend_camera
                 anchors.left: parent.left
                 anchors.leftMargin: 64
                 anchors.right: parent.right
@@ -187,8 +181,7 @@ Item {
 
             ////////
 
-            Item {
-                id: element_position
+            Item { // element_position
                 anchors.left: parent.left
                 anchors.right: parent.right
                 height: 20
@@ -215,8 +208,7 @@ Item {
                     }
                 }
 
-                Text {
-                    id: text_position
+                Text { // text_position
                     anchors.left: parent.left
                     anchors.leftMargin: 64
                     anchors.right: parent.right
@@ -232,8 +224,7 @@ Item {
                     verticalAlignment: Text.AlignVCenter
                 }
             }
-            Text {
-                id: legend_position
+            Text { // legend_position
                 anchors.left: parent.left
                 anchors.leftMargin: 64
                 anchors.right: parent.right

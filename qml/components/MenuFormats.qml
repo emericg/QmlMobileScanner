@@ -37,7 +37,8 @@ Column {
         model: (settingsManager.backend_reader === "zxingcpp") ? formatsAvailable_zxingcpp : formatsAvailable_qzxing
 
         delegate: Item {
-            width: parent.width
+            anchors.left: parent.left
+            anchors.right: parent.right
             height: 40
 
             //required property var modelData

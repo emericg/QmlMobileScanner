@@ -134,6 +134,7 @@ Loader {
                                 anchors.horizontalCenter: parent.horizontalCenter
 
                                 text: qsTr("light")
+                                textFormat: Text.PlainText
                                 color: "#313236"
                                 font.pixelSize: Theme.fontSizeContentSmall
                             }
@@ -162,6 +163,7 @@ Loader {
                                 anchors.verticalCenter: parent.verticalCenter
 
                                 text: qsTr("dark")
+                                textFormat: Text.PlainText
                                 color: "#ddd"
                                 font.pixelSize: Theme.fontSizeContentSmall
                             }

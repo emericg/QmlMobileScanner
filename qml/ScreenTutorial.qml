@@ -86,7 +86,7 @@ Rectangle {
                             anchors.leftMargin: tutorialPages.margins
 
                             text: qsTr("Scan stuff")
-                            textFormat: Text.StyledText
+                            textFormat: Text.PlainText
                             wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                             font.pixelSize: Theme.fontSizeContentBig
                             color: Theme.colorHeaderContent
@@ -108,7 +108,7 @@ Rectangle {
                             anchors.leftMargin: tutorialPages.margins
 
                             text: qsTr("and other stuff")
-                            textFormat: Text.StyledText
+                            textFormat: Text.PlainText
                             color: Theme.colorHeaderContent
                             font.pixelSize: Theme.fontSizeContentBig
                             horizontalAlignment: Text.AlignHCenter
