@@ -83,7 +83,7 @@ class SettingsManager: public QObject
     unsigned m_formatsEnabled_zxingcpp = 0xffffffff;
     unsigned m_formatsEnabled_qzxing = 0xffffffff;
 
-    bool m_save_barcodes = false;
+    bool m_save_barcodes = true;
     bool m_save_camera = false;
     bool m_save_gps = false;
 

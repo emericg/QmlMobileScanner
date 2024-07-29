@@ -35,10 +35,25 @@ Item {
     }
 
     function backAction() {
-        if (entryPoint === "ScreenBarcodeHistory")
-            screenBarcodeHistory.loadScreen()
-        else if (entryPoint === "ScreenBarcodeReader")
+        if (entryPoint === "ScreenBarcodeHistory") {
+            if (stackView.depth > 1) {
+                stackView.pop()
+            }
+        } else if (entryPoint === "ScreenBarcodeReader") {
             screenBarcodeReader.loadScreen()
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+
+    PopupHistoryDelete {
+        id: popupHistoryDelete
+
+        onConfirmed: {
+            utilsApp.vibrate(33)
+            barcodeManager.removeHistory(barcode.data)
+            backAction()
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////

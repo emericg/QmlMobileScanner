@@ -82,8 +82,12 @@ ZXingCppVideoFilter {
 
             if (newbarcode) {
                 utilsApp.vibrate(33)
-                barcodeManager.addHistory(result.text, result.formatName, result.contentType, "",
-                                          gps.coordinates)
+
+                if (settingsManager.save_barcodes) {
+                    barcodeManager.addHistory(result.text,
+                                              result.formatName, result.contentType, "",
+                                              gps.coordinates)
+                }
             }
         }
     }

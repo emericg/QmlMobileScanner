@@ -24,6 +24,7 @@
         <file>Writer_Zint.qml</file>
 
         <file alias="PopupBarcodeFullscreen.qml">popups/PopupBarcodeFullscreen.qml</file>
+        <file alias="PopupHistoryDelete.qml">popups/PopupHistoryDelete.qml</file>
 
         <file alias="MenuDebug.qml">components/MenuDebug.qml</file>
         <file alias="MenuCamera.qml">components/MenuCamera.qml</file>

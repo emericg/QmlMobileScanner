@@ -480,6 +480,8 @@ Loader {
                     anchors.rightMargin: screenPaddingRight + contentColumn.padMargin
                     height: 48
 
+                    enabled: false
+
                     Item {
                         Layout.preferredWidth: 56
 
