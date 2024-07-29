@@ -45,7 +45,8 @@ QZXingFilter {
 
             if (newbarcode) {
                 utilsApp.vibrate(33)
-                barcodeManager.addHistory(tag, decoder.foundedFormat(), decoder.charSet(), "")
+                barcodeManager.addHistory(tag, decoder.foundedFormat(), decoder.charSet(), "",
+                                          gps.coordinates)
             }
         }
     }

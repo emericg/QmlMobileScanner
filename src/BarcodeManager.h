@@ -27,6 +27,7 @@
 #include <QUrl>
 #include <QString>
 #include <QDateTime>
+#include <QGeoCoordinate>
 
 class QNetworkAccessManager;
 class QNetworkReply;
@@ -84,7 +85,8 @@ public:
                                 const bool fromVideo = true);
 
     Q_INVOKABLE void addHistory(const QString &data, const QString &format,
-                                const QString &enc, const QString &ecc);
+                                const QString &enc, const QString &ecc,
+                                const QGeoCoordinate &coord);
     Q_INVOKABLE void removeHistory(const QString &data);
 
     bool hasBarcodes() const { return !m_barcodes_onscreen.isEmpty(); }

@@ -106,6 +106,8 @@ class Barcode: public QObject
     Q_PROPERTY(bool isStarred READ isStarred WRITE setStarred NOTIFY barcodeChanged)
     Q_PROPERTY(bool isMatrix READ isMatrix CONSTANT)
     Q_PROPERTY(bool isLinear READ isLinear CONSTANT)
+    Q_PROPERTY(bool hasPosition READ hasPosition CONSTANT)
+
     Q_PROPERTY(QString content READ getContent CONSTANT)
 
     Q_PROPERTY(bool isOnScreen READ isOnScreen NOTIFY lastseenChanged)
@@ -152,6 +154,7 @@ public:
     QDateTime getDate() const { return m_date; }
     double getLat() const { return m_geo_lat; }
     double getLon() const { return m_geo_long; }
+    bool hasPosition() const { return (m_geo_lat != 0.0 || m_geo_long != 0.0); }
 
     bool isStarred() const { return m_starred; }
     void setStarred(const bool value);

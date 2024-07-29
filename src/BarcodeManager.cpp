@@ -216,7 +216,8 @@ bool BarcodeManager::addBarcode(const QString &data, const QString &format,
 /* ************************************************************************** */
 
 void BarcodeManager::addHistory(const QString &data, const QString &format,
-                                const QString &enc, const QString &ecc)
+                                const QString &enc, const QString &ecc,
+                                const QGeoCoordinate &coord)
 {
     if (!data.isEmpty())
     {
@@ -232,8 +233,9 @@ void BarcodeManager::addHistory(const QString &data, const QString &format,
         }
 
         Barcode *bc = new Barcode(data, format, enc, ecc,
-                                  QDateTime::currentDateTime(), 0, 0, false,
-                                  this);
+                                  QDateTime::currentDateTime(),
+                                  coord.latitude(), coord.longitude(),
+                                  false, this);
         if (bc)
         {
             qDebug() << "addHistory(" << data << ")";
@@ -244,7 +246,16 @@ void BarcodeManager::addHistory(const QString &data, const QString &format,
 
             // add barcode to the history database
             QSqlQuery addBarcode;
-            addBarcode.prepare("INSERT INTO barcodes (data, format, date) VALUES (:data, :format, :date)");
+            if (coord.isValid() && (coord.latitude() != 0.0 || coord.longitude() != 0.0))
+            {
+                addBarcode.prepare("INSERT INTO barcodes (data, format, date, lat, long) VALUES (:data, :format, :date, :latitude, :longitude)");
+                addBarcode.bindValue(":latitude", coord.latitude());
+                addBarcode.bindValue(":longitude", coord.longitude());
+            }
+            else
+            {
+                addBarcode.prepare("INSERT INTO barcodes (data, format, date) VALUES (:data, :format, :date)");
+            }
             addBarcode.bindValue(":data", data);
             addBarcode.bindValue(":format", format);
             addBarcode.bindValue(":date", QDateTime::currentDateTime().toMSecsSinceEpoch());

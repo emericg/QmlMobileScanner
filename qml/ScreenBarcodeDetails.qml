@@ -341,6 +341,8 @@ Item {
                     height: 20
                     spacing: 8
 
+                    visible: barcode.hasPosition
+
                     IconSvg {
                         anchors.verticalCenter: parent.verticalCenter
                         width: 20

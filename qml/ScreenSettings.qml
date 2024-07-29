@@ -548,8 +548,15 @@ Loader {
                         Layout.alignment: Qt.AlignVCenter
                         z: 1
 
-                        checked: settingsManager.save_gps
-                        onClicked: settingsManager.save_gps = checked
+                        checked: {
+                            if (!utilsApp.checkMobileLocationPermission()) return false
+                            if (settingsManager.save_gps) return true
+                            return false
+                        }
+                        onClicked: {
+                            utilsApp.getMobileLocationPermission()
+                            settingsManager.save_gps = checked
+                        }
                     }
                 }
 

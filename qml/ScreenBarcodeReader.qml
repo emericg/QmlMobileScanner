@@ -1,11 +1,14 @@
 import QtCore
+
 import QtQuick
 import QtQuick.Shapes
 import QtQuick.Layouts
 import QtQuick.Controls
 import QtQuick.Dialogs
 
+import QtPositioning
 import QtMultimedia
+
 import ThemeEngine
 
 Loader {
@@ -47,6 +50,25 @@ Loader {
         if (screenBarcodeReader.status === Loader.Ready) {
             screenBarcodeReader.item.close()
             if (isMobile) screenBarcodeReader.active = false // crash !?!
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+
+    PositionSource {
+        id: gps
+
+        property geoCoordinate coordinates: QtPositioning.coordinate(0, 0)
+
+        active: (isMobile && settingsManager.save_gps)
+        updateInterval: 3333
+
+        onSupportedPositioningMethodsChanged: {
+            //console.log("Positioning method: " + supportedPositioningMethods)
+        }
+        onPositionChanged: {
+            //console.log("Coordinate: ", position.coordinate.longitude, position.coordinate.latitude)
+            gps.coordinates = position.coordinate
         }
     }
 

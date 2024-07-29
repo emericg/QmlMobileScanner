@@ -5,7 +5,8 @@ DEFINES+= APP_NAME=\\\"$$TARGET\\\"
 DEFINES+= APP_VERSION=\\\"$$VERSION\\\"
 
 CONFIG += c++17
-QT     += core concurrent qml quickcontrols2 svg sql
+QT     += core concurrent qml quickcontrols2 svg
+QT     += sql positioning
 
 # Bundle name
 QMAKE_TARGET_BUNDLE_PREFIX = io.emeric
