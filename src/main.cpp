@@ -26,6 +26,7 @@
 #include "utils_app.h"
 #include "utils_screen.h"
 #include "utils_camera.h"
+#include "utils_clipboard.h"
 #include "utils_fpsmonitor.h"
 
 #include <MobileUI>
@@ -96,6 +97,9 @@ int main(int argc, char *argv[])
     UtilsCamera *utilsCamera = UtilsCamera::getInstance();
     if (!utilsCamera) return EXIT_FAILURE;
 
+    UtilsClipboard *utilsClipboard = new UtilsClipboard();
+    if (!utilsClipboard) return EXIT_FAILURE;
+
     UtilsApp *utilsApp = UtilsApp::getInstance();
     if (!utilsApp) return EXIT_FAILURE;
 
@@ -112,6 +116,7 @@ int main(int argc, char *argv[])
     engine_context->setContextProperty("barcodeManager", bch);
     engine_context->setContextProperty("utilsScreen", utilsScreen);
     engine_context->setContextProperty("utilsCamera", utilsCamera);
+    engine_context->setContextProperty("utilsClipboard", utilsClipboard);
     engine_context->setContextProperty("utilsApp", utilsApp);
 
 #if QT_CONFIG(permissions)

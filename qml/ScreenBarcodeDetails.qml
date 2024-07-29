@@ -375,6 +375,75 @@ Item {
                 }
 
                 ////
+
+                RowLayout { // action icons
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    spacing: 12
+
+                    SquareButtonClear {
+                        color: Theme.colorBlue
+                        tooltipText: qsTr("Open")
+                        source: "qrc:/assets/icons/material-icons/duotone/launch.svg"
+
+                        onClicked: {
+                            Qt.openUrlExternally(barcode.data)
+                        }
+                    }
+
+                    SquareButtonClear {
+                        visible: isMobile
+
+                        color: Theme.colorGreen
+                        tooltipText: qsTr("Share")
+                        source: "qrc:/assets/icons/material-symbols/groups.svg"
+
+                        onClicked: {
+                            //
+                        }
+                    }
+
+                    SquareButtonClear {
+                        color: Theme.colorYellow
+                        tooltipText: qsTr("Copy to clipboard")
+                        source: "qrc:/assets/icons/material-symbols/content_copy.svg"
+
+                        onClicked: {
+                            utilsClipboard.setText(barcode.data)
+                        }
+                    }
+
+                    SquareButtonClear {
+                        color: Theme.colorPrimary
+                        visible: barcode.hasPosition
+
+                        tooltipText: qsTr("See on map")
+                        source: "qrc:/assets/icons/material-icons/duotone/pin_drop.svg"
+
+                        onClicked: {
+                            Qt.openUrlExternally("https://www.openstreetmap.org/" +
+                                                 "?mlat=" + barcode.latitude + "&mlon=" + barcode.longitude +
+                                                 "#map=8/")
+                        }
+                    }
+
+                    Item {
+                        Layout.fillWidth: true
+                    }
+
+                    SquareButtonClear {
+                        color: Theme.colorRed
+
+                        tooltipText: qsTr("Delete entry")
+                        source: "qrc:/assets/icons/material-symbols/delete-fill.svg"
+
+                        onClicked: {
+                            popupHistoryDelete.open()
+                        }
+                    }
+                }
+
+                ////
             }
 
             ////////////////
