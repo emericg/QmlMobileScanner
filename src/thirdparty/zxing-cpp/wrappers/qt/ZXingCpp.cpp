@@ -228,6 +228,7 @@ QList<Result> ZXingCpp::ReadBarcodes(const QVideoFrame &frame,
     auto frame_ro = frame;
     if (frame_ro.handleType() == QVideoFrame::RhiTextureHandle)
     {
+        //if (!frame_ro.map(QtVideo::MapMode::ReadOnly)) // Qt 6.8+
         if (!frame_ro.map(QVideoFrame::ReadOnly))
         {
             qWarning() << "ZXingCppVideoFilter error: invalid QVideoFrame, could not map memory";
@@ -320,6 +321,10 @@ QImage ZXingCpp::generateImage(const QString &data, const int width, const int h
     catch (std::invalid_argument const &ex)
     {
         qWarning() << "ZXingCpp::generateImage() invalid_argument:" << ex.what();
+    }
+    catch (const std::exception &e)
+    {
+        qWarning() << "ZXingCpp::generateImage() exception:" << e.what();
     }
     catch (...)
     {

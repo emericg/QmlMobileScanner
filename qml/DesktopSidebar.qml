@@ -109,5 +109,15 @@ Rectangle {
         }
     }
 
+    //
+
+    Rectangle {
+        anchors.top: parent.top
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        width: 2
+        color: Theme.colorSidebarHighlight
+    }
+
     ////////////////////////////////////////////////////////////////////////////
 }

@@ -44,11 +44,12 @@ Item {
     ////////////////////////////////////////////////////////////////////////////
 
     property string barcode_string: barcode.data
-    property string barcode_settings: "?" + setting_format + "&" + setting_eccLevel + "&" + setting_margins
-
-    property string setting_format: "format=" + barcode.format
-    property string setting_eccLevel: "eccLevel=2"
-    property string setting_margins: "margins=0"
+    property string barcode_settings_qzxing: "?" + "format=" + barcode.format +
+                                             "&"  + "correctionLevel=" + "L" +
+                                             "&"  + "border=" + 0
+    property string barcode_settings_zxingcpp: "?" + "format=" + barcode.format +
+                                               "&" + "eccLevel=" + 0 +
+                                               "&" + "margins=" + 0
 
     Flickable {
         anchors.fill: parent
@@ -114,16 +115,21 @@ Item {
                     Image {
                         id: barcodeImage
                         anchors.fill: parent
-                        anchors.margins: Theme.componentMarginL
+                        anchors.margins: Theme.componentMargin
 
-                        cache: true
+                        cache: false
+                        smooth: false
+
                         sourceSize.width: width
                         sourceSize.height: height
-                        //fillMode: Image.PreserveAspectFit
+                        fillMode: Image.PreserveAspectFit
 
-                        source: (settingsManager.backend_writer === "qzxing") ?
-                                    "image://QZXing/encode/" + screenBarcodeDetails.barcode_string :
-                                    "image://ZXingCpp/encode/" + screenBarcodeDetails.barcode_string + screenBarcodeDetails.barcode_settings
+                        source: {
+                            if (settingsManager.backend_writer === "zint") return "image://ZintQml/encode/" + screenBarcodeDetails.barcode_string + screenBarcodeDetails.barcode_settings_zxingcpp
+                            if (settingsManager.backend_writer === "zxingcpp") return "image://ZXingCpp/encode/" + screenBarcodeDetails.barcode_string + screenBarcodeDetails.barcode_settings_zxingcpp
+                            if (settingsManager.backend_writer === "qzxing") return "image://QZXing/encode/" + screenBarcodeDetails.barcode_string + screenBarcodeDetails.barcode_settings_qzxing
+                            return ""
+                        }
                     }
 
                     MouseArea {
@@ -138,7 +144,7 @@ Item {
                         acceptedButtons: Qt.LeftButton
 
                         onClicked: {
-                            if (isMobile && barcodeAdvanced.barcode_string) {
+                            if (isMobile && screenBarcodeDetails.barcode_string) {
                                 popupBarcodeFullscreen.open()
                             }
                         }
@@ -163,8 +169,8 @@ Item {
                             y: mmmm.mouseY + 4 - (mouseBackground.width / 2)
                             color: "#333"
                             opacity: 0
-                            Behavior on opacity { NumberAnimation { duration: 200 } }
-                            Behavior on width { NumberAnimation { duration: 200 } }
+                            Behavior on opacity { NumberAnimation { duration: 333 } }
+                            Behavior on width { NumberAnimation { duration: 333 } }
                         }
 
                         layer.enabled: true
@@ -189,29 +195,20 @@ Item {
 
                 ////
 
-                Rectangle { // barcode content // single line
+                TextAreaThemed { // barcode content // single line
+                    id: barcodedata
                     anchors.left: parent.left
                     anchors.right: parent.right
-                    height: barcodedata.height + Theme.componentMargin
-                    radius: Theme.componentRadius
-                    color: Theme.colorComponentBackground
-                    border.width: 2
-                    border.color: Theme.colorComponentBorder
 
                     visible: barcode.isLinear
+                    height: contentHeight + Theme.componentMargin*2
 
-                    Text {
-                        id: barcodedata
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        anchors.verticalCenter: parent.verticalCenter
-                        anchors.margins: Theme.componentMargin
+                    readOnly: true
+                    selectByMouse: true
 
-                        text: barcode.data
-                        font.pixelSize: Theme.fontSizeContentBig
-                        color: Theme.colorText
-                        elide: Text.ElideRight
-                    }
+                    text: barcode.data
+                    font.pixelSize: Theme.fontSizeContentBig
+                    color: Theme.colorText
                 }
 
                 ////
@@ -228,8 +225,9 @@ Item {
                 Rectangle { // barcode content // multiple lines
                     anchors.left: parent.left
                     anchors.right: parent.right
-                    height: barcodecontent.contentHeight + Theme.componentMargin
+                    height: barcodecontent.contentHeight + Theme.componentMargin*2
                     radius: Theme.componentRadius
+
                     color: Theme.colorComponentBackground
                     border.width: 2
                     border.color: Theme.colorComponentBorder
@@ -240,12 +238,17 @@ Item {
                         anchors.left: parent.left
                         anchors.leftMargin: Theme.componentMargin
                         anchors.right: parent.right
-                        anchors.rightMargin: Theme.componentMargin / 2
+                        anchors.rightMargin: Theme.componentMargin
                         anchors.verticalCenter: parent.verticalCenter
 
-                        Text {
+                        TextAreaThemed {
                             id: barcodecontent
                             Layout.fillWidth: true
+
+                            padding: 0
+                            background: Item {}
+                            readOnly: true
+                            selectByMouse: true
 
                             text: barcode.data
                             color: Theme.colorText
@@ -259,7 +262,7 @@ Item {
                             Layout.alignment: Qt.AlignVCenter
                             visible: source.toString().length
 
-                            color: Theme.colorIcon
+                            color: mm.containsMouse ? Theme.colorPrimary : Theme.colorIcon
                             source: {
                                 if (barcode.content === "URL") return "qrc:/assets/icons/material-icons/duotone/launch.svg"
                                 if (barcode.content === "WiFi") return "qrc:/assets/icons/material-symbols/wifi.svg"
@@ -269,6 +272,16 @@ Item {
                                 if (barcode.content === "SMS") return "qrc:/assets/icons/material-icons/duotone/question_answer.svg"
                                 return ""
                             }
+
+                            MouseArea {
+                                id: mm
+                                anchors.fill: parent
+
+                                hoverEnabled: isDesktop
+                                onClicked: {
+                                    Qt.openUrlExternally(barcode.data)
+                                }
+                            }
                         }
                     }
                 }
@@ -276,9 +289,10 @@ Item {
                 ////
 
                 Row { // format
-                    //visible: barcode.format
                     height: 20
                     spacing: 8
+
+                    //visible: barcode.format
 
                     IconSvg {
                         anchors.verticalCenter: parent.verticalCenter
@@ -300,9 +314,10 @@ Item {
                 ////
 
                 Row { // date
-                    //visible: barcode.date
                     height: 20
                     spacing: 8
+
+                    //visible: barcode.date
 
                     IconSvg {
                         anchors.verticalCenter: parent.verticalCenter
@@ -323,7 +338,6 @@ Item {
                 ////
 
                 Row { // location
-                    //visible: (barcode.latitude != 0 && barcode.longitude != 0)
                     height: 20
                     spacing: 8
 

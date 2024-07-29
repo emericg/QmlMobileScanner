@@ -17,7 +17,7 @@ win32-msvc* {
 
     QMAKE_CXXFLAGS += /FS
 } else {
-    QMAKE_CXXFLAGS += -Wall -Wextra -Wno-missing-braces -Werror=undef -Werror=return-type
+    QMAKE_CXXFLAGS += -Wall -Wextra -Werror=undef -Werror=return-type -Wno-missing-braces
 }
 
 ## Source files ################################################################

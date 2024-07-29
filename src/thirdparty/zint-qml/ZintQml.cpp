@@ -43,6 +43,12 @@ int ZintQml::stringToFormat(const QString &str)
     if (str == "code16k") return BARCODE_CODE16K;
     if (str == "codablockf") return BARCODE_CODABLOCKF;
 
+    if (str == "ean8") return BARCODE_EANX;
+    if (str == "ean13") return BARCODE_EANX;
+    if (str == "databar") return BARCODE_DBAR_OMNSTK;
+    if (str == "databarexpanded") return BARCODE_DBAR_EXPSTK;
+    if (str == "itf") return BARCODE_ITF14;
+
     if (str == "upca") return BARCODE_UPCA;
     if (str == "upce") return BARCODE_UPCE;
     if (str == "codabar") return BARCODE_CODABAR;
@@ -71,6 +77,11 @@ QString ZintQml::formatToString(const int fmt)
     if (fmt == BARCODE_CODE49) return "code49";
     if (fmt == BARCODE_CODE16K) return "code16k";
     if (fmt == BARCODE_CODABLOCKF) return "codablockf";
+
+    if (fmt == BARCODE_EANX) return "ean13";
+    if (fmt == BARCODE_DBAR_OMNSTK) return "databar";
+    if (fmt == BARCODE_DBAR_EXPSTK) return "databarexpanded";
+    if (fmt == BARCODE_ITF14) return "itf";
 
     if (fmt == BARCODE_UPCA) return "upca";
     if (fmt == BARCODE_UPCE) return "upce";

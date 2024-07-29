@@ -9,6 +9,7 @@ Demo barcode & QR code scanner based on qzxing and zxing-cpp libraries to scan a
 
 > Works on Linux, macOS, Windows, Android and iOS!
 
+
 ### Features
 
 - UIs

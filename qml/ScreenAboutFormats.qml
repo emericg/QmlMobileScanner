@@ -36,10 +36,8 @@ Item {
 
     Item {
         anchors.fill: parent
-        anchors.topMargin: Theme.componentMarginL
         anchors.leftMargin: isDesktop ? Theme.componentMarginL : Theme.componentMargin
         anchors.rightMargin: isDesktop ? Theme.componentMarginL : Theme.componentMargin
-        anchors.bottomMargin: Theme.componentMarginL
 
         ////////
 
@@ -88,6 +86,9 @@ Item {
 
         ListView {
             anchors.fill: parent
+
+            topMargin: Theme.componentMarginL
+            bottomMargin: Theme.componentMarginL
 
             ////
 

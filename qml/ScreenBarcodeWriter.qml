@@ -119,9 +119,9 @@ Loader {
                         fillMode: Image.PreserveAspectFit
 
                         source: {
-                            if (settingsManager.backend_zint) return "image://ZintQml/encode/" + barcodeAdvanced.barcode_string + barcodeAdvanced.barcode_settings_zxingcpp
-                            if (settingsManager.backend_zxingcpp) return "image://ZXingCpp/encode/" + barcodeAdvanced.barcode_string + barcodeAdvanced.barcode_settings_zxingcpp
-                            if (settingsManager.backend_qzxing) return "image://QZXing/encode/" + barcodeAdvanced.barcode_string + barcodeAdvanced.barcode_settings_qzxing
+                            if (settingsManager.backend_writer === "zint") return "image://ZintQml/encode/" + barcodeAdvanced.barcode_string + barcodeAdvanced.barcode_settings_zxingcpp
+                            if (settingsManager.backend_writer === "zxingcpp") return "image://ZXingCpp/encode/" + barcodeAdvanced.barcode_string + barcodeAdvanced.barcode_settings_zxingcpp
+                            if (settingsManager.backend_writer === "qzxing") return "image://QZXing/encode/" + barcodeAdvanced.barcode_string + barcodeAdvanced.barcode_settings_qzxing
                             return ""
                         }
 
@@ -129,7 +129,7 @@ Loader {
                             width: 80
                             height: 80
                             anchors.centerIn: parent
-                            visible: !barcodeAdvanced.barcode_string
+                            visible: (!barcodeAdvanced.barcode_string && settingsManager.backend_writer === "zint")
                             source: "qrc:/assets/icons/material-icons/duotone/edit.svg"
                             color: Theme.colorIcon
                         }
@@ -200,8 +200,8 @@ Loader {
                             y: mmmm.mouseY + 4 - (mouseBackground.width / 2)
                             color: "#333"
                             opacity: 0
-                            Behavior on opacity { NumberAnimation { duration: 200 } }
-                            Behavior on width { NumberAnimation { duration: 200 } }
+                            Behavior on opacity { NumberAnimation { duration: 333 } }
+                            Behavior on width { NumberAnimation { duration: 333 } }
                         }
 
                         layer.enabled: true
@@ -235,14 +235,14 @@ Loader {
                 height: singleColumn ? settingsarea.height : gridContent.hhh
 
                 property string barcode_string
-                property string barcode_settings_qzxing: "?" + "format=" + format + "&"
-                                                             + "border=" + border + "&"
-                                                             + "correctionLevel=" + eccStr
-                property string barcode_settings_zxingcpp: "?" + "format=" + format + "&"
-                                                               + "eccLevel=" + eccLevel + "&"
-                                                               + "margins=" + margins + "&"
-                                                               + "backgroundColor=" + colorBg + "&"
-                                                               + "foregroundColor=" + colorFg
+                property string barcode_settings_qzxing: "?" + "format=" + format +
+                                                         "&" + "border=" + border +
+                                                         "&" + "correctionLevel=" + eccStr
+                property string barcode_settings_zxingcpp: "?" + "format=" + format +
+                                                           "&" + "eccLevel=" + eccLevel +
+                                                           "&" + "margins=" + margins +
+                                                           "&" + "backgroundColor=" + colorBg +
+                                                           "&" + "foregroundColor=" + colorFg
 
                 property string format: "qrcode"
 
@@ -284,14 +284,14 @@ Loader {
                             var codesize = 7
 
                             if (barcodeAdvanced.format === "ean13") codesize = 12
-                            if (barcodeAdvanced.format === "ean8") codesize = 7
-                            if (barcodeAdvanced.format === "upca") codesize = 11
-                            if (barcodeAdvanced.format === "upce") codesize = 7
-                            if (barcodeAdvanced.format === "code39") codesize = 39
-                            if (barcodeAdvanced.format === "code93") codesize = 93
-                            if (barcodeAdvanced.format === "code128") codesize = 128
-                            if (barcodeAdvanced.format === "codabar") codesize = 11
-                            if (barcodeAdvanced.format === "itf") codesize = 10
+                            else if (barcodeAdvanced.format === "ean8") codesize = 7
+                            else if (barcodeAdvanced.format === "upca") codesize = 11
+                            else if (barcodeAdvanced.format === "upce") codesize = 7
+                            else if (barcodeAdvanced.format === "code39") codesize = 39
+                            else if (barcodeAdvanced.format === "code93") codesize = 93
+                            else if (barcodeAdvanced.format === "code128") codesize = 128
+                            else if (barcodeAdvanced.format === "codabar") codesize = 11
+                            else if (barcodeAdvanced.format === "itf") codesize = 10
 
                             code = displayText.slice(0, codesize)
                             code = code.padEnd(codesize, '0');
@@ -686,9 +686,9 @@ Loader {
                         active: true
                         asynchronous: true
                         source: {
-                            if (settingsManager.backend_zint) return "Writer_Zint.qml"
-                            if (settingsManager.backend_zxingcpp) return "Writer_ZXingCpp.qml"
-                            if (settingsManager.backend_qzxing) return "Writer_QZXing.qml"
+                            if (settingsManager.backend_writer === "zint") return "Writer_Zint.qml"
+                            if (settingsManager.backend_writer === "zxingcpp") return "Writer_ZXingCpp.qml"
+                            if (settingsManager.backend_writer === "qzxing") return "Writer_QZXing.qml"
                         }
                     }
                     property alias barcodeWriter: backendLoader.item

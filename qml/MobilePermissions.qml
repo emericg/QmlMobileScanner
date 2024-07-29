@@ -145,8 +145,9 @@ Item {
                     backgroundVisible: true
 
                     onClicked: {
+                        utilsApp.vibrate(25)
                         utilsApp.getMobileCameraPermission()
-                        refreshPermissions.start()
+                        retryPermissions.start()
                     }
                 }
 
@@ -203,8 +204,9 @@ Item {
                     backgroundVisible: true
 
                     onClicked: {
+                        utilsApp.vibrate(25)
                         utilsApp.getMobileLocationPermission()
-                        refreshPermissions.start()
+                        retryPermissions.start()
                     }
                 }
 
@@ -295,7 +297,7 @@ Item {
             ButtonWireframe {
                 anchors.left: parent.left
                 anchors.leftMargin: appHeader.headerPosition
-                height: 36
+                height: 38
 
                 visible: (Qt.platform.os === "android")
                 colorBackground: Theme.colorForeground

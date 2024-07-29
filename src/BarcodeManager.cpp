@@ -121,7 +121,7 @@ bool BarcodeManager::loadImage(const QUrl &fileUrl)
         m_barcodes_onscreen.clear();
 
         QList<Result> results = ZXingCpp::loadImage(fileUrl);
-        for (auto r: results)
+        for (const auto &r: results)
         {
             QPointF tl = r.position().topLeft();
             tl.setX(tl.x() / img.width());

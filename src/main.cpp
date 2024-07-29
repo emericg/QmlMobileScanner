@@ -28,7 +28,8 @@
 #include "utils_camera.h"
 #include "utils_fpsmonitor.h"
 
-#include <MobileUI/MobileUI.h>
+#include <MobileUI>
+#include <MobileSharing>
 
 #if defined(qzxing)
 #include <QZXing>
