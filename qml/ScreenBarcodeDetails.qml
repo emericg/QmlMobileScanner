@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
-import QtQuick.Controls
 import QtQuick.Effects
+import QtQuick.Controls
 
 import ThemeEngine
 
@@ -82,6 +82,7 @@ Item {
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.margins: columnSpacing
+            anchors.verticalCenter: parent.verticalCenter
 
             columns: singleColumn ? 1 : 2
             columnSpacing: Theme.componentMarginXL * (singleColumn ? 1 : 2)
@@ -93,360 +94,402 @@ Item {
             spacing: columnSpacing
 
             property int www: singleColumn ? gridContent.width : (gridContent.width - columnSpacing) / 2
-            property int hhh: screenBarcodeWriter.height - columnSpacing*2
+            property int hhh: screenBarcodeDetails.height - columnSpacing*2
 
-            ////////////////
+            ////////////////////////////////
 
-            Column { // pane 1
+            Item { // pane 1
                 width: gridContent.www
-                spacing: Theme.componentMargin
+                height: singleColumn ? barcodeView.height : gridContent.hhh
 
-                ////
+                ////////
 
-                Item {
-                    id: qrcodearea
+                Column {
+                    id: barcodeView
                     anchors.left: parent.left
                     anchors.right: parent.right
-                    height: barcode.isLinear ? (parent.width / 2) : parent.width
+                    anchors.verticalCenter: parent.verticalCenter
 
-                    Rectangle {
-                        id: shadowarea
-                        anchors.fill: parent
+                    spacing: Theme.componentMarginXL
 
-                        radius: Theme.componentRadius
-                        color: "white"
+                    Item {
+                        id: qrcodearea
 
-                        border.width: 2
-                        border.color: Theme.colorComponentBorder
+                        width: Math.min(gridContent.www, gridContent.hhh)
+                        height: barcode.isLinear ? (width / 2) : width
 
-                        layer.enabled: true
-                        layer.effect:  MultiEffect {
-                            autoPaddingEnabled: true
-                            shadowEnabled: true
-                            shadowColor: "#20000000"
-                        }
-                    }
+                        Rectangle {
+                            id: shadowarea
+                            anchors.fill: parent
 
-                    Image {
-                        id: barcodeImage
-                        anchors.fill: parent
-                        anchors.margins: Theme.componentMargin
+                            radius: Theme.componentRadius
+                            color: "white"
 
-                        cache: false
-                        smooth: false
+                            border.width: 2
+                            border.color: Theme.colorComponentBorder
 
-                        sourceSize.width: width
-                        sourceSize.height: height
-                        fillMode: Image.PreserveAspectFit
-
-                        source: {
-                            if (settingsManager.backend_writer === "zint") return "image://ZintQml/encode/" + screenBarcodeDetails.barcode_string + screenBarcodeDetails.barcode_settings_zxingcpp
-                            if (settingsManager.backend_writer === "zxingcpp") return "image://ZXingCpp/encode/" + screenBarcodeDetails.barcode_string + screenBarcodeDetails.barcode_settings_zxingcpp
-                            if (settingsManager.backend_writer === "qzxing") return "image://QZXing/encode/" + screenBarcodeDetails.barcode_string + screenBarcodeDetails.barcode_settings_qzxing
-                            return ""
-                        }
-                    }
-
-                    MouseArea {
-                        id: mmmm
-                        anchors.fill: parent
-                        anchors.margins: 0
-
-                        clip: true
-                        enabled: true
-                        visible: true
-                        hoverEnabled: false
-                        acceptedButtons: Qt.LeftButton
-
-                        onClicked: {
-                            if (isMobile && screenBarcodeDetails.barcode_string) {
-                                popupBarcodeFullscreen.open()
+                            layer.enabled: true
+                            layer.effect:  MultiEffect {
+                                autoPaddingEnabled: true
+                                shadowEnabled: true
+                                shadowColor: "#20000000"
                             }
                         }
 
-                        onPressed: {
-                            mouseBackground.width = mmmm.width*3
-                            mouseBackground.opacity = 0.1
-                        }
-                        onReleased: {
-                            mouseBackground.width = 0
-                            mouseBackground.opacity = 0
-                        }
-                        onCanceled: {
-                            mouseBackground.width = 0
-                            mouseBackground.opacity = 0
+                        Image {
+                            id: barcodeImage
+                            anchors.fill: parent
+                            anchors.margins: Theme.componentMargin
+
+                            cache: false
+                            smooth: false
+
+                            sourceSize.width: width
+                            sourceSize.height: height
+                            fillMode: Image.PreserveAspectFit
+
+                            source: {
+                                if (settingsManager.backend_writer === "zint") return "image://ZintQml/encode/" + screenBarcodeDetails.barcode_string + screenBarcodeDetails.barcode_settings_zxingcpp
+                                if (settingsManager.backend_writer === "zxingcpp") return "image://ZXingCpp/encode/" + screenBarcodeDetails.barcode_string + screenBarcodeDetails.barcode_settings_zxingcpp
+                                if (settingsManager.backend_writer === "qzxing") return "image://QZXing/encode/" + screenBarcodeDetails.barcode_string + screenBarcodeDetails.barcode_settings_qzxing
+                                return ""
+                            }
                         }
 
                         Rectangle {
-                            id: mouseBackground
-                            width: 0; height: width; radius: width;
-                            x: mmmm.mouseX + 4 - (mouseBackground.width / 2)
-                            y: mmmm.mouseY + 4 - (mouseBackground.width / 2)
-                            color: "#333"
-                            opacity: 0
-                            Behavior on opacity { NumberAnimation { duration: 333 } }
-                            Behavior on width { NumberAnimation { duration: 333 } }
+                            id: errorarea
+                            anchors.fill: parent
+
+                            radius: Theme.componentRadius
+                            color: Theme.colorWarning
+
+                            opacity: (barcodeImage.status == Image.Error && barcode.data) ? 0.5 : 0
+                            Behavior on opacity { NumberAnimation { duration: 233 } }
+
+                            border.width: 2
+                            border.color: Theme.colorError
+
+                            IconSvg {
+                                width: 80
+                                height: 80
+                                anchors.centerIn: parent
+                                source: "qrc:/assets/icons/material-symbols/media/broken_image.svg"
+                                color: Theme.colorError
+                            }
                         }
 
-                        layer.enabled: true
-                        layer.effect: MultiEffect {
-                            maskEnabled: true
-                            maskInverted: false
-                            maskThresholdMin: 0.5
-                            maskSpreadAtMin: 1.0
-                            maskSpreadAtMax: 0.0
-                            maskSource: ShaderEffectSource {
-                                sourceItem: Rectangle {
-                                    x: qrcodearea.x
-                                    y: qrcodearea.y
-                                    width: qrcodearea.width
-                                    height: qrcodearea.height
-                                    radius: Theme.componentRadius
+                        MouseArea {
+                            id: mmmm
+                            anchors.fill: parent
+                            anchors.margins: 0
+
+                            clip: true
+                            enabled: true
+                            visible: true
+                            hoverEnabled: false
+                            acceptedButtons: Qt.LeftButton
+
+                            onClicked: {
+                                if (isMobile && screenBarcodeDetails.barcode_string) {
+                                    popupBarcodeFullscreen.open()
+                                }
+                            }
+
+                            onPressed: {
+                                mouseBackground.width = mmmm.width*3
+                                mouseBackground.opacity = 0.1
+                            }
+                            onReleased: {
+                                mouseBackground.width = 0
+                                mouseBackground.opacity = 0
+                            }
+                            onCanceled: {
+                                mouseBackground.width = 0
+                                mouseBackground.opacity = 0
+                            }
+
+                            Rectangle {
+                                id: mouseBackground
+                                width: 0; height: width; radius: width;
+                                x: mmmm.mouseX + 4 - (mouseBackground.width / 2)
+                                y: mmmm.mouseY + 4 - (mouseBackground.width / 2)
+                                color: "#333"
+                                opacity: 0
+                                Behavior on opacity { NumberAnimation { duration: 333 } }
+                                Behavior on width { NumberAnimation { duration: 333 } }
+                            }
+
+                            layer.enabled: true
+                            layer.effect: MultiEffect {
+                                maskEnabled: true
+                                maskInverted: false
+                                maskThresholdMin: 0.5
+                                maskSpreadAtMin: 1.0
+                                maskSpreadAtMax: 0.0
+                                maskSource: ShaderEffectSource {
+                                    sourceItem: Rectangle {
+                                        x: qrcodearea.x
+                                        y: qrcodearea.y
+                                        width: qrcodearea.width
+                                        height: qrcodearea.height
+                                        radius: Theme.componentRadius
+                                    }
                                 }
                             }
                         }
                     }
+
+                    ////////
+
+                    TextAreaThemed { // barcode content // single line
+                        id: barcodedata
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+
+                        visible: barcode.isLinear
+                        height: barcode.isLinear ? (contentHeight + padding*2) : 0
+
+                        readOnly: true
+                        selectByMouse: true
+
+                        text: barcode.data
+                        font.pixelSize: Theme.fontSizeContentBig
+                        color: Theme.colorText
+                    }
+
+                    ////////
                 }
-
-                ////
-
-                TextAreaThemed { // barcode content // single line
-                    id: barcodedata
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-
-                    visible: barcode.isLinear
-                    height: contentHeight + Theme.componentMargin*2
-
-                    readOnly: true
-                    selectByMouse: true
-
-                    text: barcode.data
-                    font.pixelSize: Theme.fontSizeContentBig
-                    color: Theme.colorText
-                }
-
-                ////
             }
 
-            ////////////////
+            ////////////////////////////////
 
-            Column { // pane 2
+            Item { // pane 2
                 width: gridContent.www
-                spacing: Theme.componentMargin
+                height: singleColumn ? barcodeDetails.height : gridContent.hhh
 
-                ////
-
-                Rectangle { // barcode content // multiple lines
+                Column {
+                    id: barcodeDetails
                     anchors.left: parent.left
                     anchors.right: parent.right
-                    height: barcodecontent.contentHeight + Theme.componentMargin*2
-                    radius: Theme.componentRadius
+                    anchors.verticalCenter: parent.verticalCenter
 
-                    color: Theme.colorComponentBackground
-                    border.width: 2
-                    border.color: Theme.colorComponentBorder
+                    height: singleColumn ? undefined : barcodeView.height
 
-                    visible: barcode.isMatrix
+                    spacing: Theme.componentMarginXL
 
-                    RowLayout {
+                    ////////
+
+                    Rectangle { // barcode content // multiple lines
                         anchors.left: parent.left
-                        anchors.leftMargin: Theme.componentMargin
                         anchors.right: parent.right
-                        anchors.rightMargin: Theme.componentMargin
-                        anchors.verticalCenter: parent.verticalCenter
+                        height: barcodecontent.contentHeight + Theme.componentMargin*2
+                        radius: Theme.componentRadius
 
-                        TextAreaThemed {
-                            id: barcodecontent
-                            Layout.fillWidth: true
+                        color: Theme.colorComponentBackground
+                        border.width: 2
+                        border.color: Theme.colorComponentBorder
 
-                            padding: 0
-                            background: Item {}
-                            readOnly: true
-                            selectByMouse: true
+                        visible: barcode.isMatrix
 
-                            text: barcode.data
-                            color: Theme.colorText
-                            wrapMode: Text.WrapAnywhere
-                            font.pixelSize: Theme.fontSizeContentBig
+                        RowLayout {
+                            anchors.left: parent.left
+                            anchors.leftMargin: Theme.componentMargin
+                            anchors.right: parent.right
+                            anchors.rightMargin: Theme.componentMargin
+                            anchors.verticalCenter: parent.verticalCenter
+
+                            TextAreaThemed {
+                                id: barcodecontent
+                                Layout.fillWidth: true
+
+                                padding: 0
+                                background: Item {}
+                                readOnly: true
+                                selectByMouse: true
+
+                                text: barcode.data
+                                color: Theme.colorText
+                                wrapMode: Text.WrapAnywhere
+                                font.pixelSize: Theme.fontSizeContentBig
+                            }
+
+                            IconSvg {
+                                Layout.preferredWidth: 24
+                                Layout.preferredHeight: 24
+                                Layout.alignment: Qt.AlignVCenter
+                                visible: source.toString().length
+
+                                color: mm.containsMouse ? Theme.colorPrimary : Theme.colorIcon
+                                source: {
+                                    if (barcode.content === "URL") return "qrc:/assets/icons/material-icons/duotone/launch.svg"
+                                    if (barcode.content === "WiFi") return "qrc:/assets/icons/material-symbols/wifi.svg"
+                                    if (barcode.content === "Email") return "qrc:/assets/icons/material-symbols/outline-mail_outline.svg"
+                                    if (barcode.content === "Geolocation") return "qrc:/assets/icons/material-icons/duotone/pin_drop.svg"
+                                    if (barcode.content === "Phone") return "qrc:/assets/icons/material-symbols/phone.svg"
+                                    if (barcode.content === "SMS") return "qrc:/assets/icons/material-icons/duotone/question_answer.svg"
+                                    return ""
+                                }
+
+                                MouseArea {
+                                    id: mm
+                                    anchors.fill: parent
+
+                                    hoverEnabled: isDesktop
+                                    onClicked: {
+                                        Qt.openUrlExternally(barcode.data)
+                                    }
+                                }
+                            }
                         }
+                    }
+
+                    ////////
+
+                    Row { // format
+                        height: 20
+                        spacing: 8
+
+                        //visible: barcode.format
 
                         IconSvg {
-                            Layout.preferredWidth: 24
-                            Layout.preferredHeight: 24
-                            Layout.alignment: Qt.AlignVCenter
-                            visible: source.toString().length
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: 20
+                            height: 20
 
-                            color: mm.containsMouse ? Theme.colorPrimary : Theme.colorIcon
-                            source: {
-                                if (barcode.content === "URL") return "qrc:/assets/icons/material-icons/duotone/launch.svg"
-                                if (barcode.content === "WiFi") return "qrc:/assets/icons/material-symbols/wifi.svg"
-                                if (barcode.content === "Email") return "qrc:/assets/icons/material-symbols/outline-mail_outline.svg"
-                                if (barcode.content === "Geolocation") return "qrc:/assets/icons/material-icons/duotone/pin_drop.svg"
-                                if (barcode.content === "Phone") return "qrc:/assets/icons/material-symbols/phone.svg"
-                                if (barcode.content === "SMS") return "qrc:/assets/icons/material-icons/duotone/question_answer.svg"
-                                return ""
-                            }
-
-                            MouseArea {
-                                id: mm
-                                anchors.fill: parent
-
-                                hoverEnabled: isDesktop
-                                onClicked: {
-                                    Qt.openUrlExternally(barcode.data)
-                                }
-                            }
+                            source: barcode.isMatrix ? "qrc:/assets/icons/material-symbols/qr_code_2.svg" :
+                                                       "qrc:/assets/icons/material-symbols/barcode.svg"
+                            color: Theme.colorIcon
+                        }
+                        Text {
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: barcode.format
+                            font.pixelSize: Theme.fontSizeContent
+                            color: Theme.colorSubText
                         }
                     }
-                }
 
-                ////
+                    ////////
 
-                Row { // format
-                    height: 20
-                    spacing: 8
-
-                    //visible: barcode.format
-
-                    IconSvg {
-                        anchors.verticalCenter: parent.verticalCenter
-                        width: 20
+                    Row { // date
                         height: 20
+                        spacing: 8
 
-                        source: barcode.isMatrix ? "qrc:/assets/icons/material-symbols/qr_code_2.svg" :
-                                                   "qrc:/assets/icons/material-symbols/barcode.svg"
-                        color: Theme.colorIcon
+                        //visible: barcode.date
+
+                        IconSvg {
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: 20
+                            height: 20
+
+                            source: "qrc:/assets/icons/material-icons/duotone/date_range.svg"
+                            color: Theme.colorIcon
+                        }
+                        Text {
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: barcode.date.toLocaleString(Qt.locale(), "dddd d MMMM yyyy à hh:mm")
+                            font.pixelSize: Theme.fontSizeContent
+                            color: Theme.colorSubText
+                        }
                     }
-                    Text {
-                        anchors.verticalCenter: parent.verticalCenter
-                        text: barcode.format
-                        font.pixelSize: Theme.fontSizeContent
-                        color: Theme.colorSubText
-                    }
-                }
 
-                ////
+                    ////////
 
-                Row { // date
-                    height: 20
-                    spacing: 8
-
-                    //visible: barcode.date
-
-                    IconSvg {
-                        anchors.verticalCenter: parent.verticalCenter
-                        width: 20
+                    Row { // location
                         height: 20
+                        spacing: 8
 
-                        source: "qrc:/assets/icons/material-icons/duotone/date_range.svg"
-                        color: Theme.colorIcon
-                    }
-                    Text {
-                        anchors.verticalCenter: parent.verticalCenter
-                        text: barcode.date.toLocaleString(Qt.locale(), "dddd d MMMM yyyy à hh:mm")
-                        font.pixelSize: Theme.fontSizeContent
-                        color: Theme.colorSubText
-                    }
-                }
-
-                ////
-
-                Row { // location
-                    height: 20
-                    spacing: 8
-
-                    visible: barcode.hasPosition
-
-                    IconSvg {
-                        anchors.verticalCenter: parent.verticalCenter
-                        width: 20
-                        height: 20
-
-                        source: "qrc:/assets/icons/material-icons/duotone/pin_drop.svg"
-                        color: Theme.colorIcon
-                    }
-                    Text {
-                        anchors.verticalCenter: parent.verticalCenter
-                        text: barcode.latitude + "°N " + barcode.longitude + "°E"
-                        font.pixelSize: Theme.fontSizeContent
-                        color: Theme.colorSubText
-                    }
-                }
-
-                ////
-
-                RowLayout { // action icons
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                    spacing: 12
-
-                    SquareButtonClear {
-                        color: Theme.colorBlue
-                        tooltipText: qsTr("Open")
-                        source: "qrc:/assets/icons/material-icons/duotone/launch.svg"
-
-                        onClicked: {
-                            Qt.openUrlExternally(barcode.data)
-                        }
-                    }
-
-                    SquareButtonClear {
-                        visible: isMobile
-
-                        color: Theme.colorGreen
-                        tooltipText: qsTr("Share")
-                        source: "qrc:/assets/icons/material-symbols/groups.svg"
-
-                        onClicked: {
-                            //
-                        }
-                    }
-
-                    SquareButtonClear {
-                        color: Theme.colorYellow
-                        tooltipText: qsTr("Copy to clipboard")
-                        source: "qrc:/assets/icons/material-symbols/content_copy.svg"
-
-                        onClicked: {
-                            utilsClipboard.setText(barcode.data)
-                        }
-                    }
-
-                    SquareButtonClear {
-                        color: Theme.colorPrimary
                         visible: barcode.hasPosition
 
-                        tooltipText: qsTr("See on map")
-                        source: "qrc:/assets/icons/material-icons/duotone/pin_drop.svg"
+                        IconSvg {
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: 20
+                            height: 20
 
-                        onClicked: {
-                            Qt.openUrlExternally("https://www.openstreetmap.org/" +
-                                                 "?mlat=" + barcode.latitude + "&mlon=" + barcode.longitude +
-                                                 "#map=8/")
+                            source: "qrc:/assets/icons/material-icons/duotone/pin_drop.svg"
+                            color: Theme.colorIcon
+                        }
+                        Text {
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: barcode.latitude + "°N " + barcode.longitude + "°E"
+                            font.pixelSize: Theme.fontSizeContent
+                            color: Theme.colorSubText
                         }
                     }
 
-                    Item {
-                        Layout.fillWidth: true
-                    }
+                    ////////
 
-                    SquareButtonClear {
-                        color: Theme.colorRed
+                    RowLayout { // action icons
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        spacing: 12
 
-                        tooltipText: qsTr("Delete entry")
-                        source: "qrc:/assets/icons/material-symbols/delete-fill.svg"
+                        SquareButtonClear {
+                            color: Theme.colorBlue
+                            tooltipText: qsTr("Open")
+                            source: "qrc:/assets/icons/material-icons/duotone/launch.svg"
 
-                        onClicked: {
-                            popupHistoryDelete.open()
+                            onClicked: {
+                                Qt.openUrlExternally(barcode.data)
+                            }
+                        }
+
+                        SquareButtonClear {
+                            visible: isMobile
+
+                            color: Theme.colorGreen
+                            tooltipText: qsTr("Share")
+                            source: "qrc:/assets/icons/material-symbols/share-fill.svg"
+
+                            onClicked: {
+                                //
+                            }
+                        }
+
+                        SquareButtonClear {
+                            color: Theme.colorYellow
+                            tooltipText: qsTr("Copy to clipboard")
+                            source: "qrc:/assets/icons/material-symbols/content_copy.svg"
+
+                            onClicked: {
+                                utilsClipboard.setText(barcode.data)
+                            }
+                        }
+
+                        SquareButtonClear {
+                            color: Theme.colorPrimary
+                            visible: barcode.hasPosition
+
+                            tooltipText: qsTr("See on map")
+                            source: "qrc:/assets/icons/material-icons/duotone/pin_drop.svg"
+
+                            onClicked: {
+                                Qt.openUrlExternally("https://www.openstreetmap.org/" +
+                                                     "?mlat=" + barcode.latitude + "&mlon=" + barcode.longitude +
+                                                     "#map=8/")
+                            }
+                        }
+
+                        Item {
+                            Layout.fillWidth: true
+                        }
+
+                        SquareButtonClear {
+                            color: Theme.colorRed
+
+                            tooltipText: qsTr("Delete entry")
+                            source: "qrc:/assets/icons/material-symbols/delete-fill.svg"
+
+                            onClicked: {
+                                popupHistoryDelete.open()
+                            }
                         }
                     }
+
+                    ////////
                 }
-
-                ////
             }
 
-            ////////////////
+            ////////////////////////////////
         }
     }
 

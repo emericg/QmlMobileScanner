@@ -1,7 +1,7 @@
 import QtQuick
+import QtQuick.Layouts
 import QtQuick.Effects
 import QtQuick.Dialogs
-import QtQuick.Layouts
 import QtQuick.Controls
 
 import ThemeEngine
@@ -72,10 +72,9 @@ Loader {
             property int www: singleColumn ? gridContent.width : (gridContent.width - columnSpacing) / 2
             property int hhh: screenBarcodeWriter.height - columnSpacing*2
 
-            ////////////////
+            ////////////////////////////////
 
             Item { // pane 1
-                id: barcodeView
                 width: gridContent.www
                 height: singleColumn ? qrcodearea.height : gridContent.hhh
 
@@ -93,7 +92,7 @@ Loader {
                         anchors.fill: parent
 
                         radius: Theme.componentRadius
-                        color: barcodeAdvanced.colorBg // was "white"
+                        color: barcodeAdvanced.colorBg // "white"
 
                         border.width: 2
                         border.color: Theme.colorComponentBorder
@@ -109,7 +108,7 @@ Loader {
                     Image {
                         id: barcodeImage
                         anchors.fill: parent
-                        anchors.margins: 4
+                        anchors.margins: 2 // enough not to be over the shadowarea
 
                         cache: false
                         smooth: false
@@ -227,12 +226,13 @@ Loader {
                 ////
             }
 
-            ////////////////
+            ////////////////////////////////
 
             Item { // pane 2
                 id: barcodeAdvanced
+
                 width: gridContent.www
-                height: singleColumn ? settingsarea.height : gridContent.hhh
+                height: singleColumn ? barcodeSettingsColumn.height : gridContent.hhh
 
                 property string barcode_string
                 property string barcode_settings_qzxing: "?" + "format=" + format +
@@ -259,10 +259,11 @@ Loader {
                 ////////
 
                 Column {
-                    id: settingsarea
-                    anchors.centerIn: parent
+                    id: barcodeSettingsColumn
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
 
-                    width: gridContent.www
                     spacing: Theme.componentMarginXL
 
                     ////
@@ -699,7 +700,7 @@ Loader {
                 ////////
             }
 
-            ////////////////
+            ////////////////////////////////
         }
     }
 
