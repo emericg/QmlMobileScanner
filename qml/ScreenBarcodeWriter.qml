@@ -57,8 +57,9 @@ Loader {
             id: gridContent
 
             anchors.left: parent.left
+            anchors.leftMargin: screenPaddingLeft + columnSpacing
             anchors.right: parent.right
-            anchors.margins: columnSpacing
+            anchors.rightMargin: screenPaddingRight + columnSpacing
 
             columns: singleColumn ? 1 : 2
             columnSpacing: Theme.componentMarginXL * (singleColumn ? 1 : 2)

@@ -86,6 +86,8 @@ Item {
 
         ListView {
             anchors.fill: parent
+            anchors.leftMargin: screenPaddingLeft
+            anchors.rightMargin: screenPaddingRight
 
             topMargin: Theme.componentMarginL
             bottomMargin: Theme.componentMarginL
@@ -123,8 +125,8 @@ Item {
                     radius: 4
 
                     color: {
-                        if (decode === ScreenAboutFormats.SupportLevel.Supported) return Theme.colorGreen
-                        if (decode === ScreenAboutFormats.SupportLevel.Incomplete) return Theme.colorOrange
+                        if (parent.decode === ScreenAboutFormats.SupportLevel.Supported) return Theme.colorGreen
+                        if (parent.decode === ScreenAboutFormats.SupportLevel.Incomplete) return Theme.colorOrange
                         return Theme.colorBackground
                     }
                 }
@@ -136,8 +138,8 @@ Item {
                     radius: 4
 
                     color: {
-                        if (encode === ScreenAboutFormats.SupportLevel.Supported) return Theme.colorGreen
-                        if (encode === ScreenAboutFormats.SupportLevel.Incomplete) return Theme.colorOrange
+                        if (parent.encode === ScreenAboutFormats.SupportLevel.Supported) return Theme.colorGreen
+                        if (parent.encode === ScreenAboutFormats.SupportLevel.Incomplete) return Theme.colorOrange
                         return Theme.colorBackground
                     }
                 }

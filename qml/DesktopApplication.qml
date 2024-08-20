@@ -7,7 +7,7 @@ import MobileUI
 
 ApplicationWindow {
     id: appWindow
-    minimumWidth: 480
+    minimumWidth: 560
     minimumHeight: 800
 
     flags: Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint

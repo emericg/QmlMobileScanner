@@ -51,7 +51,7 @@ Popup {
     Image {
         anchors.centerIn: parent
 
-        width: parent.width - 64
+        width: parent.width - 64 - screenPaddingLeft - screenPaddingRight
         height: width
 
         cache: false

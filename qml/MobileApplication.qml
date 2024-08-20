@@ -20,8 +20,8 @@ ApplicationWindow {
     property bool isPhone: ((Qt.platform.os === "android" || Qt.platform.os === "ios") && (utilsScreen.screenSize < 7.0))
     property bool isTablet: ((Qt.platform.os === "android" || Qt.platform.os === "ios") && (utilsScreen.screenSize >= 7.0))
 
-    property bool singleColumn: (width < height)
     property bool wideMode: (isDesktop && width >= 640) || (isTablet && width >= 480)
+    property bool singleColumn: (width < height)
 
     // Mobile stuff ////////////////////////////////////////////////////////////
 
@@ -32,86 +32,108 @@ ApplicationWindow {
 
     property int screenPaddingStatusbar: 0
     property int screenPaddingNavbar: 0
+
     property int screenPaddingTop: 0
     property int screenPaddingLeft: 0
     property int screenPaddingRight: 0
     property int screenPaddingBottom: 0
 
-    onScreenOrientationChanged: handleSafeAreas()
-    onVisibilityChanged: handleSafeAreas()
-
-    function handleSafeAreas() {
-        // safe areas are only taken into account when using maximized geometry / full screen mode
-        if (appWindow.visibility === Window.FullScreen ||
-            appWindow.flags & Qt.MaximizeUsingFullscreenGeometryHint) {
-
-            screenPaddingStatusbar = mobileUI.statusbarHeight
-            screenPaddingNavbar = mobileUI.navbarHeight
-
-            screenPaddingTop = mobileUI.safeAreaTop
-            screenPaddingLeft = mobileUI.safeAreaLeft
-            screenPaddingRight = mobileUI.safeAreaRight
-            screenPaddingBottom = mobileUI.safeAreaBottom
-
-            // hacks
-            if (Qt.platform.os === "android") {
-                if (appWindow.visibility === Window.FullScreen) {
-                    screenPaddingStatusbar = 0
-                    screenPaddingNavbar = 0
-                }
-            }
-            // hacks
-            if (Qt.platform.os === "ios") {
-                if (appWindow.visibility === Window.FullScreen) {
-                    screenPaddingStatusbar = 0
-                }
-            }
-        } else {
-            screenPaddingStatusbar = 0
-            screenPaddingNavbar = 0
-            screenPaddingTop = 0
-            screenPaddingLeft = 0
-            screenPaddingRight = 0
-            screenPaddingBottom = 0
-        }
-/*
-        console.log("> handleSafeAreas()")
-        console.log("- screen dpi:          " + Screen.devicePixelRatio)
-        console.log("- screen width:        " + Screen.width)
-        console.log("- screen width avail:  " + Screen.desktopAvailableWidth)
-        console.log("- screen height:       " + Screen.height)
-        console.log("- screen height avail: " + Screen.desktopAvailableHeight)
-        console.log("- screen orientation:  " + Screen.orientation)
-        console.log("- screen orientation (primary): " + Screen.primaryOrientation)
-        console.log("- screenSizeStatusbar: " + screenPaddingStatusbar)
-        console.log("- screenSizeNavbar:    " + screenPaddingNavbar)
-        console.log("- screenPaddingTop:    " + screenPaddingTop)
-        console.log("- screenPaddingLeft:   " + screenPaddingLeft)
-        console.log("- screenPaddingRight:  " + screenPaddingRight)
-        console.log("- screenPaddingBottom: " + screenPaddingBottom)
-*/
+    Connections {
+        target: Screen
+        function onOrientationChanged() { mobileUI.handleSafeAreas() }
     }
 
     MobileUI {
         id: mobileUI
 
-        statusbarColor: {
-            if (appContent.state === "ScreenBarcodeReader") return "#000"
-            return Theme.colorStatusbar
-        }
-        navbarColor: {
-            if (appContent.state === "ScreenBarcodeReader") return "#000"
-            return Theme.colorStatusbar
+        statusbarColor: "transparent"
+        statusbarTheme: Theme.themeStatusbar
+        navbarColor: "transparent"
+        navbarTheme: Theme.themeStatusbar
+
+        Component.onCompleted: handleSafeAreas()
+
+        function handleSafeAreas() {
+            // safe areas handling is a work in progress /!\
+            // safe areas are only taken into account when using maximized geometry / full screen mode
+
+            mobileUI.refreshUI() // hack
+
+            if (appWindow.visibility === Window.FullScreen ||
+                appWindow.flags & Qt.MaximizeUsingFullscreenGeometryHint) {
+
+                screenPaddingStatusbar = mobileUI.statusbarHeight
+                screenPaddingNavbar = mobileUI.navbarHeight
+
+                screenPaddingTop = mobileUI.safeAreaTop
+                screenPaddingLeft = mobileUI.safeAreaLeft
+                screenPaddingRight = mobileUI.safeAreaRight
+                screenPaddingBottom = mobileUI.safeAreaBottom
+
+                // hacks
+                if (Qt.platform.os === "android") {
+                    if (appWindow.visibility === Window.FullScreen) {
+                        screenPaddingStatusbar = 0
+                        screenPaddingNavbar = 0
+                    }
+                    if (appWindow.flags & Qt.MaximizeUsingFullscreenGeometryHint) {
+                        if (mobileUI.isPhone) {
+                            if (Screen.orientation === Qt.LandscapeOrientation) {
+                                screenPaddingLeft = screenPaddingStatusbar
+                                screenPaddingRight = screenPaddingNavbar
+                                screenPaddingNavbar = 0
+                            } else if (Screen.orientation === Qt.InvertedLandscapeOrientation) {
+                                screenPaddingLeft = screenPaddingNavbar
+                                screenPaddingRight = screenPaddingStatusbar
+                                screenPaddingNavbar = 0
+                            }
+                        }
+                    }
+                }
+                // hacks
+                if (Qt.platform.os === "ios") {
+                    if (appWindow.visibility === Window.FullScreen) {
+                        screenPaddingStatusbar = 0
+                    }
+                }
+            } else {
+                screenPaddingStatusbar = 0
+                screenPaddingNavbar = 0
+                screenPaddingTop = 0
+                screenPaddingLeft = 0
+                screenPaddingRight = 0
+                screenPaddingBottom = 0
+            }
+/*
+            console.log("> handleSafeAreas()")
+            console.log("- window mode:         " + appWindow.visibility)
+            console.log("- window flags:        " + appWindow.flags)
+            console.log("- screen dpi:          " + Screen.devicePixelRatio)
+            console.log("- screen width:        " + Screen.width)
+            console.log("- screen width avail:  " + Screen.desktopAvailableWidth)
+            console.log("- screen height:       " + Screen.height)
+            console.log("- screen height avail: " + Screen.desktopAvailableHeight)
+            console.log("- screen orientation (full): " + Screen.orientation)
+            console.log("- screen orientation (primary): " + Screen.primaryOrientation)
+            console.log("- screenSizeStatusbar: " + screenPaddingStatusbar)
+            console.log("- screenSizeNavbar:    " + screenPaddingNavbar)
+            console.log("- screenPaddingTop:    " + screenPaddingTop)
+            console.log("- screenPaddingLeft:   " + screenPaddingLeft)
+            console.log("- screenPaddingRight:  " + screenPaddingRight)
+            console.log("- screenPaddingBottom: " + screenPaddingBottom)
+*/
         }
     }
 
     MobileHeader {
         id: appHeader
+
         visible: (appContent.state !== "ScreenBarcodeReader")
     }
 
     MobileDrawer {
         id: appDrawer
+
         interactive: (appContent.state !== "Tutorial")
     }
 
@@ -127,29 +149,28 @@ ApplicationWindow {
 
     Connections {
         target: Qt.application
-
         function onStateChanged() {
             switch (Qt.application.state) {
-            case Qt.ApplicationSuspended:
-                //console.log("Qt.ApplicationSuspended")
-                screenBarcodeReader.close()
-                break
-            case Qt.ApplicationHidden:
-                //console.log("Qt.ApplicationHidden")
-                break
-            case Qt.ApplicationInactive:
-                //console.log("Qt.ApplicationInactive")
-                break
-            case Qt.ApplicationActive:
-                //console.log("Qt.ApplicationActive")
+                case Qt.ApplicationSuspended:
+                    //console.log("Qt.ApplicationSuspended")
+                    screenBarcodeReader.close()
+                    break
+                case Qt.ApplicationHidden:
+                    //console.log("Qt.ApplicationHidden")
+                    break
+                case Qt.ApplicationInactive:
+                    //console.log("Qt.ApplicationInactive")
+                    break
+                case Qt.ApplicationActive:
+                    //console.log("Qt.ApplicationActive")
 
-                if (appContent.state === "ScreenBarcodeReader")
-                    screenBarcodeReader.loadScreen()
+                    if (appContent.state === "ScreenBarcodeReader")
+                        screenBarcodeReader.loadScreen()
 
-                // Check if we need an 'automatic' theme change
-                Theme.loadTheme(settingsManager.appTheme)
+                    // Check if we need an 'automatic' theme change
+                    Theme.loadTheme(settingsManager.appTheme)
 
-                break
+                    break
             }
         }
     }

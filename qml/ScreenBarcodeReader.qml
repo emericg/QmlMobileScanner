@@ -406,9 +406,9 @@ Loader {
 
                 Shape {
                     anchors.fill: parent
-                    //scale: 0.5
+                    anchors.leftMargin: screenPaddingLeft
+                    anchors.rightMargin: screenPaddingRight
 
-                    antialiasing: true
                     opacity: modelData.isOnScreen ? 0.80 : 0
                     Behavior on opacity { NumberAnimation { duration: 133 } }
 
@@ -461,8 +461,9 @@ Loader {
 
                 Shape {
                     anchors.fill: parent
+                    anchors.leftMargin: screenPaddingLeft
+                    anchors.rightMargin: screenPaddingRight
 
-                    antialiasing: true
                     opacity: modelData.isOnScreen ? 0.80 : 0
                     Behavior on opacity { NumberAnimation { duration: 133 } }
 
@@ -490,6 +491,8 @@ Loader {
         Item {
             id: overlays
             anchors.fill: parent
+            anchors.leftMargin: screenPaddingLeft
+            anchors.rightMargin: screenPaddingRight
 
             MouseArea {
                 anchors.fill: parent
@@ -676,7 +679,7 @@ Loader {
                     width: 48
                     height: 48
 
-                    visible: (currentMode === "video" && settingsManager.showDebug)
+                    visible: (currentMode === "video")
 
                     Rectangle {
                         anchors.fill: parent
@@ -967,7 +970,9 @@ Loader {
             Rectangle { // statusbar area
                 anchors.top: parent.top
                 anchors.left: parent.left
+                anchors.leftMargin: -screenPaddingLeft
                 anchors.right: parent.right
+                anchors.rightMargin: -screenPaddingRight
                 height: screenPaddingStatusbar
 
                 color: "black"
@@ -977,7 +982,9 @@ Loader {
 
             Rectangle { // navbar area
                 anchors.left: parent.left
+                anchors.leftMargin: -screenPaddingLeft
                 anchors.right: parent.right
+                anchors.rightMargin: -screenPaddingRight
                 anchors.bottom: parent.bottom
                 height: screenPaddingNavbar
 

@@ -46,7 +46,9 @@ Loader {
             Column {
                 id: contentColumn
                 anchors.left: parent.left
+                anchors.leftMargin: screenPaddingLeft
                 anchors.right: parent.right
+                anchors.rightMargin: screenPaddingRight
 
                 topPadding: 20
                 bottomPadding: 20
@@ -68,9 +70,9 @@ Loader {
                 Item {
                     id: element_appTheme
                     anchors.left: parent.left
-                    anchors.leftMargin: screenPaddingLeft + contentColumn.padMargin
+                    anchors.leftMargin: contentColumn.padMargin
                     anchors.right: parent.right
-                    anchors.rightMargin: screenPaddingRight + contentColumn.padMargin
+                    anchors.rightMargin: contentColumn.padMargin
                     height: 48
 
                     IconSvg {
@@ -176,9 +178,9 @@ Loader {
                 Item {
                     id: element_appThemeAuto
                     anchors.left: parent.left
-                    anchors.leftMargin: screenPaddingLeft + contentColumn.padMargin
+                    anchors.leftMargin: contentColumn.padMargin
                     anchors.right: parent.right
-                    anchors.rightMargin: screenPaddingRight + contentColumn.padMargin
+                    anchors.rightMargin: contentColumn.padMargin
                     height: 48
 
                     IconSvg {
@@ -227,7 +229,7 @@ Loader {
                 Text {
                     id: legend_appThemeAuto
                     anchors.left: parent.left
-                    anchors.leftMargin: screenPaddingLeft + contentColumn.padMargin + 64
+                    anchors.leftMargin: contentColumn.padMargin + 64
                     anchors.right: parent.right
                     anchors.rightMargin: 12
 
@@ -248,9 +250,9 @@ Loader {
 
                 Item {
                     anchors.left: parent.left
-                    anchors.leftMargin: screenPaddingLeft + contentColumn.padMargin
+                    anchors.leftMargin: contentColumn.padMargin
                     anchors.right: parent.right
-                    anchors.rightMargin: screenPaddingRight + contentColumn.padMargin
+                    anchors.rightMargin: contentColumn.padMargin
                     height: 48
 
                     Item {
@@ -308,9 +310,9 @@ Loader {
 
                 Item {
                     anchors.left: parent.left
-                    anchors.leftMargin: screenPaddingLeft + contentColumn.padMargin
+                    anchors.leftMargin: contentColumn.padMargin
                     anchors.right: parent.right
-                    anchors.rightMargin: screenPaddingRight + contentColumn.padMargin
+                    anchors.rightMargin: contentColumn.padMargin
                     height: 48
 
                     Item {
@@ -362,9 +364,9 @@ Loader {
 
                 Item {
                     anchors.left: parent.left
-                    anchors.leftMargin: screenPaddingLeft + contentColumn.padMargin
+                    anchors.leftMargin: contentColumn.padMargin
                     anchors.right: parent.right
-                    anchors.rightMargin: screenPaddingRight + contentColumn.padMargin
+                    anchors.rightMargin: contentColumn.padMargin
                     height: 48
 
                     Item {
@@ -435,9 +437,9 @@ Loader {
 
                 RowLayout { // save barcodes
                     anchors.left: parent.left
-                    anchors.leftMargin: screenPaddingLeft + contentColumn.padMargin
+                    anchors.leftMargin: contentColumn.padMargin
                     anchors.right: parent.right
-                    anchors.rightMargin: screenPaddingRight + contentColumn.padMargin
+                    anchors.rightMargin: contentColumn.padMargin
                     height: 48
 
                     Item {
@@ -475,9 +477,9 @@ Loader {
 
                 RowLayout { // save camera
                     anchors.left: parent.left
-                    anchors.leftMargin: screenPaddingLeft + contentColumn.padMargin
+                    anchors.leftMargin: contentColumn.padMargin
                     anchors.right: parent.right
-                    anchors.rightMargin: screenPaddingRight + contentColumn.padMargin
+                    anchors.rightMargin: contentColumn.padMargin
                     height: 48
 
                     enabled: false
@@ -517,9 +519,9 @@ Loader {
 
                 RowLayout { // save GPS position
                     anchors.left: parent.left
-                    anchors.leftMargin: screenPaddingLeft + contentColumn.padMargin
+                    anchors.leftMargin: contentColumn.padMargin
                     anchors.right: parent.right
-                    anchors.rightMargin: screenPaddingRight + contentColumn.padMargin
+                    anchors.rightMargin: contentColumn.padMargin
                     height: 48
 
                     Item {
@@ -574,9 +576,9 @@ Loader {
                 Item {
                     id: element_showDebug
                     anchors.left: parent.left
-                    anchors.leftMargin: screenPaddingLeft + contentColumn.padMargin
+                    anchors.leftMargin: contentColumn.padMargin
                     anchors.right: parent.right
-                    anchors.rightMargin: screenPaddingRight + contentColumn.padMargin
+                    anchors.rightMargin: contentColumn.padMargin
                     height: 48
 
                     IconSvg {
@@ -624,9 +626,9 @@ Loader {
 
                 RowLayout {
                     anchors.left: parent.left
-                    anchors.leftMargin: screenPaddingLeft + contentColumn.padMargin
+                    anchors.leftMargin: contentColumn.padMargin
                     anchors.right: parent.right
-                    anchors.rightMargin: screenPaddingRight + contentColumn.padMargin
+                    anchors.rightMargin: contentColumn.padMargin
                     height: 36
 
                     visible: settingsManager.showDebug
@@ -664,9 +666,9 @@ Loader {
                 }
                 RowLayout {
                     anchors.left: parent.left
-                    anchors.leftMargin: screenPaddingLeft + contentColumn.padMargin
+                    anchors.leftMargin: contentColumn.padMargin
                     anchors.right: parent.right
-                    anchors.rightMargin: screenPaddingRight + contentColumn.padMargin
+                    anchors.rightMargin: contentColumn.padMargin
                     height: 36
 
                     visible: settingsManager.showDebug
@@ -704,9 +706,9 @@ Loader {
                 }
                 RowLayout {
                     anchors.left: parent.left
-                    anchors.leftMargin: screenPaddingLeft + contentColumn.padMargin
+                    anchors.leftMargin: contentColumn.padMargin
                     anchors.right: parent.right
-                    anchors.rightMargin: screenPaddingRight + contentColumn.padMargin
+                    anchors.rightMargin: contentColumn.padMargin
                     height: 36
 
                     visible: settingsManager.showDebug
@@ -744,9 +746,9 @@ Loader {
                 }
                 RowLayout {
                     anchors.left: parent.left
-                    anchors.leftMargin: screenPaddingLeft + contentColumn.padMargin
+                    anchors.leftMargin: contentColumn.padMargin
                     anchors.right: parent.right
-                    anchors.rightMargin: screenPaddingRight + contentColumn.padMargin
+                    anchors.rightMargin: contentColumn.padMargin
                     height: 36
 
                     visible: settingsManager.showDebug
@@ -784,9 +786,9 @@ Loader {
                 }
                 RowLayout {
                     anchors.left: parent.left
-                    anchors.leftMargin: screenPaddingLeft + contentColumn.padMargin
+                    anchors.leftMargin: contentColumn.padMargin
                     anchors.right: parent.right
-                    anchors.rightMargin: screenPaddingRight + contentColumn.padMargin
+                    anchors.rightMargin: contentColumn.padMargin
                     height: 36
 
                     visible: settingsManager.showDebug

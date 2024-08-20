@@ -80,9 +80,9 @@ Item {
             id: gridContent
 
             anchors.left: parent.left
+            anchors.leftMargin: screenPaddingLeft + columnSpacing
             anchors.right: parent.right
-            anchors.margins: columnSpacing
-            anchors.verticalCenter: parent.verticalCenter
+            anchors.rightMargin: screenPaddingRight + columnSpacing
 
             columns: singleColumn ? 1 : 2
             columnSpacing: Theme.componentMarginXL * (singleColumn ? 1 : 2)
@@ -188,6 +188,11 @@ Item {
                             visible: true
                             hoverEnabled: false
                             acceptedButtons: Qt.LeftButton
+
+                            PopupBarcodeFullscreen {
+                                id: popupBarcodeFullscreen
+                                barcode_string: barcodeImage.source
+                            }
 
                             onClicked: {
                                 if (isMobile && screenBarcodeDetails.barcode_string) {

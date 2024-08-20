@@ -51,20 +51,24 @@ Loader {
         Column {
             id: columnContent
             anchors.left: parent.left
+            anchors.leftMargin: screenPaddingLeft
             anchors.right: parent.right
+            anchors.rightMargin: screenPaddingRight
 
             ////////////////
 
             Rectangle { // header area
                 anchors.left: parent.left
+                anchors.leftMargin: -screenPaddingLeft
                 anchors.right: parent.right
+                anchors.rightMargin: -screenPaddingRight
 
                 height: 96
                 color: Theme.colorForeground
 
                 Row {
                     anchors.left: parent.left
-                    anchors.leftMargin: Theme.componentMargin
+                    anchors.leftMargin: screenPaddingLeft + Theme.componentMargin
                     anchors.verticalCenter: parent.verticalCenter
 
                     z: 2
@@ -103,7 +107,7 @@ Loader {
 
                 Row {
                     anchors.right: parent.right
-                    anchors.rightMargin: Theme.componentMargin
+                    anchors.rightMargin: screenPaddingRight + Theme.componentMargin
                     anchors.verticalCenter: parent.verticalCenter
 
                     visible: wideMode
@@ -160,9 +164,9 @@ Loader {
                 height: 72
 
                 anchors.left: parent.left
-                anchors.leftMargin: screenPaddingLeft + Theme.componentMargin
+                anchors.leftMargin: Theme.componentMargin
                 anchors.right: parent.right
-                anchors.rightMargin: screenPaddingRight + Theme.componentMargin
+                anchors.rightMargin: Theme.componentMargin
 
                 visible: !wideMode
                 spacing: Theme.componentMargin
@@ -302,9 +306,9 @@ Loader {
 
             Item { // list dependencies
                 anchors.left: parent.left
-                anchors.leftMargin: screenPaddingLeft + Theme.componentMargin
+                anchors.leftMargin: Theme.componentMargin
                 anchors.right: parent.right
-                anchors.rightMargin: screenPaddingRight + Theme.componentMargin
+                anchors.rightMargin: Theme.componentMargin
 
                 height: 40 + dependenciesText.height + dependenciesColumn.height
 
@@ -375,9 +379,9 @@ Loader {
 
             Item { // list debug stuff
                 anchors.left: parent.left
-                anchors.leftMargin: screenPaddingLeft + Theme.componentMargin
+                anchors.leftMargin: Theme.componentMargin
                 anchors.right: parent.right
-                anchors.rightMargin: screenPaddingRight + Theme.componentMargin
+                anchors.rightMargin: Theme.componentMargin
 
                 visible: settingsManager.showDebug
                 height: 16 + debugColumn.height

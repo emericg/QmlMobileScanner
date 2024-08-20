@@ -49,7 +49,9 @@ SwipeDelegate {
     contentItem: Item {
         RowLayout {
             anchors.left: parent.left
+            anchors.leftMargin: screenPaddingLeft
             anchors.right: parent.right
+            anchors.rightMargin: screenPaddingRight
             anchors.verticalCenter: parent.verticalCenter
             spacing: Theme.componentMargin
 
