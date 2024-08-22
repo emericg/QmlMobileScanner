@@ -313,11 +313,11 @@ Loader {
                 height: 40 + dependenciesText.height + dependenciesColumn.height
 
                 IconSvg {
-                    width: 24
-                    height: 24
                     anchors.left: parent.left
                     anchors.leftMargin: 4
                     anchors.verticalCenter: dependenciesText.verticalCenter
+                    width: 24
+                    height: 24
 
                     source: "qrc:/assets/icons/material-symbols/settings.svg"
                     color: Theme.colorSubText
@@ -377,22 +377,22 @@ Loader {
 
             ListSeparatorPadded { visible: settingsManager.showDebug }
 
-            Item { // list debug stuff
+            Item { // debug infos
                 anchors.left: parent.left
                 anchors.leftMargin: Theme.componentMargin
                 anchors.right: parent.right
                 anchors.rightMargin: Theme.componentMargin
-
-                visible: settingsManager.showDebug
                 height: 16 + debugColumn.height
 
+                visible: settingsManager.showDebug
+
                 IconSvg {
-                    width: 24
-                    height: 24
                     anchors.top: debugColumn.top
                     anchors.topMargin: 4
                     anchors.left: parent.left
                     anchors.leftMargin: 4
+                    width: 24
+                    height: 24
 
                     source: "qrc:/assets/icons/material-icons/duotone/info.svg"
                     color: Theme.colorSubText
@@ -403,6 +403,7 @@ Loader {
                     anchors.left: parent.left
                     anchors.leftMargin: appHeader.headerPosition - parent.anchors.leftMargin
                     anchors.right: parent.right
+                    anchors.rightMargin: 0
                     anchors.verticalCenter: parent.verticalCenter
 
                     spacing: Theme.componentMargin * 0.4
@@ -428,6 +429,12 @@ Loader {
                     Text {
                         color: Theme.colorSubText
                         text: "Build mode: %1".arg(utilsApp.appBuildModeFull())
+                        textFormat: Text.PlainText
+                        font.pixelSize: Theme.fontSizeContent
+                    }
+                    Text {
+                        color: Theme.colorSubText
+                        text: "Build architecture: %1".arg(utilsApp.qtArchitecture())
                         textFormat: Text.PlainText
                         font.pixelSize: Theme.fontSizeContent
                     }

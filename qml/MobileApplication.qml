@@ -47,9 +47,9 @@ ApplicationWindow {
         id: mobileUI
 
         statusbarColor: "transparent"
-        statusbarTheme: Theme.themeStatusbar
+        statusbarTheme: (appContent.state === "ScreenBarcodeReader") ? MobileUI.Dark : Theme.themeStatusbar
         navbarColor: "transparent"
-        navbarTheme: Theme.themeStatusbar
+        navbarTheme: (appContent.state === "ScreenBarcodeReader") ? MobileUI.Dark : Theme.themeStatusbar
 
         Component.onCompleted: handleSafeAreas()
 

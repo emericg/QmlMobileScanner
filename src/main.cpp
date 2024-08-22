@@ -59,6 +59,23 @@
 
 int main(int argc, char *argv[])
 {
+    // Hacks ///////////////////////////////////////////////////////////////////
+
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
+    // NVIDIA driver suspend&resume hack
+    auto format = QSurfaceFormat::defaultFormat();
+    format.setOption(QSurfaceFormat::ResetNotification);
+    QSurfaceFormat::setDefaultFormat(format);
+#endif
+
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+    // Qt 6.6+ mouse wheel hack
+    qputenv("QT_QUICK_FLICKABLE_WHEEL_DECELERATION", "2500");
+#endif
+
+    // Qt 6.7+ debugger hack
+    qputenv("QT_ANDROID_DEBUGGER_MAIN_THREAD_SLEEP_MS", "0");
+
 #if defined(Q_OS_ANDROID) && (QT_VERSION <= QT_VERSION_CHECK(6,6,1))
     // Force "old" Android native multimedia backend
     // android backend doesn't work past Qt 6.6.1
@@ -66,6 +83,12 @@ int main(int argc, char *argv[])
     // (ffmpeg multimedia backend is buggy as hell...)
     qputenv("QT_MEDIA_BACKEND", "android");
 #endif
+
+    //qputenv("QT_MEDIA_BACKEND", "ffmpeg");
+    //qputenv("QT_MEDIA_BACKEND", "android");
+    //qputenv("QT_MEDIA_BACKEND", "gstreamer");
+
+    // GUI application /////////////////////////////////////////////////////////
 
     QGuiApplication app(argc, argv);
 
@@ -114,10 +137,10 @@ int main(int argc, char *argv[])
     QQmlContext *engine_context = engine.rootContext();
     engine_context->setContextProperty("settingsManager", stm);
     engine_context->setContextProperty("barcodeManager", bch);
+    engine_context->setContextProperty("utilsApp", utilsApp);
     engine_context->setContextProperty("utilsScreen", utilsScreen);
     engine_context->setContextProperty("utilsCamera", utilsCamera);
     engine_context->setContextProperty("utilsClipboard", utilsClipboard);
-    engine_context->setContextProperty("utilsApp", utilsApp);
 
 #if QT_CONFIG(permissions)
     if (qApp->checkPermission(QCameraPermission{}) != Qt::PermissionStatus::Granted) {
