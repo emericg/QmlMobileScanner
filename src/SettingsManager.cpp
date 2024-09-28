@@ -118,6 +118,8 @@ bool SettingsManager::readSettings()
         if (settings.contains("settings/showDebug"))
             m_showDebug = settings.value("settings/showDebug").toBool();
 
+        if (settings.contains("settings/scanFullresolution"))
+            m_scan_fullresolution = settings.value("settings/scanFullresolution").toBool();
         if (settings.contains("settings/scanFullscreen"))
             m_scan_fullscreen = settings.value("settings/scanFullscreen").toBool();
         if (settings.contains("settings/scanTryHarder"))
@@ -168,6 +170,7 @@ bool SettingsManager::writeSettings()
         settings.setValue("settings/saveGPS", m_save_gps);
 
         settings.setValue("settings/showDebug", m_showDebug);
+        settings.setValue("settings/scanFullresolution", m_scan_fullresolution);
         settings.setValue("settings/scanFullscreen", m_scan_fullscreen);
         settings.setValue("settings/scanTryHarder", m_scan_tryHarder);
         settings.setValue("settings/scanTryRotate", m_scan_tryRotate);
@@ -210,6 +213,7 @@ void SettingsManager::resetSettings()
     m_save_gps = false;
 
     m_showDebug = false;
+    m_scan_fullresolution = false;
     m_scan_fullscreen = false;
     m_scan_tryHarder = true;
     m_scan_tryRotate = true;
@@ -390,6 +394,17 @@ void SettingsManager::setShowDebug(const bool value)
     {
         m_showDebug = value;
         Q_EMIT debugChanged();
+
+        writeSettings();
+    }
+}
+
+void SettingsManager::setScanFullresolution(const bool value)
+{
+    if (m_scan_fullresolution != value)
+    {
+        m_scan_fullresolution = value;
+        Q_EMIT fullresChanged();
 
         writeSettings();
     }

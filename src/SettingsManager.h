@@ -60,6 +60,7 @@ class SettingsManager: public QObject
     Q_PROPERTY(bool save_gps READ getSaveGPS WRITE setSaveGPS NOTIFY saveChanged)
 
     Q_PROPERTY(bool showDebug READ getShowDebug WRITE setShowDebug NOTIFY debugChanged)
+    Q_PROPERTY(bool scan_fullres READ getScanFullresolution WRITE setScanFullresolution NOTIFY fullresChanged)
     Q_PROPERTY(bool scan_fullscreen READ getScanFullscreen WRITE setScanFullscreen NOTIFY fullscreenChanged)
     Q_PROPERTY(bool scan_tryHarder READ getScanTryHarder WRITE setScanTryHarder NOTIFY tryHarderChanged)
     Q_PROPERTY(bool scan_tryRotate READ getScanTryRotate WRITE setScanTryRotate NOTIFY tryRotateChanged)
@@ -88,6 +89,7 @@ class SettingsManager: public QObject
     bool m_save_gps = false;
 
     bool m_showDebug = false;
+    bool m_scan_fullresolution = false;
     bool m_scan_fullscreen = false;
     bool m_scan_tryHarder = true;
     bool m_scan_tryRotate = true;
@@ -111,6 +113,7 @@ Q_SIGNALS:
     void saveChanged();
     void debugChanged();
     void formatsEnabledChanged();
+    void fullresChanged();
     void fullscreenChanged();
     void tryHarderChanged();
     void tryRotateChanged();
@@ -160,6 +163,8 @@ public:
 
     bool getShowDebug() const { return m_showDebug; }
     void setShowDebug(const bool value);
+    bool getScanFullresolution() const { return m_scan_fullresolution; }
+    void setScanFullresolution(const bool value);
     bool getScanFullscreen() const { return m_scan_fullscreen; }
     void setScanFullscreen(const bool value);
     bool getScanTryHarder() const { return m_scan_tryHarder; }
