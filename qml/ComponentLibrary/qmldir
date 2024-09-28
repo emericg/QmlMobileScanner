@@ -1,0 +1,2 @@
+module ThemeEngine
+singleton ThemeEngine 1.0 ThemeEngine.qml
