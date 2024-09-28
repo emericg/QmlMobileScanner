@@ -45,7 +45,7 @@ Loader {
                 return
             }
 
-            screenBarcodeReader.loadScreen()
+            appWindow.backAction_default()
         }
 
         Column {
@@ -382,13 +382,13 @@ Loader {
                 anchors.leftMargin: Theme.componentMargin
                 anchors.right: parent.right
                 anchors.rightMargin: Theme.componentMargin
-                height: 16 + debugColumn.height
 
+                height: 16 + debugColumn.height
                 visible: settingsManager.showDebug
 
                 IconSvg {
                     anchors.top: debugColumn.top
-                    anchors.topMargin: 4
+                    anchors.topMargin: 0
                     anchors.left: parent.left
                     anchors.leftMargin: 4
                     width: 24
@@ -406,7 +406,7 @@ Loader {
                     anchors.rightMargin: 0
                     anchors.verticalCenter: parent.verticalCenter
 
-                    spacing: Theme.componentMargin * 0.4
+                    spacing: Theme.componentMargin * 0.33
 
                     Text {
                         color: Theme.colorSubText

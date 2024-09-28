@@ -31,7 +31,7 @@ Loader {
         anchors.fill: parent
 
         function backAction() {
-            screenBarcodeReader.loadScreen()
+            appWindow.backAction_default()
         }
 
         Flickable {

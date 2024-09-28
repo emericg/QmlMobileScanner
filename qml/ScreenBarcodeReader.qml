@@ -131,7 +131,9 @@ Loader {
         function backAction() {
             //console.log(">> backAction()")
 
-            // don't change screen
+            // change screen?
+            if (settingsManager.defaultTab === "writer")
+                screenBarcodeWriter.loadScreen()
         }
 
         ////////////////////////

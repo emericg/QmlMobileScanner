@@ -197,10 +197,7 @@ ApplicationWindow {
         if (appContent.state === "ScreenTutorial")  return // do nothing
 
         if (appContent.state === "ScreenBarcodeReader") {
-            if (exitTimer.running)
-                Qt.quit()
-            else
-                exitTimer.start()
+            screenBarcodeReader.backAction()
         } else if (appContent.state === "ScreenBarcodeWriter") {
             screenBarcodeWriter.backAction()
         } else if (appContent.state === "ScreenBarcodeHistory") {
@@ -210,8 +207,22 @@ ApplicationWindow {
                    appContent.state === "ScreenAboutPermissions") {
             screenAbout.backAction()
         } else {
-            screenBarcodeReader.loadScreen()
+            backAction_default()
         }
+    }
+    function backAction_default() {
+        if ((appContent.state === "ScreenBarcodeReader" && settingsManager.defaultTab === "reader") ||
+            (appContent.state === "ScreenBarcodeWriter" && settingsManager.defaultTab === "writer")) {
+            if (exitTimer.running)
+                Qt.quit()
+            else
+                exitTimer.start()
+        }
+
+        if (settingsManager.defaultTab === "reader")
+            screenBarcodeReader.loadScreen()
+        else if (settingsManager.defaultTab === "writer")
+            screenBarcodeWriter.loadScreen()
     }
     function forwardAction() {
         //console.log("forwardAction() forwardAction() forwardAction() forwardAction()")

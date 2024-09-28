@@ -41,6 +41,8 @@ Loader {
         ScrollBar.vertical: ScrollBar { visible: false }
 
         function backAction() {
+            //console.log(">> backAction()")
+
             if (barcodeTextField.focus) {
                 barcodeTextField.focus = false
                 return
@@ -50,7 +52,9 @@ Loader {
                 return
             }
 
-            screenBarcodeReader.loadScreen()
+            // change screen?
+            if (settingsManager.defaultTab === "reader")
+                screenBarcodeReader.loadScreen()
         }
 
         Grid {

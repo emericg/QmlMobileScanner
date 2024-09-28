@@ -41,7 +41,7 @@ Loader {
                 return
             }
 
-            screenBarcodeReader.loadScreen()
+            appWindow.backAction_default()
         }
 
         ////////
