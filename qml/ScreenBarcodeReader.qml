@@ -91,6 +91,7 @@ Loader {
         function open() {
             //console.log(">> open()")
 
+            screenBarcodeDetails.visible = false
             opacity = 1
 
             if (currentMode === "video") open_video()
@@ -130,6 +131,11 @@ Loader {
 
         function backAction() {
             //console.log(">> backAction()")
+
+            if (screenBarcodeDetails.visible) {
+                screenBarcodeDetails.backAction()
+                return
+            }
 
             // change screen?
             if (settingsManager.defaultTab === "writer")
@@ -811,6 +817,10 @@ Loader {
                         anchors.left: parent.left
                         anchors.right: parent.right
                         barcode: modelData
+
+                        onLongPressed: {
+                            screenBarcodeDetails.loadBarcode(modelData)
+                        }
                     }
                 }
 
@@ -996,6 +1006,13 @@ Loader {
             }
 
             ////////
+        }
+
+        ////////////////////////
+
+        ScreenBarcodeDetails {
+            id: screenBarcodeDetails
+            entryPoint: "ScreenBarcodeReader"
         }
 
         ////////////////////////

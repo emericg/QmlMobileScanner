@@ -10,13 +10,22 @@ Item {
     implicitWidth: 256
     implicitHeight: 40
 
-    property var barcode: null
+    clip: true
+
+    property var barcode
+
+    signal longPressed()
+
+    /////////
 
     Rectangle {
         anchors.fill: parent
         radius: height
+
         color: "black"
         opacity: 0.33
+        border.width: 2
+        border.color: "grey"
     }
 
     MouseArea {
@@ -24,7 +33,12 @@ Item {
         onClicked: {
             Qt.openUrlExternally(barcode.data)
         }
+        onPressAndHold: {
+            widgetBarcodeResult.longPressed()
+        }
     }
+
+    /////////
 
     RowLayout {
         anchors.left: parent.left
@@ -76,4 +90,6 @@ Item {
             //wrapMode: Text.WordWrap
         }
     }
+
+    /////////
 }

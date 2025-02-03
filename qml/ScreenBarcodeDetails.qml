@@ -5,21 +5,24 @@ import QtQuick.Controls
 
 import ThemeEngine
 
-Item {
+Rectangle {
     id: screenBarcodeDetails
+
     anchors.fill: parent
+    visible: false
+
+    color: Theme.colorBackground
 
     property string entryPoint: "ScreenBarcodeHistory"
 
     property var barcode: null
 
     ////////////////////////////////////////////////////////////////////////////
-
+/*
     function loadScreen() {
         // change screen
         appContent.state = "ScreenBarcodeDetails"
     }
-
     function loadScreenFrom(screenname, bc) {
         entryPoint = screenname
         barcode = bc
@@ -28,10 +31,10 @@ Item {
 
         loadScreen()
     }
-
+*/
     function loadBarcode(bc) {
-        entryPoint = ""
         barcode = bc
+        visible = true
     }
 
     function backAction() {
@@ -40,7 +43,7 @@ Item {
                 stackView.pop()
             }
         } else if (entryPoint === "ScreenBarcodeReader") {
-            screenBarcodeReader.loadScreen()
+            visible = false
         }
     }
 
@@ -116,7 +119,7 @@ Item {
                         id: qrcodearea
 
                         width: Math.min(gridContent.www, gridContent.hhh)
-                        height: barcode.isLinear ? (width / 2) : width
+                        height: (barcode && barcode.isLinear) ? (width / 2) : width
 
                         Rectangle {
                             id: shadowarea
