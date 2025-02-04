@@ -4,11 +4,12 @@
  * Copyright 2023 Emeric Grange
  */
 
-#include "ZXingCpp.h"
-#include "ZXingCppVideoFilter.h"
-#include "ZXingCppImageProvider.h"
+#include "ZXingQt.h"
+#include "ZXingQtVideoFilter.h"
+#include "ZXingQtImageProvider.h"
 
 #include <QUrl>
+#include <QString>
 #include <QColor>
 #include <QFile>
 #include <QFileInfo>
@@ -21,23 +22,23 @@
 #include "BitMatrix.h"
 #include "MultiFormatWriter.h"
 
-void ZXingCpp::registerQMLTypes()
+void ZXingQt::registerQMLTypes()
 {
-    //qRegisterMetaType<ZXingCpp::BarcodeFormat>("BarcodeFormat");
-    //qRegisterMetaType<ZXingCpp::ContentType>("ContentType");
-    //qRegisterMetaType<ZXingCpp::Position>("Position");
-    //qRegisterMetaType<ZXingCpp::Result>("Result");
+    //qRegisterMetaType<ZXingQt::BarcodeFormat>("BarcodeFormat");
+    //qRegisterMetaType<ZXingQt::ContentType>("ContentType");
+    //qRegisterMetaType<ZXingQt::Position>("Position");
+    //qRegisterMetaType<ZXingQt::Result>("Result");
 
-    qmlRegisterType<ZXingCpp>("ZXingCpp", 1, 0, "ZXingCpp");
-    qmlRegisterType<ZXingCppVideoFilter>("ZXingCpp", 1, 0, "ZXingCppVideoFilter");
+    qmlRegisterType<ZXingQt>("ZXingQt", 1, 0, "ZXingQt");
+    qmlRegisterType<ZXingQtVideoFilter>("ZXingQt", 1, 0, "ZXingQtVideoFilter");
 }
 
-void ZXingCpp::registerQMLImageProvider(QQmlEngine &engine)
+void ZXingQt::registerQMLImageProvider(QQmlEngine &engine)
 {
-    engine.addImageProvider("ZXingCpp", new ZXingCppImageProvider());
+    engine.addImageProvider("ZXingQt", new ZXingQtImageProvider());
 }
 
-int ZXingCpp::stringToFormat(const QString &str)
+int ZXingQt::stringToFormat(const QString &str)
 {
     if (str == "aztec") return (int)ZXing::BarcodeFormat::Aztec;
     if (str == "codabar") return (int)ZXing::BarcodeFormat::Codabar;
@@ -60,7 +61,7 @@ int ZXingCpp::stringToFormat(const QString &str)
     return 0;
 }
 
-QString ZXingCpp::formatToString(const int fmt)
+QString ZXingQt::formatToString(const int fmt)
 {
     if (fmt == (int)ZXing::BarcodeFormat::Aztec) return "aztec";
     if (fmt == (int)ZXing::BarcodeFormat::Codabar) return "codabar";
@@ -83,7 +84,7 @@ QString ZXingCpp::formatToString(const int fmt)
     return QString();
 }
 
-int ZXingCpp::qimageFormatToXZingFormat(const QImage &img)
+int ZXingQt::qimageFormatToXZingFormat(const QImage &img)
 {
     ZXing::ImageFormat format = ZXing::ImageFormat::None;
 
@@ -115,7 +116,7 @@ int ZXingCpp::qimageFormatToXZingFormat(const QImage &img)
     return (int)format;
 }
 
-int ZXingCpp::qvideoframeFormatToXZingFormat(const QVideoFrame &frame)
+int ZXingQt::qvideoframeFormatToXZingFormat(const QVideoFrame &frame)
 {
     ZXing::ImageFormat format = ZXing::ImageFormat::None;
 
@@ -180,13 +181,13 @@ inline QList<Result> QListResults(ZXing::Results && zxres)
 
 /* ************************************************************************** */
 
-Result ZXingCpp::ReadBarcode(const QImage &img, const ZXing::ReaderOptions &opts)
+Result ZXingQt::ReadBarcode(const QImage &img, const ZXing::ReaderOptions &opts)
 {
     auto res = ReadBarcodes(img, ZXing::ReaderOptions(opts).setMaxNumberOfSymbols(1));
     return !res.isEmpty() ? res.takeFirst() : Result();
 }
 
-Result ZXingCpp::ReadBarcode(const QVideoFrame &frame, const ZXing::ReaderOptions &opts, const QRect captureRect)
+Result ZXingQt::ReadBarcode(const QVideoFrame &frame, const ZXing::ReaderOptions &opts, const QRect captureRect)
 {
     auto res = ReadBarcodes(frame, ZXing::ReaderOptions(opts).setMaxNumberOfSymbols(1), captureRect);
     return !res.isEmpty() ? res.takeFirst() : Result();
@@ -195,7 +196,7 @@ Result ZXingCpp::ReadBarcode(const QVideoFrame &frame, const ZXing::ReaderOption
 /* ************************************************************************** */
 
 //! Read barcode from QImage
-QList<Result> ZXingCpp::ReadBarcodes(const QImage &img,
+QList<Result> ZXingQt::ReadBarcodes(const QImage &img,
                                      const ZXing::ReaderOptions &opts,
                                      const QRect captureRect)
 {
@@ -218,7 +219,7 @@ QList<Result> ZXingCpp::ReadBarcodes(const QImage &img,
 }
 
 //! Read barcode DIRECTLY from QVideoFrame
-QList<Result> ZXingCpp::ReadBarcodes(const QVideoFrame &frame,
+QList<Result> ZXingQt::ReadBarcodes(const QVideoFrame &frame,
                                      const ZXing::ReaderOptions &opts,
                                      const QRect captureRect)
 {
@@ -228,10 +229,9 @@ QList<Result> ZXingCpp::ReadBarcodes(const QVideoFrame &frame,
     auto frame_ro = frame;
     if (frame_ro.handleType() == QVideoFrame::RhiTextureHandle)
     {
-        //if (!frame_ro.map(QtVideo::MapMode::ReadOnly)) // Qt 6.8+
         if (!frame_ro.map(QVideoFrame::ReadOnly))
         {
-            qWarning() << "ZXingCppVideoFilter error: invalid QVideoFrame, could not map memory";
+            qWarning() << "ZXingQtVideoFilter error: invalid QVideoFrame, could not map memory";
             return {};
         }
     }
@@ -261,7 +261,7 @@ QList<Result> ZXingCpp::ReadBarcodes(const QVideoFrame &frame,
 }
 
 //! Read barcode from QVideoFrame, converting it to QImage
-QList<Result> ZXingCpp::ReadBarcodes2(const QVideoFrame &frame,
+QList<Result> ZXingQt::ReadBarcodes2(const QVideoFrame &frame,
                                       const ZXing::ReaderOptions &opts,
                                       const QRect captureRect)
 {
@@ -270,7 +270,7 @@ QList<Result> ZXingCpp::ReadBarcodes2(const QVideoFrame &frame,
     QImage image = frame.toImage();
     if (image.isNull())
     {
-        qWarning() << "ZXingCppVideoFilter error: Cant create image file to process.";
+        qWarning() << "ZXingQtVideoFilter error: Cant create image file to process.";
         return {};
     }
 
@@ -304,7 +304,7 @@ QList<Result> ZXingCpp::ReadBarcodes2(const QVideoFrame &frame,
 
 /* ************************************************************************** */
 
-QList<Result> ZXingCpp::loadImage(const QUrl &fileUrl)
+QList<Result> ZXingQt::loadImage(const QUrl &fileUrl)
 {
     QString filepath = fileUrl.toLocalFile();
     QImage img(filepath);
@@ -312,12 +312,12 @@ QList<Result> ZXingCpp::loadImage(const QUrl &fileUrl)
     return ReadBarcodes(img);
 }
 
-QList<Result> ZXingCpp::loadImage(const QImage &img)
+QList<Result> ZXingQt::loadImage(const QImage &img)
 {
     return ReadBarcodes(img);
 }
 
-QImage ZXingCpp::generateImage(const QString &data, const int width, const int height, const int margins,
+QImage ZXingQt::generateImage(const QString &data, const int width, const int height, const int margins,
                                const int format, const int encoding, const int eccLevel,
                                const QColor backgroundColor, const QColor foregroundColor)
 {
@@ -348,26 +348,22 @@ QImage ZXingCpp::generateImage(const QString &data, const int width, const int h
     }
     catch (std::invalid_argument const &ex)
     {
-        qWarning() << "ZXingCpp::generateImage() invalid_argument:" << ex.what();
-    }
-    catch (const std::exception &e)
-    {
-        qWarning() << "ZXingCpp::generateImage() exception:" << e.what();
+        qWarning() << "ZXingQt::generateImage() invalid_argument:" << ex.what();
     }
     catch (...)
     {
-        qWarning() << "ZXingCpp::generateImage() error";
+        qWarning() << "ZXingQt::generateImage() error";
     }
 
     return QImage();
 }
 
-bool ZXingCpp::saveImage(const QString &data, int width, int height, int margins,
+bool ZXingQt::saveImage(const QString &data, int width, int height, int margins,
                          const int format, const int encoding, const int eccLevel,
                          const QColor backgroundColor, const QColor foregroundColor,
                          const QUrl &fileurl)
 {
-    qDebug() << "ZXingCpp::saveImage(" << data << fileurl << ")";
+    qDebug() << "ZXingQt::saveImage(" << data << fileurl << ")";
     qDebug() << "width:" << width << "height:" << height << "margins:" << margins;
     qDebug() << "format:" << format << "encoding:" << encoding << "eccLevel:" << eccLevel;
 
@@ -416,7 +412,7 @@ bool ZXingCpp::saveImage(const QString &data, int width, int height, int margins
             }
             catch (...)
             {
-                qWarning() << "ZXingCpp::saveImage() writer.encode() error";
+                qWarning() << "ZXingQt::saveImage() writer.encode() error";
             }
 
             efile.close();
@@ -438,7 +434,7 @@ bool ZXingCpp::saveImage(const QString &data, int width, int height, int margins
     }
     else
     {
-        qWarning() << "ZXingCpp::saveImage() unknown format error:" << saveFileInfo.suffix();
+        qWarning() << "ZXingQt::saveImage() unknown format error:" << saveFileInfo.suffix();
     }
 
     return status;

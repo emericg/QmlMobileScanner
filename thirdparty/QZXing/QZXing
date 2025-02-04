@@ -1,0 +1,9 @@
+#include "QZXing.h"
+
+#ifdef QZXING_QML
+#include "QZXingImageProvider.h"
+#endif
+
+#ifdef QZXING_MULTIMEDIA
+#include "QZXingFilterVideoSink.h"
+#endif
