@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
 
-import ThemeEngine
+import ComponentLibrary
 
 Item {
     id: widgetBarcodeResult
@@ -53,8 +53,8 @@ Item {
             Layout.alignment: Qt.AlignVCenter
 
             color: "white"
-            source: barcode.isMatrix ? "qrc:/assets/icons/material-symbols/qr_code_2.svg" :
-                                       "qrc:/assets/icons/material-symbols/barcode.svg"
+            source: barcode.isMatrix ? "qrc:/IconLibrary/material-symbols/qr_code_2.svg" :
+                                       "qrc:/IconLibrary/material-symbols/barcode.svg"
 
             Rectangle {
                 width: 12

@@ -39,7 +39,7 @@
 #include <QJsonDocument>
 
 #if defined(zxingcpp)
-#include "ZXingCpp.h"
+#include <ZXingQt>
 #endif
 
 /* ************************************************************************** */
@@ -120,7 +120,7 @@ bool BarcodeManager::loadImage(const QUrl &fileUrl)
         qDeleteAll(m_barcodes_onscreen);
         m_barcodes_onscreen.clear();
 
-        QList<Result> results = ZXingCpp::loadImage(fileUrl);
+        QList<Result> results = ZXingQt::loadImage(fileUrl);
         for (const auto &r: results)
         {
             QPointF tl = r.position().topLeft();

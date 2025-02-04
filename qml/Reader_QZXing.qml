@@ -3,7 +3,7 @@ import QtQuick
 import QtMultimedia
 import QZXing
 
-import ThemeEngine
+import ComponentLibrary
 
 QZXingFilter {
     id: barcodeReader

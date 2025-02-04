@@ -330,8 +330,9 @@ unsigned SettingsManager::getFormatsEnabled() const
 #if defined(zxingcpp)
     return m_formatsEnabled_zxingcpp;
 #elif defined(qzxing)
-        return m_formatsEnabled_qzxing;
+    return m_formatsEnabled_qzxing;
 #endif
+    return 0;
 }
 
 void SettingsManager::setFormatsEnabled(const unsigned value)

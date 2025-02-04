@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 
-import ThemeEngine
+import ComponentLibrary
 
 Column {
     id: cameraCol
@@ -55,8 +55,8 @@ Column {
                 anchors.verticalCenter: parent.verticalCenter
                 color: (index === mediaDevices.selectedDevice) ? Theme.colorPrimary : "white"
                 source: {
-                    if (index === mediaDevices.selectedDevice) return  "qrc:/assets/icons/material-symbols/check_circle.svg"
-                    if (modelData.isDefault) return  "qrc:/assets/icons/material-symbols/stars-fill.svg"
+                    if (index === mediaDevices.selectedDevice) return  "qrc:/IconLibrary/material-symbols/check_circle.svg"
+                    if (modelData.isDefault) return  "qrc:/IconLibrary/material-symbols/stars-fill.svg"
                     return ""
                 }
             }

@@ -3,9 +3,9 @@ import QtQuick
 import QtQuick.Dialogs
 import QtQuick.Controls
 
-import ZXingCpp
+import ZXingQt
 
-import ThemeEngine
+import ComponentLibrary
 
 Row {
     id: barcodeWriter_zxingcpp
@@ -46,10 +46,10 @@ Row {
         font.bold: true
 
         text: qsTr("save")
-        source: "qrc:/assets/icons/material-symbols/save.svg"
+        source: "qrc:/IconLibrary/material-symbols/save.svg"
         onClicked: fileSaveDialog.open()
 
-        ZXingCpp {
+        ZXingQt {
             id: zxingcpp_backend
         }
 

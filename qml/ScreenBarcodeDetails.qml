@@ -3,7 +3,8 @@ import QtQuick.Layouts
 import QtQuick.Effects
 import QtQuick.Controls
 
-import ThemeEngine
+import ComponentLibrary
+import QmlMobileScanner
 
 Rectangle {
     id: screenBarcodeDetails
@@ -153,7 +154,7 @@ Rectangle {
 
                             source: {
                                 if (settingsManager.backend_writer === "zint") return "image://ZintQml/encode/" + screenBarcodeDetails.barcode_string + screenBarcodeDetails.barcode_settings_zxingcpp
-                                if (settingsManager.backend_writer === "zxingcpp") return "image://ZXingCpp/encode/" + screenBarcodeDetails.barcode_string + screenBarcodeDetails.barcode_settings_zxingcpp
+                                if (settingsManager.backend_writer === "zxingcpp") return "image://ZXingQt/encode/" + screenBarcodeDetails.barcode_string + screenBarcodeDetails.barcode_settings_zxingcpp
                                 if (settingsManager.backend_writer === "qzxing") return "image://QZXing/encode/" + screenBarcodeDetails.barcode_string + screenBarcodeDetails.barcode_settings_qzxing
                                 return ""
                             }
@@ -176,7 +177,7 @@ Rectangle {
                                 width: 80
                                 height: 80
                                 anchors.centerIn: parent
-                                source: "qrc:/assets/icons/material-symbols/media/broken_image.svg"
+                                source: "qrc:/IconLibrary/material-symbols/media/broken_image.svg"
                                 color: Theme.colorError
                             }
                         }
@@ -309,6 +310,7 @@ Rectangle {
                             TextAreaThemed {
                                 id: barcodecontent
                                 Layout.fillWidth: true
+                                Layout.maximumHeight: barcodeDetails.height
 
                                 padding: 0
                                 background: Item {}
@@ -329,12 +331,12 @@ Rectangle {
 
                                 color: mm.containsMouse ? Theme.colorPrimary : Theme.colorIcon
                                 source: {
-                                    if (barcode.content === "URL") return "qrc:/assets/icons/material-icons/duotone/launch.svg"
-                                    if (barcode.content === "WiFi") return "qrc:/assets/icons/material-symbols/wifi.svg"
-                                    if (barcode.content === "Email") return "qrc:/assets/icons/material-symbols/outline-mail_outline.svg"
-                                    if (barcode.content === "Geolocation") return "qrc:/assets/icons/material-icons/duotone/pin_drop.svg"
-                                    if (barcode.content === "Phone") return "qrc:/assets/icons/material-symbols/phone.svg"
-                                    if (barcode.content === "SMS") return "qrc:/assets/icons/material-icons/duotone/question_answer.svg"
+                                    if (barcode.content === "URL") return "qrc:/IconLibrary/material-icons/duotone/launch.svg"
+                                    if (barcode.content === "WiFi") return "qrc:/IconLibrary/material-symbols/wifi.svg"
+                                    if (barcode.content === "Email") return "qrc:/IconLibrary/material-symbols/outline-mail_outline.svg"
+                                    if (barcode.content === "Geolocation") return "qrc:/IconLibrary/material-icons/duotone/pin_drop.svg"
+                                    if (barcode.content === "Phone") return "qrc:/IconLibrary/material-symbols/phone.svg"
+                                    if (barcode.content === "SMS") return "qrc:/IconLibrary/material-icons/duotone/question_answer.svg"
                                     return ""
                                 }
 
@@ -364,8 +366,8 @@ Rectangle {
                             width: 20
                             height: 20
 
-                            source: barcode.isMatrix ? "qrc:/assets/icons/material-symbols/qr_code_2.svg" :
-                                                       "qrc:/assets/icons/material-symbols/barcode.svg"
+                            source: barcode.isMatrix ? "qrc:/IconLibrary/material-symbols/qr_code_2.svg" :
+                                                       "qrc:/IconLibrary/material-symbols/barcode.svg"
                             color: Theme.colorIcon
                         }
                         Text {
@@ -389,7 +391,7 @@ Rectangle {
                             width: 20
                             height: 20
 
-                            source: "qrc:/assets/icons/material-icons/duotone/date_range.svg"
+                            source: "qrc:/IconLibrary/material-icons/duotone/date_range.svg"
                             color: Theme.colorIcon
                         }
                         Text {
@@ -413,7 +415,7 @@ Rectangle {
                             width: 20
                             height: 20
 
-                            source: "qrc:/assets/icons/material-icons/duotone/pin_drop.svg"
+                            source: "qrc:/IconLibrary/material-icons/duotone/pin_drop.svg"
                             color: Theme.colorIcon
                         }
                         Text {
@@ -434,7 +436,7 @@ Rectangle {
                         SquareButtonClear {
                             color: Theme.colorBlue
                             tooltipText: qsTr("Open")
-                            source: "qrc:/assets/icons/material-icons/duotone/launch.svg"
+                            source: "qrc:/IconLibrary/material-icons/duotone/launch.svg"
 
                             onClicked: {
                                 Qt.openUrlExternally(barcode.data)
@@ -446,7 +448,7 @@ Rectangle {
 
                             color: Theme.colorGreen
                             tooltipText: qsTr("Share")
-                            source: "qrc:/assets/icons/material-symbols/share-fill.svg"
+                            source: "qrc:/IconLibrary/material-symbols/share-fill.svg"
 
                             onClicked: {
                                 //
@@ -456,7 +458,7 @@ Rectangle {
                         SquareButtonClear {
                             color: Theme.colorYellow
                             tooltipText: qsTr("Copy to clipboard")
-                            source: "qrc:/assets/icons/material-symbols/content_copy.svg"
+                            source: "qrc:/IconLibrary/material-symbols/content_copy.svg"
 
                             onClicked: {
                                 utilsClipboard.setText(barcode.data)
@@ -468,7 +470,7 @@ Rectangle {
                             visible: barcode.hasPosition
 
                             tooltipText: qsTr("See on map")
-                            source: "qrc:/assets/icons/material-icons/duotone/pin_drop.svg"
+                            source: "qrc:/IconLibrary/material-icons/duotone/pin_drop.svg"
 
                             onClicked: {
                                 Qt.openUrlExternally("https://www.openstreetmap.org/" +
@@ -485,7 +487,7 @@ Rectangle {
                             color: Theme.colorRed
 
                             tooltipText: qsTr("Delete entry")
-                            source: "qrc:/assets/icons/material-symbols/delete-fill.svg"
+                            source: "qrc:/IconLibrary/material-symbols/delete-fill.svg"
 
                             onClicked: {
                                 popupHistoryDelete.open()

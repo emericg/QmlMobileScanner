@@ -2,7 +2,8 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
 
-import ThemeEngine
+import ComponentLibrary
+import QmlMobileScanner
 
 Item {
     id: screenAboutFormats

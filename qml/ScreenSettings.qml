@@ -2,8 +2,8 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
 
-import ThemeEngine
-import "qrc:/utils/UtilsNumber.js" as UtilsNumber
+import ComponentLibrary
+import QmlMobileScanner
 
 Loader {
     id: screenSettings
@@ -62,7 +62,7 @@ Loader {
 
                 ListTitle {
                     text: qsTr("User interface")
-                    source: "qrc:/assets/icons/material-symbols/settings.svg"
+                    source: "qrc:/IconLibrary/material-symbols/settings.svg"
                 }
 
                 ////////////////
@@ -84,7 +84,7 @@ Loader {
                         anchors.verticalCenter: parent.verticalCenter
 
                         color: Theme.colorIcon
-                        source: "qrc:/assets/icons/material-icons/duotone/style.svg"
+                        source: "qrc:/IconLibrary/material-icons/duotone/style.svg"
                     }
 
                     Text {
@@ -120,7 +120,7 @@ Loader {
                             anchors.verticalCenter: parent.verticalCenter
 
                             radius: 2
-                            color: (Theme.currentTheme === ThemeEngine.THEME_MOBILE_LIGHT) ? Theme.colorForeground : "#dddddd"
+                            color: (Theme.currentTheme === Theme.THEME_MOBILE_LIGHT) ? Theme.colorForeground : "#dddddd"
                             border.color: Theme.colorSecondary
                             border.width: (settingsManager.appTheme === "THEME_MOBILE_LIGHT") ? 2 : 0
 
@@ -149,7 +149,7 @@ Loader {
                             anchors.verticalCenter: parent.verticalCenter
 
                             radius: 2
-                            color: (Theme.currentTheme === ThemeEngine.THEME_MOBILE_DARK) ? Theme.colorForeground : "#313236"
+                            color: (Theme.currentTheme === Theme.THEME_MOBILE_DARK) ? Theme.colorForeground : "#313236"
                             border.color: Theme.colorSecondary
                             border.width: (settingsManager.appTheme === "THEME_MOBILE_DARK") ? 2 : 0
 
@@ -192,7 +192,7 @@ Loader {
                         anchors.verticalCenter: parent.verticalCenter
 
                         color: Theme.colorIcon
-                        source: "qrc:/assets/icons/material-icons/duotone/brightness_4.svg"
+                        source: "qrc:/IconLibrary/material-icons/duotone/brightness_4.svg"
                     }
 
                     Text {
@@ -212,7 +212,7 @@ Loader {
                         verticalAlignment: Text.AlignVCenter
                     }
 
-                    SwitchThemedDesktop {
+                    SwitchThemed {
                         id: switch_appThemeAuto
                         anchors.right: parent.right
                         anchors.rightMargin: 0
@@ -264,7 +264,7 @@ Loader {
                             width: 24
                             height: 24
                             color: Theme.colorIcon
-                            source: "qrc:/assets/icons/material-symbols/stars-fill.svg"
+                            source: "qrc:/IconLibrary/material-symbols/stars-fill.svg"
                         }
                     }
 
@@ -324,7 +324,7 @@ Loader {
                             width: 24
                             height: 24
                             color: Theme.colorIcon
-                            source: "qrc:/assets/icons/material-symbols/stars-fill.svg"
+                            source: "qrc:/IconLibrary/material-symbols/stars-fill.svg"
                         }
                     }
 
@@ -378,7 +378,7 @@ Loader {
                             width: 24
                             height: 24
                             color: Theme.colorIcon
-                            source: "qrc:/assets/icons/material-symbols/stars-fill.svg"
+                            source: "qrc:/IconLibrary/material-symbols/stars-fill.svg"
                         }
                     }
 
@@ -430,7 +430,7 @@ Loader {
 
                 ListTitle {
                     text: qsTr("Scanner")
-                    source: "qrc:/assets/icons/material-icons/duotone/qr_code_2.svg"
+                    source: "qrc:/IconLibrary/material-icons/duotone/qr_code_2.svg"
                 }
 
                 ////////////////
@@ -450,7 +450,7 @@ Loader {
                             width: 24
                             height: 24
                             color: Theme.colorIcon
-                            source: "qrc:/assets/icons/material-symbols/save.svg"
+                            source: "qrc:/IconLibrary/material-symbols/save.svg"
                         }
                     }
 
@@ -466,7 +466,7 @@ Loader {
                         verticalAlignment: Text.AlignVCenter
                     }
 
-                    SwitchThemedDesktop {
+                    SwitchThemed {
                         Layout.alignment: Qt.AlignVCenter
                         z: 1
 
@@ -492,7 +492,7 @@ Loader {
                             width: 24
                             height: 24
                             color: Theme.colorIcon
-                            source: "qrc:/assets/icons/material-icons/duotone/camera.svg"
+                            source: "qrc:/IconLibrary/material-icons/duotone/camera.svg"
                         }
                     }
 
@@ -508,7 +508,7 @@ Loader {
                         verticalAlignment: Text.AlignVCenter
                     }
 
-                    SwitchThemedDesktop {
+                    SwitchThemed {
                         Layout.alignment: Qt.AlignVCenter
                         z: 1
 
@@ -532,7 +532,7 @@ Loader {
                             width: 24
                             height: 24
                             color: Theme.colorIcon
-                            source: "qrc:/assets/icons/material-icons/duotone/pin_drop.svg"
+                            source: "qrc:/IconLibrary/material-icons/duotone/pin_drop.svg"
                         }
                     }
 
@@ -548,7 +548,7 @@ Loader {
                         verticalAlignment: Text.AlignVCenter
                     }
 
-                    SwitchThemedDesktop {
+                    SwitchThemed {
                         Layout.alignment: Qt.AlignVCenter
                         z: 1
 
@@ -568,7 +568,7 @@ Loader {
 
                 ListTitle {
                     text: qsTr("Debug")
-                    source: "qrc:/assets/icons/material-icons/duotone/bug_report.svg"
+                    source: "qrc:/IconLibrary/material-icons/duotone/bug_report.svg"
                 }
 
                 ////////////////
@@ -590,7 +590,7 @@ Loader {
                         anchors.verticalCenter: parent.verticalCenter
 
                         color: Theme.colorIcon
-                        source: "qrc:/assets/icons/material-icons/duotone/bug_report.svg"
+                        source: "qrc:/IconLibrary/material-icons/duotone/bug_report.svg"
                     }
 
                     Text {
@@ -610,7 +610,7 @@ Loader {
                         verticalAlignment: Text.AlignVCenter
                     }
 
-                    SwitchThemedDesktop {
+                    SwitchThemed {
                         id: switch_showDebug
                         anchors.right: parent.right
                         anchors.rightMargin: 0
@@ -641,7 +641,7 @@ Loader {
                             width: 24
                             height: 24
                             color: Theme.colorIcon
-                            source: "qrc:/assets/icons/material-icons/duotone/qr_code_2.svg"
+                            source: "qrc:/IconLibrary/material-icons/duotone/qr_code_2.svg"
                         }
                     }
 
@@ -656,7 +656,7 @@ Loader {
                         wrapMode: Text.WordWrap
                     }
 
-                    SwitchThemedDesktop {
+                    SwitchThemed {
                         Layout.alignment: Qt.AlignVCenter
                         z: 1
 
@@ -681,7 +681,7 @@ Loader {
                             width: 24
                             height: 24
                             color: Theme.colorIcon
-                            source: "qrc:/assets/icons/material-icons/duotone/qr_code_2.svg"
+                            source: "qrc:/IconLibrary/material-icons/duotone/qr_code_2.svg"
                         }
                     }
 
@@ -696,7 +696,7 @@ Loader {
                         wrapMode: Text.WordWrap
                     }
 
-                    SwitchThemedDesktop {
+                    SwitchThemed {
                         Layout.alignment: Qt.AlignVCenter
                         z: 1
 
@@ -721,7 +721,7 @@ Loader {
                             width: 24
                             height: 24
                             color: Theme.colorIcon
-                            source: "qrc:/assets/icons/material-icons/duotone/qr_code_2.svg"
+                            source: "qrc:/IconLibrary/material-icons/duotone/qr_code_2.svg"
                         }
                     }
 
@@ -736,7 +736,7 @@ Loader {
                         wrapMode: Text.WordWrap
                     }
 
-                    SwitchThemedDesktop {
+                    SwitchThemed {
                         Layout.alignment: Qt.AlignVCenter
                         z: 1
 
@@ -761,7 +761,7 @@ Loader {
                             width: 24
                             height: 24
                             color: Theme.colorIcon
-                            source: "qrc:/assets/icons/material-icons/duotone/qr_code_2.svg"
+                            source: "qrc:/IconLibrary/material-icons/duotone/qr_code_2.svg"
                         }
                     }
 
@@ -776,7 +776,7 @@ Loader {
                         wrapMode: Text.WordWrap
                     }
 
-                    SwitchThemedDesktop {
+                    SwitchThemed {
                         Layout.alignment: Qt.AlignVCenter
                         z: 1
 
@@ -801,7 +801,7 @@ Loader {
                             width: 24
                             height: 24
                             color: Theme.colorIcon
-                            source: "qrc:/assets/icons/material-icons/duotone/qr_code_2.svg"
+                            source: "qrc:/IconLibrary/material-icons/duotone/qr_code_2.svg"
                         }
                     }
 
@@ -816,7 +816,7 @@ Loader {
                         wrapMode: Text.WordWrap
                     }
 
-                    SwitchThemedDesktop {
+                    SwitchThemed {
                         Layout.alignment: Qt.AlignVCenter
                         z: 1
 
@@ -841,7 +841,7 @@ Loader {
                             width: 24
                             height: 24
                             color: Theme.colorIcon
-                            source: "qrc:/assets/icons/material-icons/duotone/qr_code_2.svg"
+                            source: "qrc:/IconLibrary/material-icons/duotone/qr_code_2.svg"
                         }
                     }
 
@@ -856,7 +856,7 @@ Loader {
                         wrapMode: Text.WordWrap
                     }
 
-                    SwitchThemedDesktop {
+                    SwitchThemed {
                         Layout.alignment: Qt.AlignVCenter
                         z: 1
 

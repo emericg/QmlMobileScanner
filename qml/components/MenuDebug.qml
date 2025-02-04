@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 
-import ThemeEngine
+import ComponentLibrary
 
 Column {
     id: debugCol
@@ -25,7 +25,7 @@ Column {
             opacity: 0.33
         }
 
-        SwitchThemedDesktop {
+        SwitchThemed {
             anchors.centerIn: parent
             width: parent.width - 16
             LayoutMirroring.enabled: true
@@ -49,7 +49,7 @@ Column {
             opacity: 0.33
         }
 
-        SwitchThemedDesktop {
+        SwitchThemed {
             anchors.centerIn: parent
             width: parent.width - 16
             LayoutMirroring.enabled: true
@@ -75,7 +75,7 @@ Column {
             opacity: 0.33
         }
 
-        SwitchThemedDesktop {
+        SwitchThemed {
             anchors.centerIn: parent
             width: parent.width - 16
             LayoutMirroring.enabled: true
@@ -101,7 +101,7 @@ Column {
             opacity: 0.33
         }
 
-        SwitchThemedDesktop {
+        SwitchThemed {
             anchors.centerIn: parent
             width: parent.width - 16
             LayoutMirroring.enabled: true
@@ -127,7 +127,7 @@ Column {
             opacity: 0.33
         }
 
-        SwitchThemedDesktop {
+        SwitchThemed {
             anchors.centerIn: parent
             width: parent.width - 16
             LayoutMirroring.enabled: true

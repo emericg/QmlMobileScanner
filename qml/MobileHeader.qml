@@ -1,6 +1,6 @@
 import QtQuick
 
-import ThemeEngine
+import ComponentLibrary
 
 Rectangle {
     id: appHeader
@@ -82,11 +82,11 @@ Rectangle {
                     height: (headerHeight / 2)
 
                     source: {
-                        if (leftMenuMode === "drawer") return "qrc:/assets/icons/material-symbols/menu.svg"
-                        if (leftMenuMode === "close") return "qrc:/assets/icons/material-symbols/close.svg"
-                        if (leftMenuMode === "lock") return "qrc:/assets/icons/material-symbols/lock.svg"
-                        if (leftMenuMode === "login") return "qrc:/assets/icons/material-symbols/supervised_user_circle.svg"
-                        return "qrc:/assets/icons/material-symbols/arrow_back.svg"
+                        if (leftMenuMode === "drawer") return "qrc:/IconLibrary/material-symbols/menu.svg"
+                        if (leftMenuMode === "close") return "qrc:/IconLibrary/material-symbols/close.svg"
+                        if (leftMenuMode === "lock") return "qrc:/IconLibrary/material-symbols/lock.svg"
+                        if (leftMenuMode === "login") return "qrc:/IconLibrary/material-symbols/supervised_user_circle.svg"
+                        return "qrc:/IconLibrary/material-symbols/arrow_back.svg"
                     }
                     color: Theme.colorHeaderContent
                 }

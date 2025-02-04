@@ -37,7 +37,7 @@
 #endif
 
 #if defined(zxingcpp)
-#include <ZXingCpp>
+#include <ZXingQt>
 #endif
 
 #if defined(zint)
@@ -123,14 +123,14 @@ int main(int argc, char *argv[])
     UtilsApp *utilsApp = UtilsApp::getInstance();
     if (!utilsApp) return EXIT_FAILURE;
 
-    // ThemeEngine
-    qmlRegisterSingletonType(QUrl("qrc:/qml/ThemeEngine.qml"), "ThemeEngine", 1, 0, "Theme");
-
     // Mobile UI
     qmlRegisterType<MobileUI>("MobileUI", 1, 0, "MobileUI");
 
     // QML engine
     QQmlApplicationEngine engine;
+    engine.addImportPath(":/QmlMobileScanner");
+    engine.addImportPath(":/ComponentLibrary");
+
     QQmlContext *engine_context = engine.rootContext();
     engine_context->setContextProperty("settingsManager", stm);
     engine_context->setContextProperty("barcodeManager", bch);
@@ -138,6 +138,7 @@ int main(int argc, char *argv[])
     engine_context->setContextProperty("utilsScreen", utilsScreen);
     engine_context->setContextProperty("utilsCamera", utilsCamera);
     engine_context->setContextProperty("utilsClipboard", utilsClipboard);
+    app.registerQML(engine_context);
 
 #if QT_CONFIG(permissions)
     if (qApp->checkPermission(QCameraPermission{}) != Qt::PermissionStatus::Granted) {
@@ -157,8 +158,8 @@ int main(int argc, char *argv[])
 
 #if defined(zxingcpp)
     // Barcode (zxing-cpp)
-    ZXingCpp::registerQMLTypes();
-    ZXingCpp::registerQMLImageProvider(engine);
+    ZXingQt::registerQMLTypes();
+    ZXingQt::registerQMLImageProvider(engine);
 #endif
 
 #if defined(zint)
@@ -169,9 +170,9 @@ int main(int argc, char *argv[])
 
     // Then we start the UI
 #if defined(Q_OS_ANDROID) || defined(Q_OS_IOS) || defined(FORCE_MOBILE_UI)
-    engine.load(QUrl(QStringLiteral("qrc:/qml/MobileApplication.qml")));
+    engine.loadFromModule("QmlMobileScanner", "MobileApplication");
 #else
-    engine.load(QUrl(QStringLiteral("qrc:/qml/DesktopApplication.qml")));
+    engine.loadFromModule("QmlMobileScanner", "DesktopApplication");
 #endif
 
     if (engine.rootObjects().isEmpty())

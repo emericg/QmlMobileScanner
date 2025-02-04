@@ -4,7 +4,7 @@ import QtQuick.Dialogs
 import QtQuick.Controls
 
 import ZintQml
-import ThemeEngine
+import ComponentLibrary
 
 Row {
     id: barcodeWriter_zint
@@ -45,7 +45,7 @@ Row {
         font.bold: true
 
         text: qsTr("save")
-        source: "qrc:/assets/icons/material-symbols/save.svg"
+        source: "qrc:/IconLibrary/material-symbols/save.svg"
         onClicked: fileSaveDialog.open()
 
         ZintQml {

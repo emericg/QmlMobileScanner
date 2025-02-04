@@ -1,11 +1,11 @@
 import QtQuick
 
 import QtMultimedia
-import ZXingCpp
+import ZXingQt
 
-import ThemeEngine
+import ComponentLibrary
 
-ZXingCppVideoFilter {
+ZXingQtVideoFilter {
     id: barcodeReader
 
     property real timePerFrameDecode: 0
@@ -28,24 +28,27 @@ ZXingCppVideoFilter {
 
     formats: settingsManager.formatsEnabled
 /*
-    formats: ZXingCpp.LinearCodes | ZXingCpp.MatrixCodes
-    formats: ZXingCpp.Codabar |
-             ZXingCpp.Code39 | ZXingCpp.Code93 | ZXingCpp.Code128 |
-             ZXingCpp.EAN8 | ZXingCpp.EAN13 |
-             ZXingCpp.ITF |
-             ZXingCpp.DataBar | ZXingCpp.DataBarExpanded |
-             ZXingCpp.UPCA | ZXingCpp.UPCE |
-             ZXingCpp.Aztec |
-             ZXingCpp.DataMatrix |
-             ZXingCpp.MaxiCode |
-             ZXingCpp.PDF417 |
-             ZXingCpp.QRCode | ZXingCpp.MicroQRCode
+    formats: ZXingQt.LinearCodes | ZXingQt.MatrixCodes
+    formats: ZXingQt.Codabar |
+             ZXingQt.Code39 | ZXingQt.Code93 | ZXingQt.Code128 |
+             ZXingQt.EAN8 | ZXingQt.EAN13 |
+             ZXingQt.ITF |
+             ZXingQt.DataBar | ZXingQt.DataBarExpanded |
+             ZXingQt.UPCA | ZXingQt.UPCE |
+             ZXingQt.Aztec |
+             ZXingQt.DataMatrix |
+             ZXingQt.MaxiCode |
+             ZXingQt.PDF417 |
+             ZXingQt.QRCode | ZXingQt.MicroQRCode
 */
     function mapPointToItem(point) {
-        //console.log("mapPointToItem(" + point + ")")
+        //console.log("-------------------------------------")
+        //console.log("mapPointToItem(" + point + ") orientation: " + videoOutput.orientation)
+        //videoOutput.printInfos()
 
         if (videoOutput.sourceRect.width === 0 || videoOutput.sourceRect.height === 0) return Qt.point(0, 0)
 
+        // V0 // old mechanism for Qt 6.5.3
         let dx = point.x + barcodeReader.captureRect.x
         let dy = point.y + barcodeReader.captureRect.y
 
@@ -72,6 +75,11 @@ ZXingCppVideoFilter {
 
     onTagFound: (result) => {
         //console.log("onTagFound : " + result)
+        //console.log("> pos > " + result.position.topLeft + "," + result.position.topRight + "," +
+        //                         result.position.bottomRight  + "," + result.position.bottomLeft)
+
+        //console.log("contentRect : " + videoOutput.contentRect)
+        //console.log("sourceRect : " + videoOutput.sourceRect)
 
         if (result.isValid && result.text !== "") {
             var newbarcode = barcodeManager.addBarcode(result.text, result.formatName, result.contentType, "",
@@ -98,6 +106,6 @@ ZXingCppVideoFilter {
         framesDecodedTotal += result.runTime
 
         timePerFrameDecode = framesDecodedTotal / framesDecodedTable.length
-        //console.log("ZXingCpp::onDecodingFinished(" + result.isValid + " / " + result.runTime + " ms)")
+        //console.log("ZXingQt::onDecodingFinished(" + result.isValid + " / " + result.runTime + " ms)")
     }
 }

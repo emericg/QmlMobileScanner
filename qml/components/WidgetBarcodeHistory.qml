@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
 
-import ThemeEngine
+import ComponentLibrary
 
 SwipeDelegate {
     id: widgetBarcodeHistory
@@ -67,8 +67,8 @@ SwipeDelegate {
                     width: modelData.isMatrix ? 48 : 32
                     height: modelData.isMatrix ? 48 : 32
                     color: Theme.colorText
-                    source: modelData.isMatrix ? "qrc:/assets/icons/material-symbols/qr_code_2.svg" :
-                                                 "qrc:/assets/icons/material-symbols/barcode.svg"
+                    source: modelData.isMatrix ? "qrc:/IconLibrary/material-symbols/qr_code_2.svg" :
+                                                 "qrc:/IconLibrary/material-symbols/barcode.svg"
                 }
             }
 
@@ -117,7 +117,7 @@ SwipeDelegate {
                             anchors.verticalCenter: parent.verticalCenter
                             width: 16
                             height: 16
-                            source: "qrc:/assets/icons/material-icons/duotone/date_range.svg"
+                            source: "qrc:/IconLibrary/material-icons/duotone/date_range.svg"
                             color: Theme.colorSubText
                         }
                         Text {
@@ -139,7 +139,7 @@ SwipeDelegate {
                             anchors.verticalCenter: parent.verticalCenter
                             width: 16
                             height: 16
-                            source: "qrc:/assets/icons/material-icons/duotone/pin_drop.svg"
+                            source: "qrc:/IconLibrary/material-icons/duotone/pin_drop.svg"
                             color: Theme.colorSubText
                         }
                         Text {
@@ -169,7 +169,7 @@ SwipeDelegate {
                     height: 32
                     visible: modelData.isStarred
                     color: Theme.colorSubText
-                    source: "qrc:/assets/icons/material-symbols/stars-fill.svg"
+                    source: "qrc:/IconLibrary/material-symbols/stars-fill.svg"
                 }
             }
 
@@ -213,7 +213,7 @@ SwipeDelegate {
 
                 IconSvg {
                     anchors.horizontalCenter: parent.horizontalCenter
-                    source: "qrc:/assets/icons/material-symbols/delete.svg"
+                    source: "qrc:/IconLibrary/material-symbols/delete.svg"
                     color: "white"
                 }
                 Text {

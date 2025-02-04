@@ -1,7 +1,8 @@
 import QtQuick
 import QtQuick.Controls
 
-import ThemeEngine
+import ComponentLibrary
+import QmlMobileScanner
 
 Loader {
     id: screenAbout
@@ -117,9 +118,9 @@ Loader {
                         width: 160
 
                         text: qsTr("WEBSITE")
-                        source: "qrc:/assets/icons/material-symbols/link.svg"
+                        source: "qrc:/IconLibrary/material-symbols/link.svg"
                         sourceSize: 28
-                        color: (Theme.currentTheme === ThemeEngine.THEME_NIGHT) ? Theme.colorHeader : "#5483EF"
+                        color: (Theme.currentTheme === Theme.THEME_NIGHT) ? Theme.colorHeader : "#5483EF"
 
                         onClicked: Qt.openUrlExternally("https://github.com/emericg/QmlMobileScanner")
                     }
@@ -128,9 +129,9 @@ Loader {
                         width: 160
 
                         text: qsTr("SUPPORT")
-                        source: "qrc:/assets/icons/material-symbols/support.svg"
+                        source: "qrc:/IconLibrary/material-symbols/support.svg"
                         sourceSize: 22
-                        color: (Theme.currentTheme === ThemeEngine.THEME_NIGHT) ? Theme.colorHeader : "#5483EF"
+                        color: (Theme.currentTheme === Theme.THEME_NIGHT) ? Theme.colorHeader : "#5483EF"
 
                         onClicked: Qt.openUrlExternally("https://github.com/emericg/QmlMobileScanner/issues")
                     }
@@ -142,7 +143,7 @@ Loader {
                         text: qsTr("GitHub")
                         source: "qrc:/assets/gfx/logos/github.svg"
                         sourceSize: 22
-                        color: (Theme.currentTheme === ThemeEngine.THEME_NIGHT) ? Theme.colorHeader : "#5483EF"
+                        color: (Theme.currentTheme === Theme.THEME_NIGHT) ? Theme.colorHeader : "#5483EF"
 
                         onClicked: Qt.openUrlExternally("https://github.com/emericg/QmlMobileScanner")
                     }
@@ -176,9 +177,9 @@ Loader {
                     width: ((parent.width - parent.spacing) / 2)
 
                     text: qsTr("WEBSITE")
-                    source: "qrc:/assets/icons/material-symbols/link.svg"
+                    source: "qrc:/IconLibrary/material-symbols/link.svg"
                     sourceSize: 28
-                    color: (Theme.currentTheme === ThemeEngine.THEME_NIGHT) ? Theme.colorHeader : "#5483EF"
+                    color: (Theme.currentTheme === Theme.THEME_NIGHT) ? Theme.colorHeader : "#5483EF"
 
                     onClicked: Qt.openUrlExternally("https://github.com/emericg/QmlMobileScanner")
                     //onClicked: Qt.openUrlExternally("https://emeric.io/QmlMobileScanner")
@@ -188,9 +189,9 @@ Loader {
                     width: ((parent.width - parent.spacing) / 2)
 
                     text: qsTr("SUPPORT")
-                    source: "qrc:/assets/icons/material-symbols/support.svg"
+                    source: "qrc:/IconLibrary/material-symbols/support.svg"
                     sourceSize: 22
-                    color: (Theme.currentTheme === ThemeEngine.THEME_NIGHT) ? Theme.colorHeader : "#5483EF"
+                    color: (Theme.currentTheme === Theme.THEME_NIGHT) ? Theme.colorHeader : "#5483EF"
 
                     onClicked: Qt.openUrlExternally("https://github.com/emericg/QmlMobileScanner/issues")
                     //onClicked: Qt.openUrlExternally("https://emeric.io/QmlMobileScanner/support.html")
@@ -206,7 +207,7 @@ Loader {
                 anchors.right: parent.right
 
                 text: qsTr("Barcode & QRcode scanner reader/writer based on qzxing and zxing-cpp libraries.")
-                source: "qrc:/assets/icons/material-symbols/info.svg"
+                source: "qrc:/IconLibrary/material-symbols/info.svg"
             }
 
             ListItemClickable { // authors
@@ -214,8 +215,8 @@ Loader {
                 anchors.right: parent.right
 
                 text: qsTr("Application by <a href=\"https://emeric.io\">Emeric Grange</a>")
-                source: "qrc:/assets/icons/material-symbols/supervised_user_circle.svg"
-                indicatorSource: "qrc:/assets/icons/material-icons/duotone/launch.svg"
+                source: "qrc:/IconLibrary/material-symbols/supervised_user_circle.svg"
+                indicatorSource: "qrc:/IconLibrary/material-icons/duotone/launch.svg"
 
                 onClicked: Qt.openUrlExternally("https://emeric.io")
             }
@@ -227,8 +228,8 @@ Loader {
                 visible: (Qt.platform.os === "android" || Qt.platform.os === "ios")
 
                 text: qsTr("Rate the application")
-                source: "qrc:/assets/icons/material-symbols/stars-fill.svg"
-                indicatorSource: "qrc:/assets/icons/material-icons/duotone/launch.svg"
+                source: "qrc:/IconLibrary/material-symbols/stars-fill.svg"
+                indicatorSource: "qrc:/IconLibrary/material-icons/duotone/launch.svg"
 
                 onClicked: {
                     if (Qt.platform.os === "android")
@@ -245,9 +246,9 @@ Loader {
                 anchors.right: parent.right
 
                 text: qsTr("Release notes")
-                source: "qrc:/assets/icons/material-symbols/new_releases.svg"
+                source: "qrc:/IconLibrary/material-symbols/new_releases.svg"
                 sourceSize: 28
-                indicatorSource: "qrc:/assets/icons/material-icons/duotone/launch.svg"
+                indicatorSource: "qrc:/IconLibrary/material-icons/duotone/launch.svg"
 
                 onClicked: Qt.openUrlExternally("https://github.com/emericg/QmlMobileScanner/releases")
             }
@@ -261,9 +262,9 @@ Loader {
                 anchors.right: parent.right
 
                 text: qsTr("Open the tutorial")
-                source: "qrc:/assets/icons/material-symbols/import_contacts-fill.svg"
+                source: "qrc:/IconLibrary/material-symbols/import_contacts-fill.svg"
                 sourceSize: 24
-                indicatorSource: "qrc:/assets/icons/material-symbols/chevron_right.svg"
+                indicatorSource: "qrc:/IconLibrary/material-symbols/chevron_right.svg"
 
                 onClicked: screenTutorial.loadScreenFrom("ScreenAbout")
             }
@@ -279,9 +280,9 @@ Loader {
                 visible: (Qt.platform.os === "android" || Qt.platform.os === "ios")
 
                 text: qsTr("About app permissions")
-                source: "qrc:/assets/icons/material-symbols/flaky.svg"
+                source: "qrc:/IconLibrary/material-symbols/flaky.svg"
                 sourceSize: 24
-                indicatorSource: "qrc:/assets/icons/material-symbols/chevron_right.svg"
+                indicatorSource: "qrc:/IconLibrary/material-symbols/chevron_right.svg"
 
                 onClicked: screenAboutPermissions.loadScreenFrom("ScreenAbout")
             }
@@ -293,9 +294,9 @@ Loader {
                 anchors.right: parent.right
 
                 text: qsTr("Supported barcode formats")
-                source: "qrc:/assets/icons/material-symbols/check_circle.svg"
+                source: "qrc:/IconLibrary/material-symbols/check_circle.svg"
                 sourceSize: 24
-                indicatorSource: "qrc:/assets/icons/material-symbols/chevron_right.svg"
+                indicatorSource: "qrc:/IconLibrary/material-symbols/chevron_right.svg"
 
                 onClicked: screenAboutFormats.loadScreenFrom("ScreenAbout")
             }
@@ -319,7 +320,7 @@ Loader {
                     width: 24
                     height: 24
 
-                    source: "qrc:/assets/icons/material-symbols/settings.svg"
+                    source: "qrc:/IconLibrary/material-symbols/settings.svg"
                     color: Theme.colorSubText
                 }
 
@@ -394,7 +395,7 @@ Loader {
                     width: 24
                     height: 24
 
-                    source: "qrc:/assets/icons/material-icons/duotone/info.svg"
+                    source: "qrc:/IconLibrary/material-icons/duotone/info.svg"
                     color: Theme.colorSubText
                 }
 

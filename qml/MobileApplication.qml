@@ -2,7 +2,8 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Window
 
-import ThemeEngine
+import ComponentLibrary
+import QmlMobileScanner
 import MobileUI
 
 ApplicationWindow {

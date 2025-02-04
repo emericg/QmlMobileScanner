@@ -4,7 +4,8 @@ import QtQuick.Effects
 import QtQuick.Dialogs
 import QtQuick.Controls
 
-import ThemeEngine
+import ComponentLibrary
+import QmlMobileScanner
 
 Loader {
     id: screenBarcodeWriter
@@ -124,7 +125,7 @@ Loader {
 
                         source: {
                             if (settingsManager.backend_writer === "zint") return "image://ZintQml/encode/" + barcodeAdvanced.barcode_string + barcodeAdvanced.barcode_settings_zxingcpp
-                            if (settingsManager.backend_writer === "zxingcpp") return "image://ZXingCpp/encode/" + barcodeAdvanced.barcode_string + barcodeAdvanced.barcode_settings_zxingcpp
+                            if (settingsManager.backend_writer === "zxingcpp") return "image://ZXingQt/encode/" + barcodeAdvanced.barcode_string + barcodeAdvanced.barcode_settings_zxingcpp
                             if (settingsManager.backend_writer === "qzxing") return "image://QZXing/encode/" + barcodeAdvanced.barcode_string + barcodeAdvanced.barcode_settings_qzxing
                             return ""
                         }
@@ -134,7 +135,7 @@ Loader {
                             height: 80
                             anchors.centerIn: parent
                             visible: (!barcodeAdvanced.barcode_string && settingsManager.backend_writer === "zint")
-                            source: "qrc:/assets/icons/material-icons/duotone/edit.svg"
+                            source: "qrc:/IconLibrary/material-icons/duotone/edit.svg"
                             color: Theme.colorIcon
                         }
                     }
@@ -157,7 +158,7 @@ Loader {
                             width: 80
                             height: 80
                             anchors.centerIn: parent
-                            source: "qrc:/assets/icons/material-symbols/media/broken_image.svg"
+                            source: "qrc:/IconLibrary/material-symbols/media/broken_image.svg"
                             color: Theme.colorError
                         }
                     }

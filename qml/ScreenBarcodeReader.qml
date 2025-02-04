@@ -9,7 +9,8 @@ import QtQuick.Dialogs
 import QtPositioning
 import QtMultimedia
 
-import ThemeEngine
+import ComponentLibrary
+import QmlMobileScanner
 
 Loader {
     id: screenBarcodeReader
@@ -148,7 +149,7 @@ Loader {
             width: 64; height: 64;
             anchors.centerIn: parent
             color: "#ccc"
-            source: "qrc:/assets/icons/material-icons/outlined/hourglass_empty.svg"
+            source: "qrc:/IconLibrary/material-icons/outlined/hourglass_empty.svg"
         }
 
         ////////////////////////
@@ -175,10 +176,14 @@ Loader {
 
                 onCameraDeviceChanged: {
                     console.log("CaptureSession::onCameraDeviceChanged()")
+                    console.log("- description: " + cameraDevice.description)
                     console.log("- correctionAngle: " + cameraDevice.correctionAngle)
+                }
+                onCameraFormatChanged: {
+                    console.log("CaptureSession::onCameraFormatChanged()")
                     console.log("- cameraFormat: " + cameraFormat)
                 }
-                onErrorOccurred: (errorString) => {
+                onErrorOccurred: (error, errorString) => {
                     console.log("CaptureSession::onErrorOccurred() " + errorString)
                 }
             }
@@ -575,7 +580,7 @@ Loader {
                         height: parent.height * 0.6
                         anchors.centerIn: parent
                         color: fileOpenDialog.visible ? Theme.colorYellow : "white"
-                        source: "qrc:/assets/icons/material-icons/duotone/photo_library.svg"
+                        source: "qrc:/IconLibrary/material-icons/duotone/photo_library.svg"
                     }
                     MouseArea {
                         anchors.fill: parent
@@ -630,7 +635,7 @@ Loader {
                         height: parent.height * 0.6
                         anchors.centerIn: parent
                         color: "white"
-                        source: "qrc:/assets/icons/material-icons/duotone/camera.svg"
+                        source: "qrc:/IconLibrary/material-icons/duotone/camera.svg"
                     }
                     MouseArea {
                         anchors.fill: parent
@@ -666,7 +671,7 @@ Loader {
                         height: parent.height * 0.6
                         anchors.centerIn: parent
                         color: menuDebug.visible ? Theme.colorYellow : "white"
-                        source: "qrc:/assets/icons/material-icons/duotone/bug_report.svg"
+                        source: "qrc:/IconLibrary/material-icons/duotone/bug_report.svg"
                     }
                     MouseArea {
                         anchors.fill: parent
@@ -701,7 +706,7 @@ Loader {
                         height: parent.height * 0.6
                         anchors.centerIn: parent
                         color: menuFormats.visible ? Theme.colorYellow : "white"
-                        source: "qrc:/assets/icons/material-symbols/qr_code.svg"
+                        source: "qrc:/IconLibrary/material-symbols/qr_code.svg"
                     }
                     MouseArea {
                         anchors.fill: parent
@@ -736,7 +741,7 @@ Loader {
                         height: parent.height * 0.66
                         anchors.centerIn: parent
                         color: menuCamera.visible ? Theme.colorYellow : "white"
-                        source: "qrc:/assets/icons/material-icons/duotone/cameraswitch.svg"
+                        source: "qrc:/IconLibrary/material-icons/duotone/cameraswitch.svg"
                     }
                     MouseArea {
                         anchors.fill: parent
@@ -855,7 +860,7 @@ Loader {
                             width: parent.height * 0.666
                             height: parent.height * 0.666
                             color: "white"
-                            source: "qrc:/assets/icons/material-symbols/search.svg"
+                            source: "qrc:/IconLibrary/material-symbols/search.svg"
 
                             SequentialAnimation {
                                 running: true
@@ -896,9 +901,9 @@ Loader {
                             color: (camera.torchMode === Camera.TorchOn) ? Theme.colorYellow : "white"
                             source: {
                                 if (camera.torchMode !== Camera.TorchOn)
-                                    return "qrc:/assets/icons/material-symbols/media/flash_on.svg"
+                                    return "qrc:/IconLibrary/material-symbols/media/flash_on.svg"
                                 else
-                                    return "qrc:/assets/icons/material-symbols/media/flash_off.svg"
+                                    return "qrc:/IconLibrary/material-symbols/media/flash_off.svg"
                             }
                         }
                         MouseArea {
@@ -928,7 +933,7 @@ Loader {
                             height: parent.height * 0.666
                             anchors.centerIn: parent
                             color: (appDrawer.opened || menuScreens.visible) ? Theme.colorYellow : "white"
-                            source: "qrc:/assets/icons/material-symbols/menu.svg"
+                            source: "qrc:/IconLibrary/material-symbols/menu.svg"
                         }
                         MouseArea {
                             anchors.fill: parent

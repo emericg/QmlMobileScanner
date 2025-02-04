@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 
-import ThemeEngine
+import ComponentLibrary
 
 Popup {
     id: popupBarcodeFullscreen
@@ -39,7 +39,7 @@ Popup {
         width: appHeader.headerHeight
         height: appHeader.headerHeight
 
-        source: "qrc:/assets/icons/material-symbols/arrow_back.svg"
+        source: "qrc:/IconLibrary/material-symbols/arrow_back.svg"
         sourceSize: 28
         iconColor: Theme.colorHeaderContent
 

@@ -2,7 +2,8 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Window
 
-import ThemeEngine
+import ComponentLibrary
+import QmlMobileScanner
 
 Rectangle {
     id: appSidebar
@@ -38,19 +39,19 @@ Rectangle {
         spacing: 0
 
         DesktopSidebarItem {
-            source: "qrc:/assets/icons/material-icons/duotone/qr_code_scanner.svg"
+            source: "qrc:/IconLibrary/material-icons/duotone/qr_code_scanner.svg"
             sourceSize: 40
 
             highlightMode: "background"
             highlighted: (appContent.state === "ScreenBarcodeReader")
 
             indicatorVisible: false
-            indicatorSource: "qrc:/assets/icons/material-symbols/media/camera.svg"
+            indicatorSource: "qrc:/IconLibrary/material-symbols/media/camera.svg"
 
             onClicked: screenBarcodeReader.loadScreen()
         }
         DesktopSidebarItem {
-            source: "qrc:/assets/icons/material-icons/duotone/qr_code_2.svg"
+            source: "qrc:/IconLibrary/material-icons/duotone/qr_code_2.svg"
             sourceSize: 40
 
             highlightMode: "background"
@@ -59,7 +60,7 @@ Rectangle {
             onClicked: screenBarcodeWriter.loadScreen()
         }
         DesktopSidebarItem {
-            source: "qrc:/assets/icons/material-icons/duotone/list.svg"
+            source: "qrc:/IconLibrary/material-icons/duotone/list.svg"
             sourceSize: 40
 
             highlightMode: "background"
@@ -82,7 +83,7 @@ Rectangle {
         spacing: 0
 
         DesktopSidebarItem {
-            source: "qrc:/assets/icons/material-icons/duotone/tune.svg"
+            source: "qrc:/IconLibrary/material-icons/duotone/tune.svg"
             sourceSize: 40
 
             highlightMode: (Theme.sidebarSelector) ? "indicator" : "background"
@@ -91,7 +92,7 @@ Rectangle {
             onClicked: screenSettings.loadScreen()
         }
         DesktopSidebarItem {
-            source: "qrc:/assets/icons/material-icons/duotone/info.svg"
+            source: "qrc:/IconLibrary/material-icons/duotone/info.svg"
             sourceSize: 40
 
             highlightMode: (Theme.sidebarSelector) ? "indicator" : "background"
@@ -102,7 +103,7 @@ Rectangle {
             onClicked: screenAbout.loadScreen()
         }
         DesktopSidebarItem {
-            source: "qrc:/assets/icons/material-icons/duotone/exit_to_app.svg"
+            source: "qrc:/IconLibrary/material-icons/duotone/exit_to_app.svg"
             sourceSize: 40
             highlightMode: "circle"
             onClicked: appWindow.close()

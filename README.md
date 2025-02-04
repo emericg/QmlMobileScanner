@@ -71,21 +71,21 @@ Demo barcode & QR code scanner based on qzxing and zxing-cpp libraries to scan a
 
 #### Dependencies
 
-You will need a C++17 compiler and Qt 6.5+ with the following 'additional librairies':  
+You will need a C++17 compiler and Qt 6.7+ with the following 'additional librairies':  
 - Qt Multimedia
 - Qt Positioning
 
-For Android builds, you'll need the appropriates JDK (11) SDK (23+) and NDK (25+). You can customize Android build environment using the `assets/android/gradle.properties` file.  
-For Windows builds, you'll need the MSVC 2019+ compiler. Bluetooth won't work with MinGW.  
-For macOS and iOS builds, you'll need Xcode 13+ installed.  
+For macOS and iOS builds, you'll need Xcode (15+) installed.  
+For Windows builds, you'll need MSVC 2019 (or 2022) installed. Bluetooth won't work with MinGW.  
+For Android builds, you'll need the appropriates JDK (17) SDK (23+) and NDK (26b+). You can customize Android build environment using the `assets/android/gradle.properties` file.  
 
 #### Building QmlMobileScanner
 
 ```bash
 $ git clone https://github.com/emericg/QmlMobileScanner.git
 $ cd QmlMobileScanner/
-$ qmake6
-$ make
+$ cmake -B build/
+$ cmake --build build/
 ```
 
 
@@ -99,12 +99,12 @@ $ make
 ## Third party projects used by QmlMobileScanner
 
 * [Qt6](https://www.qt.io) ([LGPL v3](https://www.gnu.org/licenses/lgpl-3.0.txt))
-* [MobileUI](src/thirdparty/MobileUI/) ([MIT](https://opensource.org/licenses/MIT))
-* [MobileSharing](src/thirdparty/MobileSharing/) ([MIT](https://opensource.org/licenses/MIT))
+* [MobileUI](thirdparty/MobileUI/) ([MIT](https://opensource.org/licenses/MIT))
+* [MobileSharing](thirdparty/MobileSharing/) ([MIT](https://opensource.org/licenses/MIT))
 * [QZXing](https://github.com/ftylitak/qzxing/) ([Apache v2](https://opensource.org/licenses/apache-2-0))
 * [zxing-cpp](https://github.com/zxing-cpp/zxing-cpp/) ([Apache v2](https://opensource.org/licenses/apache-2-0))
 * [zint](https://github.com/zint/zint) ([3-Clause BSD License](https://opensource.org/license/bsd-3-clause))
-* Graphical resources: [assets/COPYING](assets/COPYING)
+* Graphical resources: [assets/gfx/COPYING](assets/gfx/COPYING)
 
 
 ## Get involved!

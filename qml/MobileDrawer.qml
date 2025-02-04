@@ -1,7 +1,8 @@
 import QtQuick
 import QtQuick.Controls
 
-import ThemeEngine
+import ComponentLibrary
+import QmlMobileScanner
 
 DrawerThemed {
     contentItem: Item {
@@ -94,7 +95,7 @@ DrawerThemed {
                 DrawerItem {
                     highlighted: (appContent.state === "ScreenBarcodeReader")
                     text: qsTr("Barcode reader")
-                    source: "qrc:/assets/icons/material-icons/duotone/qr_code_scanner.svg"
+                    source: "qrc:/IconLibrary/material-icons/duotone/qr_code_scanner.svg"
 
                     onClicked: {
                         screenBarcodeReader.loadScreen()
@@ -105,7 +106,7 @@ DrawerThemed {
                 DrawerItem {
                     highlighted: (appContent.state === "ScreenBarcodeWriter")
                     text: qsTr("Barcode writer")
-                    source: "qrc:/assets/icons/material-symbols/qr_code_2.svg"
+                    source: "qrc:/IconLibrary/material-symbols/qr_code_2.svg"
 
                     onClicked: {
                         screenBarcodeWriter.loadScreen()
@@ -120,7 +121,7 @@ DrawerThemed {
                 DrawerItem {
                     highlighted: (appContent.state === "ScreenBarcodeHistory")
                     text: qsTr("Barcodes history")
-                    source: "qrc:/assets/icons/material-icons/duotone/list.svg"
+                    source: "qrc:/IconLibrary/material-icons/duotone/list.svg"
 
                     onClicked: {
                         screenBarcodeHistory.loadScreen()
@@ -136,7 +137,7 @@ DrawerThemed {
 
                 DrawerItem {
                     text: qsTr("Settings")
-                    source: "qrc:/assets/icons/material-symbols/settings.svg"
+                    source: "qrc:/IconLibrary/material-symbols/settings.svg"
                     highlighted: (appContent.state === "ScreenSettings")
 
                     onClicked: {
@@ -147,7 +148,7 @@ DrawerThemed {
 
                 DrawerItem {
                     text: qsTr("About")
-                    source: "qrc:/assets/icons/material-symbols/info.svg"
+                    source: "qrc:/IconLibrary/material-symbols/info.svg"
                     highlighted: (appContent.state === "ScreenAbout" ||
                                   appContent.state === "ScreenAboutFormats" ||
                                   appContent.state === "ScreenAboutPermissions")

@@ -1,7 +1,8 @@
 import QtQuick
 import QtQuick.Controls
 
-import ThemeEngine
+import ComponentLibrary
+import QmlMobileScanner
 
 Rectangle {
     width: 480
@@ -119,7 +120,7 @@ Rectangle {
                             layoutDirection: Qt.RightToLeft
                             color: Theme.colorHeaderHighlight
                             text: qsTr("a button")
-                            source: "qrc:/assets/icons/material-icons/duotone/launch.svg"
+                            source: "qrc:/IconLibrary/material-icons/duotone/launch.svg"
                         }
                     }
                 }
