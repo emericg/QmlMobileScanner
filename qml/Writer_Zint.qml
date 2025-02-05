@@ -62,12 +62,16 @@ Row {
             currentFile: StandardPaths.standardLocations(StandardPaths.PicturesLocation)[0] + "/barcode." + fileSaveExtension.currentText.toLowerCase()
 
             onAccepted: {
+                console.log("fileSaveDialog: ACCEPTED: " + selectedFile)
 
                 zint_backend.saveImage(barcodeAdvanced.barcode_string,
                                        barcodeAdvanced.exportSize, barcodeAdvanced.exportSize, barcodeAdvanced.margins,
                                        zint_backend.stringToFormat(barcodeAdvanced.format), 0, barcodeAdvanced.eccLevel,
                                        barcodeAdvanced.colorBg, barcodeAdvanced.colorFg,
                                        fileSaveDialog.selectedFile)
+            }
+            onRejected: {
+                console.log("fileSaveDialog: REJECTED: " + selectedFile)
             }
         }
     }

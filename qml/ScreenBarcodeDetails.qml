@@ -451,7 +451,7 @@ Rectangle {
                             source: "qrc:/IconLibrary/material-symbols/share-fill.svg"
 
                             onClicked: {
-                                //
+                                utilsShare.sendText(barcode.data, "subject", "")
                             }
                         }
 

@@ -61,6 +61,8 @@ Row {
             currentFile: StandardPaths.standardLocations(StandardPaths.PicturesLocation)[0] + "/barcode." + fileSaveExtension.currentText.toLowerCase()
 
             onAccepted: {
+                console.log("fileSaveDialog: ACCEPTED: " + selectedFile)
+
                 var eccLevel = 0
                 if (barcodeAdvanced.eccStr === "M") eccLevel = 1
                 if (barcodeAdvanced.eccStr === "Q") eccLevel = 2
@@ -70,6 +72,9 @@ Row {
                                          barcodeAdvanced.exportSize, barcodeAdvanced.exportSize, barcodeAdvanced.border,
                                          eccLevel,
                                          fileSaveDialog.selectedFile)
+            }
+            onRejected: {
+                console.log("fileSaveDialog: REJECTED: " + selectedFile)
             }
         }
     }

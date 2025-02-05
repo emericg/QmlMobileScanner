@@ -172,7 +172,8 @@ Loader {
                 focusMode: Camera.FocusModeAutoNear
 
                 cameraDevice: mediaDevices.videoInputs[mediaDevices.selectedDevice] ? mediaDevices.videoInputs[mediaDevices.selectedDevice] : mediaDevices.defaultVideoInput
-                cameraFormat: utilsCamera.selectCameraFormat(mediaDevices.selectedDevice)
+                cameraFormat: utilsCamera.selectCameraFormat(cameraDevice)
+                //cameraFormat: (settingsManager.scanFullres) ? utilsCamera.selectCameraFormat(cameraDevice) : undefined
 
                 onCameraDeviceChanged: {
                     console.log("CaptureSession::onCameraDeviceChanged()")
@@ -604,12 +605,14 @@ Loader {
                         currentFolder: StandardPaths.standardLocations(StandardPaths.PicturesLocation)[0]
 
                         onAccepted: {
-                            //console.log("fileOpenDialog: " + currentFile)
+                            console.log("fileOpenDialog: ACCEPTED: " + selectedFile)
 
-                            if (barcodeManager.loadImage(currentFile))
-                            {
-                                open_image(currentFile)
+                            if (barcodeManager.loadImage(selectedFile)) {
+                                open_image(selectedFile)
                             }
+                        }
+                        onRejected: {
+                            console.log("fileOpenDialog: REJECTED: " + selectedFile)
                         }
                     }
                 }

@@ -215,7 +215,7 @@ Loader {
                     SwitchThemed {
                         id: switch_appThemeAuto
                         anchors.right: parent.right
-                        anchors.rightMargin: 0
+                        anchors.rightMargin: 12
                         anchors.verticalCenter: parent.verticalCenter
                         z: 1
 
@@ -468,6 +468,7 @@ Loader {
 
                     SwitchThemed {
                         Layout.alignment: Qt.AlignVCenter
+                        Layout.rightMargin: 12
                         z: 1
 
                         checked: settingsManager.save_barcodes
@@ -510,6 +511,7 @@ Loader {
 
                     SwitchThemed {
                         Layout.alignment: Qt.AlignVCenter
+                        Layout.rightMargin: 12
                         z: 1
 
                         checked: settingsManager.save_camera
@@ -550,6 +552,7 @@ Loader {
 
                     SwitchThemed {
                         Layout.alignment: Qt.AlignVCenter
+                        Layout.rightMargin: 12
                         z: 1
 
                         checked: {
@@ -613,7 +616,7 @@ Loader {
                     SwitchThemed {
                         id: switch_showDebug
                         anchors.right: parent.right
-                        anchors.rightMargin: 0
+                        anchors.rightMargin: 12
                         anchors.verticalCenter: parent.verticalCenter
                         z: 1
 
@@ -658,6 +661,7 @@ Loader {
 
                     SwitchThemed {
                         Layout.alignment: Qt.AlignVCenter
+                        Layout.rightMargin: 12
                         z: 1
 
                         checked: settingsManager.scan_fullres
@@ -698,6 +702,7 @@ Loader {
 
                     SwitchThemed {
                         Layout.alignment: Qt.AlignVCenter
+                        Layout.rightMargin: 12
                         z: 1
 
                         checked: settingsManager.scan_fullscreen
@@ -738,6 +743,7 @@ Loader {
 
                     SwitchThemed {
                         Layout.alignment: Qt.AlignVCenter
+                        Layout.rightMargin: 12
                         z: 1
 
                         checked: settingsManager.scan_tryHarder
@@ -778,6 +784,7 @@ Loader {
 
                     SwitchThemed {
                         Layout.alignment: Qt.AlignVCenter
+                        Layout.rightMargin: 12
                         z: 1
 
                         checked: settingsManager.scan_tryRotate
@@ -818,6 +825,7 @@ Loader {
 
                     SwitchThemed {
                         Layout.alignment: Qt.AlignVCenter
+                        Layout.rightMargin: 12
                         z: 1
 
                         checked: settingsManager.scan_tryInvert
@@ -858,6 +866,7 @@ Loader {
 
                     SwitchThemed {
                         Layout.alignment: Qt.AlignVCenter
+                        Layout.rightMargin: 12
                         z: 1
 
                         checked: settingsManager.scan_tryDownscale
