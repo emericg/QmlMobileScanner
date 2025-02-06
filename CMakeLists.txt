@@ -128,12 +128,6 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
     Qt6::QuickControls2
 )
 
-if(IOS OR ANDROID)
-    # why
-    find_package(Qt6 REQUIRED COMPONENTS Location)
-    target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Qt6::Location)
-endif()
-
 if(NOT IOS AND NOT ANDROID)
     # for proper systray and menubar support
     find_package(Qt6 REQUIRED COMPONENTS Widgets)

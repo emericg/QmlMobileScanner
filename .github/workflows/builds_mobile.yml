@@ -49,8 +49,8 @@ jobs:
       #       sdkmanager "ndk;26.1.10909125"
       #       sdkmanager "build-tools;35.0.0"
 
-      # Install Qt (Android & desktop)
-      - name: Install Qt (Android & desktop)
+      # Install Qt (desktop & Android) 
+      - name: Install Qt (desktop & Android)
         uses: jurplel/install-qt-action@v4
         with:
           version: ${{env.QT_VERSION}}
