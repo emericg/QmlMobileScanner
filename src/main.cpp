@@ -87,9 +87,10 @@ int main(int argc, char *argv[])
 
     // GUI application /////////////////////////////////////////////////////////
 
+#if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
+    SharingApplication app(argc, argv);
+#else
     QGuiApplication app(argc, argv);
-
-#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     QIcon appIcon(":/assets/gfx/logos/logo_black.svg");
     app.setWindowIcon(appIcon);
 #endif
