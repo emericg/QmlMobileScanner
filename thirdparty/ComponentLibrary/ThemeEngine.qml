@@ -333,9 +333,9 @@ Item {
             colorHeaderContent          = "#ff7b36"
             colorHeaderHighlight        = "white"
 
-            colorSidebar                = "#eee"
-            colorSidebarContent         = "#777"
-            colorSidebarHighlight       = "#ddd"
+            colorSidebar                = "#f2f2f2"
+            colorSidebarContent         = "#eaeaea"
+            colorSidebarHighlight       = "#c0c0c0"
 
             colorActionbar              = colorGreen
             colorActionbarContent       = "white"
@@ -390,8 +390,8 @@ Item {
             colorHeaderHighlight        = "#444"
 
             colorSidebar                = "#333"
-            colorSidebarContent         = "#ccc"
-            colorSidebarHighlight       = "#555"
+            colorSidebarContent         = "#444"
+            colorSidebarHighlight       = "#666"
 
             colorActionbar              = colorGreen
             colorActionbarContent       = "white"
