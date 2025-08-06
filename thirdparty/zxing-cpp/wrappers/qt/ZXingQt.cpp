@@ -8,19 +8,26 @@
 #include "ZXingQtVideoFilter.h"
 #include "ZXingQtImageProvider.h"
 
-#include <QUrl>
-#include <QString>
-#include <QColor>
-#include <QFile>
-#include <QFileInfo>
-#include <QTextStream>
-#include <QScopeGuard>
-
 #include "ReadBarcode.h"
 #include "BarcodeFormat.h"
 
 #include "BitMatrix.h"
 #include "MultiFormatWriter.h"
+
+#include <QString>
+#include <QColor>
+#include <QUrl>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QStandardPaths>
+#include <QTextStream>
+#include <QScopeGuard>
+
+#if defined(Q_OS_ANDROID)
+#include <QCoreApplication>
+#include <QJniObject>
+#endif
 
 void ZXingQt::registerQMLTypes()
 {
@@ -358,6 +365,52 @@ QImage ZXingQt::generateImage(const QString &data, const int width, const int he
     return QImage();
 }
 
+QString getExternalFilesDirPath()
+{
+#if defined(Q_OS_ANDROID)
+
+    QJniObject activity = QNativeInterface::QAndroidApplication::context();
+    if (activity.isValid())
+    {
+        QJniObject file = activity.callObjectMethod("getExternalFilesDir", "(Ljava/lang/String;)Ljava/io/File;", nullptr);
+
+        if (file.isValid())
+        {
+            QJniObject path = file.callObjectMethod("getAbsolutePath", "()Ljava/lang/String;");
+            return path.toString();
+        }
+    }
+#endif
+
+    return QString();
+}
+
+QString ZXingQt::shareImage(const QString &data, int width, int height, int margins,
+                            const int format, const int encoding, const int eccLevel,
+                            const QColor backgroundColor, const QColor foregroundColor)
+                            //const QString exportFileDir)
+{
+    qDebug() << "ZXingQt::shareImage()";
+
+    QString exportFilePath;
+    // Get temp directory path (2)
+    QString exportDirectoryPath = getExternalFilesDirPath();
+    QDir exportDirectory(exportDirectoryPath);
+    if (!exportDirectory.exists()) exportDirectory.mkpath(exportDirectoryPath);
+
+    // Get temp file path
+    exportFilePath = exportDirectoryPath + "/barcode.png";
+
+    if (saveImage(data, width, height, margins, format, encoding, eccLevel,
+                  backgroundColor, foregroundColor, exportFilePath))
+    {
+        QFileInfo saveFileInfo(exportFilePath);
+        return exportFilePath;
+    }
+
+    return QString();
+}
+
 bool ZXingQt::saveImage(const QString &data, int width, int height, int margins,
                          const int format, const int encoding, const int eccLevel,
                          const QColor backgroundColor, const QColor foregroundColor,
@@ -371,8 +424,8 @@ bool ZXingQt::saveImage(const QString &data, int width, int height, int margins,
     bool status = false;
 
     QString filepath = fileurl.toLocalFile();
+    if (filepath.isEmpty()) filepath = fileurl.toString();
     QFileInfo saveFileInfo(filepath);
-
     if (saveFileInfo.suffix() == "svg")
     {
         // to vector

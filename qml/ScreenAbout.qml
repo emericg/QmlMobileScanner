@@ -206,7 +206,7 @@ Loader {
                 anchors.left: parent.left
                 anchors.right: parent.right
 
-                text: qsTr("Barcode & QRcode scanner reader/writer based on qzxing and zxing-cpp libraries.")
+                text: qsTr("Barcode & QR code scanner reader/writer based on qzxing and zxing-cpp libraries.")
                 source: "qrc:/IconLibrary/material-symbols/info.svg"
             }
 
@@ -358,7 +358,7 @@ Loader {
                             "qzxing (Apache v2)",
                             "zxing-cpp (Apache v2)",
                             "zint (BSD 3 clause)",
-                            "Google Material Icons (MIT)",
+                            "Google Material Icons (Apache v2)",
                         ]
                         delegate: Text {
                             anchors.left: parent.left

@@ -237,6 +237,10 @@ public:
                                             const int format, const int encoding, const int eccLevel,
                                             const QColor backgroundColor, const QColor foregroundColor);
 
+    Q_INVOKABLE static QString shareImage(const QString &data, int width, int height, int margins,
+                                      const int format, const int encoding, const int eccLevel,
+                                      const QColor backgroundColor, const QColor foregroundColor);
+
     Q_INVOKABLE static bool saveImage(const QString &data, int width, int height, int margins,
                                       const int format, const int encoding, const int eccLevel,
                                       const QColor backgroundColor, const QColor foregroundColor,

@@ -41,7 +41,35 @@ ApplicationWindow {
 
     Connections {
         target: Screen
-        function onOrientationChanged() { mobileUI.handleSafeAreas() }
+        function onOrientationChanged() {
+            mobileUI.handleSafeAreas()
+            rotateTimer1.start()
+            rotateTimer2.start()
+            rotateTimer3.start()
+        }
+    }
+    Connections {
+        target: Theme
+        function onCurrentThemeChanged() { mobileUI.handleSafeAreas() }
+    }
+
+    Timer {
+        id: rotateTimer1
+        interval: 40
+        running: false; repeat: false;
+        onTriggered: { mobileUI.handleSafeAreas() }
+    }
+    Timer {
+        id: rotateTimer2
+        interval: 128
+        running: false; repeat: false;
+        onTriggered: { mobileUI.handleSafeAreas() }
+    }
+    Timer {
+        id: rotateTimer3
+        interval: 256
+        running: false; repeat: false;
+        onTriggered: { mobileUI.handleSafeAreas() }
     }
 
     MobileUI {

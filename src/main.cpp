@@ -137,10 +137,6 @@ int main(int argc, char *argv[])
     engine_context->setContextProperty("utilsCamera", utilsCamera);
     engine_context->setContextProperty("utilsClipboard", utilsClipboard);
 
-#if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
-    app.registerQML(engine_context);
-#endif
-
 #if QT_CONFIG(permissions)
     if (qApp->checkPermission(QCameraPermission{}) != Qt::PermissionStatus::Granted) {
         qApp->requestPermission(QCameraPermission{}, [](const QPermission &permission) {
