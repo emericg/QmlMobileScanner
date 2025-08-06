@@ -48,7 +48,7 @@ set(SOURCES
     src/utils_camera.cpp src/utils_camera.h
 
     assets/assets.qrc
-    thirdparty/IconLibrary/IconLibrary.qrc
+    thirdparty/IconLibrary/IconLibrary_material.qrc
 )
 
 if(IOS OR ANDROID)
