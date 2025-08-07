@@ -5,10 +5,11 @@ QmlMobileScanner
 [![GitHub issues](https://img.shields.io/github/issues/emericg/QmlMobileScanner.svg?style=flat-square)](https://github.com/emericg/QmlMobileScanner/issues)
 [![License: GPL v3](https://img.shields.io/badge/license-GPL%20v3-brightgreen.svg?style=flat-square)](http://www.gnu.org/licenses/gpl-3.0)
 
-Demo barcode & QR code scanner based on qzxing and zxing-cpp libraries to scan and generate barcodes, and zint to generate some extra formats.
+QmlMobileScanner is a DEMO barcode & QR code scanner based on qzxing and zxing-cpp libraries to scan and generate barcodes, and zint to generate some extra formats.
 
-> Works on Linux, macOS, Windows, Android and iOS!
+> Works on Android and iOS!
 
+> Works on Linux, macOS, Windows too!
 
 ### Features
 
@@ -76,7 +77,7 @@ You will need a C++17 compiler and Qt 6.7+ with the following 'additional librai
 - Qt Positioning
 
 For macOS and iOS builds, you'll need Xcode (15+) installed.  
-For Windows builds, you'll need MSVC 2019 (or 2022) installed. Bluetooth won't work with MinGW.  
+For Windows builds, you'll need MSVC 2019 (up to Qt 6.7) or MSVC 2022 (for Qt 6.8+) installed. Bluetooth won't work with MinGW.  
 For Android builds, you'll need the appropriates JDK (17) SDK (23+) and NDK (26b+). You can customize Android build environment using the `assets/android/gradle.properties` file.  
 
 #### Building QmlMobileScanner

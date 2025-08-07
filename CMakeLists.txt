@@ -137,14 +137,7 @@ endif()
 add_definitions(-DENABLE_ZXING)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    option(ENABLE_MBEDTLS "" ON)
-    option(ENABLE_XTEST "" OFF)
-    option(ENABLE_UINPUT "" ON)
-    option(ENABLE_MPRIS "" ON)
-    add_definitions(-DENABLE_MBEDTLS)
-    add_definitions(-DENABLE_UINPUT)
-    add_definitions(-DENABLE_MPRIS)
-    target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC "-lmbedtls -lmbedx509 -lmbedcrypto")
+    #
 endif()
 
 ################################################################################

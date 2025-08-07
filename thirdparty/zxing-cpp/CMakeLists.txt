@@ -13,7 +13,7 @@ option (BUILD_QT_QML "Build the Qt/QML wrapper" OFF)
 option (BUILD_EXPERIMENTAL_API "Build with experimental API" OFF)
 set(BUILD_DEPENDENCIES "AUTO" CACHE STRING "Fetch from github or use locally installed (AUTO/GITHUB/LOCAL)")
 
-if (WIN32)
+if (WIN32 OR IOS)
     option (BUILD_SHARED_LIBS "Build and link as shared library" OFF)
 else()
     option (BUILD_SHARED_LIBS "Build and link as shared library" ON)
