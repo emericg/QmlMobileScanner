@@ -7,6 +7,11 @@ QmlMobileScanner
 
 QmlMobileScanner is a DEMO barcode & QR code scanner based on qzxing and zxing-cpp libraries to scan and generate barcodes, and zint to generate some extra formats.
 
+Available backends:
+- QZXing / v3.3.0 + Qt6 port + many patches
+- zxing-cpp / v2.2.1 + custom QML integration
+- zint / v2.13 + custom QML integration
+
 > Works on Android and iOS!
 
 > Works on Linux, macOS, Windows too!
@@ -72,7 +77,7 @@ QmlMobileScanner is a DEMO barcode & QR code scanner based on qzxing and zxing-c
 
 #### Dependencies
 
-You will need a C++17 compiler and Qt 6.7+ with the following 'additional librairies':  
+You will need a C++20 compiler and Qt 6.7+ with the following 'additional librairies':  
 - Qt Multimedia
 - Qt Positioning
 

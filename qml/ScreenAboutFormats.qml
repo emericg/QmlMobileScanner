@@ -95,6 +95,58 @@ Item {
 
             ////
 
+            header: Item { // HEADER
+                width: ListView.view.width
+                height: 48
+
+                required property string section
+
+                Rectangle {
+                    anchors.fill: parent
+                    anchors.topMargin: 4
+                    anchors.bottomMargin: 4
+
+                    radius: 4
+                    color: Theme.colorForeground
+
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.leftMargin: Theme.componentMargin
+                        anchors.rightMargin: 4
+                        height: 32
+
+                        Text {
+                            Layout.preferredWidth: 256
+                            Layout.preferredHeight: 32
+
+                            text: (settingsManager.backend_reader === "zxingcpp") ? "zxing-cpp" : "QZXing"
+                            textFormat: Text.PlainText
+                            color: Theme.colorText
+                            font.bold: true
+                            font.pixelSize: Theme.fontSizeContent
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                        Rectangle {
+                            Layout.preferredWidth: 256
+                            Layout.preferredHeight: 28
+                            Layout.margins: 2
+                            radius: 4
+                            color: Qt.darker(Theme.colorForeground, 1.02)
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: qsTr("version") + " " + (settingsManager.backend_reader === "zxingcpp") ? "2.2.1" : "3.3.0"
+                                textFormat: Text.PlainText
+                                color: Theme.colorSubText
+                                font.pixelSize: Theme.fontSizeContentSmall
+                            }
+                        }
+                    }
+                }
+            }
+
+            ////
+
             model: (settingsManager.backend_reader === "zxingcpp") ? zxingcpp : qzxing
             delegate: RowLayout {
                 required property string name

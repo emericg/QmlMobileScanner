@@ -36,3 +36,7 @@ assets/macos/macos_signature.pri
 # Others
 stash/*
 .DS_Store
+
+# WIP
+thirdparty/zint-qml-*
+thirdparty/zxing-cpp-*
