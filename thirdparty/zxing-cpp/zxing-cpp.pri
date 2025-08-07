@@ -1,6 +1,6 @@
 #
 # qmake project file for zxing-cpp (with Qt/QML wrapper)
-# version 2.1+
+# version 2.3+
 #
 
 CONFIG += c++20
@@ -43,20 +43,24 @@ build_writers {
 
 INCLUDEPATH += $${PWD}/core/src/
 
-SOURCES += $${PWD}/core/src/BarcodeFormat.cpp \
+SOURCES += $${PWD}/core/src/Barcode.cpp \
+           $${PWD}/core/src/BarcodeFormat.cpp \
            $${PWD}/core/src/BitArray.cpp \
            $${PWD}/core/src/BitMatrix.cpp \
            $${PWD}/core/src/BitMatrixIO.cpp \
            $${PWD}/core/src/CharacterSet.cpp \
            $${PWD}/core/src/ConcentricFinder.cpp \
            $${PWD}/core/src/ECI.cpp \
+           $${PWD}/core/src/Error.cpp \
            $${PWD}/core/src/GenericGF.cpp \
            $${PWD}/core/src/GenericGFPoly.cpp \
            $${PWD}/core/src/GTIN.cpp \
            $${PWD}/core/src/Utf.cpp \
-           $${PWD}/core/src/ZXBigInteger.cpp
+           $${PWD}/core/src/ZXingC.cpp \
+           $${PWD}/core/src/ZXingCpp.cpp
 
-HEADERS += $${PWD}/core/src/BarcodeFormat.h \
+HEADERS += $${PWD}/core/src/Barcode.h \
+           $${PWD}/core/src/BarcodeFormat.h \
            $${PWD}/core/src/BitArray.h \
            $${PWD}/core/src/BitHacks.h \
            $${PWD}/core/src/BitMatrix.h \
@@ -66,8 +70,8 @@ HEADERS += $${PWD}/core/src/BarcodeFormat.h \
            $${PWD}/core/src/ByteMatrix.h \
            $${PWD}/core/src/CharacterSet.h \
            $${PWD}/core/src/ConcentricFinder.h \
-           $${PWD}/core/src/CustomData.h \
            $${PWD}/core/src/ECI.h \
+           $${PWD}/core/src/Error.h \
            $${PWD}/core/src/Flags.h \
            $${PWD}/core/src/Generator.h \
            $${PWD}/core/src/GenericGF.h \
@@ -84,10 +88,11 @@ HEADERS += $${PWD}/core/src/BarcodeFormat.h \
            $${PWD}/core/src/TritMatrix.h \
            $${PWD}/core/src/Utf.h \
            $${PWD}/core/src/ZXAlgorithms.h \
-           $${PWD}/core/src/ZXBigInteger.h \
            $${PWD}/core/src/ZXConfig.h \
-           $${PWD}/core/src/ZXNullable.h \
-           $${PWD}/core/src/ZXTestSupport.h
+           $${PWD}/core/src/ZXTestSupport.h \
+           $${PWD}/core/src/ZXVersion.h \
+           $${PWD}/core/src/ZXingC.h \
+           $${PWD}/core/src/ZXingCpp.h
 
 build_readers {
     SOURCES += $${PWD}/core/src/BinaryBitmap.cpp \
@@ -102,7 +107,6 @@ build_readers {
                $${PWD}/core/src/PerspectiveTransform.cpp \
                $${PWD}/core/src/ReadBarcode.cpp \
                $${PWD}/core/src/ReedSolomonDecoder.cpp \
-               $${PWD}/core/src/Result.cpp \
                $${PWD}/core/src/ResultPoint.cpp \
                $${PWD}/core/src/TextDecoder.cpp \
                $${PWD}/core/src/WhiteRectDetector.cpp
@@ -113,7 +117,6 @@ build_readers {
                $${PWD}/core/src/DecodeHints.h \
                $${PWD}/core/src/DecoderResult.h \
                $${PWD}/core/src/DetectorResult.h \
-               $${PWD}/core/src/Error.h \
                $${PWD}/core/src/GlobalHistogramBinarizer.h \
                $${PWD}/core/src/GridSampler.h \
                $${PWD}/core/src/HRI.h \
@@ -136,12 +139,77 @@ build_readers {
 build_writers {
     SOURCES += $${PWD}/core/src/ReedSolomonEncoder.cpp \
                $${PWD}/core/src/TextEncoder.cpp \
-               $${PWD}/core/src/MultiFormatWriter.cpp
+               $${PWD}/core/src/MultiFormatWriter.cpp \
+               $${PWD}/core/src/WriteBarcode.cpp
 
     HEADERS += $${PWD}/core/src/ByteMatrix.h \
                $${PWD}/core/src/ReedSolomonEncoder.h \
                $${PWD}/core/src/TextEncoder.h \
-               $${PWD}/core/src/MultiFormatWriter.h
+               $${PWD}/core/src/MultiFormatWriter.h \
+               $${PWD}/core/src/WriteBarcode.h
+}
+
+build_writers_zint {
+    SOURCES += $${PWD}/core/src/2of5.c \
+               $${PWD}/core/src/aztec.c \
+               $${PWD}/core/src/code128.c \
+               $${PWD}/core/src/code.c \
+               $${PWD}/core/src/common.c \
+               $${PWD}/core/src/dmatrix.c \
+               $${PWD}/core/src/dxfilmedge.c \
+               $${PWD}/core/src/eci.c \
+               $${PWD}/core/src/filemem.c \
+               $${PWD}/core/src/general_field.c \
+               $${PWD}/core/src/gs1.c \
+               $${PWD}/core/src/large.c \
+               $${PWD}/core/src/library.c \
+               $${PWD}/core/src/maxicode.c \
+               $${PWD}/core/src/medical.c \
+               $${PWD}/core/src/output.c \
+               $${PWD}/core/src/pdf417.c \
+               $${PWD}/core/src/qr.c \
+               $${PWD}/core/src/raster.c \
+               $${PWD}/core/src/reedsol.c \
+               $${PWD}/core/src/rss.c \
+               $${PWD}/core/src/stubs.c \
+               $${PWD}/core/src/svg.c \
+               $${PWD}/core/src/upcean.c \
+               $${PWD}/core/src/vector.c
+
+    HEADERS += $${PWD}/core/src/aztec.h \
+               $${PWD}/core/src/big5.h \
+               $${PWD}/core/src/channel_precalcs.h \
+               $${PWD}/core/src/code128.h \
+               $${PWD}/core/src/common.h \
+               $${PWD}/core/src/dmatrix.h \
+               $${PWD}/core/src/dmatrix_trace.h \
+               $${PWD}/core/src/eci.h \
+               $${PWD}/core/src/eci_sb.h \
+               $${PWD}/core/src/filemem.h \
+               $${PWD}/core/src/gb18030.h \
+               $${PWD}/core/src/gb2312.h \
+               $${PWD}/core/src/gbk.h \
+               $${PWD}/core/src/general_field.h \
+               $${PWD}/core/src/gs1.h \
+               $${PWD}/core/src/gs1_lint.h \
+               $${PWD}/core/src/iso3166.h \
+               $${PWD}/core/src/iso4217.h \
+               $${PWD}/core/src/ksx1001.h \
+               $${PWD}/core/src/large.h \
+               $${PWD}/core/src/maxicode.h \
+               $${PWD}/core/src/output.h \
+               $${PWD}/core/src/pdf417.h \
+               $${PWD}/core/src/pdf417_tabs.h \
+               $${PWD}/core/src/pdf417_trace.h \
+               $${PWD}/core/src/qr.h \
+               $${PWD}/core/src/raster_font.h \
+               $${PWD}/core/src/reedsol.h \
+               $${PWD}/core/src/reedsol_logs.h \
+               $${PWD}/core/src/rss.h \
+               $${PWD}/core/src/sjis.h \
+               $${PWD}/core/src/zfiletypes.h \
+               $${PWD}/core/src/zintconfig.h \
+               $${PWD}/core/src/zint.h
 }
 
 ################# AZTEC_FILES
@@ -226,10 +294,11 @@ SOURCES += $${PWD}/core/src/oned/ODCodabarReader.cpp \
            $${PWD}/core/src/oned/ODDataBarReader.cpp \
            $${PWD}/core/src/oned/ODDataBarExpandedBitDecoder.cpp \
            $${PWD}/core/src/oned/ODDataBarExpandedReader.cpp \
+           $${PWD}/core/src/oned/ODDataBarLimitedReader.cpp \
+           $${PWD}/core/src/oned/ODDXFilmEdgeReader.cpp \
            $${PWD}/core/src/oned/ODITFReader.cpp \
            $${PWD}/core/src/oned/ODMultiUPCEANReader.cpp \
-           $${PWD}/core/src/oned/ODReader.cpp \
-           $${PWD}/core/src/oned/ODRowReader.cpp
+           $${PWD}/core/src/oned/ODReader.cpp
 
 HEADERS += $${PWD}/core/src/oned/ODCodabarReader.h \
            $${PWD}/core/src/oned/ODCode39Reader.h \
@@ -239,6 +308,8 @@ HEADERS += $${PWD}/core/src/oned/ODCodabarReader.h \
            $${PWD}/core/src/oned/ODDataBarReader.h \
            $${PWD}/core/src/oned/ODDataBarExpandedBitDecoder.h \
            $${PWD}/core/src/oned/ODDataBarExpandedReader.h \
+           $${PWD}/core/src/oned/ODDataBarLimitedReader.h \
+           $${PWD}/core/src/oned/ODDXFilmEdgeReader.h \
            $${PWD}/core/src/oned/ODITFReader.h \
            $${PWD}/core/src/oned/ODMultiUPCEANReader.h \
            $${PWD}/core/src/oned/ODReader.h \
@@ -282,9 +353,11 @@ SOURCES += $${PWD}/core/src/pdf417/PDFBarcodeValue.cpp \
            $${PWD}/core/src/pdf417/PDFModulusGF.cpp \
            $${PWD}/core/src/pdf417/PDFModulusPoly.cpp \
            $${PWD}/core/src/pdf417/PDFReader.cpp \
-           $${PWD}/core/src/pdf417/PDFScanningDecoder.cpp
+           $${PWD}/core/src/pdf417/PDFScanningDecoder.cpp \
+           $${PWD}/core/src/pdf417/ZXBigInteger.cpp
 
-HEADERS += $${PWD}/core/src/pdf417/PDFBarcodeMetadata.h \
+HEADERS += $${PWD}/core/src/pdf417/CustomData.h \
+           $${PWD}/core/src/pdf417/PDFBarcodeMetadata.h \
            $${PWD}/core/src/pdf417/PDFBarcodeValue.h \
            $${PWD}/core/src/pdf417/PDFBoundingBox.h \
            $${PWD}/core/src/pdf417/PDFCodeword.h \
@@ -297,7 +370,9 @@ HEADERS += $${PWD}/core/src/pdf417/PDFBarcodeMetadata.h \
            $${PWD}/core/src/pdf417/PDFModulusGF.h \
            $${PWD}/core/src/pdf417/PDFModulusPoly.h \
            $${PWD}/core/src/pdf417/PDFReader.h \
-           $${PWD}/core/src/pdf417/PDFScanningDecoder.h
+           $${PWD}/core/src/pdf417/PDFScanningDecoder.h \
+           $${PWD}/core/src/pdf417/ZXBigInteger.h \
+           $${PWD}/core/src/pdf417/ZXNullable.h
 }
 
 build_writers {

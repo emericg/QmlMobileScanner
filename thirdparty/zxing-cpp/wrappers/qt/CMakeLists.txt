@@ -4,14 +4,14 @@ set(SOURCES
     ZXingQt.h
 )
 
-if (BUILD_READERS)
+if (ZXING_READERS)
     set(SOURCES ${SOURCES}
         ZXingQtVideoFilter.cpp
         ZXingQtVideoFilter.h
     )
 endif()
 
-if (BUILD_WRITERS)
+if (ZXING_WRITERS)
     set(SOURCES ${SOURCES}
         ZXingQtImageProvider.cpp
         ZXingQtImageProvider.h

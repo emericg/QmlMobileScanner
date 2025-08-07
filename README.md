@@ -9,7 +9,7 @@ QmlMobileScanner is a DEMO barcode & QR code scanner based on qzxing and zxing-c
 
 Available backends:
 - QZXing / v3.3.0 + Qt6 port + many patches
-- zxing-cpp / v2.2.1 + custom QML integration
+- zxing-cpp / v2.3.0 + custom QML integration
 - zint / v2.13 + custom QML integration
 
 > Works on Android and iOS!
@@ -58,10 +58,11 @@ Available backends:
 | UPC-A                | QR Code              |
 | UPC-E                | Micro QR Code        |
 | EAN-8                | Aztec                |
-| EAN-13               | DataMatrix           |
-| DataBar              | PDF417               |
-| DataBar Expanded     | MaxiCode (partial)   |
-| Code 39              |                      |
+| EAN-13               | Aztec Runes          |
+| DataBar              | DataMatrix           |
+| DataBar Expanded     | PDF417               |
+| DataBar Limited      | MaxiCode (partial)   |
+| Code 39              | DX Film Edge         |
 | Code 93              |                      |
 | Code 128 (GS1)       |                      |
 | Codabar              |                      |

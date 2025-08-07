@@ -1,146 +1,200 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.16)
 
-project (ZXing VERSION "2.2.1")
+project (ZXing VERSION "2.3.0")
 set (ZXING_SONAME 3) # see https://github.com/zxing-cpp/zxing-cpp/issues/333
 
-include(../zxing.cmake)
 if (BUILD_SHARED_LIBS)
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif()
 
-if (NOT DEFINED BUILD_WRITERS)
-    set (BUILD_WRITERS OFF)
+if (DEFINED BUILD_READERS)
+    set (ZXING_READERS ${BUILD_READERS})
+    message (WARNING "zxing-cpp cmake options BUILD_... are deprecated, please switch to ZXING_... variant")
+endif()
+if (DEFINED BUILD_WRITERS)
+    set (ZXING_WRITERS ${BUILD_WRITERS})
+    message (WARNING "zxing-cpp cmake options BUILD_... are deprecated, please switch to ZXING_... variant")
 endif()
 
-if (NOT DEFINED BUILD_READERS)
-    set (BUILD_READERS ON)
+if (NOT DEFINED ZXING_WRITERS)
+    set (ZXING_WRITERS OFF)
 endif()
 
-set (ZXING_CORE_DEFINES)
+if (NOT DEFINED ZXING_READERS)
+    set (ZXING_READERS ON)
+endif()
+
+set (ZXING_WRITERS_NEW OFF)
+set (ZXING_WRITERS_OLD OFF)
+if (ZXING_WRITERS MATCHES "OLD|ON")
+    set (ZXING_WRITERS ON)
+    set (ZXING_WRITERS_OLD ON)
+elseif (ZXING_WRITERS MATCHES "NEW")
+    set (ZXING_WRITERS ON)
+    set (ZXING_WRITERS_NEW ON)
+elseif (ZXING_WRITERS MATCHES "BOTH")
+    set (ZXING_WRITERS ON)
+    set (ZXING_WRITERS_NEW ON)
+    set (ZXING_WRITERS_OLD ON)
+endif()
+
+if (BUILD_SHARED_LIBS)
+    set (CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+endif()
+
+set (ZXING_PUBLIC_FLAGS
+    $<$<BOOL:${ZXING_EXPERIMENTAL_API}>:-DZXING_EXPERIMENTAL_API>
+)
 if (WINRT)
-    set (ZXING_CORE_DEFINES ${ZXING_CORE_DEFINES}
+    set (ZXING_PUBLIC_FLAGS ${ZXING_PUBLIC_FLAGS}
         -DWINRT
     )
 endif()
 if (MSVC)
-    set (ZXING_CORE_DEFINES ${ZXING_CORE_DEFINES}
-        /Zc:__cplusplus
+    set (ZXING_PUBLIC_FLAGS ${ZXING_PUBLIC_FLAGS}
+        $<$<CXX_COMPILER_ID:MSVC>:/Zc:__cplusplus>
     )
 endif()
 
-set (ZXING_CORE_LOCAL_DEFINES
-    $<$<BOOL:${BUILD_READERS}>:-DZXING_BUILD_READERS>
-    $<$<BOOL:${BUILD_WRITERS}>:-DZXING_BUILD_WRITERS>
-    $<$<BOOL:${BUILD_UNIT_TESTS}>:-DZXING_BUILD_FOR_TEST>
+set (ZXING_PRIVATE_FLAGS
+    $<$<BOOL:${ZXING_WRITERS_NEW}>:-DZXING_USE_ZINT>
+    $<$<BOOL:${ZXING_UNIT_TESTS}>:-DZXING_BUILD_FOR_TEST>
 )
 if (MSVC)
-    set (ZXING_CORE_LOCAL_DEFINES ${ZXING_CORE_LOCAL_DEFINES}
+    set (ZXING_PRIVATE_FLAGS ${ZXING_PRIVATE_FLAGS}
         -D_SCL_SECURE_NO_WARNINGS
         -D_CRT_SECURE_NO_WARNINGS
         -D_CRT_NONSTDC_NO_WARNINGS
         -DNOMINMAX
+        /utf-8 # see https://github.com/zxing-cpp/zxing-cpp/issues/757
     )
 else()
-    set (ZXING_CORE_LOCAL_DEFINES ${ZXING_CORE_LOCAL_DEFINES}
+    set (ZXING_PRIVATE_FLAGS ${ZXING_PRIVATE_FLAGS}
         -Wall -Wextra -Wno-missing-braces -Werror=undef -Werror=return-type)
 endif()
 
+include (CheckCXXCompilerFlag)
+
+# This is needed for reproducible builds across different build directories.
+# Without this, the usage of the __FILE__ macro leaves the build directory in
+# the binary. When building the Python extension with build isolation enabled
+# this would lead to random paths in the binary.
+set(FILE_PREFIX_ARG "-fmacro-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}/=")
+check_cxx_compiler_flag("${FILE_PREFIX_ARG}" HAS_FILE_PREFIX_ARG)
+if(HAS_FILE_PREFIX_ARG)
+    set(ZXING_PRIVATE_FLAGS ${ZXING_PRIVATE_FLAGS} "${FILE_PREFIX_ARG}")
+endif()
 
 ################# Source files
 
 set (COMMON_FILES
+    src/Barcode.h
+    src/Barcode.cpp
     src/BarcodeFormat.h
     src/BarcodeFormat.cpp
-    src/BitArray.h
-    src/BitArray.cpp
     src/BitHacks.h
     src/BitMatrix.h
     src/BitMatrix.cpp
-    src/BitMatrixCursor.h
     src/BitMatrixIO.h
     src/BitMatrixIO.cpp
     src/ByteArray.h
     src/ByteMatrix.h
     src/CharacterSet.h
     src/CharacterSet.cpp
-    src/ConcentricFinder.h
-    src/ConcentricFinder.cpp
-    src/CustomData.h
+    src/Content.h
+    src/Content.cpp
     src/ECI.h
     src/ECI.cpp
+    src/Error.h
+    src/Error.cpp
     src/Flags.h
-    src/Generator.h
-    src/GenericGF.h
-    src/GenericGF.cpp
-    src/GenericGFPoly.h
-    src/GenericGFPoly.cpp
     src/GTIN.h
     src/GTIN.cpp
-    src/LogMatrix.h
+    src/ImageView.h
     src/Matrix.h
-    src/Pattern.h
     src/Point.h
     src/Quadrilateral.h
     src/Range.h
-    src/RegressionLine.h
-    src/Scope.h
-    src/TextUtfEncoding.h # [[deprecated]]
-    src/TextUtfEncoding.cpp # [[deprecated]]
-    src/TritMatrix.h
+    src/ReaderOptions.h
+    src/ReadBarcode.h
+    src/ReadBarcode.cpp
     src/Utf.h
     src/Utf.cpp
+    src/WriteBarcode.h
+    src/WriteBarcode.cpp
+    src/ZXingCpp.h
+    src/ZXingCpp.cpp
     src/ZXAlgorithms.h
-    src/ZXBigInteger.h
-    src/ZXBigInteger.cpp
     src/ZXConfig.h
-    src/ZXNullable.h
     src/ZXTestSupport.h
+    src/ZXVersion.h # [[deprecated]]
+    $<$<BOOL:${ZXING_C_API}>:src/ZXingC.h>
+    $<$<BOOL:${ZXING_C_API}>:src/ZXingC.cpp>
 )
-if (BUILD_READERS)
+if (ZXING_READERS OR ZXING_WRITERS_OLD)
+    set (COMMON_FILES ${COMMON_FILES}
+        src/BitArray.h
+        src/BitArray.cpp
+        src/Generator.h
+        src/GenericGF.h
+        src/GenericGF.cpp
+        src/GenericGFPoly.h
+        src/GenericGFPoly.cpp
+        src/TextUtfEncoding.h # [[deprecated]]
+        src/TextUtfEncoding.cpp # [[deprecated]]
+        src/Scope.h
+    )
+endif()
+if (ZXING_READERS)
     set (COMMON_FILES ${COMMON_FILES}
         src/BinaryBitmap.h
         src/BinaryBitmap.cpp
+        src/BitMatrixCursor.h
         src/BitSource.h
         src/BitSource.cpp
-        src/Content.h
-        src/Content.cpp
+        src/ConcentricFinder.h
+        src/ConcentricFinder.cpp
         src/DecodeHints.h
-        src/DecodeHints.cpp
+        $<$<BOOL:${BUILD_SHARED_LIBS}>:src/DecodeHints.cpp> # [[deprecated]]
         src/DecoderResult.h
         src/DetectorResult.h
-        src/Error.h
         src/GlobalHistogramBinarizer.h
         src/GlobalHistogramBinarizer.cpp
         src/GridSampler.h
         src/GridSampler.cpp
+        src/LogMatrix.h
         src/HRI.h
         src/HRI.cpp
         src/HybridBinarizer.h
         src/HybridBinarizer.cpp
-        src/ImageView.h
         src/MultiFormatReader.h
         src/MultiFormatReader.cpp
+        src/Pattern.h
         src/PerspectiveTransform.h
         src/PerspectiveTransform.cpp
         src/Reader.h
-        src/ReaderOptions.h
-        src/ReadBarcode.h
-        src/ReadBarcode.cpp
         src/ReedSolomonDecoder.h
         src/ReedSolomonDecoder.cpp
-        src/Result.h
-        src/Result.cpp
+        src/RegressionLine.h
+        src/Result.h # [[deprecated]]
         src/ResultPoint.h
         src/ResultPoint.cpp
         src/StructuredAppend.h
         src/TextDecoder.h
         src/TextDecoder.cpp
         src/ThresholdBinarizer.h
+        src/TritMatrix.h # QRCode
         src/WhiteRectDetector.h
         src/WhiteRectDetector.cpp
     )
 endif()
-if (BUILD_WRITERS)
+
+if (ZXING_WRITERS)
+    set (COMMON_FILES ${COMMON_FILES}
+    )
+endif()
+
+if (ZXING_WRITERS_OLD)
     set (COMMON_FILES ${COMMON_FILES}
         src/ByteMatrix.h
         src/ReedSolomonEncoder.h
@@ -154,44 +208,46 @@ endif()
 
 # define subset of public headers that get distributed with the binaries
 set (PUBLIC_HEADERS
+    src/Barcode.h
     src/BarcodeFormat.h
     src/BitHacks.h
     src/ByteArray.h
     src/CharacterSet.h
+    src/Content.h
+    src/Error.h
     src/Flags.h
     src/GTIN.h
+    src/ImageView.h
+    src/Point.h
+    src/Quadrilateral.h
+    src/ReadBarcode.h
+    src/ReaderOptions.h
+    src/StructuredAppend.h
     src/TextUtfEncoding.h # [[deprecated]]
+    src/ZXingCpp.h
     src/ZXAlgorithms.h
-    src/ZXConfig.h
+    src/ZXVersion.h # [[deprecated]]
+    $<$<BOOL:${ZXING_C_API}>:${CMAKE_CURRENT_SOURCE_DIR}/src/ZXingC.h>
+    $<$<BOOL:${ZXING_EXPERIMENTAL_API}>:${CMAKE_CURRENT_SOURCE_DIR}/src/WriteBarcode.h>
 )
-if (BUILD_READERS)
+if (ZXING_READERS)
     set (PUBLIC_HEADERS ${PUBLIC_HEADERS}
-        src/Content.h
-        src/DecodeHints.h
-        src/Error.h
-        src/ImageView.h
-        src/Point.h
-        src/Quadrilateral.h
-        src/ReadBarcode.h
-        src/ReaderOptions.h
-        src/Result.h
-        src/StructuredAppend.h
+        src/DecodeHints.h # [[deprecated]]
+        src/Result.h # [[deprecated]]
     )
 endif()
-if (BUILD_WRITERS)
+if (ZXING_WRITERS_OLD)
     set (PUBLIC_HEADERS ${PUBLIC_HEADERS}
         src/BitMatrix.h
         src/BitMatrixIO.h
+        src/Range.h
         src/Matrix.h
         src/MultiFormatWriter.h
-        src/Range.h
     )
 endif()
 # end of public header set
 
-set (AZTEC_FILES
-)
-if (BUILD_READERS)
+if (ZXING_READERS)
     set (AZTEC_FILES ${AZTEC_FILES}
         src/aztec/AZDecoder.h
         src/aztec/AZDecoder.cpp
@@ -202,7 +258,7 @@ if (BUILD_READERS)
         src/aztec/AZReader.cpp
     )
 endif()
-if (BUILD_WRITERS)
+if (ZXING_WRITERS_OLD)
     set (AZTEC_FILES ${AZTEC_FILES}
         src/aztec/AZEncodingState.h
         src/aztec/AZEncoder.h
@@ -217,13 +273,15 @@ if (BUILD_WRITERS)
 endif()
 
 
-set (DATAMATRIX_FILES
-    src/datamatrix/DMBitLayout.h
-    src/datamatrix/DMBitLayout.cpp
-    src/datamatrix/DMVersion.h
-    src/datamatrix/DMVersion.cpp
-)
-if (BUILD_READERS)
+if (ZXING_READERS OR ZXING_WRITERS_OLD)
+    set (DATAMATRIX_FILES
+        src/datamatrix/DMBitLayout.h
+        src/datamatrix/DMBitLayout.cpp
+        src/datamatrix/DMVersion.h
+        src/datamatrix/DMVersion.cpp
+    )
+endif()
+if (ZXING_READERS)
     set (DATAMATRIX_FILES ${DATAMATRIX_FILES}
         src/datamatrix/DMDataBlock.h
         src/datamatrix/DMDataBlock.cpp
@@ -235,7 +293,7 @@ if (BUILD_READERS)
         src/datamatrix/DMReader.cpp
     )
 endif()
-if (BUILD_WRITERS)
+if (ZXING_WRITERS_OLD)
     set (DATAMATRIX_FILES ${DATAMATRIX_FILES}
         src/datamatrix/DMECEncoder.h
         src/datamatrix/DMECEncoder.cpp
@@ -251,9 +309,7 @@ if (BUILD_WRITERS)
 endif()
 
 
-set (MAXICODE_FILES
-)
-if (BUILD_READERS)
+if (ZXING_READERS)
     set (MAXICODE_FILES ${MAXICODE_FILES}
         src/maxicode/MCBitMatrixParser.h
         src/maxicode/MCBitMatrixParser.cpp
@@ -265,13 +321,15 @@ if (BUILD_READERS)
 endif()
 
 
-set (ONED_FILES
-    src/oned/ODUPCEANCommon.h
-    src/oned/ODUPCEANCommon.cpp
-    src/oned/ODCode128Patterns.h
-    src/oned/ODCode128Patterns.cpp
-)
-if (BUILD_READERS)
+if (ZXING_READERS OR ZXING_WRITERS_OLD)
+    set (ONED_FILES
+        src/oned/ODUPCEANCommon.h
+        src/oned/ODUPCEANCommon.cpp
+        src/oned/ODCode128Patterns.h
+        src/oned/ODCode128Patterns.cpp
+    )
+endif()
+if (ZXING_READERS)
     set (ONED_FILES ${ONED_FILES}
         src/oned/ODCodabarReader.h
         src/oned/ODCodabarReader.cpp
@@ -289,6 +347,10 @@ if (BUILD_READERS)
         src/oned/ODDataBarExpandedBitDecoder.cpp
         src/oned/ODDataBarExpandedReader.h
         src/oned/ODDataBarExpandedReader.cpp
+        src/oned/ODDataBarLimitedReader.h
+        src/oned/ODDataBarLimitedReader.cpp
+        src/oned/ODDXFilmEdgeReader.h
+        src/oned/ODDXFilmEdgeReader.cpp
         src/oned/ODITFReader.h
         src/oned/ODITFReader.cpp
         src/oned/ODMultiUPCEANReader.h
@@ -296,10 +358,9 @@ if (BUILD_READERS)
         src/oned/ODReader.h
         src/oned/ODReader.cpp
         src/oned/ODRowReader.h
-        src/oned/ODRowReader.cpp
     )
 endif()
-if (BUILD_WRITERS)
+if (ZXING_WRITERS_OLD)
     set (ONED_FILES ${ONED_FILES}
         src/oned/ODCodabarWriter.h
         src/oned/ODCodabarWriter.cpp
@@ -325,9 +386,13 @@ if (BUILD_WRITERS)
 endif()
 
 
-set (PDF417_FILES
-)
-if (BUILD_READERS)
+if (ZXING_READERS OR ZXING_WRITERS_OLD)
+    set (PDF417_FILES
+        src/pdf417/ZXBigInteger.h
+        src/pdf417/ZXBigInteger.cpp
+    )
+endif()
+if (ZXING_READERS)
     set (PDF417_FILES ${PDF417_FILES}
         src/pdf417/PDFBarcodeMetadata.h
         src/pdf417/PDFBarcodeValue.h
@@ -354,9 +419,11 @@ if (BUILD_READERS)
         src/pdf417/PDFReader.cpp
         src/pdf417/PDFScanningDecoder.h
         src/pdf417/PDFScanningDecoder.cpp
+        src/pdf417/CustomData.h
+        src/pdf417/ZXNullable.h
     )
 endif()
-if (BUILD_WRITERS)
+if (ZXING_WRITERS_OLD)
     set (PDF417_FILES ${PDF417_FILES}
         src/pdf417/PDFCompaction.h
         src/pdf417/PDFEncoder.h
@@ -369,15 +436,17 @@ if (BUILD_WRITERS)
 endif()
 
 
-set (QRCODE_FILES
-    src/qrcode/QRCodecMode.h
-    src/qrcode/QRCodecMode.cpp
-    src/qrcode/QRErrorCorrectionLevel.h
-    src/qrcode/QRErrorCorrectionLevel.cpp
-    src/qrcode/QRVersion.h
-    src/qrcode/QRVersion.cpp
-)
-if (BUILD_READERS)
+if (ZXING_READERS OR ZXING_WRITERS_OLD)
+    set (QRCODE_FILES
+        src/qrcode/QRCodecMode.h
+        src/qrcode/QRCodecMode.cpp
+        src/qrcode/QRErrorCorrectionLevel.h
+        src/qrcode/QRErrorCorrectionLevel.cpp
+        src/qrcode/QRVersion.h
+        src/qrcode/QRVersion.cpp
+    )
+endif()
+if (ZXING_READERS)
     set (QRCODE_FILES ${QRCODE_FILES}
         src/qrcode/QRBitMatrixParser.h
         src/qrcode/QRBitMatrixParser.cpp
@@ -395,7 +464,7 @@ if (BUILD_READERS)
         src/qrcode/QRReader.cpp
     )
 endif()
-if (BUILD_WRITERS)
+if (ZXING_WRITERS_OLD)
     set (QRCODE_FILES ${QRCODE_FILES}
         src/qrcode/QREncoder.h
         src/qrcode/QREncoder.cpp
@@ -409,18 +478,6 @@ if (BUILD_WRITERS)
     )
 endif()
 
-set (LIBZUECI_FILES
-    src/libzueci/zueci.c
-    src/libzueci/zueci.h
-)
-
-if (NOT BUILD_READERS)
-    set_source_files_properties(src/libzueci/zueci.c PROPERTIES COMPILE_FLAGS -DZUECI_EMBED_NO_TO_UTF)
-endif()
-if (NOT BUILD_WRITERS)
-    set_source_files_properties(src/libzueci/zueci.c PROPERTIES COMPILE_FLAGS -DZUECI_EMBED_NO_TO_ECI)
-endif()
-
 source_group (Sources FILES ${COMMON_FILES})
 source_group (Sources\\aztec FILES ${AZTEC_FILES})
 source_group (Sources\\datamatrix FILES ${DATAMATRIX_FILES})
@@ -428,7 +485,6 @@ source_group (Sources\\maxicode FILES ${MAXICODE_FILES})
 source_group (Sources\\oned FILES ${ONED_FILES})
 source_group (Sources\\pdf417 FILES ${PDF417_FILES})
 source_group (Sources\\qrcode FILES ${QRCODE_FILES})
-source_group (Sources\\libzueci FILES ${LIBZUECI_FILES})
 
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
@@ -442,7 +498,6 @@ add_library (ZXing
     ${ONED_FILES}
     ${PDF417_FILES}
     ${QRCODE_FILES}
-    ${LIBZUECI_FILES}
 )
 
 target_include_directories (ZXing
@@ -451,25 +506,43 @@ target_include_directories (ZXing
 )
 
 target_compile_options (ZXing
-    PUBLIC ${ZXING_CORE_DEFINES}
-    PRIVATE ${ZXING_CORE_LOCAL_DEFINES}
+    PUBLIC ${ZXING_PUBLIC_FLAGS}
+    PRIVATE ${ZXING_PRIVATE_FLAGS}
 )
-
-include (CheckCXXCompilerFlag)
-
-CHECK_CXX_COMPILER_FLAG ("-ffloat-store" COMPILER_NEEDS_FLOAT_STORE)
-if (COMPILER_NEEDS_FLOAT_STORE)
-    target_compile_options(ZXing PRIVATE
-        -ffloat-store   # same floating point precision in all optimization levels
-    )
-endif()
 
 target_compile_features(ZXing PUBLIC cxx_std_17)
 
 target_link_libraries (ZXing PRIVATE Threads::Threads)
 
+if (ZXING_READERS OR ZXING_WRITERS_OLD)
+    set (LIBZUECI_FILES
+        src/libzueci/zueci.c
+        src/libzueci/zueci.h
+    )
+    set_source_files_properties(${LIBZUECI_FILES} PROPERTIES
+        COMPILE_FLAGS "$<$<NOT:$<BOOL:${ZXING_READERS}>>:-DZUECI_EMBED_NO_TO_UTF> $<$<NOT:$<BOOL:${ZXING_WRITERS_OLD}>>:-DZUECI_EMBED_NO_TO_ECI>"
+        SKIP_PRECOMPILE_HEADERS ON
+    )
+    target_sources(ZXing PRIVATE ${LIBZUECI_FILES})
+    source_group (Sources\\libzueci FILES ${LIBZUECI_FILES})
+endif()
+
+if (ZXING_WRITERS_NEW)
+    if (ZXING_USE_BUNDLED_ZINT)
+        aux_source_directory(src/libzint LIBZINT_FILES) # manually re-run cmake after adding a new file/symlink
+        set_source_files_properties(${LIBZINT_FILES} PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
+        target_sources(ZXing PRIVATE ${LIBZINT_FILES})
+        source_group (Sources\\libzint FILES ${LIBZINT_FILES})
+        target_include_directories (ZXing PRIVATE "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/libzint>")
+    else()
+        include(../zxing.cmake)
+        zxing_add_package(zint zint https://github.com/zint/zint.git 7a9fdd6cd00cd5bfd0082705d934c13ef84f25e1)
+        target_link_libraries (ZXing PRIVATE zint)
+    endif()
+endif()
+
 add_library(ZXing::ZXing ALIAS ZXing)
-# add the old alias as well, to keep old clients compiling
+# add the old alias as well, to keep old clients compiling [[deprecated]]
 # note: this only affects client code that includes ZXing via sub_directory.
 #       for clients using the exported target, see ZXingConfig.cmake.in
 add_library(ZXing::Core ALIAS ZXing)
@@ -483,6 +556,49 @@ if (PROJECT_VERSION)
 endif()
 
 set_target_properties(ZXing PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADERS}")
+
+set(PRECOMPILE_HEADERS ${PUBLIC_HEADERS})
+list(REMOVE_ITEM PRECOMPILE_HEADERS "$<$<BOOL:${ZXING_C_API}>:${CMAKE_CURRENT_SOURCE_DIR}/src/ZXingC.h>")
+list(REMOVE_ITEM PRECOMPILE_HEADERS src/DecodeHints.h) # [[deprecated]]
+list(REMOVE_ITEM PRECOMPILE_HEADERS src/Result.h)      # [[deprecated]]
+list(REMOVE_ITEM PRECOMPILE_HEADERS src/ZXVersion.h)   # [[deprecated]]
+target_precompile_headers(ZXing PRIVATE ${PRECOMPILE_HEADERS})
+set_source_files_properties(src/DecodeHints.cpp PROPERTIES SKIP_PRECOMPILE_HEADERS ON)
+
+if(CMAKE_BUILD_TYPE MATCHES "Release|RelWithDebInfo")
+    # The following is a list of translation units that fulfill two criteria regarding the use of -Os vs -O3:
+    #  1. their binary size decreases significantly
+    #  2. the runtime of ReaderTest is not (measurably) affected
+    # Compiling them with -Os saves about 40kB (3%) with clang and 190kB (12%) with gcc.
+    check_cxx_compiler_flag("-Os" COMPILER_KNOWS_Os)
+    if(COMPILER_KNOWS_Os)
+    set_source_files_properties(
+        src/Barcode.cpp
+        src/BarcodeFormat.cpp
+        src/BitMatrixIO.cpp
+        src/Error.cpp
+        src/GTIN.cpp
+        src/HRI.cpp
+        src/MultiFormatReader.cpp
+        src/WriteBarcode.cpp
+        src/ZXingC.cpp
+        src/ZXingCpp.cpp
+        src/aztec/AZHighLevelEncoder.cpp
+        src/datamatrix/DMDataBlock.cpp
+        src/datamatrix/DMHighLevelEncoder.cpp
+        src/oned/ODDataBarExpandedBitDecoder.cpp
+        src/pdf417/PDFHighLevelEncoder.cpp
+        src/qrcode/QRBitMatrixParser.cpp
+        src/qrcode/QRDataBlock.cpp
+        src/qrcode/QRDecoder.cpp
+        src/qrcode/QREncoder.cpp
+        src/qrcode/QRMaskUtil.cpp
+        src/qrcode/QRReader.cpp
+        src/qrcode/QRVersion.cpp
+        ${LIBZINT_FILES}
+        PROPERTIES SKIP_PRECOMPILE_HEADERS ON COMPILE_FLAGS -Os)
+    endif()
+endif()
 
 include (GNUInstallDirs)
 
@@ -498,10 +614,10 @@ install (
     PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/ZXing"
 )
 
-configure_file (ZXVersion.h.in ZXVersion.h)
+configure_file (Version.h.in Version.h)
 
 install (
-    FILES "${CMAKE_CURRENT_BINARY_DIR}/ZXVersion.h"
+    FILES "${CMAKE_CURRENT_BINARY_DIR}/Version.h"
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/ZXing"
 )
 
@@ -511,7 +627,7 @@ if (MSVC)
         COMPILE_PDB_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR})
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ZXing.pdb
             DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            CONFIGURATIONS Debug RelWithDebInfo 
+            CONFIGURATIONS Debug RelWithDebInfo
             OPTIONAL)
 endif()
 

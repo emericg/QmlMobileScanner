@@ -66,6 +66,7 @@ Item {
             ListElement { type: "linear"; name: "EAN-13"; decode: 1; encode: 1; }
             ListElement { type: "linear"; name: "DataBar"; decode: 1; encode: 0; }
             ListElement { type: "linear"; name: "DataBar Expanded"; decode: 1; encode: 0; }
+            ListElement { type: "linear"; name: "DataBar Limited"; decode: 1; encode: 0; }
             ListElement { type: "linear"; name: "Code 39"; decode: 1; encode: 1; }
             ListElement { type: "linear"; name: "Code 93"; decode: 1; encode: 1; }
             ListElement { type: "linear"; name: "Code 128"; decode: 1; encode: 1; }
@@ -74,6 +75,7 @@ Item {
             ListElement { type: "matrix"; name: "QR Code"; decode: 1; encode: 1; }
             ListElement { type: "matrix"; name: "Micro QR Code"; decode: 1; encode: 0; }
             ListElement { type: "matrix"; name: "Aztec"; decode: 1; encode: 1; }
+            ListElement { type: "matrix"; name: "Aztec Runes"; decode: 1; encode: 0; }
             ListElement { type: "matrix"; name: "Data Matrix"; decode: 1; encode: 1; }
             ListElement { type: "matrix"; name: "PDF 417"; decode: 1; encode: 1; }
             ListElement { type: "matrix"; name: "MaxiCode"; decode: 2; encode: 0; }
@@ -135,7 +137,7 @@ Item {
 
                             Text {
                                 anchors.centerIn: parent
-                                text: qsTr("version") + " " + (settingsManager.backend_reader === "zxingcpp") ? "2.2.1" : "3.3.0"
+                                text: qsTr("version") + " " + (settingsManager.backend_reader === "zxingcpp") ? "2.3.0" : "3.3.0"
                                 textFormat: Text.PlainText
                                 color: Theme.colorSubText
                                 font.pixelSize: Theme.fontSizeContentSmall
