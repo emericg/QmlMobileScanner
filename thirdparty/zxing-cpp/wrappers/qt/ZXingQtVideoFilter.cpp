@@ -109,7 +109,7 @@ void ZXingQtVideoFilter::setCaptureRect(const QRect &captureRect)
     emit captureRectChanged();
 }
 
-Result ZXingQtVideoFilter::process(const QVideoFrame &frame)
+BarcodeQml ZXingQtVideoFilter::process(const QVideoFrame &frame)
 {
     if (m_active && m_videoSink && m_processThread.isFinished())
     {
@@ -140,7 +140,7 @@ Result ZXingQtVideoFilter::process(const QVideoFrame &frame)
             }
             else
             {
-                Result r;
+                BarcodeQml r;
                 r.runTime = t.elapsed();
                 emit decodingFinished(r);
                 return r;
@@ -148,5 +148,5 @@ Result ZXingQtVideoFilter::process(const QVideoFrame &frame)
         });
     }
 
-    return Result();
+    return BarcodeQml();
 }

@@ -120,7 +120,7 @@ bool BarcodeManager::loadImage(const QUrl &fileUrl)
         qDeleteAll(m_barcodes_onscreen);
         m_barcodes_onscreen.clear();
 
-        QList<Result> results = ZXingQt::loadImage(fileUrl);
+        QList<BarcodeQml> results = ZXingQt::loadImage(fileUrl);
         for (const auto &r: results)
         {
             QPointF tl = r.position().topLeft();

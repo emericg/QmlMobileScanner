@@ -99,13 +99,13 @@ int ZXingQt::qimageFormatToXZingFormat(const QImage &img)
     {
         case QImage::Format_RGB32:
 #if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
-            format = ZXing::ImageFormat::BGRX; break;
+            format = ZXing::ImageFormat::BGRA; break;
 #else
-            format = ZXing::ImageFormat::XRGB; break;
+            format = ZXing::ImageFormat::ARGB; break;
 #endif
         case QImage::Format_ARGB32:
         case QImage::Format_ARGB32_Premultiplied:
-            format = ZXing::ImageFormat::XRGB; break;
+            format = ZXing::ImageFormat::ARGB; break;
         case QImage::Format_RGB888:
             format = ZXing::ImageFormat::RGB; break;
         case QImage::Format_BGR888:
@@ -113,7 +113,7 @@ int ZXingQt::qimageFormatToXZingFormat(const QImage &img)
         case QImage::Format_RGBX8888:
         case QImage::Format_RGBA8888:
         case QImage::Format_RGBA8888_Premultiplied:
-            format = ZXing::ImageFormat::RGBX; break;
+            format = ZXing::ImageFormat::RGBA; break;
         case QImage::Format_Grayscale8:
             format = ZXing::ImageFormat::Lum; break;
 
@@ -132,17 +132,17 @@ int ZXingQt::qvideoframeFormatToXZingFormat(const QVideoFrame &frame)
         case QVideoFrameFormat::Format_ARGB8888:
         case QVideoFrameFormat::Format_ARGB8888_Premultiplied:
         case QVideoFrameFormat::Format_XRGB8888:
-            format = ZXing::ImageFormat::XRGB; break;
+            format = ZXing::ImageFormat::ARGB; break;
         case QVideoFrameFormat::Format_BGRA8888:
         case QVideoFrameFormat::Format_BGRA8888_Premultiplied:
         case QVideoFrameFormat::Format_BGRX8888:
-            format = ZXing::ImageFormat::BGRX; break;
+            format = ZXing::ImageFormat::BGRA; break;
         case QVideoFrameFormat::Format_ABGR8888:
         case QVideoFrameFormat::Format_XBGR8888:
-            format = ZXing::ImageFormat::XBGR; break;
+            format = ZXing::ImageFormat::ABGR; break;
         case QVideoFrameFormat::Format_RGBA8888:
         case QVideoFrameFormat::Format_RGBX8888:
-            format = ZXing::ImageFormat::RGBX; break;
+            format = ZXing::ImageFormat::RGBA; break;
 /*
         case QVideoFrameFormat::Format_AYUV:
         case QVideoFrameFormat::Format_AYUV_Premultiplied:
@@ -175,12 +175,12 @@ int ZXingQt::qvideoframeFormatToXZingFormat(const QVideoFrame &frame)
     return (int)format;
 }
 
-inline QList<Result> QListResults(ZXing::Results && zxres)
+inline QList<BarcodeQml> QListBarcodes(ZXing::Barcodes && zxres)
 {
-    QList<Result> res;
+    QList<BarcodeQml> res;
     for (auto &&r : zxres)
     {
-        res.push_back(Result(std::move(r)));
+        res.push_back(BarcodeQml(std::move(r)));
     }
 
     return res;
@@ -188,47 +188,50 @@ inline QList<Result> QListResults(ZXing::Results && zxres)
 
 /* ************************************************************************** */
 
-Result ZXingQt::ReadBarcode(const QImage &img, const ZXing::ReaderOptions &opts)
+BarcodeQml ZXingQt::ReadBarcode(const QImage &img,
+                                const ZXing::ReaderOptions &opts)
 {
     auto res = ReadBarcodes(img, ZXing::ReaderOptions(opts).setMaxNumberOfSymbols(1));
-    return !res.isEmpty() ? res.takeFirst() : Result();
+    return !res.isEmpty() ? res.takeFirst() : BarcodeQml();
 }
 
-Result ZXingQt::ReadBarcode(const QVideoFrame &frame, const ZXing::ReaderOptions &opts, const QRect captureRect)
+BarcodeQml ZXingQt::ReadBarcode(const QVideoFrame &frame,
+                                const ZXing::ReaderOptions &opts,
+                                const QRect captureRect)
 {
     auto res = ReadBarcodes(frame, ZXing::ReaderOptions(opts).setMaxNumberOfSymbols(1), captureRect);
-    return !res.isEmpty() ? res.takeFirst() : Result();
+    return !res.isEmpty() ? res.takeFirst() : BarcodeQml();
 }
 
 /* ************************************************************************** */
 
 //! Read barcode from QImage
-QList<Result> ZXingQt::ReadBarcodes(const QImage &img,
-                                     const ZXing::ReaderOptions &opts,
-                                     const QRect captureRect)
+QList<BarcodeQml> ZXingQt::ReadBarcodes(const QImage &img,
+                                        const ZXing::ReaderOptions &opts,
+                                        const QRect captureRect)
 {
     ZXing::ImageFormat format = (ZXing::ImageFormat)qimageFormatToXZingFormat(img);
 
     if (format != ZXing::ImageFormat::None)
     {
-        return QListResults(ZXing::ReadBarcodes(ZXing::ImageView { img.constBits(), img.width(), img.height(),
+        return QListBarcodes(ZXing::ReadBarcodes(ZXing::ImageView { img.constBits(), img.width(), img.height(),
                                                                    format, static_cast<int>(img.bytesPerLine()) },
-                                                opts));
+                                                 opts));
     }
     else
     {
         QImage converted = img.convertToFormat(QImage::Format_Grayscale8);
 
-        return QListResults(ZXing::ReadBarcodes(ZXing::ImageView { converted.constBits(), converted.width(), converted.height(),
+        return QListBarcodes(ZXing::ReadBarcodes(ZXing::ImageView { converted.constBits(), converted.width(), converted.height(),
                                                                    ZXing::ImageFormat::Lum, static_cast<int>(converted.bytesPerLine()) },
-                                                opts));
+                                                 opts));
     }
 }
 
 //! Read barcode DIRECTLY from QVideoFrame
-QList<Result> ZXingQt::ReadBarcodes(const QVideoFrame &frame,
-                                     const ZXing::ReaderOptions &opts,
-                                     const QRect captureRect)
+QList<BarcodeQml> ZXingQt::ReadBarcodes(const QVideoFrame &frame,
+                                        const ZXing::ReaderOptions &opts,
+                                        const QRect captureRect)
 {
     if (!frame.isValid()) return {};
 
@@ -251,7 +254,7 @@ QList<Result> ZXingQt::ReadBarcodes(const QVideoFrame &frame,
 
     if (fmt != ZXing::ImageFormat::None)
     {
-        return QListResults(
+        return QListBarcodes(
             ZXing::ReadBarcodes(
                 ZXing::ImageView(frame_ro.bits(0), frame_ro.width(), frame_ro.height(),
                                  fmt, frame_ro.bytesPerLine(0)),//.cropped(captureRect.left(), captureRect.top(),
@@ -268,9 +271,9 @@ QList<Result> ZXingQt::ReadBarcodes(const QVideoFrame &frame,
 }
 
 //! Read barcode from QVideoFrame, converting it to QImage
-QList<Result> ZXingQt::ReadBarcodes2(const QVideoFrame &frame,
-                                      const ZXing::ReaderOptions &opts,
-                                      const QRect captureRect)
+QList<BarcodeQml> ZXingQt::ReadBarcodes2(const QVideoFrame &frame,
+                                         const ZXing::ReaderOptions &opts,
+                                         const QRect captureRect)
 {
     if (!frame.isValid()) return {};
 
@@ -281,7 +284,7 @@ QList<Result> ZXingQt::ReadBarcodes2(const QVideoFrame &frame,
         return {};
     }
 
-    return QListResults(ZXing::ReadBarcodes(
+    return QListBarcodes(ZXing::ReadBarcodes(
                             ZXing::ImageView(image.constBits(), image.width(), image.height(), (ZXing::ImageFormat)qimageFormatToXZingFormat(image))
                                 .cropped(captureRect.left(), captureRect.top(), captureRect.width(), captureRect.height()), opts) );
 /*
@@ -292,17 +295,17 @@ QList<Result> ZXingQt::ReadBarcodes2(const QVideoFrame &frame,
         img = image.convertToFormat(QImage::Format_Grayscale8);
     }
 
-    return QListResults(ZXing::ReadBarcodes(
+    return QListBarcodes(ZXing::ReadBarcodes(
                             ZXing::ImageView(img.constBits(), img.width(), img.height(), ZXing::ImageFormat::Lum)
                                 .cropped(captureRect.left(), captureRect.top(), captureRect.width(), captureRect.height()), opts) );
 
-    return QListResults(ZXing::ReadBarcodes(ZXing::ImageView {image.constBits(), image.width(), image.height(),
+    return QListBarcodes(ZXing::ReadBarcodes(ZXing::ImageView {image.constBits(), image.width(), image.height(),
                              (ZXing::ImageFormat)qimageFormatToXZingFormat(image)}.cropped(captureRect.left(), captureRect.top(),
                          captureRect.width(), captureRect.height()),
             opts)
         );
 
-    return QListResults(ZXing::ReadBarcodes(ZXing::ImageView { img.constBits(), img.width(), img.height(),
+    return QListBarcodes(ZXing::ReadBarcodes(ZXing::ImageView { img.constBits(), img.width(), img.height(),
                                                                ZXing::ImageFormat::Lum, static_cast<int>(img.bytesPerLine()) },
                                             opts));
 */
@@ -311,7 +314,7 @@ QList<Result> ZXingQt::ReadBarcodes2(const QVideoFrame &frame,
 
 /* ************************************************************************** */
 
-QList<Result> ZXingQt::loadImage(const QUrl &fileUrl)
+QList<BarcodeQml> ZXingQt::loadImage(const QUrl &fileUrl)
 {
     QString filepath = fileUrl.toLocalFile();
     QImage img(filepath);
@@ -319,7 +322,7 @@ QList<Result> ZXingQt::loadImage(const QUrl &fileUrl)
     return ReadBarcodes(img);
 }
 
-QList<Result> ZXingQt::loadImage(const QImage &img)
+QList<BarcodeQml> ZXingQt::loadImage(const QImage &img)
 {
     return ReadBarcodes(img);
 }

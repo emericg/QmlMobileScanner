@@ -18,7 +18,7 @@
 #include <QImage>
 #include <QVideoFrame>
 
-#include "Result.h"
+#include "Result.h" // Cannot use "Barcode.h" ???
 #include "Quadrilateral.h"
 #include "ReaderOptions.h"
 
@@ -37,7 +37,7 @@ public:
     using Base::Base;
 };
 
-class Result : private ZXing::Result
+class BarcodeQml : private ZXing::Barcode
 {
     Q_GADGET
 
@@ -59,24 +59,24 @@ class Result : private ZXing::Result
     Position m_position;
 
 public:
-    Result() = default; // required for qmetatype machinery
+    BarcodeQml() = default; // required for qmetatype machinery
 
-    explicit Result(ZXing::Result &&r) : ZXing::Result(std::move(r)) {
-        m_text = QString::fromStdString(ZXing::Result::text());
-        m_bytes = QByteArray(reinterpret_cast<const char*>(ZXing::Result::bytes().data()), Size(ZXing::Result::bytes()));
-        auto &pos = ZXing::Result::position();
+    explicit BarcodeQml(ZXing::Barcode &&r) : ZXing::Barcode(std::move(r)) {
+        m_text = QString::fromStdString(ZXing::Barcode::text());
+        m_bytes = QByteArray(reinterpret_cast<const char*>(ZXing::Barcode::bytes().data()), Size(ZXing::Barcode::bytes()));
+        auto &pos = ZXing::Barcode::position();
         auto qp = [&pos](int i) { return QPoint(pos[i].x, pos[i].y); };
         m_position = {qp(0), qp(1), qp(2), qp(3)};
     }
 
     int runTime = 0; // for debugging/development
-    using ZXing::Result::isValid;
+    using ZXing::Barcode::isValid;
 
-    bool hasText() const { return (ZXing::Result::contentType() == ZXing::ContentType::Text); }
-    bool hasBinaryData() const { return (ZXing::Result::contentType() == ZXing::ContentType::Binary); }
-    ZXing::BarcodeFormat format() const { return static_cast<ZXing::BarcodeFormat>(ZXing::Result::format()); }
-    ZXing::ContentType contentType() const { return static_cast<ZXing::ContentType>(ZXing::Result::contentType()); }
-    QString formatName() const { return QString::fromStdString(ZXing::ToString(ZXing::Result::format())); }
+    bool hasText() const { return (ZXing::Barcode::contentType() == ZXing::ContentType::Text); }
+    bool hasBinaryData() const { return (ZXing::Barcode::contentType() == ZXing::ContentType::Binary); }
+    ZXing::BarcodeFormat format() const { return static_cast<ZXing::BarcodeFormat>(ZXing::Barcode::format()); }
+    ZXing::ContentType contentType() const { return static_cast<ZXing::ContentType>(ZXing::Barcode::contentType()); }
+    QString formatName() const { return QString::fromStdString(ZXing::ToString(ZXing::Barcode::format())); }
     const QString &text() const { return m_text; }
     const QByteArray &bytes() const { return m_bytes; }
     const Position &position() const { return m_position; }
@@ -206,32 +206,32 @@ public:
 
     ///
 
-    static Result ReadBarcode(const QImage &img,
-                              const ZXing::ReaderOptions &opts = {});
+    static BarcodeQml ReadBarcode(const QImage &img,
+                                  const ZXing::ReaderOptions &opts = {});
 
-    static Result ReadBarcode(const QVideoFrame &frame,
-                              const ZXing::ReaderOptions &opts = {},
-                              const QRect captureRect = QRect());
-
-    ///
-
-    static QList<Result> ReadBarcodes(const QImage &img,
-                                      const ZXing::ReaderOptions &opts = {},
-                                      const QRect captureRect = QRect());
-
-    static QList<Result> ReadBarcodes(const QVideoFrame &frame,
-                                      const ZXing::ReaderOptions &opts = {},
-                                      const QRect captureRect = QRect());
-
-    static QList<Result> ReadBarcodes2(const QVideoFrame &frame,
-                                       const ZXing::ReaderOptions &opts = {},
-                                       const QRect captureRect = QRect());
+    static BarcodeQml ReadBarcode(const QVideoFrame &frame,
+                                  const ZXing::ReaderOptions &opts = {},
+                                  const QRect captureRect = QRect());
 
     ///
 
-    Q_INVOKABLE static QList<Result> loadImage(const QUrl &fileUrl);
+    static QList<BarcodeQml> ReadBarcodes(const QImage &img,
+                                          const ZXing::ReaderOptions &opts = {},
+                                          const QRect captureRect = QRect());
 
-    Q_INVOKABLE static QList<Result> loadImage(const QImage &img);
+    static QList<BarcodeQml> ReadBarcodes(const QVideoFrame &frame,
+                                          const ZXing::ReaderOptions &opts = {},
+                                          const QRect captureRect = QRect());
+
+    static QList<BarcodeQml> ReadBarcodes2(const QVideoFrame &frame,
+                                           const ZXing::ReaderOptions &opts = {},
+                                           const QRect captureRect = QRect());
+
+    ///
+
+    Q_INVOKABLE static QList<BarcodeQml> loadImage(const QUrl &fileUrl);
+
+    Q_INVOKABLE static QList<BarcodeQml> loadImage(const QImage &img);
 
     Q_INVOKABLE static QImage generateImage(const QString &data, const int width, const int height, const int margins,
                                             const int format, const int encoding, const int eccLevel,

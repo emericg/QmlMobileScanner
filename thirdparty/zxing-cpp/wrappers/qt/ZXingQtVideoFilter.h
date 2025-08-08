@@ -49,11 +49,11 @@ signals:
     void captureRectChanged();
 
     void decodingStarted();
-    void decodingFinished(Result result);
-    void tagFound(Result result);
+    void decodingFinished(BarcodeQml result);
+    void tagFound(BarcodeQml result);
 
 public slots:
-    Result process(const QVideoFrame &frame);
+    BarcodeQml process(const QVideoFrame &frame);
 
 public:
     ZXingQtVideoFilter(QObject *parent = nullptr);

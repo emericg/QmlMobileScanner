@@ -26,17 +26,17 @@ win32-msvc* {
 
 ################# WRAPPER
 
-SOURCES += $${PWD}/wrappers/qt/ZXingCpp.cpp
-HEADERS += $${PWD}/wrappers/qt/ZXingCpp.h
+SOURCES += $${PWD}/wrappers/qt/ZXingQt.cpp
+HEADERS += $${PWD}/wrappers/qt/ZXingQt.h
 INCLUDEPATH += $${PWD}/wrappers/qt/
 
 build_readers {
-    SOURCES += $${PWD}/wrappers/qt/ZXingCppVideoFilter.cpp
-    HEADERS += $${PWD}/wrappers/qt/ZXingCppVideoFilter.h
+    SOURCES += $${PWD}/wrappers/qt/ZXingQtVideoFilter.cpp
+    HEADERS += $${PWD}/wrappers/qt/ZXingQtVideoFilter.h
 }
 build_writers {
-    SOURCES += $${PWD}/wrappers/qt/ZXingCppImageProvider.cpp
-    HEADERS += $${PWD}/wrappers/qt/ZXingCppImageProvider.h
+    SOURCES += $${PWD}/wrappers/qt/ZXingQtImageProvider.cpp
+    HEADERS += $${PWD}/wrappers/qt/ZXingQtImageProvider.h
 }
 
 ################# COMMON_FILES
@@ -92,7 +92,8 @@ HEADERS += $${PWD}/core/src/Barcode.h \
            $${PWD}/core/src/ZXTestSupport.h \
            $${PWD}/core/src/ZXVersion.h \
            $${PWD}/core/src/ZXingC.h \
-           $${PWD}/core/src/ZXingCpp.h
+           $${PWD}/core/src/ZXingCpp.h \
+           $${PWD}/core/Version.h
 
 build_readers {
     SOURCES += $${PWD}/core/src/BinaryBitmap.cpp \
