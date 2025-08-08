@@ -5,7 +5,7 @@
 #include "ZintImageProvider.h"
 #include "ZintQml.h"
 
-#include "backend/zint.h"   // Use the embedded zint copy
+#include "../../backend/zint.h"   // Use the embedded zint copy
 //#include <zint.h>         // Use the system zint copy
 
 #include <QDebug>

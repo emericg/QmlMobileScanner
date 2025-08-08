@@ -1,6 +1,6 @@
 #
-# qmake project file for zint-qml
-# version 2.13
+# qmake project file for zint and ZintQml
+# version 2.15
 #
 
 CONFIG += c++17
@@ -12,33 +12,41 @@ INCLUDEPATH += $${PWD}
 
 ################# WRAPPER
 
-SOURCES += $${PWD}/ZintQml.cpp \
-           $${PWD}/ZintImageProvider.cpp
+SOURCES += $${PWD}/wrappers/qml/ZintQml.cpp \
+           $${PWD}/wrappers/qml/ZintImageProvider.cpp
 
-HEADERS += $${PWD}/ZintQml.h \
-           $${PWD}/ZintImageProvider.h
+HEADERS += $${PWD}/wrappers/qml/ZintQml.h \
+           $${PWD}/wrappers/qml/ZintImageProvider.h
 
 ################# COMMON_FILES
 
 DEFINES += ZINT_NO_PNG
 
 SOURCES += $${PWD}/backend/2of5.c \
+           $${PWD}/backend/2of5inter.c \
+           $${PWD}/backend/2of5inter_based.c \
            $${PWD}/backend/auspost.c \
            $${PWD}/backend/aztec.c \
            $${PWD}/backend/bc412.c \
            $${PWD}/backend/bmp.c \
+           $${PWD}/backend/channel.c \
+           $${PWD}/backend/codabar.c \
            $${PWD}/backend/codablock.c \
            $${PWD}/backend/code.c \
            $${PWD}/backend/code1.c \
+           $${PWD}/backend/code11.c \
            $${PWD}/backend/code128.c \
+           $${PWD}/backend/code128_based.c \
            $${PWD}/backend/code16k.c \
            $${PWD}/backend/code49.c \
            $${PWD}/backend/common.c \
            $${PWD}/backend/composite.c \
            $${PWD}/backend/dmatrix.c \
            $${PWD}/backend/dotcode.c \
+           $${PWD}/backend/dxfilmedge.c \
            $${PWD}/backend/eci.c \
            $${PWD}/backend/emf.c \
+           $${PWD}/backend/filemem.c \
            $${PWD}/backend/general_field.c \
            $${PWD}/backend/gif.c \
            $${PWD}/backend/gridmtx.c \
@@ -83,6 +91,7 @@ HEADERS += $${PWD}/backend/aztec.h \
            $${PWD}/backend/eci.h \
            $${PWD}/backend/eci_sb.h \
            $${PWD}/backend/emf.h \
+           $${PWD}/backend/filemem.h \
            $${PWD}/backend/raster_font.h \
            $${PWD}/backend/gb18030.h \
            $${PWD}/backend/gb2312.h \
