@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" android:installLocation="auto"
-          android:versionCode="00030001" android:versionName="0.3">
+          android:versionCode="00040001" android:versionName="0.4">
 
     <supports-screens android:anyDensity="true" android:largeScreens="true" android:normalScreens="true" android:smallScreens="true" />
 

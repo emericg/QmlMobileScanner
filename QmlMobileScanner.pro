@@ -1,10 +1,10 @@
 TARGET  = QmlMobileScanner
 
-VERSION = 0.2
+VERSION = 0.4
 DEFINES+= APP_NAME=\\\"$$TARGET\\\"
 DEFINES+= APP_VERSION=\\\"$$VERSION\\\"
 
-CONFIG += c++17
+CONFIG += c++20
 QT     += core qml quickcontrols2 svg
 QT     += multimedia concurrent sql positioning
 
@@ -53,10 +53,11 @@ HEADERS  += src/DatabaseManager.h  \
             src/Barcode.h \
             src/utils_camera.h
 
-INCLUDEPATH += src/ src/thirdparty/
+INCLUDEPATH += src/ thirdparty/
 
-RESOURCES   += qml/ComponentLibrary/ComponentLibrary.qrc
-RESOURCES   += qml/qml.qrc assets/assets.qrc assets/icons.qrc
+RESOURCES   += thirdparty/ComponentLibrary/ComponentLibrary.qrc
+RESOURCES   += thirdparty/IconLibrary/IconLibrary_material.qrc
+RESOURCES   += qml/qml.qrc assets/assets.qrc
 
 OTHER_FILES += .gitignore \
                .github/workflows/builds_mobile.yml \
@@ -65,30 +66,30 @@ OTHER_FILES += .gitignore \
 # Project dependencies #########################################################
 
 # AppUtils
-include(src/thirdparty/AppUtils/AppUtils.pri)
+include(thirdparty/AppUtils/AppUtils.pri)
 
 # Utils for mobile OS
-include(src/thirdparty/MobileUI/MobileUI.pri)
-include(src/thirdparty/MobileSharing/MobileSharing.pri)
+include(thirdparty/MobileUI/MobileUI.pri)
+include(thirdparty/MobileSharing/MobileSharing.pri)
 
 # Barcode reader/writer (zxing-cpp)
 CONFIG(zxingcpp, zxingcpp|qzxing) {
     message("Building QmlMobileScanner with zxing-cpp backend")
-    include(src/thirdparty/zxing-cpp/zxing-cpp.pri)
+    include(thirdparty/zxing-cpp/zxing-cpp.pri)
     DEFINES += zxingcpp
 }
 
 # Barcode reader/writer (QZXing)
 CONFIG(qzxing, zxingcpp|qzxing) {
     message("Building QmlMobileScanner with QZXing backend")
-    include(src/thirdparty/QZXing/QZXing.pri)
+    include(thirdparty/QZXing/QZXing.pri)
     DEFINES += qzxing
 }
 
 # Barcode writer (zint)
 CONFIG(zint) {
     message("Building QmlMobileScanner with zint backend")
-    include(src/thirdparty/zint-qml/zint-qml.pri)
+    include(thirdparty/zint-qml/zint-qml.pri)
     DEFINES += zint
 }
 

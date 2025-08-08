@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(QmlMobileScanner VERSION 0.3 LANGUAGES C CXX)
+project(QmlMobileScanner VERSION 0.4 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -8,10 +8,12 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-string(TIMESTAMP CURRENT_TIMESTAMP "%s" UTC)
 set(APP_NAME ${CMAKE_PROJECT_NAME})
 set(APP_VERSION ${CMAKE_PROJECT_VERSION})
-set(APP_VERSION_CODE ${TIMESTAMP})
+
+option(USE_QZXING "Build with QZXing support (decoder&encoder)" OFF)
+option(USE_ZXINGCPP "Build with zxing-cpp support (decoder&encoder)" ON)
+option(USE_ZINT "Build with zint support (encoder)" OFF)
 
 ################################################################################
 
@@ -51,7 +53,7 @@ set(SOURCES
     thirdparty/IconLibrary/IconLibrary_material.qrc
 )
 
-if(IOS OR ANDROID)
+if (IOS OR ANDROID)
     # Mobile
     set(QAPPLICATION_CLASS QGuiApplication)
 else()
@@ -128,13 +130,11 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
     Qt6::QuickControls2
 )
 
-if(NOT IOS AND NOT ANDROID)
+if (NOT IOS AND NOT ANDROID)
     # for proper systray and menubar support
     find_package(Qt6 REQUIRED COMPONENTS Widgets)
     target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Qt6::Widgets)
 endif()
-
-add_definitions(-DENABLE_ZXING)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     #
@@ -160,30 +160,44 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE MobileSharing)
 add_subdirectory(thirdparty/ComponentLibrary)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ComponentLibraryplugin)
 
-# QZxing-cpp
-#set(qzxing true)
-#add_definitions(-Dqzxing)
-#add_subdirectory(thirdparty/QZXing)
-#target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE QZXing)
+if (USE_ZXINGCPP)
+    # build zxing-cpp
+    add_subdirectory(thirdparty/zxing-cpp)
+    target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ZXing)
 
-# zxing-cpp
-add_subdirectory(thirdparty/zxing-cpp)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ZXing)
+    # build zxing-cpp Qt wrapper
+    add_subdirectory(thirdparty/zxing-cpp/wrappers/qt)
+    target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ZXingQt)
 
-# zxing-cpp Qt wrapper
-set(zxingcpp true)
-add_definitions(-Dzxingcpp)
-add_subdirectory(thirdparty/zxing-cpp/wrappers/qt/)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ZXingQt)
+    set(zxingcpp true)
+    add_definitions(-Dzxingcpp)
+elseif (USE_QZXING)
+    # build QZxing
+    add_subdirectory(thirdparty/QZXing)
+    target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE QZXing)
 
-#CONFIG += zint
-#add_subdirectory(thirdparty/zint)
-#target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE zint)
+    set(qzxing true)
+    add_definitions(-Dqzxing)
+else()
+endif()
+
+if (USE_ZINT)
+    # build zint
+    add_subdirectory(thirdparty/zint-qml)
+    target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE zint)
+
+    # build ZintQml
+    add_subdirectory(thirdparty/zint-qml/wrappers/qml)
+    target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ZintQml)
+
+    set(zint true)
+    add_definitions(-Dzint)
+endif()
 
 ################################################################################
 
 ## Android
-if(CMAKE_SYSTEM_NAME STREQUAL "Android")
+if (CMAKE_SYSTEM_NAME STREQUAL "Android")
     set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
         #QT_ANDROID_ABIS "armeabi-v7a;arm64-v8a;x86;x86_64"
         #QT_ANDROID_BUILD_ALL_ABIS ON
@@ -194,7 +208,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Android")
 endif()
 
 ## macOS
-if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     #set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64")
     set(CMAKE_OSX_DEPLOYMENT_TARGET "11.0")
 
@@ -212,7 +226,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 endif()
 
 ## iOS
-if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+if (CMAKE_SYSTEM_NAME STREQUAL "iOS")
     #set(app_icon_ios "${CMAKE_SOURCE_DIR}/assets/ios/Assets.xcassets")
     #set_source_files_properties(${app_icon_ios} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
 
@@ -234,7 +248,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
 endif()
 
 ## Windows
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     #set(app_icon_windows "${CMAKE_SOURCE_DIR}/assets/windows/${CMAKE_PROJECT_NAME}.rc")
 
     set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
@@ -243,7 +257,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
 endif()
 
 ## Release build? Set "no debug" macros
-if(CMAKE_BUILD_TYPE STREQUAL Release)
+if (CMAKE_BUILD_TYPE STREQUAL Release)
     target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
         NDEBUG
         QT_NO_DEBUG
