@@ -1,7 +1,7 @@
 /*  gridmtx.c - Grid Matrix */
 /*
     libzint - the open source barcode library
-    Copyright (C) 2009-2023 Robin Stuart <rstuart114@gmail.com>
+    Copyright (C) 2009-2025 Robin Stuart <rstuart114@gmail.com>
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions
@@ -137,7 +137,7 @@ static void gm_define_mode(char *mode, const unsigned int ddata[], const int len
     };
 
     /* Cost of switching modes from k to j - see AIMD014 Rev. 1.63 Table 9 – Type conversion codes */
-    static const unsigned int switch_costs[GM_NUM_MODES][GM_NUM_MODES] = {
+    static const unsigned char switch_costs[GM_NUM_MODES][GM_NUM_MODES] = {
         /*      H             N                   L             U             M             B  */
         /*H*/ {            0, (13 + 2) * GM_MULT, 13 * GM_MULT, 13 * GM_MULT, 13 * GM_MULT, (13 + 9) * GM_MULT },
         /*N*/ { 10 * GM_MULT,                  0, 10 * GM_MULT, 10 * GM_MULT, 10 * GM_MULT, (10 + 9) * GM_MULT },
@@ -148,7 +148,7 @@ static void gm_define_mode(char *mode, const unsigned int ddata[], const int len
     };
 
     /* Final end-of-data cost - see AIMD014 Rev. 1.63 Table 9 – Type conversion codes */
-    static const unsigned int eod_costs[GM_NUM_MODES] = {
+    static const unsigned char eod_costs[GM_NUM_MODES] = {
     /*  H             N             L            U            M             B  */
         13 * GM_MULT, 10 * GM_MULT, 5 * GM_MULT, 5 * GM_MULT, 10 * GM_MULT, 4 * GM_MULT
     };
@@ -156,15 +156,15 @@ static void gm_define_mode(char *mode, const unsigned int ddata[], const int len
     unsigned int numeral_end = 0, numeral_cost = 0, byte_count = 0; /* State */
     int double_byte, space, numeric, lower, upper, control, double_digit, eol;
 
-    int i, j, k, cm_i;
+    int i, j, k;
     unsigned int min_cost;
     char cur_mode;
     unsigned int prev_costs[GM_NUM_MODES];
     unsigned int cur_costs[GM_NUM_MODES];
-    char *char_modes = (char *) z_alloca(length * GM_NUM_MODES);
+    char (*char_modes)[GM_NUM_MODES] = (char (*)[GM_NUM_MODES]) z_alloca(GM_NUM_MODES * length);
 
-    /* char_modes[i * GM_NUM_MODES + j] represents the mode to encode the code point at index i such that the final
-     * segment ends in mode_types[j] and the total number of bits is minimized over all possible choices */
+    /* char_modes[i][j] represents the mode to encode the code point at index i such that the final segment
+       ends in mode_types[j] and the total number of bits is minimized over all possible choices */
     memset(char_modes, 0, length * GM_NUM_MODES);
 
     /* At the beginning of each iteration of the loop below, prev_costs[j] is the minimum number of 1/6 (1/XX_MULT)
@@ -172,7 +172,7 @@ static void gm_define_mode(char *mode, const unsigned int ddata[], const int len
     memcpy(prev_costs, head_costs, GM_NUM_MODES * sizeof(unsigned int));
 
     /* Calculate costs using dynamic programming */
-    for (i = 0, cm_i = 0; i < length; i++, cm_i += GM_NUM_MODES) {
+    for (i = 0; i < length; i++) {
         memset(cur_costs, 0, GM_NUM_MODES * sizeof(unsigned int));
 
         space = numeric = lower = upper = control = double_digit = eol = 0;
@@ -201,7 +201,7 @@ static void gm_define_mode(char *mode, const unsigned int ddata[], const int len
 
         /* Hanzi mode can encode anything */
         cur_costs[GM_H] = prev_costs[GM_H] + (double_digit || eol ? 39 : 78); /* (6.5 : 13) * GM_MULT */
-        char_modes[cm_i + GM_H] = GM_CHINESE;
+        char_modes[i][GM_H] = GM_CHINESE;
 
         /* Byte mode can encode anything */
         if (byte_count == 512 || (double_byte && byte_count == 511)) {
@@ -213,39 +213,39 @@ static void gm_define_mode(char *mode, const unsigned int ddata[], const int len
             byte_count = 0;
         }
         cur_costs[GM_B] += prev_costs[GM_B] + (double_byte ? 96 : 48); /* (16 : 8) * GM_MULT */
-        char_modes[cm_i + GM_B] = GM_BYTE;
+        char_modes[i][GM_B] = GM_BYTE;
         byte_count += double_byte ? 2 : 1;
 
         if (gm_in_numeral(ddata, length, i, &numeral_end, &numeral_cost)) {
             cur_costs[GM_N] = prev_costs[GM_N] + numeral_cost;
-            char_modes[cm_i + GM_N] = GM_NUMBER;
+            char_modes[i][GM_N] = GM_NUMBER;
         }
 
         if (control) {
             cur_costs[GM_L] = prev_costs[GM_L] + 78; /* (7 + 6) * GM_MULT */
-            char_modes[cm_i + GM_L] = GM_LOWER;
+            char_modes[i][GM_L] = GM_LOWER;
             cur_costs[GM_U] = prev_costs[GM_U] + 78; /* (7 + 6) * GM_MULT */
-            char_modes[cm_i + GM_U] = GM_UPPER;
+            char_modes[i][GM_U] = GM_UPPER;
             cur_costs[GM_M] = prev_costs[GM_M] + 96; /* (10 + 6) * GM_MULT */
-            char_modes[cm_i + GM_M] = GM_MIXED;
+            char_modes[i][GM_M] = GM_MIXED;
         } else {
             if (lower || space) {
                 cur_costs[GM_L] = prev_costs[GM_L] + 30; /* 5 * GM_MULT */
-                char_modes[cm_i + GM_L] = GM_LOWER;
+                char_modes[i][GM_L] = GM_LOWER;
             }
             if (upper || space) {
                 cur_costs[GM_U] = prev_costs[GM_U] + 30; /* 5 * GM_MULT */
-                char_modes[cm_i + GM_U] = GM_UPPER;
+                char_modes[i][GM_U] = GM_UPPER;
             }
             if (numeric || lower || upper || space) {
                 cur_costs[GM_M] = prev_costs[GM_M] + 36; /* 6 * GM_MULT */
-                char_modes[cm_i + GM_M] = GM_MIXED;
+                char_modes[i][GM_M] = GM_MIXED;
             }
         }
 
         if (i == length - 1) { /* Add end of data costs if last character */
             for (j = 0; j < GM_NUM_MODES; j++) {
-                if (char_modes[cm_i + j]) {
+                if (char_modes[i][j]) {
                     cur_costs[j] += eod_costs[j];
                 }
             }
@@ -254,11 +254,11 @@ static void gm_define_mode(char *mode, const unsigned int ddata[], const int len
         /* Start new segment at the end to switch modes */
         for (j = 0; j < GM_NUM_MODES; j++) { /* To mode */
             for (k = 0; k < GM_NUM_MODES; k++) { /* From mode */
-                if (j != k && char_modes[cm_i + k]) {
+                if (j != k && char_modes[i][k]) {
                     const unsigned int new_cost = cur_costs[k] + switch_costs[k][j];
-                    if (!char_modes[cm_i + j] || new_cost < cur_costs[j]) {
+                    if (!char_modes[i][j] || new_cost < cur_costs[j]) {
                         cur_costs[j] = new_cost;
-                        char_modes[cm_i + j] = mode_types[k];
+                        char_modes[i][j] = mode_types[k];
                     }
                 }
             }
@@ -278,9 +278,9 @@ static void gm_define_mode(char *mode, const unsigned int ddata[], const int len
     }
 
     /* Get optimal mode for each code point by tracing backwards */
-    for (i = length - 1, cm_i = i * GM_NUM_MODES; i >= 0; i--, cm_i -= GM_NUM_MODES) {
+    for (i = length - 1; i >= 0; i--) {
         j = posn(mode_types, cur_mode);
-        cur_mode = char_modes[cm_i + j];
+        cur_mode = char_modes[i][j];
         mode[i] = cur_mode;
     }
 
@@ -875,8 +875,6 @@ static void gm_add_ecc(const char binary[], const int data_posn, const int layer
         }
         data_size = block_size - ecc_size;
 
-        /* printf("block %d/%d: data %d / ecc %d\n", i + 1, (b1 + b2), data_size, ecc_size);*/
-
         for (j = 0; j < data_size; j++) {
             data_block[j] = data[wp];
             wp++;
@@ -886,12 +884,12 @@ static void gm_add_ecc(const char binary[], const int data_posn, const int layer
         rs_init_code(&rs, ecc_size, 1);
         rs_encode(&rs, data_size, data_block, ecc_block);
 
-        /* Correct error correction data but in reverse order */
+        /* Add error correction data */
         for (j = 0; j < data_size; j++) {
             block[j] = data_block[j];
         }
         for (j = 0; j < ecc_size; j++) {
-            block[(j + data_size)] = ecc_block[ecc_size - j - 1];
+            block[j + data_size] = ecc_block[j];
         }
 
         for (j = 0; j < n2; j++) {
@@ -1050,8 +1048,8 @@ INTERNAL int gridmatrix(struct zint_symbol *symbol, struct zint_seg segs[], cons
                 if (error_number == 0) {
                     done = 1;
                 } else {
-                    sprintf(symbol->errtxt, "535: Invalid character in input data for ECI %d", local_segs[i].eci);
-                    return error_number;
+                    return errtxtf(error_number, symbol, 535, "Invalid character in input for ECI '%d'",
+                                    local_segs[i].eci);
                 }
             }
             if (!done) {
@@ -1069,12 +1067,13 @@ INTERNAL int gridmatrix(struct zint_symbol *symbol, struct zint_seg segs[], cons
 
     if (symbol->structapp.count) {
         if (symbol->structapp.count < 2 || symbol->structapp.count > 16) {
-            strcpy(symbol->errtxt, "536: Structured Append count out of range (2-16)");
-            return ZINT_ERROR_INVALID_OPTION;
+            return errtxtf(ZINT_ERROR_INVALID_OPTION, symbol, 536,
+                            "Structured Append count '%d' out of range (2 to 16)", symbol->structapp.count);
         }
         if (symbol->structapp.index < 1 || symbol->structapp.index > symbol->structapp.count) {
-            sprintf(symbol->errtxt, "537: Structured Append index out of range (1-%d)", symbol->structapp.count);
-            return ZINT_ERROR_INVALID_OPTION;
+            return ZEXT errtxtf(ZINT_ERROR_INVALID_OPTION, symbol, 537,
+                                "Structured Append index '%1$d' out of range (1 to count %2$d)",
+                                symbol->structapp.index, symbol->structapp.count);
         }
         if (symbol->structapp.id[0]) {
             int id, id_len;
@@ -1082,32 +1081,30 @@ INTERNAL int gridmatrix(struct zint_symbol *symbol, struct zint_seg segs[], cons
             for (id_len = 1; id_len < 4 && symbol->structapp.id[id_len]; id_len++);
 
             if (id_len > 3) { /* 255 (8 bits) */
-                strcpy(symbol->errtxt, "538: Structured Append ID too long (3 digit maximum)");
-                return ZINT_ERROR_INVALID_OPTION;
+                return errtxtf(ZINT_ERROR_INVALID_OPTION, symbol, 538,
+                                "Structured Append ID length %d too long (3 digit maximum)", id_len);
             }
 
             id = to_int((const unsigned char *) symbol->structapp.id, id_len);
             if (id == -1) {
-                strcpy(symbol->errtxt, "539: Invalid Structured Append ID (digits only)");
-                return ZINT_ERROR_INVALID_OPTION;
+                return errtxt(ZINT_ERROR_INVALID_OPTION, symbol, 539, "Invalid Structured Append ID (digits only)");
             }
             if (id > 255) {
-                sprintf(symbol->errtxt, "530: Structured Append ID '%d' out of range (0-255)", id);
-                return ZINT_ERROR_INVALID_OPTION;
+                return errtxtf(ZINT_ERROR_INVALID_OPTION, symbol, 530,
+                                "Structured Append ID value '%d' out of range (0 to 255)", id);
             }
         }
         p_structapp = &symbol->structapp;
     }
 
     if (symbol->eci > 811799) {
-        strcpy(symbol->errtxt, "533: Invalid ECI");
-        return ZINT_ERROR_INVALID_OPTION;
+        return errtxtf(ZINT_ERROR_INVALID_OPTION, symbol, 533, "ECI code '%d' out of range (0 to 811799)",
+                        symbol->eci);
     }
 
     error_number = gm_encode_segs(ddata, local_segs, seg_count, binary, reader, p_structapp, &bin_len, debug_print);
     if (error_number != 0) {
-        strcpy(symbol->errtxt, "531: Input data too long");
-        return error_number;
+        return errtxt(error_number, symbol, 531, "Input too long, requires too many codewords (maximum 1313)");
     }
 
     /* Determine the size of the symbol */
@@ -1132,8 +1129,9 @@ INTERNAL int gridmatrix(struct zint_symbol *symbol, struct zint_seg segs[], cons
         if (symbol->option_2 >= min_layers) {
             layers = symbol->option_2;
         } else {
-            strcpy(symbol->errtxt, "534: Input data too long for selected symbol size");
-            return ZINT_ERROR_TOO_LONG;
+            return ZEXT errtxtf(ZINT_ERROR_TOO_LONG, symbol, 534,
+                                "Input too long for Version %1$d, requires %2$d codewords (maximum %3$d)",
+                                symbol->option_2, data_cw, gm_max_cw[symbol->option_2 - 1]);
         }
     }
 
@@ -1189,8 +1187,12 @@ INTERNAL int gridmatrix(struct zint_symbol *symbol, struct zint_seg segs[], cons
     }
 
     if (data_cw > data_max) {
-        strcpy(symbol->errtxt, "532: Input data too long");
-        return ZINT_ERROR_TOO_LONG;
+        return ZEXT errtxtf(ZINT_ERROR_TOO_LONG, symbol, 532,
+                            "Input too long for ECC level %1$d, requires %2$d codewords (maximum %3$d)", ecc_level,
+                            data_cw, data_max);
+    }
+    if (debug_print) {
+        printf("Layers: %d, ECC level: %d, Data Codewords: %d\n", layers, ecc_level, data_cw);
     }
 
     gm_add_ecc(binary, data_cw, layers, ecc_level, word);

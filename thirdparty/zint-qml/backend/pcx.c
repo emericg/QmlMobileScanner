@@ -1,7 +1,7 @@
 /* pcx.c - Handles output to ZSoft PCX file */
 /*
     libzint - the open source barcode library
-    Copyright (C) 2009-2023 Robin Stuart <rstuart114@gmail.com>
+    Copyright (C) 2009-2025 Robin Stuart <rstuart114@gmail.com>
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions
@@ -33,11 +33,8 @@
 #include <errno.h>
 #include <math.h>
 #include <stdio.h>
-#ifdef _MSC_VER
-#include <io.h>
-#include <fcntl.h>
-#endif
 #include "common.h"
+#include "filemem.h"
 #include "output.h"
 #include "pcx.h"        /* PCX header structure */
 
@@ -46,11 +43,12 @@ INTERNAL int pcx_pixel_plot(struct zint_symbol *symbol, const unsigned char *pix
     unsigned char fgred, fggrn, fgblu, fgalpha, bgred, bggrn, bgblu, bgalpha;
     int row, column, i, colour;
     int run_count;
-    FILE *pcx_file;
+    struct filemem fm;
+    struct filemem *const fmp = &fm;
     pcx_header_t header;
-    int bytes_per_line = symbol->bitmap_width + (symbol->bitmap_width & 1); /* Must be even */
     unsigned char previous;
-    const int output_to_stdout = symbol->output_options & BARCODE_STDOUT; /* Suppress gcc -fanalyzer warning */
+    const unsigned char *pb;
+    const int bytes_per_line = symbol->bitmap_width + (symbol->bitmap_width & 1); /* Must be even */
     unsigned char *rle_row = (unsigned char *) z_alloca(bytes_per_line);
 
     rle_row[bytes_per_line - 1] = 0; /* Will remain zero if bitmap_width odd */
@@ -62,11 +60,11 @@ INTERNAL int pcx_pixel_plot(struct zint_symbol *symbol, const unsigned char *pix
     header.version = 5; /* Version 3.0 */
     header.encoding = 1; /* Run length encoding */
     header.bits_per_pixel = 8; /* TODO: 1-bit monochrome black/white */
-    header.window_xmin = 0;
-    header.window_ymin = 0;
-    header.window_xmax = symbol->bitmap_width - 1;
-    header.window_ymax = symbol->bitmap_height - 1;
-    header.horiz_dpi = symbol->dpmm ? (uint16_t) roundf(stripf(symbol->dpmm * 25.4f)) : 300;
+    out_le_u16(header.window_xmin, 0);
+    out_le_u16(header.window_ymin, 0);
+    out_le_u16(header.window_xmax, symbol->bitmap_width - 1);
+    out_le_u16(header.window_ymax, symbol->bitmap_height - 1);
+    out_le_u16(header.horiz_dpi, symbol->dpmm ? roundf(stripf(symbol->dpmm * 25.4f)) : 300);
     header.vert_dpi = header.horiz_dpi;
 
     for (i = 0; i < 48; i++) {
@@ -76,36 +74,25 @@ INTERNAL int pcx_pixel_plot(struct zint_symbol *symbol, const unsigned char *pix
     header.reserved = 0;
     header.number_of_planes = 3 + (fgalpha != 0xFF || bgalpha != 0xFF); /* TODO: 1-bit monochrome black/white */
 
-    header.bytes_per_line = bytes_per_line;
+    out_le_u16(header.bytes_per_line, bytes_per_line);
 
-    header.palette_info = 1; /* Colour */
-    header.horiz_screen_size = 0;
-    header.vert_screen_size = 0;
+    out_le_u16(header.palette_info, 1); /* Colour */
+    out_le_u16(header.horiz_screen_size, 0);
+    out_le_u16(header.vert_screen_size, 0);
 
     for (i = 0; i < 54; i++) {
         header.filler[i] = 0x00;
     }
 
     /* Open output file in binary mode */
-    if (output_to_stdout) {
-#ifdef _MSC_VER
-        if (-1 == _setmode(_fileno(stdout), _O_BINARY)) {
-            sprintf(symbol->errtxt, "620: Could not set stdout to binary (%d: %.30s)", errno, strerror(errno));
-            return ZINT_ERROR_FILE_ACCESS;
-        }
-#endif
-        pcx_file = stdout;
-    } else {
-        if (!(pcx_file = out_fopen(symbol->outfile, "wb"))) {
-            sprintf(symbol->errtxt, "621: Could not open output file (%d: %.30s)", errno, strerror(errno));
-            return ZINT_ERROR_FILE_ACCESS;
-        }
+    if (!fm_open(fmp, symbol, "wb")) {
+        return ZEXT errtxtf(ZINT_ERROR_FILE_ACCESS, symbol, 621, "Could not open PCX output file (%1$d: %2$s)",
+                            fmp->err, strerror(fmp->err));
     }
 
-    fwrite(&header, sizeof(pcx_header_t), 1, pcx_file);
+    fm_write(&header, sizeof(pcx_header_t), 1, fmp);
 
-    for (row = 0; row < symbol->bitmap_height; row++) {
-        const unsigned char *const pb = pixelbuf + row * symbol->bitmap_width;
+    for (row = 0, pb = pixelbuf; row < symbol->bitmap_height; row++, pb += symbol->bitmap_width) {
         for (colour = 0; colour < header.number_of_planes; colour++) {
             for (column = 0; column < symbol->bitmap_width; column++) {
                 const unsigned char ch = pb[column];
@@ -147,9 +134,9 @@ INTERNAL int pcx_pixel_plot(struct zint_symbol *symbol, const unsigned char *pix
                 } else {
                     if (run_count > 1 || (previous & 0xc0) == 0xc0) {
                         run_count += 0xc0;
-                        fputc(run_count, pcx_file);
+                        fm_putc(run_count, fmp);
                     }
-                    fputc(previous, pcx_file);
+                    fm_putc(previous, fmp);
                     previous = rle_row[column];
                     run_count = 1;
                 }
@@ -157,30 +144,21 @@ INTERNAL int pcx_pixel_plot(struct zint_symbol *symbol, const unsigned char *pix
 
             if (run_count > 1 || (previous & 0xc0) == 0xc0) {
                 run_count += 0xc0;
-                fputc(run_count, pcx_file);
+                fm_putc(run_count, fmp);
             }
-            fputc(previous, pcx_file);
+            fm_putc(previous, fmp);
         }
     }
 
-    if (ferror(pcx_file)) {
-        sprintf(symbol->errtxt, "622: Incomplete write to output (%d: %.30s)", errno, strerror(errno));
-        if (!output_to_stdout) {
-            (void) fclose(pcx_file);
-        }
+    if (fm_error(fmp)) {
+        ZEXT errtxtf(0, symbol, 622, "Incomplete write of PCX output (%1$d: %2$s)", fmp->err, strerror(fmp->err));
+        (void) fm_close(fmp, symbol);
         return ZINT_ERROR_FILE_WRITE;
     }
 
-    if (output_to_stdout) {
-        if (fflush(pcx_file) != 0) {
-            sprintf(symbol->errtxt, "623: Incomplete flush to output (%d: %.30s)", errno, strerror(errno));
-            return ZINT_ERROR_FILE_WRITE;
-        }
-    } else {
-        if (fclose(pcx_file) != 0) {
-            sprintf(symbol->errtxt, "624: Failure on closing output file (%d: %.30s)", errno, strerror(errno));
-            return ZINT_ERROR_FILE_WRITE;
-        }
+    if (!fm_close(fmp, symbol)) {
+        return ZEXT errtxtf(ZINT_ERROR_FILE_WRITE, symbol, 624, "Failure on closing PCX output file (%1$d: %2$s)",
+                            fmp->err, strerror(fmp->err));
     }
 
     return 0;

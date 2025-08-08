@@ -1,7 +1,7 @@
 /* code49.c - Handles Code 49 */
 /*
     libzint - the open source barcode library
-    Copyright (C) 2009-2023 Robin Stuart <rstuart114@gmail.com>
+    Copyright (C) 2009-2025 Robin Stuart <rstuart114@gmail.com>
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions
@@ -53,8 +53,7 @@ INTERNAL int code49(struct zint_symbol *symbol, unsigned char source[], int leng
     int error_number = 0;
 
     if (length > 81) {
-        strcpy(symbol->errtxt, "430: Input too long (81 character maximum)");
-        return ZINT_ERROR_TOO_LONG;
+        return errtxtf(ZINT_ERROR_TOO_LONG, symbol, 430, "Input length %d too long (maximum 81)", length);
     }
     if ((symbol->input_mode & 0x07) == GS1_MODE) {
         gs1 = 1;
@@ -65,10 +64,10 @@ INTERNAL int code49(struct zint_symbol *symbol, unsigned char source[], int leng
 
     for (i = 0; i < length; i++) {
         if (source[i] > 127) {
-            strcpy(symbol->errtxt, "431: Invalid character in input data, extended ASCII not allowed");
-            return ZINT_ERROR_INVALID_DATA;
+            return errtxtf(ZINT_ERROR_INVALID_DATA, symbol, 431,
+                            "Invalid character at position %d in input, extended ASCII not allowed", i + 1);
         }
-        if (gs1 && (source[i] == '[')) {
+        if (gs1 && source[i] == '\x1D') {
             *d++ = '*'; /* FNC1 */
         } else {
             const char *const entry = c49_table7[source[i]];
@@ -219,8 +218,8 @@ INTERNAL int code49(struct zint_symbol *symbol, unsigned char source[], int leng
     }
 
     if (codeword_count > 49) {
-        strcpy(symbol->errtxt, "432: Input too long");
-        return ZINT_ERROR_TOO_LONG;
+        return errtxtf(ZINT_ERROR_TOO_LONG, symbol, 432, "Input too long, requires %d codewords (maximum 49)",
+                        codeword_count);
     }
 
     /* Place codewords in code character array (c grid) */
@@ -255,8 +254,7 @@ INTERNAL int code49(struct zint_symbol *symbol, unsigned char source[], int leng
             }
         }
     } else if (symbol->option_1 >= 1) {
-        strcpy(symbol->errtxt, "433: Minimum number of rows out of range (2 to 8)");
-        return ZINT_ERROR_INVALID_OPTION;
+        return errtxt(ZINT_ERROR_INVALID_OPTION, symbol, 433, "Minimum number of rows out of range (2 to 8)");
     }
 
     /* Add row count and mode character */

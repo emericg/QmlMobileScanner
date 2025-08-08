@@ -1,7 +1,7 @@
 /* code1.c - USS Code One */
 /*
     libzint - the open source barcode library
-    Copyright (C) 2009-2023 Robin Stuart <rstuart114@gmail.com>
+    Copyright (C) 2009-2025 Robin Stuart <rstuart114@gmail.com>
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions
@@ -30,6 +30,7 @@
  */
 /* SPDX-License-Identifier: BSD-3-Clause */
 
+#include <assert.h>
 #include <math.h>
 #include <stdio.h>
 #include "common.h"
@@ -37,8 +38,9 @@
 #include "reedsol.h"
 #include "large.h"
 
-#define C1_MAX_CWS  1480 /* Max data codewords for Version H */
-#define C1_MAX_ECCS 560 /* Max ECC codewords for Version H */
+#define C1_MAX_CWS      1480 /* Max data codewords for Version H */
+#define C1_MAX_CWS_S    "1480" /* String version of above */
+#define C1_MAX_ECCS     560 /* Max ECC codewords for Version H */
 
 #define C1_ASCII    1
 #define C1_C40      2
@@ -246,7 +248,7 @@ static int c1_look_ahead_test(const unsigned char source[], const int length, co
         }
 
         /* Step P */
-        if (gs1 && (c == '[')) {
+        if (gs1 && c == '\x1D') {
             byte_count += C1_MULT_3; /* Step P1 */
         } else {
             byte_count += C1_MULT_1; /* Step P2 */
@@ -453,7 +455,7 @@ static int c1_codewords_remaining(struct zint_symbol *symbol, const int tp) {
 static int c1_c40text_cnt(const int current_mode, const int gs1, unsigned char input) {
     int cnt;
 
-    if (gs1 && input == '[') {
+    if (gs1 && input == '\x1D') {
         return 2;
     }
     cnt = 1;
@@ -461,7 +463,7 @@ static int c1_c40text_cnt(const int current_mode, const int gs1, unsigned char i
         cnt += 2;
         input -= 128;
     }
-    if ((current_mode == C1_C40 && c40_shift[input]) || (current_mode == C1_TEXT && text_shift[input])) {
+    if ((current_mode == C1_C40 && c1_c40_shift[input]) || (current_mode == C1_TEXT && c1_text_shift[input])) {
         cnt += 1;
     }
 
@@ -616,7 +618,7 @@ static int c1_encode(struct zint_symbol *symbol, unsigned char source[], int len
                     if (debug_print) printf("ASCDD(%.2s) ", source + sp);
                     sp += 2;
                 } else {
-                    if ((gs1) && (source[sp] == '[')) {
+                    if (gs1 && source[sp] == '\x1D') {
                         if (length - (sp + 1) >= 15 && num_digits[sp + 1] >= 15) {
                             /* Step B4 */
                             target[tp++] = 236; /* FNC1 and change to Decimal */
@@ -648,7 +650,7 @@ static int c1_encode(struct zint_symbol *symbol, unsigned char source[], int len
                                 target[tp++] = 235; /* FNC4 (Upper Shift) */
                                 target[tp++] = (source[sp] - 128) + 1;
                                 if (debug_print) printf("UpSh(%d) ", source[sp]);
-                            } else if ((gs1) && (source[sp] == '[')) {
+                            } else if (gs1 && source[sp] == '\x1D') {
                                 /* Step B8 */
                                 target[tp++] = 232; /* FNC1 */
                                 if (debug_print) fputs("FNC1 ", stdout);
@@ -689,11 +691,11 @@ static int c1_encode(struct zint_symbol *symbol, unsigned char source[], int len
                 const char *ct_shift, *ct_value;
 
                 if (current_mode == C1_C40) {
-                    ct_shift = c40_shift;
-                    ct_value = c40_value;
+                    ct_shift = c1_c40_shift;
+                    ct_value = c1_c40_value;
                 } else {
-                    ct_shift = text_shift;
-                    ct_value = text_value;
+                    ct_shift = c1_text_shift;
+                    ct_value = c1_text_value;
                 }
                 if (debug_print) fputs(current_mode == C1_C40 ? "C40 " : "TEXT ", stdout);
 
@@ -704,7 +706,7 @@ static int c1_encode(struct zint_symbol *symbol, unsigned char source[], int len
                         cte_buffer[cte_p++] = ct_shift[source[sp] - 128] - 1;
                     }
                     cte_buffer[cte_p++] = ct_value[source[sp] - 128];
-                } else if (gs1 && (source[sp] == '[')) {
+                } else if (gs1 && source[sp] == '\x1D') {
                     cte_buffer[cte_p++] = 1; /* Shift 2 */
                     cte_buffer[cte_p++] = 27; /* FNC1 */
                 } else {
@@ -826,7 +828,7 @@ static int c1_encode(struct zint_symbol *symbol, unsigned char source[], int len
         } else if (current_mode == C1_BYTE) {
             next_mode = C1_BYTE;
 
-            if (gs1 && (source[sp] == '[')) {
+            if (gs1 && source[sp] == '\x1D') {
                 next_mode = C1_ASCII;
             } else {
                 if (source[sp] <= 127) {
@@ -901,7 +903,7 @@ static int c1_encode(struct zint_symbol *symbol, unsigned char source[], int len
                     } else if (source[sp] & 0x80) {
                         target[tp++] = 235; /* FNC4 (Upper Shift) */
                         target[tp++] = (source[sp] - 128) + 1;
-                    } else if ((gs1) && (source[sp] == '[')) {
+                    } else if (gs1 && source[sp] == '\x1D') {
                         target[tp++] = 232; /* FNC1 */
                     } else {
                         target[tp++] = source[sp] + 1;
@@ -1023,35 +1025,33 @@ INTERNAL int codeone(struct zint_symbol *symbol, struct zint_seg segs[], const i
     int row, col;
     int sub_version = 0;
     rs_t rs;
-    int error_number = 0;
     const int gs1 = (symbol->input_mode & 0x07) == GS1_MODE;
     const int debug_print = symbol->debug & ZINT_DEBUG_PRINT;
 
     if ((symbol->option_2 < 0) || (symbol->option_2 > 10)) {
-        strcpy(symbol->errtxt, "513: Invalid symbol size");
-        return ZINT_ERROR_INVALID_OPTION;
+        return errtxtf(ZINT_ERROR_INVALID_OPTION, symbol, 513, "Version '%d' out of range (1 to 10)",
+                        symbol->option_2);
     }
 
     if (symbol->structapp.count) {
         if (symbol->option_2 == 9) { /* Version S */
-            strcpy(symbol->errtxt, "714: Structured Append not available for Version S");
-            return ZINT_ERROR_INVALID_OPTION;
+            return errtxt(ZINT_ERROR_INVALID_OPTION, symbol, 714, "Structured Append not available for Version S");
         }
         if (gs1) {
-            strcpy(symbol->errtxt, "710: Cannot have Structured Append and GS1 mode at the same time");
-            return ZINT_ERROR_INVALID_OPTION;
+            return errtxt(ZINT_ERROR_INVALID_OPTION, symbol, 710,
+                            "Cannot have Structured Append and GS1 mode at the same time");
         }
         if (symbol->structapp.count < 2 || symbol->structapp.count > 128) {
-            strcpy(symbol->errtxt, "711: Structured Append count out of range (2-128)");
-            return ZINT_ERROR_INVALID_OPTION;
+            return errtxtf(ZINT_ERROR_INVALID_OPTION, symbol, 711,
+                            "Structured Append count '%d' out of range (2 to 128)", symbol->structapp.count);
         }
         if (symbol->structapp.index < 1 || symbol->structapp.index > symbol->structapp.count) {
-            sprintf(symbol->errtxt, "712: Structured Append index out of range (1-%d)", symbol->structapp.count);
-            return ZINT_ERROR_INVALID_OPTION;
+            return ZEXT errtxtf(ZINT_ERROR_INVALID_OPTION, symbol, 712,
+                                "Structured Append index '%1$d' out of range (1 to count %2$d)",
+                                symbol->structapp.index, symbol->structapp.count);
         }
         if (symbol->structapp.id[0]) {
-            strcpy(symbol->errtxt, "713: Structured Append ID not available for Code One");
-            return ZINT_ERROR_INVALID_OPTION;
+            return errtxt(ZINT_ERROR_INVALID_OPTION, symbol, 713, "Structured Append ID not available for Code One");
         }
     }
 
@@ -1063,16 +1063,15 @@ INTERNAL int codeone(struct zint_symbol *symbol, struct zint_seg segs[], const i
         int block_width;
 
         if (seg_count > 1) {
-            strcpy(symbol->errtxt, "715: Multiple segments not supported for Version S");
-            return ZINT_ERROR_INVALID_OPTION;
+            return errtxt(ZINT_ERROR_INVALID_OPTION, symbol, 715, "Multiple segments not supported for Version S");
         }
         if (segs[0].length > 18) {
-            strcpy(symbol->errtxt, "514: Input data too long for Version S");
-            return ZINT_ERROR_TOO_LONG;
+            return errtxtf(ZINT_ERROR_TOO_LONG, symbol, 514, "Input length %d too long for Version S (maximum 18)",
+                            segs[0].length);
         }
-        if (!is_sane(NEON_F, segs[0].source, segs[0].length)) {
-            strcpy(symbol->errtxt, "515: Invalid input data (Version S encodes numeric input only)");
-            return ZINT_ERROR_INVALID_DATA;
+        if ((i = not_sane(NEON_F, segs[0].source, segs[0].length))) {
+            return errtxtf(ZINT_ERROR_INVALID_DATA, symbol, 515,
+                            "Invalid character at position %d in input (Version S encodes digits only)", i);
         }
 
         size = 9;
@@ -1107,7 +1106,7 @@ INTERNAL int codeone(struct zint_symbol *symbol, struct zint_seg segs[], const i
         rs_encode_uint(&rs, codewords, target, ecc);
 
         for (i = 0; i < codewords; i++) {
-            target[i + codewords] = ecc[codewords - i - 1];
+            target[i + codewords] = ecc[i];
         }
 
         if (debug_print) {
@@ -1142,18 +1141,19 @@ INTERNAL int codeone(struct zint_symbol *symbol, struct zint_seg segs[], const i
         unsigned int ecc[22];
         int data_length;
         int data_cw, ecc_cw, block_width;
-        int last_mode;
+        int last_mode = 0; /* Suppress gcc 14 "-Wmaybe-uninitialized" false positive */
 
-        if (c1_total_length_segs(segs, seg_count) > 90) {
-            strcpy(symbol->errtxt, "519: Input data too long for Version T");
-            return ZINT_ERROR_TOO_LONG;
+        if ((i = c1_total_length_segs(segs, seg_count)) > 90) {
+            return errtxtf(ZINT_ERROR_TOO_LONG, symbol, 519, "Input length %d too long for Version T (maximum 90)",
+                            i);
         }
 
         data_length = c1_encode_segs(symbol, segs, seg_count, gs1, target, &last_mode);
 
-        if (data_length == 0 || data_length > 38) {
-            strcpy(symbol->errtxt, "516: Input data too long for Version T");
-            return ZINT_ERROR_TOO_LONG;
+        assert(data_length); /* Can't exceed C1_MAX_CWS as input <= 90 */
+        if (data_length > 38) {
+            return errtxtf(ZINT_ERROR_TOO_LONG, symbol, 516,
+                            "Input too long for Version T, requires %d codewords (maximum 38)", data_length);
         }
 
         size = 10;
@@ -1195,7 +1195,7 @@ INTERNAL int codeone(struct zint_symbol *symbol, struct zint_seg segs[], const i
         rs_encode_uint(&rs, data_cw, target, ecc);
 
         for (i = 0; i < ecc_cw; i++) {
-            target[data_cw + i] = ecc[ecc_cw - i - 1];
+            target[data_cw + i] = ecc[i];
         }
 
         if (debug_print) {
@@ -1234,8 +1234,8 @@ INTERNAL int codeone(struct zint_symbol *symbol, struct zint_seg segs[], const i
         data_length = c1_encode_segs(symbol, segs, seg_count, gs1, target, &last_mode);
 
         if (data_length == 0) {
-            strcpy(symbol->errtxt, "517: Input data is too long");
-            return ZINT_ERROR_TOO_LONG;
+            return errtxt(ZINT_ERROR_TOO_LONG, symbol, 517,
+                            "Input too long, requires too many codewords (maximum " C1_MAX_CWS_S ")");
         }
 
         for (i = 7; i >= 0; i--) {
@@ -1249,8 +1249,9 @@ INTERNAL int codeone(struct zint_symbol *symbol, struct zint_seg segs[], const i
         }
 
         if ((symbol->option_2 != 0) && (symbol->option_2 < size)) {
-            strcpy(symbol->errtxt, "518: Input too long for selected symbol size");
-            return ZINT_ERROR_TOO_LONG;
+            return ZEXT errtxtf(ZINT_ERROR_TOO_LONG, symbol, 518,
+                                "Input too long for Version %1$c, requires %2$d codewords (maximum %3$d)",
+                                'A' + symbol->option_2 - 1, data_length, c1_data_length[symbol->option_2 - 1]);
         }
         data_cw = c1_data_length[size - 1];
 
@@ -1284,7 +1285,7 @@ INTERNAL int codeone(struct zint_symbol *symbol, struct zint_seg segs[], const i
             }
             rs_encode_uint(&rs, data_blocks, sub_data, sub_ecc);
             for (j = 0; j < ecc_blocks; j++) {
-                target[data_cw + j * blocks + i] = sub_ecc[ecc_blocks - 1 - j];
+                target[data_cw + j * blocks + i] = sub_ecc[j];
             }
         }
 
@@ -1577,16 +1578,14 @@ INTERNAL int codeone(struct zint_symbol *symbol, struct zint_seg segs[], const i
 
     if (symbol->option_2 == 9) { /* Version S */
         if (symbol->eci || gs1) {
-            sprintf(symbol->errtxt, "511: %s ignored for Version S",
-                    symbol->eci && gs1 ? "ECI and GS1 mode" : symbol->eci ? "ECI" : "GS1 mode");
-            error_number = ZINT_WARN_INVALID_OPTION;
+            return errtxtf(ZINT_WARN_INVALID_OPTION, symbol, 511, "%s ignored for Version S",
+                            symbol->eci && gs1 ? "ECI and GS1 mode" : symbol->eci ? "ECI" : "GS1 mode");
         }
     } else if (symbol->eci && gs1) {
-        strcpy(symbol->errtxt, "512: ECI ignored for GS1 mode");
-        error_number = ZINT_WARN_INVALID_OPTION;
+        return errtxt(ZINT_WARN_INVALID_OPTION, symbol, 512, "ECI ignored for GS1 mode");
     }
 
-    return error_number;
+    return 0;
 }
 
 /* vim: set ts=4 sw=4 et : */

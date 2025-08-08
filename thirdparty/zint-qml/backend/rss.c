@@ -1,7 +1,7 @@
 /* rss.c - GS1 DataBar (formerly Reduced Space Symbology) */
 /*
     libzint - the open source barcode library
-    Copyright (C) 2008-2023 Robin Stuart <rstuart114@gmail.com>
+    Copyright (C) 2008-2025 Robin Stuart <rstuart114@gmail.com>
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions
@@ -155,16 +155,17 @@ static void getRSSwidths(int widths[], int val, int n, const int elements, const
 
 /* Set GTIN-14 human readable text */
 static void dbar_set_gtin14_hrt(struct zint_symbol *symbol, const unsigned char *source, const int length) {
-    unsigned char *hrt = symbol->text + 4;
-    const int leading_zeroes = 13 - length;
+    static const unsigned char zeroes_str[] = "0000000000000"; /* 13 zeroes */
+    const int zeroes = 13 - length;
+    const int raw_text = symbol->output_options & BARCODE_RAW_TEXT;
 
-    ustrcpy(symbol->text, "(01)");
-    if (leading_zeroes) {
-        memset(hrt, '0', leading_zeroes);
+    if (raw_text) {
+        hrt_printf_nochk(symbol, "01%.*s%.*s", zeroes, zeroes_str, length, source);
+        hrt_cat_chr_nochk(symbol, gs1_check_digit(symbol->text + 2, 13));
+    } else {
+        hrt_printf_nochk(symbol, "(01)%.*s%.*s", zeroes, zeroes_str, length, source);
+        hrt_cat_chr_nochk(symbol, gs1_check_digit(symbol->text + 4, 13));
     }
-    memcpy(hrt + leading_zeroes, source, length);
-    hrt[13] = gs1_check_digit(hrt, 13);
-    hrt[14] = '\0';
 }
 
 /* Expand from a width pattern to a bit pattern */
@@ -247,7 +248,6 @@ static void dbar_omn_separator(struct zint_symbol *symbol, int width, const int 
 
 /* Set Databar Stacked height, maintaining 5:7 ratio of the 2 main row heights */
 INTERNAL int dbar_omnstk_set_height(struct zint_symbol *symbol, const int first_row) {
-    int error_number = 0;
     float fixed_height = 0.0f;
     int second_row = first_row + 2; /* 2 row separator */
     int i;
@@ -274,12 +274,11 @@ INTERNAL int dbar_omnstk_set_height(struct zint_symbol *symbol, const int first_
 
     if (symbol->output_options & COMPLIANT_HEIGHT) {
         if (symbol->row_height[first_row] < 5.0f || symbol->row_height[second_row] < 7.0f) {
-            error_number = ZINT_WARN_NONCOMPLIANT;
-            strcpy(symbol->errtxt, "379: Height not compliant with standards");
+            return errtxt(ZINT_WARN_NONCOMPLIANT, symbol, 379, "Height not compliant with standards");
         }
     }
 
-    return error_number;
+    return 0;
 }
 
 /* GS1 DataBar Omnidirectional/Truncated/Stacked, allowing for composite if `cc_rows` set */
@@ -296,19 +295,17 @@ INTERNAL int dbar_omn_cc(struct zint_symbol *symbol, unsigned char source[], int
     separator_row = 0;
 
     if (length > 14) { /* Allow check digit to be specified (will be verified and ignored) */
-        strcpy(symbol->errtxt, "380: Input too long (14 character maximum)");
-        return ZINT_ERROR_TOO_LONG;
+        return errtxtf(ZINT_ERROR_TOO_LONG, symbol, 380, "Input length %d too long (maximum 14)", length);
     }
-    if (!is_sane(NEON_F, source, length)) {
-        strcpy(symbol->errtxt, "381: Invalid character in data (digits only)");
-        return ZINT_ERROR_INVALID_DATA;
+    if ((i = not_sane(NEON_F, source, length))) {
+        return errtxtf(ZINT_ERROR_INVALID_DATA, symbol, 381,
+                        "Invalid character at position %d in input (digits only)", i);
     }
 
     if (length == 14) { /* Verify check digit */
         if (gs1_check_digit(source, 13) != source[13]) {
-            sprintf(symbol->errtxt, "388: Invalid check digit '%c', expecting '%c'",
-                    source[13], gs1_check_digit(source, 13));
-            return ZINT_ERROR_INVALID_CHECK;
+            return ZEXT errtxtf(ZINT_ERROR_INVALID_CHECK, symbol, 388, "Invalid check digit '%1$c', expecting '%2$c'",
+                                source[13], gs1_check_digit(source, 13));
         }
         length--; /* Ignore */
     }
@@ -390,35 +387,35 @@ INTERNAL int dbar_omn_cc(struct zint_symbol *symbol, unsigned char source[], int
         data_group[2] = 4;
     }
 
-    v_odd[0] = (data_character[0] - g_sum_table[data_group[0]]) / t_table[data_group[0]];
-    v_even[0] = (data_character[0] - g_sum_table[data_group[0]]) % t_table[data_group[0]];
-    v_odd[1] = (data_character[1] - g_sum_table[data_group[1]]) % t_table[data_group[1]];
-    v_even[1] = (data_character[1] - g_sum_table[data_group[1]]) / t_table[data_group[1]];
-    v_odd[3] = (data_character[3] - g_sum_table[data_group[3]]) % t_table[data_group[3]];
-    v_even[3] = (data_character[3] - g_sum_table[data_group[3]]) / t_table[data_group[3]];
-    v_odd[2] = (data_character[2] - g_sum_table[data_group[2]]) / t_table[data_group[2]];
-    v_even[2] = (data_character[2] - g_sum_table[data_group[2]]) % t_table[data_group[2]];
+    v_odd[0] = (data_character[0] - dbar_g_sum_table[data_group[0]]) / dbar_t_table[data_group[0]];
+    v_even[0] = (data_character[0] - dbar_g_sum_table[data_group[0]]) % dbar_t_table[data_group[0]];
+    v_odd[1] = (data_character[1] - dbar_g_sum_table[data_group[1]]) % dbar_t_table[data_group[1]];
+    v_even[1] = (data_character[1] - dbar_g_sum_table[data_group[1]]) / dbar_t_table[data_group[1]];
+    v_odd[3] = (data_character[3] - dbar_g_sum_table[data_group[3]]) % dbar_t_table[data_group[3]];
+    v_even[3] = (data_character[3] - dbar_g_sum_table[data_group[3]]) / dbar_t_table[data_group[3]];
+    v_odd[2] = (data_character[2] - dbar_g_sum_table[data_group[2]]) / dbar_t_table[data_group[2]];
+    v_even[2] = (data_character[2] - dbar_g_sum_table[data_group[2]]) % dbar_t_table[data_group[2]];
 
     /* Use DataBar subset width algorithm */
     for (i = 0; i < 4; i++) {
         if ((i == 0) || (i == 2)) {
-            getRSSwidths(widths, v_odd[i], modules_odd[data_group[i]], 4, widest_odd[data_group[i]], 1);
+            getRSSwidths(widths, v_odd[i], dbar_modules_odd[data_group[i]], 4, dbar_widest_odd[data_group[i]], 1);
             data_widths[0][i] = widths[0];
             data_widths[2][i] = widths[1];
             data_widths[4][i] = widths[2];
             data_widths[6][i] = widths[3];
-            getRSSwidths(widths, v_even[i], modules_even[data_group[i]], 4, widest_even[data_group[i]], 0);
+            getRSSwidths(widths, v_even[i], dbar_modules_even[data_group[i]], 4, dbar_widest_even[data_group[i]], 0);
             data_widths[1][i] = widths[0];
             data_widths[3][i] = widths[1];
             data_widths[5][i] = widths[2];
             data_widths[7][i] = widths[3];
         } else {
-            getRSSwidths(widths, v_odd[i], modules_odd[data_group[i]], 4, widest_odd[data_group[i]], 0);
+            getRSSwidths(widths, v_odd[i], dbar_modules_odd[data_group[i]], 4, dbar_widest_odd[data_group[i]], 0);
             data_widths[0][i] = widths[0];
             data_widths[2][i] = widths[1];
             data_widths[4][i] = widths[2];
             data_widths[6][i] = widths[3];
-            getRSSwidths(widths, v_even[i], modules_even[data_group[i]], 4, widest_even[data_group[i]], 1);
+            getRSSwidths(widths, v_even[i], dbar_modules_even[data_group[i]], 4, dbar_widest_even[data_group[i]], 1);
             data_widths[1][i] = widths[0];
             data_widths[3][i] = widths[1];
             data_widths[5][i] = widths[2];
@@ -429,10 +426,10 @@ INTERNAL int dbar_omn_cc(struct zint_symbol *symbol, unsigned char source[], int
     checksum = 0;
     /* Calculate the checksum */
     for (i = 0; i < 8; i++) {
-        checksum += checksum_weight[i] * data_widths[i][0];
-        checksum += checksum_weight[i + 8] * data_widths[i][1];
-        checksum += checksum_weight[i + 16] * data_widths[i][2];
-        checksum += checksum_weight[i + 24] * data_widths[i][3];
+        checksum += dbar_checksum_weight[i] * data_widths[i][0];
+        checksum += dbar_checksum_weight[i + 8] * data_widths[i][1];
+        checksum += dbar_checksum_weight[i + 16] * data_widths[i][2];
+        checksum += dbar_checksum_weight[i + 24] * data_widths[i][3];
     }
     checksum %= 79;
 
@@ -462,8 +459,8 @@ INTERNAL int dbar_omn_cc(struct zint_symbol *symbol, unsigned char source[], int
         total_widths[i + 36] = data_widths[7 - i][2];
     }
     for (i = 0; i < 5; i++) {
-        total_widths[i + 10] = finder_pattern[i + (5 * c_left)];
-        total_widths[i + 31] = finder_pattern[(4 - i) + (5 * c_right)];
+        total_widths[i + 10] = dbar_finder_pattern[i + (5 * c_left)];
+        total_widths[i + 31] = dbar_finder_pattern[(4 - i) + (5 * c_right)];
     }
 
     /* Put this data into the symbol */
@@ -633,27 +630,24 @@ INTERNAL int dbar_ltd_cc(struct zint_symbol *symbol, unsigned char source[], int
     separator_row = 0;
 
     if (length > 14) { /* Allow check digit to be specified (will be verified and ignored) */
-        strcpy(symbol->errtxt, "382: Input too long (14 character maximum)");
-        return ZINT_ERROR_TOO_LONG;
+        return errtxtf(ZINT_ERROR_TOO_LONG, symbol, 382, "Input length %d too long (maximum 14)", length);
     }
-    if (!is_sane(NEON_F, source, length)) {
-        strcpy(symbol->errtxt, "383: Invalid character in data (digits only)");
-        return ZINT_ERROR_INVALID_DATA;
+    if ((i = not_sane(NEON_F, source, length))) {
+        return errtxtf(ZINT_ERROR_INVALID_DATA, symbol, 383,
+                        "Invalid character at position %d in input (digits only)", i);
     }
 
     if (length == 14) { /* Verify check digit */
         if (gs1_check_digit(source, 13) != source[13]) {
-            sprintf(symbol->errtxt, "389: Invalid check digit '%c', expecting '%c'",
-                    source[13], gs1_check_digit(source, 13));
-            return ZINT_ERROR_INVALID_CHECK;
+            return ZEXT errtxtf(ZINT_ERROR_INVALID_CHECK, symbol, 389, "Invalid check digit '%1$c', expecting '%2$c'",
+                                source[13], gs1_check_digit(source, 13));
         }
         length--; /* Ignore */
     }
 
     if (length == 13) {
         if ((source[0] != '0') && (source[0] != '1')) {
-            strcpy(symbol->errtxt, "384: Input out of range (0 to 1999999999999)");
-            return ZINT_ERROR_INVALID_DATA;
+            return errtxt(ZINT_ERROR_INVALID_DATA, symbol, 384, "Input value out of range (0 to 1999999999999)");
         }
     }
 
@@ -720,24 +714,24 @@ INTERNAL int dbar_ltd_cc(struct zint_symbol *symbol, unsigned char source[], int
         right_group = 0;
     }
 
-    left_odd = (int) (left_character / t_even_ltd[left_group]);
-    left_even = (int) (left_character % t_even_ltd[left_group]);
-    right_odd = (int) (right_character / t_even_ltd[right_group]);
-    right_even = (int) (right_character % t_even_ltd[right_group]);
+    left_odd = (int) (left_character / dbar_ltd_t_even[left_group]);
+    left_even = (int) (left_character % dbar_ltd_t_even[left_group]);
+    right_odd = (int) (right_character / dbar_ltd_t_even[right_group]);
+    right_even = (int) (right_character % dbar_ltd_t_even[right_group]);
 
-    getRSSwidths(widths, left_odd, modules_odd_ltd[left_group], 7, widest_odd_ltd[left_group], 1);
+    getRSSwidths(widths, left_odd, dbar_ltd_modules_odd[left_group], 7, dbar_ltd_widest_odd[left_group], 1);
     for (i = 0; i <= 6; i++) {
         left_widths[i * 2] = widths[i];
     }
-    getRSSwidths(widths, left_even, modules_even_ltd[left_group], 7, widest_even_ltd[left_group], 0);
+    getRSSwidths(widths, left_even, dbar_ltd_modules_even[left_group], 7, dbar_ltd_widest_even[left_group], 0);
     for (i = 0; i <= 6; i++) {
         left_widths[i * 2 + 1] = widths[i];
     }
-    getRSSwidths(widths, right_odd, modules_odd_ltd[right_group], 7, widest_odd_ltd[right_group], 1);
+    getRSSwidths(widths, right_odd, dbar_ltd_modules_odd[right_group], 7, dbar_ltd_widest_odd[right_group], 1);
     for (i = 0; i <= 6; i++) {
         right_widths[i * 2] = widths[i];
     }
-    getRSSwidths(widths, right_even, modules_even_ltd[right_group], 7, widest_even_ltd[right_group], 0);
+    getRSSwidths(widths, right_even, dbar_ltd_modules_even[right_group], 7, dbar_ltd_widest_even[right_group], 0);
     for (i = 0; i <= 6; i++) {
         right_widths[i * 2 + 1] = widths[i];
     }
@@ -748,13 +742,13 @@ INTERNAL int dbar_ltd_cc(struct zint_symbol *symbol, unsigned char source[], int
 #if defined(_MSC_VER) && _MSC_VER == 1900 && defined(_WIN64) /* MSVC 2015 x64 */
         checksum %= 89; /* Hack to get around optimizer bug */
 #endif
-        checksum += checksum_weight_ltd[i] * left_widths[i];
-        checksum += checksum_weight_ltd[i + 14] * right_widths[i];
+        checksum += dbar_ltd_checksum_weight[i] * left_widths[i];
+        checksum += dbar_ltd_checksum_weight[i + 14] * right_widths[i];
     }
     checksum %= 89;
 
     for (i = 0; i < 14; i++) {
-        check_elements[i] = finder_pattern_ltd[i + (checksum * 14)];
+        check_elements[i] = dbar_ltd_finder_pattern[i + (checksum * 14)];
     }
 
     total_widths[0] = 1;
@@ -829,18 +823,22 @@ INTERNAL int dbar_date(const unsigned char source[], const int length, const int
 }
 
 /* Handles all data encodation from section 7.2.5 of ISO/IEC 24724 */
-static int dbar_exp_binary_string(struct zint_symbol *symbol, const unsigned char source[], char binary_string[],
-            int *p_cols_per_row, const int max_rows, int *p_bp) {
+static int dbar_exp_binary_string(struct zint_symbol *symbol, const unsigned char source[], const int length,
+            char binary_string[], int *p_cols_per_row, const int max_rows, int *p_bp) {
     int encoding_method, i, j, read_posn, mode = NUMERIC;
     char last_digit = '\0';
     int symbol_characters, characters_per_row = *p_cols_per_row * 2;
     int min_cols_per_row = 0;
-    int length = (int) ustrlen(source);
     const int debug_print = (symbol->debug & ZINT_DEBUG_PRINT);
     char *general_field = (char *) z_alloca(length + 1);
     int bp = *p_bp;
     int remainder, d1, d2;
     int cdf_bp_start; /* Compressed data field start - debug only */
+
+    if (length > 77) { /* ISO/IEC 24724:2011 4.2.d.2 */
+        /* Caught below anyway but catch here also for better feedback */
+        return errtxtf(ZINT_ERROR_TOO_LONG, symbol, 378, "Processed input length %d too long (maximum 77)", length);
+    }
 
     /* Decide whether a compressed data field is required and if so what
        method to use - method 2 = no compressed data field */
@@ -966,10 +964,10 @@ static int dbar_exp_binary_string(struct zint_symbol *symbol, const unsigned cha
        before carrying out compression */
     for (i = 0; i < read_posn; i++) {
         if (!z_isdigit(source[i])) {
-            if (source[i] != '[') {
+            if (source[i] != '\x1D') {
                 /* Something is wrong */
-                strcpy(symbol->errtxt, "385: Invalid character in Compressed Field data (digits only)");
-                return ZINT_ERROR_INVALID_DATA;
+                return errtxt(ZINT_ERROR_INVALID_DATA, symbol, 385,
+                                "Invalid character in Compressed Field data (digits only)");
             }
         }
     }
@@ -1019,7 +1017,7 @@ static int dbar_exp_binary_string(struct zint_symbol *symbol, const unsigned cha
     } else if ((encoding_method >= 7) && (encoding_method <= 14)) {
         /* Encoding method fields "0111000" through "0111111" - variable weight item plus date */
         int group_val;
-        char weight_str[8];
+        unsigned char weight_str[7];
 
         for (i = 3; i < 15; i += 3) { /* Leading "019" stripped, and final check digit excluded */
             bp = bin_append_posn(to_int(source + i, 3), 10, binary_string, bp);
@@ -1032,7 +1030,7 @@ static int dbar_exp_binary_string(struct zint_symbol *symbol, const unsigned cha
         }
         weight_str[6] = '\0';
 
-        bp = bin_append_posn(atoi(weight_str), 20, binary_string, bp);
+        bp = bin_append_posn(to_int(weight_str, 6), 20, binary_string, bp);
 
         if (length == 34) {
             /* Date information is included */
@@ -1062,10 +1060,9 @@ static int dbar_exp_binary_string(struct zint_symbol *symbol, const unsigned cha
     if (debug_print) printf("General field data = %s\n", general_field);
 
     if (j != 0) { /* If general field not empty */
-        if (!general_field_encode(general_field, j, &mode, &last_digit, binary_string, &bp)) { /* Should not happen */
-            /* Not reachable */
-            strcpy(symbol->errtxt, "386: Invalid character in General Field data");
-            return ZINT_ERROR_INVALID_DATA;
+        if (!general_field_encode(general_field, j, &mode, &last_digit, binary_string, &bp)) {
+            /* Will happen if character not in CSET 82 + space */
+            return errtxt(ZINT_ERROR_INVALID_DATA, symbol, 386, "Invalid character in General Field data");
         }
     }
 
@@ -1134,8 +1131,8 @@ static int dbar_exp_binary_string(struct zint_symbol *symbol, const unsigned cha
     }
 
     if (bp > 252) { /* 252 = (21 * 12) */
-        strcpy(symbol->errtxt, "387: Input too long"); /* TODO: Better error message */
-        return ZINT_ERROR_TOO_LONG;
+        return errtxtf(ZINT_ERROR_TOO_LONG, symbol, 387, /* TODO: Better error message */
+                        "Input too long, requires %d symbol characters (maximum 21)", (bp + 11) / 12);
     }
 
     if (min_cols_per_row && min_cols_per_row > *p_cols_per_row) {
@@ -1250,16 +1247,12 @@ static void dbar_exp_separator(struct zint_symbol *symbol, int width, const int 
 
 /* Set HRT for DataBar Expanded */
 static void dbar_exp_hrt(struct zint_symbol *symbol, unsigned char source[], const int length) {
-    int i;
 
-    for (i = 0; i <= length; i++) { /* Include terminating NUL */
-        if (source[i] == '[') {
-            symbol->text[i] = '(';
-        } else if (source[i] == ']') {
-            symbol->text[i] = ')';
-        } else {
-            symbol->text[i] = source[i];
-        }
+    /* Max possible length is 77 digits so will fit */
+    if (symbol->input_mode & GS1PARENS_MODE) {
+        hrt_cpy_nochk(symbol, source, length);
+    } else {
+        hrt_conv_gs1_brackets_nochk(symbol, source, length);
     }
 }
 
@@ -1280,18 +1273,20 @@ INTERNAL int dbar_exp_cc(struct zint_symbol *symbol, unsigned char source[], int
     int stack_rows = 1;
     const int debug_print = (symbol->debug & ZINT_DEBUG_PRINT);
     unsigned char *reduced = (unsigned char *) z_alloca(length + 1);
+    int reduced_length;
     char *binary_string = (char *) z_alloca(bin_len);
+    const int raw_text = symbol->output_options & BARCODE_RAW_TEXT;
 
     separator_row = 0;
 
-    error_number = gs1_verify(symbol, source, length, reduced);
+    error_number = gs1_verify(symbol, source, length, reduced, &reduced_length);
     if (error_number >= ZINT_ERROR) {
         return error_number;
     }
     warn_number = error_number;
 
     if (debug_print) {
-        printf("Reduced (%d): %s\n", (int) ustrlen(reduced), reduced);
+        printf("Reduced (%d): %s\n", reduced_length, reduced);
     }
 
     if ((symbol->symbology == BARCODE_DBAR_EXP_CC) || (symbol->symbology == BARCODE_DBAR_EXPSTK_CC)) {
@@ -1322,7 +1317,8 @@ INTERNAL int dbar_exp_cc(struct zint_symbol *symbol, unsigned char source[], int
         }
     }
 
-    error_number = dbar_exp_binary_string(symbol, reduced, binary_string, &cols_per_row, max_rows, &bp);
+    error_number = dbar_exp_binary_string(symbol, reduced, reduced_length, binary_string, &cols_per_row, max_rows,
+                                            &bp);
     if (error_number != 0) {
         return error_number;
     }
@@ -1350,16 +1346,16 @@ INTERNAL int dbar_exp_cc(struct zint_symbol *symbol, unsigned char source[], int
         } else {
             group = 5;
         }
-        v_odd = (vs - g_sum_exp[group - 1]) / t_even_exp[group - 1];
-        v_even = (vs - g_sum_exp[group - 1]) % t_even_exp[group - 1];
+        v_odd = (vs - dbar_exp_g_sum[group - 1]) / dbar_exp_t_even[group - 1];
+        v_even = (vs - dbar_exp_g_sum[group - 1]) % dbar_exp_t_even[group - 1];
         if (debug_print) printf("%s%d", i == 0 || (i & 1) ? " " : ",", vs);
 
-        getRSSwidths(widths, v_odd, modules_odd_exp[group - 1], 4, widest_odd_exp[group - 1], 0);
+        getRSSwidths(widths, v_odd, dbar_exp_modules_odd[group - 1], 4, dbar_exp_widest_odd[group - 1], 0);
         char_widths[i][0] = widths[0];
         char_widths[i][2] = widths[1];
         char_widths[i][4] = widths[2];
         char_widths[i][6] = widths[3];
-        getRSSwidths(widths, v_even, modules_even_exp[group - 1], 4, widest_even_exp[group - 1], 1);
+        getRSSwidths(widths, v_even, dbar_exp_modules_even[group - 1], 4, dbar_exp_widest_even[group - 1], 1);
         char_widths[i][1] = widths[0];
         char_widths[i][3] = widths[1];
         char_widths[i][5] = widths[2];
@@ -1372,9 +1368,9 @@ INTERNAL int dbar_exp_cc(struct zint_symbol *symbol, unsigned char source[], int
        elements in the data characters. */
     checksum = 0;
     for (i = 0; i < data_chars; i++) {
-        int row = weight_rows[(((data_chars - 2) / 2) * 21) + i];
+        int row = dbar_exp_weight_rows[(((data_chars - 2) / 2) * 21) + i];
         for (j = 0; j < 8; j++) {
-            checksum += (char_widths[i][j] * checksum_weight_exp[(row * 8) + j]);
+            checksum += (char_widths[i][j] * dbar_exp_checksum_weight[(row * 8) + j]);
 
         }
     }
@@ -1397,15 +1393,15 @@ INTERNAL int dbar_exp_cc(struct zint_symbol *symbol, unsigned char source[], int
         c_group = 5;
     }
 
-    c_odd = (check_char - g_sum_exp[c_group - 1]) / t_even_exp[c_group - 1];
-    c_even = (check_char - g_sum_exp[c_group - 1]) % t_even_exp[c_group - 1];
+    c_odd = (check_char - dbar_exp_g_sum[c_group - 1]) / dbar_exp_t_even[c_group - 1];
+    c_even = (check_char - dbar_exp_g_sum[c_group - 1]) % dbar_exp_t_even[c_group - 1];
 
-    getRSSwidths(widths, c_odd, modules_odd_exp[c_group - 1], 4, widest_odd_exp[c_group - 1], 0);
+    getRSSwidths(widths, c_odd, dbar_exp_modules_odd[c_group - 1], 4, dbar_exp_widest_odd[c_group - 1], 0);
     check_widths[0] = widths[0];
     check_widths[2] = widths[1];
     check_widths[4] = widths[2];
     check_widths[6] = widths[3];
-    getRSSwidths(widths, c_even, modules_even_exp[c_group - 1], 4, widest_even_exp[c_group - 1], 1);
+    getRSSwidths(widths, c_even, dbar_exp_modules_even[c_group - 1], 4, dbar_exp_widest_even[c_group - 1], 1);
     check_widths[1] = widths[0];
     check_widths[3] = widths[1];
     check_widths[5] = widths[2];
@@ -1421,7 +1417,7 @@ INTERNAL int dbar_exp_cc(struct zint_symbol *symbol, unsigned char source[], int
     for (i = 0; i < codeblocks; i++) {
         k = p + i;
         for (j = 0; j < 5; j++) {
-            elements[(21 * i) + j + 10] = finder_pattern_exp[((finder_sequence[k] - 1) * 5) + j];
+            elements[(21 * i) + j + 10] = dbar_exp_finder_pattern[((dbar_exp_finder_sequence[k] - 1) * 5) + j];
         }
     }
 
@@ -1465,7 +1461,11 @@ INTERNAL int dbar_exp_cc(struct zint_symbol *symbol, unsigned char source[], int
         }
         symbol->rows = symbol->rows + 1;
 
-        dbar_exp_hrt(symbol, source, length);
+        if (raw_text) {
+            hrt_cpy_nochk(symbol, reduced, reduced_length);
+        } else {
+            dbar_exp_hrt(symbol, source, length);
+        }
 
     } else {
         int current_row, current_block, left_to_right;

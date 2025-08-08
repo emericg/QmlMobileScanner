@@ -1,7 +1,7 @@
 /*  output.c - Common routines for raster/vector
 
     libzint - the open source barcode library
-    Copyright (C) 2020-2023 Robin Stuart <rstuart114@gmail.com>
+    Copyright (C) 2020-2025 Robin Stuart <rstuart114@gmail.com>
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions
@@ -52,12 +52,12 @@ static int out_check_colour(struct zint_symbol *symbol, const char *colour, cons
     if ((comma1 = strchr(colour, ',')) == NULL) {
         const int len = (int) strlen(colour);
         if ((len != 6) && (len != 8)) {
-            sprintf(symbol->errtxt, "880: Malformed %s RGB colour (6 or 8 characters only)", name);
-            return ZINT_ERROR_INVALID_OPTION;
+            return errtxtf(ZINT_ERROR_INVALID_OPTION, symbol, 880, "Malformed %s RGB colour (6 or 8 characters only)",
+                            name);
         }
-        if (!is_sane(OUT_SSET_F, (unsigned char *) colour, len)) {
-            sprintf(symbol->errtxt, "881: Malformed %s RGB colour '%s' (hexadecimal only)", name, colour);
-            return ZINT_ERROR_INVALID_OPTION;
+        if (not_sane(OUT_SSET_F, (unsigned char *) colour, len)) {
+            return ZEXT errtxtf(ZINT_ERROR_INVALID_OPTION, symbol, 881,
+                                "Malformed %1$s RGB colour '%2$s' (hexadecimal only)", name, colour);
         }
 
         return 0;
@@ -66,29 +66,29 @@ static int out_check_colour(struct zint_symbol *symbol, const char *colour, cons
     /* CMYK comma-separated percentages */
     if ((comma2 = strchr(comma1 + 1, ',')) == NULL || (comma3 = strchr(comma2 + 1, ',')) == NULL
             || strchr(comma3 + 1, ',') != NULL) {
-        sprintf(symbol->errtxt, "882: Malformed %s CMYK colour (4 decimal numbers, comma-separated)", name);
-        return ZINT_ERROR_INVALID_OPTION;
+        return errtxtf(ZINT_ERROR_INVALID_OPTION, symbol, 882,
+                        "Malformed %s CMYK colour (4 decimal numbers, comma-separated)", name);
     }
     if (comma1 - colour > 3 || comma2 - (comma1 + 1) > 3 || comma3 - (comma2 + 1) > 3 || strlen(comma3 + 1) > 3) {
-        sprintf(symbol->errtxt, "883: Malformed %s CMYK colour (3 digit maximum per number)", name);
-        return ZINT_ERROR_INVALID_OPTION;
+        return errtxtf(ZINT_ERROR_INVALID_OPTION, symbol, 883,
+                        "Malformed %s CMYK colour (3 digit maximum per number)", name);
     }
 
     if ((val = to_int((const unsigned char *) colour, (int) (comma1 - colour))) == -1 || val > 100) {
-        sprintf(symbol->errtxt, "884: Malformed %s CMYK colour C (decimal 0-100 only)", name);
-        return ZINT_ERROR_INVALID_OPTION;
+        return errtxtf(ZINT_ERROR_INVALID_OPTION, symbol, 884, "Malformed %s CMYK colour C (decimal 0 to 100 only)",
+                        name);
     }
     if ((val = to_int((const unsigned char *) (comma1 + 1), (int) (comma2 - (comma1 + 1)))) == -1 || val > 100) {
-        sprintf(symbol->errtxt, "885: Malformed %s CMYK colour M (decimal 0-100 only)", name);
-        return ZINT_ERROR_INVALID_OPTION;
+        return errtxtf(ZINT_ERROR_INVALID_OPTION, symbol, 885, "Malformed %s CMYK colour M (decimal 0 to 100 only)",
+                        name);
     }
     if ((val = to_int((const unsigned char *) (comma2 + 1), (int) (comma3 - (comma2 + 1)))) == -1 || val > 100) {
-        sprintf(symbol->errtxt, "886: Malformed %s CMYK colour Y (decimal 0-100 only)", name);
-        return ZINT_ERROR_INVALID_OPTION;
+        return errtxtf(ZINT_ERROR_INVALID_OPTION, symbol, 886, "Malformed %s CMYK colour Y (decimal 0 to 100 only)",
+                        name);
     }
     if ((val = to_int((const unsigned char *) (comma3 + 1), (int) strlen(comma3 + 1))) == -1 || val > 100) {
-        sprintf(symbol->errtxt, "887: Malformed %s CMYK colour K (decimal 0-100 only)", name);
-        return ZINT_ERROR_INVALID_OPTION;
+        return errtxtf(ZINT_ERROR_INVALID_OPTION, symbol, 887, "Malformed %s CMYK colour K (decimal 0 to 100 only)",
+                        name);
     }
 
     return 0;
@@ -114,11 +114,11 @@ INTERNAL int out_colour_get_rgb(const char *colour, unsigned char *red, unsigned
     int black, val;
 
     if ((comma1 = strchr(colour, ',')) == NULL) {
-        *red = 16 * ctoi(colour[0]) + ctoi(colour[1]);
-        *green = 16 * ctoi(colour[2]) + ctoi(colour[3]);
-        *blue = 16 * ctoi(colour[4]) + ctoi(colour[5]);
+        *red = (unsigned char) (16 * ctoi(colour[0]) + ctoi(colour[1]));
+        *green = (unsigned char) (16 * ctoi(colour[2]) + ctoi(colour[3]));
+        *blue = (unsigned char) (16 * ctoi(colour[4]) + ctoi(colour[5]));
         if (alpha) {
-            *alpha = colour[6] ? 16 * ctoi(colour[6]) + ctoi(colour[7]) : 0xFF;
+            *alpha = (unsigned char) (colour[6] ? 16 * ctoi(colour[6]) + ctoi(colour[7]) : 0xFF);
             return colour[6] ? 1 : 0;
         }
         return 0;
@@ -129,13 +129,13 @@ INTERNAL int out_colour_get_rgb(const char *colour, unsigned char *red, unsigned
     black = 100 - to_int((const unsigned char *) (comma3 + 1), (int) strlen(comma3 + 1));
 
     val = 100 - to_int((const unsigned char *) colour, (int) (comma1 - colour)); /* Cyan */
-    *red = (int) roundf((0xFF * val * black) / 10000.0f);
+    *red = (unsigned char) round((0xFF * val * black) / 10000.0);
 
     val = 100 - to_int((const unsigned char *) (comma1 + 1), (int) (comma2 - (comma1 + 1))); /* Magenta */
-    *green = (int) roundf((0xFF * val * black) / 10000.0f);
+    *green = (unsigned char) round((0xFF * val * black) / 10000.0);
 
     val = 100 - to_int((const unsigned char *) (comma2 + 1), (int) (comma3 - (comma2 + 1))); /* Yellow */
-    *blue = (int) roundf((0xFF * val * black) / 10000.0f);
+    *blue = (unsigned char) round((0xFF * val * black) / 10000.0);
 
     if (alpha) {
         *alpha = 0xFF;
@@ -176,10 +176,10 @@ INTERNAL int out_colour_get_cmyk(const char *colour, int *cyan, int *magenta, in
         *cyan = *magenta = *yellow = 0;
         *black = 100;
     } else {
-        *cyan = (int) roundf((k - red) * 100.0f / k);
-        *magenta = (int) roundf((k - green) * 100.0f / k);
-        *yellow = (int) roundf((k - blue) * 100.0f / k);
-        *black = (int) roundf(((0xFF - k) * 100.0f) / 0xFF);
+        *cyan = (int) round((k - red) * 100.0 / k);
+        *magenta = (int) round((k - green) * 100.0 / k);
+        *yellow = (int) round((k - blue) * 100.0 / k);
+        *black = (int) round(((0xFF - k) * 100.0) / 0xFF);
     }
 
     if (rgb_alpha) {
@@ -190,7 +190,8 @@ INTERNAL int out_colour_get_cmyk(const char *colour, int *cyan, int *magenta, in
 }
 
 /* Convert internal colour chars "WCBMRYGK" to RGB */
-INTERNAL int out_colour_char_to_rgb(const char ch, unsigned char *red, unsigned char *green, unsigned char *blue) {
+INTERNAL int out_colour_char_to_rgb(const unsigned char ch, unsigned char *red, unsigned char *green,
+                unsigned char *blue) {
     static const char chars[] = "WCBMRYGK";
     static const unsigned char colours[8][3] = {
         { 0xff, 0xff, 0xff, }, /* White */
@@ -202,7 +203,7 @@ INTERNAL int out_colour_char_to_rgb(const char ch, unsigned char *red, unsigned 
         {    0, 0xff,    0, }, /* Green */
         {    0,    0,    0, }, /* Black */
     };
-    int i = posn(chars, ch);
+    int i = posn(chars, (const char) ch);
     int ret = i != -1;
 
     if (i == -1) {
@@ -266,7 +267,7 @@ static int out_quiet_zones(const struct zint_symbol *symbol, const int hide_text
         case BARCODE_EANX_CC:
         case BARCODE_ISBNX:
             /* GS1 General Specifications 21.0.1 Section 5.2.3.4 */
-            switch (ustrlen(symbol->text)) {
+            switch (symbol->text_length) {
                 case 13: /* EAN-13/ISBN */
                     if (!(symbol->output_options & BARCODE_NO_QUIET_ZONES)) {
                         *left = comp_xoffset >= 10 ? 1.0f : 11.0f - comp_xoffset; /* Need at least 1X for CC-A/B */
@@ -311,14 +312,14 @@ static int out_quiet_zones(const struct zint_symbol *symbol, const int hide_text
             /* GS1 General Specifications 21.0.1 Section 5.2.3.4 */
             if (!(symbol->output_options & BARCODE_NO_QUIET_ZONES)) {
                 *left = comp_xoffset >= 8 ? 1.0f : 9.0f - comp_xoffset; /* Need at least 1X for CC-A/B */
-                if (ustrlen(symbol->text) > 12) { /* UPC-A + add-on */
+                if (symbol->text_length > 12) { /* UPC-A + add-on */
                     *right = 5.0f;
                 } else {
                     *right = 9.0f - (comp_xoffset != 0);
                 }
             } else if (!hide_text) {
                 *left = comp_xoffset >= 8 ? 1.0f : 9.0f - comp_xoffset; /* Need for outside left digit */
-                if (ustrlen(symbol->text) <= 12) { /* No add-on */
+                if (symbol->text_length <= 12) { /* No add-on */
                     *right = 9.0f - (comp_xoffset != 0); /* Need for outside right digit */
                 }
             }
@@ -330,14 +331,14 @@ static int out_quiet_zones(const struct zint_symbol *symbol, const int hide_text
             /* GS1 General Specifications 21.0.1 Section 5.2.3.4 */
             if (!(symbol->output_options & BARCODE_NO_QUIET_ZONES)) {
                 *left = comp_xoffset >= 8 ? 1.0f : 9.0f - comp_xoffset;
-                if (ustrlen(symbol->text) > 8) { /* UPC-E + add-on */
+                if (symbol->text_length > 8) { /* UPC-E + add-on */
                     *right = 5.0f;
                 } else {
                     *right = 7.0f - (comp_xoffset != 0);
                 }
             } else if (!hide_text) {
                 *left = comp_xoffset >= 8 ? 1.0f : 9.0f - comp_xoffset; /* Need for outside left digit */
-                if (ustrlen(symbol->text) <= 8) { /* No add-on */
+                if (symbol->text_length <= 8) { /* No add-on */
                     *right = 7.0f - (comp_xoffset != 0); /* Need for outside right digit */
                 }
             }
@@ -358,6 +359,12 @@ static int out_quiet_zones(const struct zint_symbol *symbol, const int hide_text
         case BARCODE_CODE11:
             /* No known standard. Following ITF-14, set to 10X */
             *left = *right = 10.0f;
+            done = 1;
+            break;
+        
+        case BARCODE_DXFILMEDGE:
+            /* No known standard. Add a little horizontal space to make the detection easier. Tested with Zxing-CPP */
+            *left = *right = 1.8f;
             done = 1;
             break;
 
@@ -504,8 +511,8 @@ static int out_quiet_zones(const struct zint_symbol *symbol, const int hide_text
             /* USPS DMM 300 2006 (2011) 708.9.3 (top/bottom zero)
                right 0.125" (min) / 0.03925" (X max) ~ 3.18, left 1.25" - 0.66725" (max width of barcode)
                - 0.375 (max right) = 0.20775" / 0.03925" (X max) ~ 5.29 */
-            *right = (float) (0.125 / 0.03925);
-            *left = (float) (0.20775 / 0.03925);
+            *right = 3.18471336f; /* 0.125 / 0.03925 */
+            *left = 5.29299355f; /* 0.20775 / 0.03925 */
             done = 1;
             break;
         case BARCODE_PHARMA:
@@ -561,13 +568,13 @@ static int out_quiet_zones(const struct zint_symbol *symbol, const int hide_text
             /* Customer Barcode Technical Specifications (2012) left/right 6mm / 0.6mm = 10,
                top/bottom 2mm / 0.6mm ~ 3.33 (X max) */
             *left = *right = 10.0f;
-            *top = *bottom = (float) (2.0 / 0.6);
+            *top = *bottom = 3.33333325f; /* 2.0 / 0.6 */
             done = 1;
             break;
         case BARCODE_RM4SCC:
             /* Royal Mail Know How User's Manual Appendix C: using CBC, same as MAILMARK_4S, 2mm all round,
                use X max (25.4mm / 39) i.e. 20 bars per 25.4mm */
-            *left = *right = *top = *bottom = (float) ((2.0 * 39.0) / 25.4); /* ~ 3.07 */
+            *left = *right = *top = *bottom = 3.07086611f; /* (2.0 * 39.0) / 25.4 */
             done = 1;
             break;
         case BARCODE_DATAMATRIX:
@@ -578,7 +585,7 @@ static int out_quiet_zones(const struct zint_symbol *symbol, const int hide_text
             break;
         case BARCODE_JAPANPOST:
             /* Japan Post Zip/Barcode Manual p.13 2mm all round, X 0.6mm, 2mm / 0.6mm ~ 3.33 */
-            *left = *right = *top = *bottom = (float) (2.0 / 0.6);
+            *left = *right = *top = *bottom = 3.33333325f; /* 2.0 / 0.6 */
             done = 1;
             break;
 
@@ -591,8 +598,8 @@ static int out_quiet_zones(const struct zint_symbol *symbol, const int hide_text
         case BARCODE_USPS_IMAIL:
             /* USPS-B-3200 (2015) Section 2.3.2 left/right 0.125", top/bottom 0.026", use X max (1 / 39)
                i.e. 20 bars per inch */
-            *left = *right = 0.125f * 39.0f; /* 4.875 */
-            *top = *bottom = 0.026f * 39.0f; /* 1.014 */
+            *left = *right = 4.875f; /* 0.125 * 39.0 */
+            *top = *bottom = 1.01400006f; /* 0.026 * 39.0 */
             done = 1;
             break;
 
@@ -604,7 +611,7 @@ static int out_quiet_zones(const struct zint_symbol *symbol, const int hide_text
 
         case BARCODE_KIX:
             /* Handleiding KIX code brochure - same as RM4SCC/MAILMARK_4S */
-            *left = *right = *top = *bottom = (float) ((2.0 * 39.0) / 25.4); /* ~ 3.07 */
+            *left = *right = *top = *bottom = 3.07086611f; /* (2.0 * 39.0) / 25.4 */
             done = 1;
             break;
         case BARCODE_AZTEC:
@@ -630,7 +637,7 @@ static int out_quiet_zones(const struct zint_symbol *symbol, const int hide_text
         case BARCODE_MAILMARK_4S:
             /* Royal Mail Mailmark Barcode Definition Document Section 3.5.2, 2mm all round, use X max (25.4mm / 39)
                i.e. 20 bars per 25.4mm */
-            *left = *right = *top = *bottom = (float) ((2.0 * 39.0) / 25.4); /* ~ 3.07 */
+            *left = *right = *top = *bottom = 3.07086611f; /* (2.0 * 39.0) / 25.4 */
             done = 1;
             break;
         case BARCODE_UPU_S10:
@@ -741,12 +748,11 @@ INTERNAL int out_process_upcean(const struct zint_symbol *symbol, const int comp
     int main_width; /* Width of main linear symbol, excluding add-on */
     int upceanflag; /* EAN/UPC type flag */
     int i, j, latch;
-    const int text_length = (int) ustrlen(symbol->text);
 
     latch = 0;
     j = 0;
     /* Isolate add-on text */
-    for (i = 6; i < text_length && j < 5; i++) {
+    for (i = 6; i < symbol->text_length && j < 5; i++) {
         if (latch == 1) {
             /* Use dummy space-filled add-on if no hrt */
             addon[j] = symbol->show_hrt ? symbol->text[i] : ' ';
@@ -770,7 +776,7 @@ INTERNAL int out_process_upcean(const struct zint_symbol *symbol, const int comp
     main_width = symbol->width;
     if ((symbol->symbology == BARCODE_EANX) || (symbol->symbology == BARCODE_EANX_CHK)
             || (symbol->symbology == BARCODE_EANX_CC) || (symbol->symbology == BARCODE_ISBNX)) {
-        switch (text_length) {
+        switch (symbol->text_length) {
             case 13: /* EAN-13 */
             case 16: /* EAN-13 + EAN-2 */
             case 19: /* EAN-13 + EAN-5 */
@@ -883,7 +889,7 @@ INTERNAL float out_large_bar_height(struct zint_symbol *symbol, const int si, in
 /* Convert UTF-8 to Windows wide chars. Ticket #288, props Marcel */
 #define utf8_to_wide(u, w, r) \
     { \
-        int lenW; /* Includes NUL terminator */ \
+        int lenW; /* Includes terminating NUL */ \
         if ((lenW = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, u, -1, NULL, 0)) == 0) return r; \
         w = (wchar_t *) z_alloca(sizeof(wchar_t) * lenW); \
         if (MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, u, -1, w, lenW) == 0) return r; \
@@ -893,14 +899,14 @@ INTERNAL float out_large_bar_height(struct zint_symbol *symbol, const int si, in
 INTERNAL FILE *out_win_fopen(const char *filename, const char *mode) {
     wchar_t *filenameW, *modeW;
 
-    utf8_to_wide(filename, filenameW, NULL);
+    utf8_to_wide(filename, filenameW, NULL /*fail return*/);
     utf8_to_wide(mode, modeW, NULL);
 
     return _wfopen(filenameW, modeW);
 }
 #endif
 
-/* Make a directory; already existing dir okay */
+/* Make a directory; already existing dir okay. Returns 0 on success */
 /* Adapted from https://gist.github.com/JonathonReinhart/8c0d90191c38af2dcadb102c4e202950 and
    https://nachtimwald.com/2019/07/10/recursive-create-directory-in-c-revisited/ */
 static int out_maybe_mkdir(const char *path) {
@@ -909,7 +915,7 @@ static int out_maybe_mkdir(const char *path) {
     wchar_t *pathW;
 
     /* Assumes `path` is UTF-8 encoded */
-    utf8_to_wide(path, pathW, 0);
+    utf8_to_wide(path, pathW, -1 /*fail return*/);
 
     /* Try to make the directory */
     if (CreateDirectoryW(pathW, NULL) != 0) { /* Non-zero on success */
@@ -971,7 +977,7 @@ INTERNAL FILE *out_fopen(const char filename[256], const char *mode) {
         memcpy(dirname, filename, dirend - filename);
         dirname[dirend - filename] = '/';
         dirname[dirend - filename + 1] = '\0';
-#if _WIN32
+#ifdef _WIN32
         for (d = dirname; *d; d++) { /* Convert to Unix separators */
             if (*d == '\\') {
                 *d = '/';
@@ -995,36 +1001,6 @@ INTERNAL FILE *out_fopen(const char filename[256], const char *mode) {
     }
 
     return outfile;
-}
-
-/* Output float without trailing zeroes to `fp` with decimal pts `dp` (precision) */
-INTERNAL void out_putsf(const char *const prefix, const int dp, const float arg, FILE *fp) {
-    int i, end;
-    char buf[256]; /* Assuming `dp` reasonable */
-    const int len = sprintf(buf, "%.*f", dp, arg);
-
-    if (*prefix) {
-        fputs(prefix, fp);
-    }
-
-    /* Adapted from https://stackoverflow.com/a/36202854/664741 */
-    for (i = len - 1, end = len; i >= 0; i--) {
-        if (buf[i] == '0') {
-            if (end == i + 1) {
-                end = i;
-            }
-        } else if (!z_isdigit(buf[i]) && buf[i] != '-') { /* If not digit or minus then decimal point */
-            if (end == i + 1) {
-                end = i;
-            } else {
-                buf[i] = '.'; /* Overwrite any locale-specific setting for decimal point */
-            }
-            buf[end] = '\0';
-            break;
-        }
-    }
-
-    fputs(buf, fp);
 }
 
 /* vim: set ts=4 sw=4 et : */

@@ -1,7 +1,7 @@
 /* pdf417_tabs.h - PDF417 tables and coefficients */
 /*
     libzint - the open source barcode library
-    Copyright (C) 2008-2022 Robin Stuart <rstuart114@gmail.com>
+    Copyright (C) 2008-2024 Robin Stuart <rstuart114@gmail.com>
     Portions Copyright (C) 2004 Grandzebu
 
     Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,10 @@
 
 #ifndef Z_PDF417_TABS_H
 #define Z_PDF417_TABS_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 /* PDF417 error correction coefficients from Grand Zebu */
 INTERNAL_DATA const unsigned short pdf_coefrs[1022] = {
@@ -509,6 +513,10 @@ INTERNAL_DATA const unsigned short pdf_rap_centre[52] = {
     0x28C, 0x29C, 0x298, 0x2B8, 0x2B0, 0x290, 0x2D0, 0x250, 0x258, 0x25C,
     0x2DC, 0x2DE
 };
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 /* vim: set ts=4 sw=4 et : */
 #endif /* Z_PDF417_TABS_H */

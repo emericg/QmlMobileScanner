@@ -1,7 +1,7 @@
 /*  vector.c - Creates vector image objects */
 /*
     libzint - the open source barcode library
-    Copyright (C) 2018-2023 Robin Stuart <rstuart114@gmail.com>
+    Copyright (C) 2018-2025 Robin Stuart <rstuart114@gmail.com>
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions
@@ -42,11 +42,15 @@ static int vector_add_rect(struct zint_symbol *symbol, const float x, const floa
             const float height, struct zint_vector_rect **last_rect) {
     struct zint_vector_rect *rect;
 
-    rect = (struct zint_vector_rect *) malloc(sizeof(struct zint_vector_rect));
-    if (!rect) {
-        strcpy(symbol->errtxt, "691: Insufficient memory for vector rectangle");
+    if (!(rect = (struct zint_vector_rect *) malloc(sizeof(struct zint_vector_rect)))) {
+        /* NOTE: clang-tidy-20 gets confused about return value of function returning a function unfortunately,
+           so put on 2 lines (see also "postal.c" `postnet_enc()` & `planet_enc()`, same issue) */
+        errtxt(0, symbol, 691, "Insufficient memory for vector rectangle");
         return 0;
     }
+#ifdef ZINT_SANITIZEM /* Suppress clang -fsanitize=memory false positive */
+    memset(rect, 0, sizeof(struct zint_vector_rect));
+#endif
 
     rect->next = NULL;
     rect->x = x;
@@ -69,11 +73,12 @@ static int vector_add_hexagon(struct zint_symbol *symbol, const float x, const f
             const float diameter, struct zint_vector_hexagon **last_hexagon) {
     struct zint_vector_hexagon *hexagon;
 
-    hexagon = (struct zint_vector_hexagon *) malloc(sizeof(struct zint_vector_hexagon));
-    if (!hexagon) {
-        strcpy(symbol->errtxt, "692: Insufficient memory for vector hexagon");
-        return 0;
+    if (!(hexagon = (struct zint_vector_hexagon *) malloc(sizeof(struct zint_vector_hexagon)))) {
+        return errtxt(0, symbol, 692, "Insufficient memory for vector hexagon");
     }
+#ifdef ZINT_SANITIZEM /* Suppress clang -fsanitize=memory false positive */
+    memset(hexagon, 0, sizeof(struct zint_vector_hexagon));
+#endif
     hexagon->next = NULL;
     hexagon->x = x;
     hexagon->y = y;
@@ -94,11 +99,12 @@ static int vector_add_circle(struct zint_symbol *symbol, const float x, const fl
             const float width, const int colour, struct zint_vector_circle **last_circle) {
     struct zint_vector_circle *circle;
 
-    circle = (struct zint_vector_circle *) malloc(sizeof(struct zint_vector_circle));
-    if (!circle) {
-        strcpy(symbol->errtxt, "693: Insufficient memory for vector circle");
-        return 0;
+    if (!(circle = (struct zint_vector_circle *) malloc(sizeof(struct zint_vector_circle)))) {
+        return errtxt(0, symbol, 693, "Insufficient memory for vector circle");
     }
+#ifdef ZINT_SANITIZEM /* Suppress clang -fsanitize=memory false positive */
+    memset(circle, 0, sizeof(struct zint_vector_circle));
+#endif
     circle->next = NULL;
     circle->x = x;
     circle->y = y;
@@ -121,11 +127,12 @@ static int vector_add_string(struct zint_symbol *symbol, const unsigned char *te
             struct zint_vector_string **last_string) {
     struct zint_vector_string *string;
 
-    string = (struct zint_vector_string *) malloc(sizeof(struct zint_vector_string));
-    if (!string) {
-        strcpy(symbol->errtxt, "694: Insufficient memory for vector string");
-        return 0;
+    if (!(string = (struct zint_vector_string *) malloc(sizeof(struct zint_vector_string)))) {
+        return errtxt(0, symbol, 694, "Insufficient memory for vector string");
     }
+#ifdef ZINT_SANITIZEM /* Suppress clang -fsanitize=memory false positive */
+    memset(string, 0, sizeof(struct zint_vector_string));
+#endif
     string->next = NULL;
     string->x = x;
     string->y = y;
@@ -134,12 +141,13 @@ static int vector_add_string(struct zint_symbol *symbol, const unsigned char *te
     string->length = length == -1 ? (int) ustrlen(text) : length;
     string->rotation = 0;
     string->halign = halign;
-    string->text = (unsigned char *) malloc(string->length + 1);
-    if (!string->text) {
+    if (!(string->text = (unsigned char *) malloc(string->length + 1))) {
         free(string);
-        strcpy(symbol->errtxt, "695: Insufficient memory for vector string text");
-        return 0;
+        return errtxt(0, symbol, 695, "Insufficient memory for vector string text");
     }
+#ifdef ZINT_SANITIZEM /* Suppress clang -fsanitize=memory false positive */
+    memset(string->text, 0, string->length + 1);
+#endif
     memcpy(string->text, text, string->length);
     string->text[string->length] = '\0';
 
@@ -380,7 +388,7 @@ static void vector_reduce_rectangles(struct zint_symbol *symbol) {
 }
 
 INTERNAL int plot_vector(struct zint_symbol *symbol, int rotate_angle, int file_type) {
-    int error_number;
+    int error_number, warn_number = 0;
     int main_width;
     int comp_xoffset = 0;
     int comp_roffset = 0;
@@ -409,8 +417,8 @@ INTERNAL int plot_vector(struct zint_symbol *symbol, int rotate_angle, int file_
     const float descent_small = 0.948426545f; /* Arimo value for SMALL_TEXT (font height 5) */
 
     /* For UPC/EAN only */
-    float addon_row_yposn;
-    float addon_row_height;
+    float addon_row_yposn = 0.0f; /* Suppress gcc -Wmaybe-uninitialized false positive */
+    float addon_row_height = 0.0f; /* Ditto */
     int upcae_outside_font_height = 0; /* UPC-A/E outside digits font size */
     const float gws_left_fudge = 0.5f; /* These make the guard whitespaces appear closer to the edge for SVG/qzint */
     const float gws_right_fudge = 0.5f; /* (undone by EMF/EPS) */
@@ -443,13 +451,17 @@ INTERNAL int plot_vector(struct zint_symbol *symbol, int rotate_angle, int file_
     if (error_number != 0) {
         return error_number;
     }
+    if (symbol->rows <= 0) {
+        return errtxt(ZINT_ERROR_INVALID_OPTION, symbol, 697, "No rows");
+    }
 
     /* Allocate memory */
-    vector = symbol->vector = (struct zint_vector *) malloc(sizeof(struct zint_vector));
-    if (!vector) {
-        strcpy(symbol->errtxt, "696: Insufficient memory for vector header");
-        return ZINT_ERROR_MEMORY;
+    if (!(vector = symbol->vector = (struct zint_vector *) malloc(sizeof(struct zint_vector)))) {
+        return errtxt(ZINT_ERROR_MEMORY, symbol, 696, "Insufficient memory for vector header");
     }
+#ifdef ZINT_SANITIZEM /* Suppress clang -fsanitize=memory false positive */
+    memset(vector, 0, sizeof(struct zint_vector));
+#endif
     vector->rectangles = NULL;
     vector->hexagons = NULL;
     vector->circles = NULL;
@@ -473,7 +485,10 @@ INTERNAL int plot_vector(struct zint_symbol *symbol, int rotate_angle, int file_
         main_width -= comp_xoffset + comp_roffset;
     }
 
-    hide_text = ((!symbol->show_hrt) || (ustrlen(symbol->text) == 0));
+    hide_text = !symbol->show_hrt || symbol->text_length == 0;
+    if (!hide_text && (symbol->output_options & BARCODE_RAW_TEXT)) {
+        warn_number = errtxt(ZINT_WARN_HRT_RAW_TEXT, symbol, 698, "HRT outputted as raw text");
+    }
 
     out_set_whitespace_offsets(symbol, hide_text, comp_xoffset, &xoffset, &yoffset, &roffset, &boffset, &qz_right,
         0 /*scaler*/, NULL, NULL, NULL, NULL, NULL);
@@ -618,9 +633,9 @@ INTERNAL int plot_vector(struct zint_symbol *symbol, int rotate_angle, int file_
                     }
                     addon_row_yposn = yposn + font_height + text_gap + antialias_fudge;
                     addon_row_height = row_height - (addon_row_yposn - yposn);
-                    if (upceanflag != 12 && upceanflag != 6) { /* UPC-A/E add-ons don't descend */
-                        addon_row_height += guard_descent;
-                    }
+                    /* Following ISO/IEC 15420:2009 Figure 5 — UPC-A bar code symbol with 2-digit add-on (contrary to
+                       GS1 General Specs v24.0 Figure 5.2.6.6-5) descends for all including UPC-A/E */
+                    addon_row_height += guard_descent;
                     if (addon_row_height < 0.5f) {
                         addon_row_height = 0.5f;
                     }
@@ -756,7 +771,9 @@ INTERNAL int plot_vector(struct zint_symbol *symbol, int rotate_angle, int file_
                 textwidth = 6.0f * 8.5f;
                 if (!vector_add_string(symbol, symbol->text + 1, 6, text_xposn, text_yposn, font_height, textwidth,
                         0 /*centre align*/, &last_string)) return ZINT_ERROR_MEMORY;
-                text_xposn = (51.0f - 0.35f) + 3.0f + xoffset_comp;
+                /* TODO: GS1 General Specs v24.0 5.2.5 Human readable interpretation says 3X but this could cause
+                   digit's righthand to touch any add-on, now that they descend, so use 2X, until clarified */
+                text_xposn = (51.0f - 0.35f) + 2.0f + xoffset_comp;
                 textwidth = 6.2f;
                 if (!vector_add_string(symbol, symbol->text + 7, 1, text_xposn, text_yposn, upcae_outside_font_height,
                         textwidth, 1 /*left align*/, &last_string)) return ZINT_ERROR_MEMORY;
@@ -818,7 +835,9 @@ INTERNAL int plot_vector(struct zint_symbol *symbol, int rotate_angle, int file_
                 text_xposn = 67.0f + xoffset_comp;
                 if (!vector_add_string(symbol, symbol->text + 6, 5, text_xposn, text_yposn, font_height, textwidth,
                         0 /*centre align*/, &last_string)) return ZINT_ERROR_MEMORY;
-                text_xposn = (95.0f - 0.35f) + 5.0f + xoffset_comp;
+                /* TODO: GS1 General Specs v24.0 5.2.5 Human readable interpretation says 5X but this could cause
+                   digit's righthand to touch any add-on, now that they descend, so use 4X, until clarified */
+                text_xposn = (95.0f - 0.35f) + 4.0f + xoffset_comp;
                 textwidth = 6.2f;
                 if (!vector_add_string(symbol, symbol->text + 11, 1, text_xposn, text_yposn,
                         upcae_outside_font_height, textwidth, 1 /*left align*/, &last_string)) {
@@ -879,7 +898,7 @@ INTERNAL int plot_vector(struct zint_symbol *symbol, int rotate_angle, int file_
             if (text_yposn < 0.0f) {
                 text_yposn = 0.0f;
             }
-            addon_len = (int) ustrlen(symbol->text);
+            addon_len = symbol->text_length;
             textwidth = addon_len * 8.5f;
             if (!vector_add_string(symbol, symbol->text, addon_len, text_xposn, text_yposn, font_height,
                     textwidth, 0 /*centre align*/, &last_string)) return ZINT_ERROR_MEMORY;
@@ -1022,7 +1041,7 @@ INTERNAL int plot_vector(struct zint_symbol *symbol, int rotate_angle, int file_
         /* case OUT_BUFFER: No more work needed */
     }
 
-    return error_number;
+    return error_number ? error_number : warn_number;
 }
 
 /* vim: set ts=4 sw=4 et : */

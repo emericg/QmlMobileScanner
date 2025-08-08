@@ -1,7 +1,7 @@
 /*  hanxin.c - Han Xin Code */
 /*
     libzint - the open source barcode library
-    Copyright (C) 2009-2023 Robin Stuart <rstuart114@gmail.com>
+    Copyright (C) 2009-2025 Robin Stuart <rstuart114@gmail.com>
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions
@@ -364,7 +364,7 @@ static void hx_define_mode(char *mode, const unsigned int ddata[], const int len
     };
 
     /* Cost of switching modes from k to j */
-    static const unsigned int switch_costs[HX_NUM_MODES][HX_NUM_MODES] = {
+    static const unsigned char switch_costs[HX_NUM_MODES][HX_NUM_MODES] = {
         /*      N                   T                   B                        1                   2                   D                   F */
         /*N*/ {                  0, (10 + 4) * HX_MULT, (10 + 4 + 13) * HX_MULT, (10 + 4) * HX_MULT, (10 + 4) * HX_MULT, (10 + 4) * HX_MULT, 10 * HX_MULT },
         /*T*/ {  (6 + 4) * HX_MULT,                  0,  (6 + 4 + 13) * HX_MULT,  (6 + 4) * HX_MULT,  (6 + 4) * HX_MULT,  (6 + 4) * HX_MULT,  6 * HX_MULT },
@@ -376,7 +376,7 @@ static void hx_define_mode(char *mode, const unsigned int ddata[], const int len
     };
 
     /* Final end-of-data costs */
-    static const unsigned int eod_costs[HX_NUM_MODES] = {
+    static const unsigned char eod_costs[HX_NUM_MODES] = {
     /*  N             T            B  1             2             D             F */
         10 * HX_MULT, 6 * HX_MULT, 0, 12 * HX_MULT, 12 * HX_MULT, 15 * HX_MULT, 0
     };
@@ -384,28 +384,28 @@ static void hx_define_mode(char *mode, const unsigned int ddata[], const int len
     unsigned int numeric_end = 0, numeric_cost = 0, text_submode = 1, fourbyte_end = 0, fourbyte_cost = 0; /* State */
     int text1, text2;
 
-    int i, j, k, cm_i;
+    int i, j, k;
     unsigned int min_cost;
     char cur_mode;
     unsigned int prev_costs[HX_NUM_MODES];
     unsigned int cur_costs[HX_NUM_MODES];
-    char *char_modes = (char *) z_alloca(length * HX_NUM_MODES);
+    char (*char_modes)[HX_NUM_MODES] = (char (*)[HX_NUM_MODES]) z_alloca(HX_NUM_MODES * length);
 
-    /* char_modes[i * HX_NUM_MODES + j] represents the mode to encode the code point at index i such that the final
-     * segment ends in mode_types[j] and the total number of bits is minimized over all possible choices */
-    memset(char_modes, 0, length * HX_NUM_MODES);
+    /* char_modes[i][j] represents the mode to encode the code point at index i such that the final segment
+       ends in mode_types[j] and the total number of bits is minimized over all possible choices */
+    memset(char_modes, 0, HX_NUM_MODES * length);
 
     /* At the beginning of each iteration of the loop below, prev_costs[j] is the minimum number of 1/6 (1/XX_MULT)
      * bits needed to encode the entire string prefix of length i, and end in mode_types[j] */
     memcpy(prev_costs, head_costs, HX_NUM_MODES * sizeof(unsigned int));
 
     /* Calculate costs using dynamic programming */
-    for (i = 0, cm_i = 0; i < length; i++, cm_i += HX_NUM_MODES) {
+    for (i = 0; i < length; i++) {
         memset(cur_costs, 0, HX_NUM_MODES * sizeof(unsigned int));
 
         if (hx_in_numeric(ddata, length, i, &numeric_end, &numeric_cost)) {
             cur_costs[HX_N] = prev_costs[HX_N] + numeric_cost;
-            char_modes[cm_i + HX_N] = 'n';
+            char_modes[i][HX_N] = 'n';
             text1 = 1;
             text2 = 0;
         } else {
@@ -420,35 +420,35 @@ static void hx_define_mode(char *mode, const unsigned int ddata[], const int len
             } else {
                 cur_costs[HX_T] = prev_costs[HX_T] + 36; /* 6 * HX_MULT */
             }
-            char_modes[cm_i + HX_T] = 't';
+            char_modes[i][HX_T] = 't';
         } else {
             text_submode = 1;
         }
 
         /* Binary mode can encode anything */
         cur_costs[HX_B] = prev_costs[HX_B] + (ddata[i] > 0xFF ? 96 : 48); /* (16 : 8) * HX_MULT */
-        char_modes[cm_i + HX_B] = 'b';
+        char_modes[i][HX_B] = 'b';
 
         if (hx_in_fourbyte(ddata, length, i, &fourbyte_end, &fourbyte_cost)) {
             cur_costs[HX_F] = prev_costs[HX_F] + fourbyte_cost;
-            char_modes[cm_i + HX_F] = 'f';
+            char_modes[i][HX_F] = 'f';
         } else {
             if (hx_isDoubleByte(ddata[i])) {
                 cur_costs[HX_D] = prev_costs[HX_D] + 90; /* 15 * HX_MULT */
-                char_modes[cm_i + HX_D] = 'd';
+                char_modes[i][HX_D] = 'd';
                 if (hx_isRegion1(ddata[i])) { /* Subset */
                     cur_costs[HX_1] = prev_costs[HX_1] + 72; /* 12 * HX_MULT */
-                    char_modes[cm_i + HX_1] = '1';
+                    char_modes[i][HX_1] = '1';
                 } else if (hx_isRegion2(ddata[i])) { /* Subset */
                     cur_costs[HX_2] = prev_costs[HX_2] + 72; /* 12 * HX_MULT */
-                    char_modes[cm_i + HX_2] = '2';
+                    char_modes[i][HX_2] = '2';
                 }
             }
         }
 
         if (i == length - 1) { /* Add end of data costs if last character */
             for (j = 0; j < HX_NUM_MODES; j++) {
-                if (char_modes[cm_i + j]) {
+                if (char_modes[i][j]) {
                     cur_costs[j] += eod_costs[j];
                 }
             }
@@ -457,11 +457,11 @@ static void hx_define_mode(char *mode, const unsigned int ddata[], const int len
         /* Start new segment at the end to switch modes */
         for (j = 0; j < HX_NUM_MODES; j++) { /* To mode */
             for (k = 0; k < HX_NUM_MODES; k++) { /* From mode */
-                if (j != k && char_modes[cm_i + k]) {
+                if (j != k && char_modes[i][k]) {
                     const unsigned int new_cost = cur_costs[k] + switch_costs[k][j];
-                    if (!char_modes[cm_i + j] || new_cost < cur_costs[j]) {
+                    if (!char_modes[i][j] || new_cost < cur_costs[j]) {
                         cur_costs[j] = new_cost;
-                        char_modes[cm_i + j] = mode_types[k];
+                        char_modes[i][j] = mode_types[k];
                     }
                 }
             }
@@ -481,9 +481,9 @@ static void hx_define_mode(char *mode, const unsigned int ddata[], const int len
     }
 
     /* Get optimal mode for each code point by tracing backwards */
-    for (i = length - 1, cm_i = i * HX_NUM_MODES; i >= 0; i--, cm_i -= HX_NUM_MODES) {
+    for (i = length - 1; i >= 0; i--) {
         j = posn(mode_types, cur_mode);
-        cur_mode = char_modes[cm_i + j];
+        cur_mode = char_modes[i][j];
         mode[i] = cur_mode;
     }
 
@@ -1118,8 +1118,8 @@ static void hx_add_ecc(unsigned char fullstream[], const unsigned char datastrea
     unsigned char data_block[180];
     unsigned char ecc_block[36];
     int i, j, block;
-    int input_position = -1;
-    int output_position = -1;
+    int input_position = 0;
+    int output_position = 0;
     const int table_d1_pos = ((version - 1) * 36) + ((ecc_level - 1) * 9);
     rs_t rs;
 
@@ -1134,17 +1134,15 @@ static void hx_add_ecc(unsigned char fullstream[], const unsigned char datastrea
 
         for (block = 0; block < batch_size; block++) {
             for (j = 0; j < data_length; j++) {
-                input_position++;
-                output_position++;
                 data_block[j] = input_position < data_codewords ? datastream[input_position] : 0;
-                fullstream[output_position] = data_block[j];
+                fullstream[output_position++] = data_block[j];
+                input_position++;
             }
 
             rs_encode(&rs, data_length, data_block, ecc_block);
 
             for (j = 0; j < ecc_length; j++) {
-                output_position++;
-                fullstream[output_position] = ecc_block[ecc_length - j - 1];
+                fullstream[output_position++] = ecc_block[j];
             }
         }
     }
@@ -1177,7 +1175,7 @@ static void hx_set_function_info(unsigned char *grid, const int size, const int 
     rs_init_code(&rs, 4, 1);
     rs_encode(&rs, 3, fi_cw, fi_ecc);
 
-    for (i = 3; i >= 0; i--) {
+    for (i = 0; i < 4; i++) {
         bp = bin_append_posn(fi_ecc[i], 4, function_information, bp);
     }
 
@@ -1521,8 +1519,8 @@ INTERNAL int hanxin(struct zint_symbol *symbol, struct zint_seg segs[], const in
                 if (error_number == 0) {
                     done = 1;
                 } else if (local_segs[i].eci || seg_count > 1) {
-                    sprintf(symbol->errtxt, "545: Invalid character in input data for ECI %d", local_segs[i].eci);
-                    return error_number;
+                    return errtxtf(error_number, symbol, 545, "Invalid character in input for ECI '%d'",
+                                    local_segs[i].eci);
                 }
             }
             if (!done) {
@@ -1532,8 +1530,8 @@ INTERNAL int hanxin(struct zint_symbol *symbol, struct zint_seg segs[], const in
                     return error_number;
                 }
                 if (local_segs[i].eci != 32) {
-                    strcpy(symbol->errtxt, "543: Converted to GB 18030 but no ECI specified");
-                    warn_number = ZINT_WARN_NONCOMPLIANT;
+                    warn_number = errtxt(ZINT_WARN_NONCOMPLIANT, symbol, 543,
+                                            "Converted to GB 18030 but no ECI specified");
                 }
             }
             dd += local_segs[i].length;
@@ -1543,8 +1541,11 @@ INTERNAL int hanxin(struct zint_symbol *symbol, struct zint_seg segs[], const in
     hx_define_mode_segs(mode, ddata, local_segs, seg_count, debug_print);
 
     est_binlen = hx_calc_binlen_segs(mode, ddata, local_segs, seg_count);
+    if (debug_print) {
+        printf("Estimated binary length: %d\n", est_binlen);
+    }
 
-    binary = (char *) z_alloca((est_binlen + 1));
+    binary = (char *) malloc(est_binlen + 1);
 
     if ((ecc_level <= 0) || (ecc_level >= 5)) {
         ecc_level = 1;
@@ -1561,40 +1562,16 @@ INTERNAL int hanxin(struct zint_symbol *symbol, struct zint_seg segs[], const in
 
     version = 85;
     for (i = 84; i > 0; i--) {
-        switch (ecc_level) {
-            case 1:
-                if (hx_data_codewords_L1[i - 1] >= codewords) {
-                    version = i;
-                    data_codewords = hx_data_codewords_L1[i - 1];
-                }
-                break;
-            case 2:
-                if (hx_data_codewords_L2[i - 1] >= codewords) {
-                    version = i;
-                    data_codewords = hx_data_codewords_L2[i - 1];
-                }
-                break;
-            case 3:
-                if (hx_data_codewords_L3[i - 1] >= codewords) {
-                    version = i;
-                    data_codewords = hx_data_codewords_L3[i - 1];
-                }
-                break;
-            case 4:
-                if (hx_data_codewords_L4[i - 1] >= codewords) {
-                    version = i;
-                    data_codewords = hx_data_codewords_L4[i - 1];
-                }
-                break;
-            default: /* Not reached */
-                assert(0);
-                break;
+        if (hx_data_codewords[ecc_level - 1][i - 1] >= codewords) {
+            version = i;
+            data_codewords = hx_data_codewords[ecc_level - 1][i - 1];
         }
     }
 
     if (version == 85) {
-        strcpy(symbol->errtxt, "541: Input too long for selected error correction level");
-        return ZINT_ERROR_TOO_LONG;
+        free(binary);
+        return errtxtf(ZINT_ERROR_TOO_LONG, symbol, 541, "Input too long, requires %d codewords (maximum 3264)",
+                        codewords);
     }
 
     if ((symbol->option_2 < 0) || (symbol->option_2 > 84)) {
@@ -1606,27 +1583,35 @@ INTERNAL int hanxin(struct zint_symbol *symbol, struct zint_seg segs[], const in
     }
 
     if ((symbol->option_2 != 0) && (symbol->option_2 < version)) {
-        strcpy(symbol->errtxt, "542: Input too long for selected symbol size");
-        return ZINT_ERROR_TOO_LONG;
+        free(binary);
+        if (ecc_level == 1) {
+            return ZEXT errtxtf(ZINT_ERROR_TOO_LONG, symbol, 542,
+                                "Input too long for Version %1$d, requires %2$d codewords (maximum %3$d)",
+                                symbol->option_2, codewords, hx_data_codewords[ecc_level - 1][symbol->option_2 - 1]);
+        }
+        return ZEXT errtxtf(ZINT_ERROR_TOO_LONG, symbol, 542,
+                            "Input too long for Version %1$d, ECC %2$d, requires %3$d codewords (maximum %4$d)",
+                            symbol->option_2, ecc_level, codewords,
+                            hx_data_codewords[ecc_level - 1][symbol->option_2 - 1]);
     }
 
     /* If there is spare capacity, increase the level of ECC */
 
     /* Unless explicitly specified (within min/max bounds) by user */
     if (symbol->option_1 == -1 || symbol->option_1 != ecc_level) {
-        if ((ecc_level == 1) && (codewords <= hx_data_codewords_L2[version - 1])) {
+        if (ecc_level == 1 && codewords <= hx_data_codewords[1][version - 1]) {
             ecc_level = 2;
-            data_codewords = hx_data_codewords_L2[version - 1];
+            data_codewords = hx_data_codewords[1][version - 1];
         }
 
-        if ((ecc_level == 2) && (codewords <= hx_data_codewords_L3[version - 1])) {
+        if (ecc_level == 2 && codewords <= hx_data_codewords[2][version - 1]) {
             ecc_level = 3;
-            data_codewords = hx_data_codewords_L3[version - 1];
+            data_codewords = hx_data_codewords[2][version - 1];
         }
 
-        if ((ecc_level == 3) && (codewords <= hx_data_codewords_L4[version - 1])) {
+        if (ecc_level == 3 && codewords <= hx_data_codewords[3][version - 1]) {
             ecc_level = 4;
-            data_codewords = hx_data_codewords_L4[version - 1];
+            data_codewords = hx_data_codewords[3][version - 1];
         }
     }
 
@@ -1645,6 +1630,7 @@ INTERNAL int hanxin(struct zint_symbol *symbol, struct zint_seg segs[], const in
             datastream[i >> 3] |= 0x80 >> (i & 0x07);
         }
     }
+    free(binary);
 
     if (debug_print) {
         printf("Datastream (%d):", data_codewords);

@@ -1,7 +1,7 @@
 /* png.c - Handles output to PNG file */
 /*
     libzint - the open source barcode library
-    Copyright (C) 2009-2023 Robin Stuart <rstuart114@gmail.com>
+    Copyright (C) 2009-2025 Robin Stuart <rstuart114@gmail.com>
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions
@@ -35,15 +35,14 @@
 #include <errno.h>
 #include <math.h>
 #include <stdio.h>
-#ifdef _MSC_VER
-#include <fcntl.h>
-#include <io.h>
-#endif
 #include <png.h>
 #include <zlib.h>
 #include <setjmp.h>
 #include "common.h"
+#include "filemem.h"
 #include "output.h"
+
+/* Note using "wpng_" prefix not "png_" (except for `png_pixel_plot()`) to avoid clashing with libpng */
 
 /* Note if change this need to change "backend/tests/test_png.c" definition also */
 struct wpng_error_type {
@@ -62,7 +61,7 @@ static void wpng_error_handler(png_structp png_ptr, png_const_charp msg) {
         fflush(stderr);
         return; /* libpng will call abort() */
     }
-    sprintf(wpng_error_ptr->symbol->errtxt, "635: libpng error: %.60s", msg ? msg : "<NULL>");
+    errtxtf(0, wpng_error_ptr->symbol, 635, "libpng error: %s", msg ? msg : "<NULL>");
     longjmp(wpng_error_ptr->jmpbuf, 1);
 }
 
@@ -72,8 +71,20 @@ INTERNAL void wpng_error_handler_test(png_structp png_ptr, png_const_charp msg) 
 }
 #endif
 
+/* libpng write callback */
+static void wpng_write(png_structp png_ptr, png_bytep ptr, size_t size) {
+    struct filemem *fmp = (struct filemem *) png_get_io_ptr(png_ptr);
+    (void) fm_write(ptr, 1, size, fmp);
+}
+
+/* libpng flush callback */
+static void wpng_flush(png_structp png_ptr) {
+    struct filemem *fmp = (struct filemem *) png_get_io_ptr(png_ptr);
+    (void) fm_flush(fmp);
+}
+
 /* Guestimate best compression strategy */
-static int guess_compression_strategy(struct zint_symbol *symbol, const unsigned char *pixelbuf) {
+static int wpng_guess_compression_strategy(struct zint_symbol *symbol, const unsigned char *pixelbuf) {
     (void)pixelbuf;
 
     /* TODO: Do properly */
@@ -94,7 +105,8 @@ static int guess_compression_strategy(struct zint_symbol *symbol, const unsigned
 
 INTERNAL int png_pixel_plot(struct zint_symbol *symbol, const unsigned char *pixelbuf) {
     struct wpng_error_type wpng_error;
-    FILE *outfile;
+    struct filemem fm;
+    struct filemem *const fmp = &fm;
     png_structp png_ptr;
     png_infop info_ptr;
     int i;
@@ -105,11 +117,10 @@ INTERNAL int png_pixel_plot(struct zint_symbol *symbol, const unsigned char *pix
     png_color palette[32];
     int num_palette;
     unsigned char trans_alpha[32];
-    int num_trans = 0;
+    int num_trans; /* Note initialize below to avoid gcc -Wclobbered warning due to `longjmp()` */
     int bit_depth;
     int compression_strategy;
     const unsigned char *pb;
-    const int output_to_stdout = symbol->output_options & BARCODE_STDOUT;
     unsigned char *outdata = (unsigned char *) z_alloca(symbol->bitmap_width);
 
     wpng_error.symbol = symbol;
@@ -117,6 +128,7 @@ INTERNAL int png_pixel_plot(struct zint_symbol *symbol, const unsigned char *pix
     (void) out_colour_get_rgb(symbol->fgcolour, &fg.red, &fg.green, &fg.blue, &fg_alpha);
     (void) out_colour_get_rgb(symbol->bgcolour, &bg.red, &bg.green, &bg.blue, &bg_alpha);
 
+    num_trans = 0;
     if (symbol->symbology == BARCODE_ULTRA) {
         static const unsigned char ultra_chars[8] = { 'W', 'C', 'B', 'M', 'R', 'Y', 'G', 'K' };
         for (i = 0; i < 8; i++) {
@@ -199,58 +211,40 @@ INTERNAL int png_pixel_plot(struct zint_symbol *symbol, const unsigned char *pix
     }
 
     /* Open output file in binary mode */
-    if (output_to_stdout) {
-#ifdef _MSC_VER
-        if (-1 == _setmode(_fileno(stdout), _O_BINARY)) {
-            sprintf(symbol->errtxt, "631: Could not set stdout to binary (%d: %.30s)", errno, strerror(errno));
-            return ZINT_ERROR_FILE_ACCESS;
-        }
-#endif
-        outfile = stdout;
-    } else {
-        if (!(outfile = out_fopen(symbol->outfile, "wb"))) {
-            sprintf(symbol->errtxt, "632: Could not open output file (%d: %.30s)", errno, strerror(errno));
-            return ZINT_ERROR_FILE_ACCESS;
-        }
+    if (!fm_open(fmp, symbol, "wb")) {
+        return ZEXT errtxtf(ZINT_ERROR_FILE_ACCESS, symbol, 632, "Could not open PNG output file (%1$d: %2$s)",
+                            fmp->err, strerror(fmp->err));
     }
 
     /* Set up error handling routine as proc() above */
     png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, &wpng_error, wpng_error_handler, NULL);
     if (!png_ptr) {
-        strcpy(symbol->errtxt, "633: Insufficient memory for PNG write structure buffer");
-        if (!output_to_stdout) {
-            (void) fclose(outfile);
-        }
-        return ZINT_ERROR_MEMORY;
+        (void) fm_close(fmp, symbol);
+        return errtxt(ZINT_ERROR_MEMORY, symbol, 633, "Insufficient memory for PNG write structure buffer");
     }
 
     info_ptr = png_create_info_struct(png_ptr);
     if (!info_ptr) {
         png_destroy_write_struct(&png_ptr, NULL);
-        strcpy(symbol->errtxt, "634: Insufficient memory for PNG info structure buffer");
-        if (!output_to_stdout) {
-            (void) fclose(outfile);
-        }
-        return ZINT_ERROR_MEMORY;
+        (void) fm_close(fmp, symbol);
+        return errtxt(ZINT_ERROR_MEMORY, symbol, 634, "Insufficient memory for PNG info structure buffer");
     }
 
     /* catch jumping here */
     if (setjmp(wpng_error.jmpbuf)) {
         png_destroy_write_struct(&png_ptr, &info_ptr);
-        if (!output_to_stdout) {
-            (void) fclose(outfile);
-        }
+        (void) fm_close(fmp, symbol);
         return ZINT_ERROR_MEMORY;
     }
 
-    /* open output file with libpng */
-    png_init_io(png_ptr, outfile);
+    /* Set our output functions */
+    png_set_write_fn(png_ptr, fmp, wpng_write, wpng_flush);
 
     /* set compression */
     png_set_compression_level(png_ptr, 9);
 
     /* Compression strategy can make a difference */
-    compression_strategy = guess_compression_strategy(symbol, pixelbuf);
+    compression_strategy = wpng_guess_compression_strategy(symbol, pixelbuf);
     if (compression_strategy != Z_DEFAULT_STRATEGY) {
         png_set_compression_strategy(png_ptr, compression_strategy);
     }
@@ -317,27 +311,23 @@ INTERNAL int png_pixel_plot(struct zint_symbol *symbol, const unsigned char *pix
     /* make sure we have disengaged */
     png_destroy_write_struct(&png_ptr, &info_ptr);
 
-    if (ferror(outfile)) {
-        sprintf(symbol->errtxt, "638: Incomplete write to output (%d: %.30s)", errno, strerror(errno));
-        if (!output_to_stdout) {
-            (void) fclose(outfile);
-        }
+    if (fm_error(fmp)) {
+        ZEXT errtxtf(0, symbol, 638, "Incomplete write of PNG output (%1$d: %2$s)", fmp->err, strerror(fmp->err));
+        (void) fm_close(fmp, symbol);
         return ZINT_ERROR_FILE_WRITE;
     }
 
-    if (output_to_stdout) {
-        if (fflush(outfile) != 0) {
-            sprintf(symbol->errtxt, "639: Incomplete flush to output (%d: %.30s)", errno, strerror(errno));
-            return ZINT_ERROR_FILE_WRITE;
-        }
-    } else {
-        if (fclose(outfile) != 0) {
-            sprintf(symbol->errtxt, "960: Failure on closing output file (%d: %.30s)", errno, strerror(errno));
-            return ZINT_ERROR_FILE_WRITE;
-        }
+    if (!fm_close(fmp, symbol)) {
+        return ZEXT errtxtf(ZINT_ERROR_FILE_WRITE, symbol, 960, "Failure on closing PNG output file (%1$d: %2$s)",
+                            fmp->err, strerror(fmp->err));
     }
 
     return 0;
 }
 /* vim: set ts=4 sw=4 et : */
+#else
+#if defined(__clang__)
+/* Suppresses clang-tidy-18 "clang-diagnostic-empty-translation-unit" */
+typedef int wpng_make_clang_tidy_compilers_happy;
+#endif
 #endif /* ZINT_NO_PNG */

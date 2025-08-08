@@ -2,8 +2,8 @@
 #include <windows.h>
 #include <winver.h>
 
-#define VER_FILEVERSION        2,13,0,0
-#define VER_FILEVERSION_STR    "2.13.0.0\0"
+#define VER_FILEVERSION        2,15,0,0
+#define VER_FILEVERSION_STR    "2.15.0.0\0"
 
 #ifdef GCC_WINDRES
 VS_VERSION_INFO		VERSIONINFO
@@ -30,7 +30,7 @@ BEGIN
       VALUE "FileDescription",	"libzint barcode library\0"
       VALUE "FileVersion",	VER_FILEVERSION_STR
       VALUE "InternalName",	"zint.dll\0"
-      VALUE "LegalCopyright",	"Copyright © 2023 Robin Stuart & BogDan Vatra\0"
+      VALUE "LegalCopyright",	"Copyright © 2025 Robin Stuart & BogDan Vatra\0"
       VALUE "OriginalFilename",	"zint.dll\0"
       VALUE "ProductName",	"libzint\0"
       VALUE "ProductVersion",	VER_FILEVERSION_STR

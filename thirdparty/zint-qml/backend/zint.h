@@ -1,7 +1,7 @@
 /*  zint.h - definitions for libzint */
 /*
     libzint - the open source barcode library
-    Copyright (C) 2009-2023 Robin Stuart <rstuart114@gmail.com>
+    Copyright (C) 2009-2025 Robin Stuart <rstuart114@gmail.com>
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions
@@ -31,8 +31,10 @@
 /* SPDX-License-Identifier: BSD-3-Clause */
 
 /*
- * For version, see "zintconfig.h"
- * For documentation, see "../docs/manual.txt"
+ * Version: 2.15.0 (see "zintconfig.h")
+ *
+ * For documentation, see "../docs/manual.txt" or "../docs/manual.html" or online at
+ * https://zint.org.uk/manual/
  */
 
 #ifndef ZINT_H
@@ -120,7 +122,8 @@ extern "C" {
         struct zint_structapp structapp; /* Structured Append info. Default structapp.count 0 (none) */
         int warn_level;     /* Affects error/warning value returned by Zint API (see WARN_XXX below) */
         int debug;          /* Debugging flags */
-        unsigned char text[200]; /* Human Readable Text (HRT) (if any), UTF-8, NUL-terminated (output only) */
+        unsigned char text[256]; /* Human Readable Text (HRT) (if any), UTF-8, NUL-terminated (output only) */
+        int text_length;    /* Length of text in bytes (output only) */
         int rows;           /* Number of rows used by the symbol (output only) */
         int width;          /* Width of the generated symbol (output only) */
         unsigned char encoded_data[200][144]; /* Encoded data (output only). Allows for rows of 1152 modules */
@@ -131,6 +134,8 @@ extern "C" {
         int bitmap_height;  /* Height of bitmap image (raster output only) */
         unsigned char *alphamap; /* Array of alpha values used (raster output only) */
         struct zint_vector *vector; /* Pointer to vector header (vector output only) */
+        unsigned char *memfile; /* Pointer to in-memory file buffer if BARCODE_MEMORY_FILE (output only) */
+        int memfile_size;   /* Length of in-memory file buffer (output only) */
     };
 
     /* Segment for use with `ZBarcode_Encode_Segs()` below */
@@ -270,28 +275,30 @@ extern "C" {
 #define BARCODE_ULTRA           144 /* Ultracode */
 #define BARCODE_RMQR            145 /* Rectangular Micro QR Code (rMQR) */
 #define BARCODE_BC412           146 /* IBM BC412 (SEMI T1-95) */
-#define BARCODE_LAST            146 /* Max barcode number marker, not barcode */
+#define BARCODE_DXFILMEDGE      147 /* DX Film Edge Barcode on 35mm and APS films */
+#define BARCODE_LAST            147 /* Max barcode number marker, not barcode */
 
 /* Output options (`symbol->output_options`) */
-#define BARCODE_BIND_TOP        0x0001  /* Boundary bar above the symbol only (not below), does not affect stacking */
+#define BARCODE_BIND_TOP        0x00001 /* Boundary bar above the symbol only (not below), does not affect stacking */
                                         /* Note: value was once used by the legacy (never-used) BARCODE_NO_ASCII */
-#define BARCODE_BIND            0x0002  /* Boundary bars above & below the symbol and between stacked symbols */
-#define BARCODE_BOX             0x0004  /* Box around symbol */
-#define BARCODE_STDOUT          0x0008  /* Output to stdout */
-#define READER_INIT             0x0010  /* Reader Initialisation (Programming) */
-#define SMALL_TEXT              0x0020  /* Use smaller font */
-#define BOLD_TEXT               0x0040  /* Use bold font */
-#define CMYK_COLOUR             0x0080  /* CMYK colour space (Encapsulated PostScript and TIF) */
-#define BARCODE_DOTTY_MODE      0x0100  /* Plot a matrix symbol using dots rather than squares */
-#define GS1_GS_SEPARATOR        0x0200  /* Use GS instead of FNC1 as GS1 separator (Data Matrix) */
-#define OUT_BUFFER_INTERMEDIATE 0x0400  /* Return ASCII values in bitmap buffer (OUT_BUFFER only) */
-#define BARCODE_QUIET_ZONES     0x0800  /* Add compliant quiet zones (additional to any specified whitespace) */
+#define BARCODE_BIND            0x00002 /* Boundary bars above & below the symbol and between stacked symbols */
+#define BARCODE_BOX             0x00004 /* Box around symbol */
+#define BARCODE_STDOUT          0x00008 /* Output to stdout */
+#define READER_INIT             0x00010 /* Reader Initialisation (Programming) */
+#define SMALL_TEXT              0x00020 /* Use smaller font */
+#define BOLD_TEXT               0x00040 /* Use bold font */
+#define CMYK_COLOUR             0x00080 /* CMYK colour space (Encapsulated PostScript and TIF) */
+#define BARCODE_DOTTY_MODE      0x00100 /* Plot a matrix symbol using dots rather than squares */
+#define GS1_GS_SEPARATOR        0x00200 /* Use GS instead of FNC1 as GS1 separator (Data Matrix) */
+#define OUT_BUFFER_INTERMEDIATE 0x00400 /* Return ASCII values in bitmap buffer (OUT_BUFFER only) */
+#define BARCODE_QUIET_ZONES     0x00800 /* Add compliant quiet zones (additional to any specified whitespace) */
                                         /* Note: CODE16K, CODE49, CODABLOCKF, ITF14, EAN/UPC have default quiet zones
                                          */
-#define BARCODE_NO_QUIET_ZONES  0x1000  /* Disable quiet zones, notably those with defaults as listed above */
-#define COMPLIANT_HEIGHT        0x2000  /* Warn if height not compliant, or use standard height (if any) as default */
-#define EANUPC_GUARD_WHITESPACE 0x4000  /* Add quiet zone indicators ("<"/">") to HRT whitespace (EAN/UPC) */
-#define EMBED_VECTOR_FONT       0x8000  /* Embed font in vector output - currently only for SVG output */
+#define BARCODE_NO_QUIET_ZONES  0x01000 /* Disable quiet zones, notably those with defaults as listed above */
+#define COMPLIANT_HEIGHT        0x02000 /* Warn if height not compliant, or use standard height (if any) as default */
+#define EANUPC_GUARD_WHITESPACE 0x04000 /* Add quiet zone indicators ("<"/">") to HRT whitespace (EAN/UPC) */
+#define EMBED_VECTOR_FONT       0x08000 /* Embed font in vector output - currently only for SVG output */
+#define BARCODE_MEMORY_FILE     0x10000 /* Write output to in-memory buffer `memfile` instead of to `outfile` */
 
 /* Input data types (`symbol->input_mode`) */
 #define DATA_MODE               0       /* Binary */
@@ -304,7 +311,7 @@ extern "C" {
 #define HEIGHTPERROW_MODE       0x0040  /* Interpret `height` as per-row rather than as overall height */
 #define FAST_MODE               0x0080  /* Use faster if less optimal encodation or other shortcuts if available */
                                         /* Note: affects DATAMATRIX, MICROPDF417, PDF417, QRCODE & UPNQR only */
-#define EXTRA_ESCAPE_MODE       0x0100  /* Process special symbology-specific escape sequences */
+#define EXTRA_ESCAPE_MODE       0x0100  /* Process special symbology-specific escape sequences as well as others */
                                         /* Note: currently Code 128 only */
 
 /* Data Matrix specific options (`symbol->option_3`) */
@@ -375,7 +382,7 @@ extern "C" {
 #    define ZINT_EXTERN extern
 #  endif
 #elif defined(__GNUC__) && __GNUC__ >= 4
-#  define ZINT_EXTERN extern __attribute__((visibility("default")))
+#  define ZINT_EXTERN extern __attribute__((__visibility__("default")))
 #else
 #  define ZINT_EXTERN extern
 #endif
@@ -456,7 +463,7 @@ extern "C" {
     ZINT_EXTERN int ZBarcode_ValidID(int symbol_id);
 
     /* Copy BARCODE_XXX name of `symbol_id` into `name` buffer, NUL-terminated.
-       Returns 0 if valid, non-zero (1 or -1) if not valid */
+       Returns 0 if valid, 1 if not valid */
     ZINT_EXTERN int ZBarcode_BarcodeName(int symbol_id, char name[32]);
 
     /* Return the capability flags for symbology `symbol_id` that match `cap_flag` */

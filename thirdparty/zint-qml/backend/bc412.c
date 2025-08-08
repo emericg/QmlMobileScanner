@@ -1,7 +1,7 @@
 /* bc412.c - Handles IBM BC412 (SEMI T1-95) symbology */
 /*
     libzint - the open source barcode library
-    Copyright (C) 2022 Robin Stuart <rstuart114@gmail.com>
+    Copyright (C) 2022-2025 Robin Stuart <rstuart114@gmail.com>
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions
@@ -73,9 +73,11 @@ INTERNAL int bc412(struct zint_symbol *symbol, unsigned char source[], int lengt
     char *d = dest;
     int error_number = 0;
 
-    if ((length < 7) || (length > 18)) {
-        strcpy(symbol->errtxt, "790: Input wrong length (should be between 7 and 18 characters)");
-        return ZINT_ERROR_TOO_LONG;
+    if (length > 18) {
+        return errtxtf(ZINT_ERROR_TOO_LONG, symbol, 790, "Input length %d too long (maximum 18)", length);
+    }
+    if (length < 7) {
+        return errtxtf(ZINT_ERROR_TOO_LONG, symbol, 792, "Input length %d too short (minimum 7)", length);
     }
     to_upper(source, length);
 
@@ -85,11 +87,10 @@ INTERNAL int bc412(struct zint_symbol *symbol, unsigned char source[], int lengt
     for (i = 2; i <= length; i++) {
         padded_source[i] = source[i - 1];
     }
-    padded_source[length + 1] = 0;
 
-    if (!is_sane_lookup(BROMINE, 35, padded_source, length + 1, posns)) {
-        strcpy(symbol->errtxt, "791: Invalid character in data (alphanumerics only, excluding the letter \"O\")");
-        return ZINT_ERROR_INVALID_DATA;
+    if ((i = not_sane_lookup(BROMINE, 35, padded_source, length + 1, posns))) {
+        return errtxtf(ZINT_ERROR_INVALID_DATA, symbol, 791,
+                        "Invalid character at position %d in input (alphanumerics only, excluding \"O\")", i - 1);
     }
 
     for (i = 0; i <= length; i++) {
@@ -129,17 +130,21 @@ INTERNAL int bc412(struct zint_symbol *symbol, unsigned char source[], int lengt
     d += 3;
 
     expand(symbol, dest, d - dest);
-    ustrcpy(symbol->text, padded_source);
 
     if (symbol->output_options & COMPLIANT_HEIGHT) {
         /* SEMI T1-95 Table 1 "Module" (Character) Height 2mm ± 0.025mm, using Module Spacing 0.12mm ± 0.025mm as
            X-dimension */
-        error_number = set_height(symbol, stripf(1.975f / 0.145f), stripf(2.0f / 0.12f), stripf(2.025f / 0.095f),
-                        0 /*no_errtxt*/);
+        const float min_height = 13.6206894f; /* 1.975 / 0.145 */
+        const float default_height = 16.666666f; /* 2.0 / 0.12 */
+        const float max_height = 21.3157902f; /* 2.025 / 0.095 */
+        error_number = set_height(symbol, min_height, default_height, max_height, 0 /*no_errtxt*/);
     } else {
         /* Using compliant height as default as no backwards compatibility to consider */
-        (void) set_height(symbol, 0.0f, stripf(2.0f / 0.12f), 0.0f, 1 /*no_errtxt*/);
+        const float default_height = 16.666666f; /* 2.0 / 0.12 */
+        (void) set_height(symbol, 0.0f, default_height, 0.0f, 1 /*no_errtxt*/);
     }
+
+    hrt_cpy_nochk(symbol, padded_source, length + 1);
 
     return error_number;
 }

@@ -1,7 +1,7 @@
 /* auspost.c - Handles Australia Post 4-State Barcode */
 /*
     libzint - the open source barcode library
-    Copyright (C) 2008-2022 Robin Stuart <rstuart114@gmail.com>
+    Copyright (C) 2008-2025 Robin Stuart <rstuart114@gmail.com>
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions
@@ -90,8 +90,8 @@ static char *aus_rs_error(char data_pattern[], char *d) {
     rs_init_code(&rs, 4, 1);
     rs_encode(&rs, triple_writer, triple, result);
 
-    for (reader = 4; reader > 0; reader--, d += 3) {
-        memcpy(d, AusBarTable[(int) result[reader - 1]], 3);
+    for (reader = 0; reader < 4; reader++, d += 3) {
+        memcpy(d, AusBarTable[result[reader]], 3);
     }
 
     return d;
@@ -110,6 +110,7 @@ INTERNAL int auspost(struct zint_symbol *symbol, unsigned char source[], int len
        1 = Tracker and Ascender
        2 = Tracker and Descender
        3 = Tracker only */
+    int i;
     int error_number;
     int writer;
     int loopey, reader;
@@ -117,84 +118,83 @@ INTERNAL int auspost(struct zint_symbol *symbol, unsigned char source[], int len
 
     char data_pattern[200];
     char *d = data_pattern;
-    char fcc[3] = {0}, dpid[10];
-    char localstr[30];
+    unsigned char fcc[2] = {0}; /* Suppress clang-tidy warning clang-analyzer-core.UndefinedBinaryOperatorResult */
+    unsigned char dpid[9];
+    unsigned char local_source[30];
+    int zeroes = 0;
+    const int raw_text = symbol->output_options & BARCODE_RAW_TEXT;
 
     /* Do all of the length checking first to avoid stack smashing */
     if (symbol->symbology == BARCODE_AUSPOST) {
         if (length != 8 && length != 13 && length != 16 && length != 18 && length != 23) {
-            strcpy(symbol->errtxt, "401: Input wrong length (8, 13, 16, 18 or 23 characters only)");
-            return ZINT_ERROR_TOO_LONG;
+            return errtxtf(ZINT_ERROR_TOO_LONG, symbol, 401,
+                            "Input length %d wrong (8, 13, 16, 18 or 23 characters required)", length);
         }
     } else if (length > 8) {
-        strcpy(symbol->errtxt, "403: Input too long (8 character maximum)");
-        return ZINT_ERROR_TOO_LONG;
+        return errtxtf(ZINT_ERROR_TOO_LONG, symbol, 403, "Input length %d too long (maximum 8)", length);
     }
 
     /* Check input immediately to catch nuls */
-    if (!is_sane(GDSET_F, source, length)) {
-        strcpy(symbol->errtxt, "404: Invalid character in data (alphanumerics, space and \"#\" only)");
-        return ZINT_ERROR_INVALID_DATA;
+    if ((i = not_sane(GDSET_F, source, length))) {
+        return errtxtf(ZINT_ERROR_INVALID_DATA, symbol, 404,
+                        "Invalid character at position %d in input (alphanumerics, space and \"#\" only)", i);
     }
-
-    localstr[0] = '\0';
 
     if (symbol->symbology == BARCODE_AUSPOST) {
         /* Format control code (FCC) */
         switch (length) {
             case 8:
-                strcpy(fcc, "11");
+                memcpy(fcc, "11", 2);
                 break;
             case 13:
-                strcpy(fcc, "59");
+                memcpy(fcc, "59", 2);
                 break;
             case 16:
-                strcpy(fcc, "59");
-                if (!is_sane(NEON_F, source, length)) {
-                    strcpy(symbol->errtxt, "402: Invalid character in data (digits only for length 16)");
-                    return ZINT_ERROR_INVALID_DATA;
+                memcpy(fcc, "59", 2);
+                if ((i = not_sane(NEON_F, source, length))) {
+                    return errtxtf(ZINT_ERROR_INVALID_DATA, symbol, 402,
+                                    "Invalid character at position %d in input (digits only for FCC 59 length 16)",
+                                    i);
                 }
                 break;
             case 18:
-                strcpy(fcc, "62");
+                memcpy(fcc, "62", 2);
                 break;
             case 23:
-                strcpy(fcc, "62");
-                if (!is_sane(NEON_F, source, length)) {
-                    strcpy(symbol->errtxt, "406: Invalid character in data (digits only for length 23)");
-                    return ZINT_ERROR_INVALID_DATA;
+                memcpy(fcc, "62", 2);
+                if ((i = not_sane(NEON_F, source, length))) {
+                    return errtxtf(ZINT_ERROR_INVALID_DATA, symbol, 406,
+                                    "Invalid character at position %d in input (digits only for FCC 62 length 23)",
+                                    i);
                 }
                 break;
         }
     } else {
-        int zeroes;
         switch (symbol->symbology) {
-            case BARCODE_AUSREPLY: strcpy(fcc, "45");
+            case BARCODE_AUSREPLY: memcpy(fcc, "45", 2);
                 break;
-            case BARCODE_AUSROUTE: strcpy(fcc, "87");
+            case BARCODE_AUSROUTE: memcpy(fcc, "87", 2);
                 break;
-            case BARCODE_AUSREDIRECT: strcpy(fcc, "92");
+            case BARCODE_AUSREDIRECT: memcpy(fcc, "92", 2);
                 break;
         }
 
         /* Add leading zeros as required */
         zeroes = 8 - length;
-        memset(localstr, '0', zeroes);
-        localstr[zeroes] = '\0';
+        memset(local_source, '0', zeroes);
     }
 
     if (symbol->debug & ZINT_DEBUG_PRINT) {
-        printf("AUSPOST FCC: %s\n", fcc);
+        printf("AUSPOST FCC: %.2s\n", fcc);
     }
 
-    ustrncat(localstr, source, length);
-    h = (int) strlen(localstr);
+    memcpy(local_source + zeroes, source, length);
+    length += zeroes;
     /* Verify that the first 8 characters are numbers */
-    memcpy(dpid, localstr, 8);
-    dpid[8] = '\0';
-    if (!is_sane(NEON_F, (unsigned char *) dpid, 8)) {
-        strcpy(symbol->errtxt, "405: Invalid character in DPID (first 8 characters) (digits only)");
-        return ZINT_ERROR_INVALID_DATA;
+    memcpy(dpid, local_source, 8);
+    if ((i = not_sane(NEON_F, dpid, 8))) {
+        return errtxtf(ZINT_ERROR_INVALID_DATA, symbol, 405,
+                        "Invalid character at position %d in DPID (first 8 characters) (digits only)", i);
     }
 
     /* Start character */
@@ -212,14 +212,14 @@ INTERNAL int auspost(struct zint_symbol *symbol, unsigned char source[], int len
     }
 
     /* Customer Information */
-    if (h > 8) {
-        if ((h == 13) || (h == 18)) {
-            for (reader = 8; reader < h; reader++, d += 3) {
-                memcpy(d, AusCTable[posn(GDSET, localstr[reader])], 3);
+    if (length > 8) {
+        if ((length == 13) || (length == 18)) {
+            for (reader = 8; reader < length; reader++, d += 3) {
+                memcpy(d, AusCTable[posn(GDSET, local_source[reader])], 3);
             }
-        } else if ((h == 16) || (h == 23)) {
-            for (reader = 8; reader < h; reader++, d += 2) {
-                memcpy(d, AusNTable[localstr[reader] - '0'], 2);
+        } else if ((length == 16) || (length == 23)) {
+            for (reader = 8; reader < length; reader++, d += 2) {
+                memcpy(d, AusNTable[local_source[reader] - '0'], 2);
             }
         }
     }
@@ -276,6 +276,11 @@ INTERNAL int auspost(struct zint_symbol *symbol, unsigned char source[], int len
     }
     symbol->rows = 3;
     symbol->width = writer - 1;
+
+    if (raw_text) {
+        hrt_cpy_nochk(symbol, fcc, 2);
+        hrt_cat_nochk(symbol, local_source, length);
+    }
 
     return error_number;
 }

@@ -1,7 +1,7 @@
 /* common.h - Header for all common functions in common.c */
 /*
     libzint - the open source barcode library
-    Copyright (C) 2009-2023 Robin Stuart <rstuart114@gmail.com>
+    Copyright (C) 2009-2025 Robin Stuart <rstuart114@gmail.com>
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions
@@ -37,23 +37,20 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#ifndef ARRAY_SIZE
-#define ARRAY_SIZE(x) ((int) (sizeof(x) / sizeof((x)[0])))
-#endif
+#include "zint.h"
+#include "zintconfig.h"
+#include <stdlib.h>
+#include <string.h>
+
+#define BARCODE_RAW_TEXT         0 /* BARCODE_RAW_TEXT temporarily disabled */
+#define ZINT_WARN_HRT_RAW_TEXT  -1 /* BARCODE_RAW_TEXT temporarily disabled */
+#define ZINT_ERROR_HRT_RAW_TEXT 16 /* BARCODE_RAW_TEXT temporarily disabled */
 
 /* Determine if C89 (excluding MSVC, which doesn't define __STDC_VERSION__) */
-#if !defined(_MSC_VER) && (!defined(__STDC_VERSION__) || __STDC_VERSION__ < 199000L)
-#define ZINT_IS_C89
-#endif
-
-#ifdef _MSC_VER
-#  include <malloc.h>
-#  define z_alloca(nmemb) _alloca(nmemb)
-#else
-#  if defined(ZINT_IS_C89) || defined(__NuttX__) /* C89 or NuttX RTOS */
-#    include <alloca.h>
+#ifndef _MSC_VER
+#  if !defined(__STDC_VERSION__) || __STDC_VERSION__ < 199000L
+#    define ZINT_IS_C89
 #  endif
-#  define z_alloca(nmemb) alloca(nmemb)
 #endif
 
 #ifdef _MSC_VER
@@ -63,10 +60,114 @@ typedef __int32 int32_t;
 typedef unsigned __int32 uint32_t;
 typedef unsigned __int64 uint64_t;
 #else
-#include <stdint.h>
+#include <stdint.h> /* Introduced C99 */
 #endif
 
-/* `is_sane()` flags */
+/* Note if change following must also change "frontend/main.c" copy */
+
+#define ARRAY_SIZE(x) ((int) (sizeof(x) / sizeof((x)[0])))
+
+#ifdef _MSC_VER
+#  include <malloc.h>
+#  define z_alloca(nmemb) _alloca(nmemb)
+#elif defined(__COMPCERT__)
+#  define z_alloca(nmemb) malloc(nmemb) /* So links - leads to loads of leaks obs */
+#else
+#  if (defined(__GNUC__) && !defined(alloca) && !defined(__NetBSD__)) || defined(__NuttX__) || defined(_AIX) \
+        || (defined(__sun) && defined(__SVR4) /*Solaris*/)
+#    include <alloca.h>
+#  endif
+#  define z_alloca(nmemb) alloca(nmemb)
+#endif
+
+/* End of "frontend/main.c" copy */
+
+#ifdef _MSC_VER
+#  pragma warning(disable: 4125) /* decimal digit terminates octal escape sequence */
+#  pragma warning(disable: 4244) /* conversion from int to float */
+#  if _MSC_VER > 1200 /* VC6 */
+#    pragma warning(disable: 4996) /* function or variable may be unsafe */
+#  endif
+#elif defined(__MINGW64__) && defined(__GNUC__) && !defined(__clang__) && __GNUC__ >= 3
+#  pragma GCC diagnostic ignored "-Wlong-long"
+#endif
+
+#if defined(__GNUC__) && __GNUC__ >= 3
+#  define ZINT_FORMAT_PRINTF(fmt_idx, first_idx) __attribute__((__format__(printf, fmt_idx, first_idx)))
+#else
+#  define ZINT_FORMAT_PRINTF(fmt_idx, first_idx)
+#endif
+
+#if defined(__GNUC__) && __GNUC__ >= 4 && !defined(ZINT_TEST) && !defined(__MINGW32__)
+#  define INTERNAL __attribute__((__visibility__("hidden")))
+#elif defined(ZINT_TEST)
+#  define INTERNAL ZINT_EXTERN /* The test suite references INTERNAL functions, so they need to be exported */
+#else
+#  define INTERNAL
+#endif
+
+#if defined(__GNUC__) && __GNUC__ >= 4 && !defined(__MINGW32__)
+#  define INTERNAL_DATA_EXTERN __attribute__((__visibility__("hidden"))) extern
+#  define INTERNAL_DATA __attribute__((__visibility__("hidden")))
+#else
+#  define INTERNAL_DATA_EXTERN extern
+#  define INTERNAL_DATA
+#endif
+
+#ifdef _MSC_VER
+#  if _MSC_VER >= 1400 /* MSVC 2005 (C++ 8.0) */
+#    define restrict __restrict
+#  else
+#    define restrict
+#  endif
+#else
+#  ifdef ZINT_IS_C89
+#    define restrict
+#  endif
+#endif
+
+#if (defined(_MSC_VER) && _MSC_VER <= 1200) || defined(ZINT_IS_C89) /* VC6 or C89 */
+#  define ceilf (float) ceil
+#  define floorf (float) floor
+#  define fmodf (float) fmod
+#endif
+/* `round()` (C99) not before MSVC 2013 (C++ 12.0) */
+#if (defined(_MSC_VER) && _MSC_VER < 1800) || defined(ZINT_IS_C89)
+#  define round(arg) floor((arg) + 0.5)
+#  define roundf(arg) floorf((arg) + 0.5f)
+#endif
+
+/* Is float integral value? (https://stackoverflow.com/a/40404149) */
+#define isfintf(arg) (fmodf(arg, 1.0f) == 0.0f)
+
+/* Simple versions of <ctype.h> functions with no dependence on locale */
+#define z_isdigit(c) ((c) <= '9' && (c) >= '0')
+#define z_isupper(c) ((c) >= 'A' && (c) <= 'Z')
+#define z_islower(c) ((c) >= 'a' && (c) <= 'z')
+#define z_isascii(c) (((c) & 0x7F) == (c))
+#define z_iscntrl(c) (z_isascii(c) && ((c) < 32 || (c) == 127))
+
+/* Helper to cast away char pointer signedness */
+#define ustrlen(source) strlen((const char *) (source))
+
+/* Converts an integer value to its value + '0' (so >= 10 becomes ':', ';' etc) */
+#define itoc(i) ((i) + '0')
+/* Converts an integer value to its hexadecimal digit */
+#define xtoc(i) ((i) < 10 ? itoc(i) : ((i) - 10) + 'A')
+
+/* Converts a character 0-9, A-F to its equivalent integer value */
+INTERNAL int ctoi(const char source);
+
+/* Converts decimal string of length <= 9 to integer value. Returns -1 if not numeric */
+INTERNAL int to_int(const unsigned char source[], const int length);
+
+/* Converts lower case characters to upper case in string `source` */
+INTERNAL void to_upper(unsigned char source[], const int length);
+
+/* Returns the number of times a character occurs in `source` */
+INTERNAL int chr_cnt(const unsigned char source[], const int length, const unsigned char c);
+
+/* `is_chr()` & `not_sane()` flags */
 #define IS_SPC_F    0x0001 /* Space */
 #define IS_HSH_F    0x0002 /* Hash sign # */
 #define IS_AST_F    0x0004 /* Asterisk sign * */
@@ -90,102 +191,18 @@ typedef unsigned __int64 uint64_t;
 /* The most commonly used set */
 #define NEON_F      IS_NUM_F /* NEON "0123456789" */
 
-/* Simple versions of <ctype.h> functions with no dependence on locale */
-#define z_isdigit(c) ((c) <= '9' && (c) >= '0')
-#define z_isupper(c) ((c) >= 'A' && (c) <= 'Z')
-#define z_islower(c) ((c) >= 'a' && (c) <= 'z')
-
-#include "zint.h"
-#include "zintconfig.h"
-#include <stdlib.h>
-#include <string.h>
-
-/* Helpers to cast away char pointer signedness */
-#define ustrlen(source) strlen((const char *) (source))
-#define ustrcpy(target, source) strcpy((char *) (target), (const char *) (source))
-#define ustrcat(target, source) strcat((char *) (target), (const char *) (source))
-#define ustrncat(target, source, count) strncat((char *) (target), (const char *) (source), (count))
-
-#if (defined(_MSC_VER) && _MSC_VER == 1200) || defined(ZINT_IS_C89) /* VC6 or C89 */
-#  define ceilf (float) ceil
-#  define floorf (float) floor
-#  define fmodf (float) fmod
-#endif
-/* `round()` (C99) not before MSVC 2013 (C++ 12.0) */
-#if (defined(_MSC_VER) && _MSC_VER < 1800) || defined(ZINT_IS_C89)
-#  define round(arg) floor((arg) + 0.5)
-#  define roundf(arg) floorf((arg) + 0.5f)
-#endif
-
-#ifdef _MSC_VER
-#  pragma warning(disable: 4244) /* conversion from int to float */
-#  if _MSC_VER != 1200 /* VC6 */
-#    pragma warning(disable: 4996) /* function or variable may be unsafe */
-#  endif
-#endif
-
-/* Is float integral value? (https://stackoverflow.com/a/40404149) */
-#define isfintf(arg) (fmodf(arg, 1.0f) == 0.0f)
-
-#if (defined(__GNUC__) || defined(__clang__)) && !defined(ZINT_TEST) && !defined(__MINGW32__)
-#  define INTERNAL __attribute__ ((visibility ("hidden")))
-#elif defined(ZINT_TEST)
-#  define INTERNAL ZINT_EXTERN /* The test suite references INTERNAL functions, so they need to be exported */
-#else
-#  define INTERNAL
-#endif
-
-#if (defined(__GNUC__) || defined(__clang__)) && !defined(__MINGW32__)
-#  define INTERNAL_DATA_EXTERN __attribute__ ((visibility ("hidden"))) extern
-#  define INTERNAL_DATA __attribute__ ((visibility ("hidden")))
-#else
-#  define INTERNAL_DATA_EXTERN extern
-#  define INTERNAL_DATA
-#endif
-
-#define Z_COMMON_INLINE   1
-
-#ifdef Z_COMMON_INLINE
-/* Returns true (1) if a module is dark/black, otherwise false (0) */
-#  define module_is_set(s, y, x) (((s)->encoded_data[(y)][(x) >> 3] >> ((x) & 0x07)) & 1)
-
-/* Sets a module to dark/black */
-#  define set_module(s, y, x) do { (s)->encoded_data[(y)][(x) >> 3] |= 1 << ((x) & 0x07); } while (0)
-
-/* Returns true (1-8) if a module is colour, otherwise false (0) */
-#  define module_colour_is_set(s, y, x) ((s)->encoded_data[(y)][(x)])
-
-/* Sets a module to a colour */
-#  define set_module_colour(s, y, x, c) do { (s)->encoded_data[(y)][(x)] = (c); } while (0)
-#endif
-
-/* Converts a character 0-9, A-F to its equivalent integer value */
-INTERNAL int ctoi(const char source);
-
-/* Converts an integer value to its hexadecimal character */
-INTERNAL char itoc(const int source);
-
-/* Converts decimal string of length <= 9 to integer value. Returns -1 if not numeric */
-INTERNAL int to_int(const unsigned char source[], const int length);
-
-/* Converts lower case characters to upper case in string `source` */
-INTERNAL void to_upper(unsigned char source[], const int length);
-
-/* Returns the number of times a character occurs in `source` */
-INTERNAL int chr_cnt(const unsigned char source[], const int length, const unsigned char c);
-
-
 /* Whether a character matches `flg` */
 INTERNAL int is_chr(const unsigned int flg, const unsigned int c);
 
-/* Verifies that a string only uses valid characters */
-INTERNAL int is_sane(const unsigned int flg, const unsigned char source[], const int length);
+/* Verifies if a string only uses valid characters, returning 1-based position in `source` if not, 0 for success */
+INTERNAL int not_sane(const unsigned int flg, const unsigned char source[], const int length);
 
-/* Verifies that a string only uses valid characters, and returns `test_string` position of each in `posns` array */
-INTERNAL int is_sane_lookup(const char test_string[], const int test_length, const unsigned char source[],
+/* Verifies if a string only uses valid characters as above, but also returns `test_string` position of each in
+   `posns` array */
+INTERNAL int not_sane_lookup(const char test_string[], const int test_length, const unsigned char source[],
                 const int length, int *posns);
 
-/* Returns the position of `data` in `set_string` */
+/* Returns the position of `data` in `set_string`, or -1 if not found */
 INTERNAL int posn(const char set_string[], const char data);
 
 
@@ -194,7 +211,18 @@ INTERNAL int posn(const char set_string[], const char data);
 INTERNAL int bin_append_posn(const int arg, const int length, char *binary, const int bin_posn);
 
 
-#ifndef Z_COMMON_INLINE
+#define Z_COMMON_INLINE   1
+
+#ifdef Z_COMMON_INLINE
+
+#  define module_is_set(s, y, x) (((s)->encoded_data[y][(x) >> 3] >> ((x) & 0x07)) & 1)
+#  define set_module(s, y, x) do { (s)->encoded_data[y][(x) >> 3] |= 1 << ((x) & 0x07); } while (0)
+#  define module_colour_is_set(s, y, x) ((s)->encoded_data[y][x])
+#  define set_module_colour(s, y, x, c) do { (s)->encoded_data[y][x] = (c); } while (0)
+#  define unset_module(s, y, x) do { (s)->encoded_data[y][(x) >> 3] &= ~(1 << ((x) & 0x07)); } while (0)
+
+#else /* Z_COMMON_INLINE */
+
 /* Returns true (1) if a module is dark/black, otherwise false (0) */
 INTERNAL int module_is_set(const struct zint_symbol *symbol, const int y_coord, const int x_coord);
 
@@ -207,12 +235,38 @@ INTERNAL int module_colour_is_set(const struct zint_symbol *symbol, const int y_
 /* Sets a module to a colour */
 INTERNAL void set_module_colour(struct zint_symbol *symbol, const int y_coord, const int x_coord,
                 const int colour);
-#endif
+
 /* Sets a dark/black module to white (i.e. unsets) */
 INTERNAL void unset_module(struct zint_symbol *symbol, const int y_coord, const int x_coord);
 
+#endif /* Z_COMMON_INLINE */
+
+
 /* Expands from a width pattern to a bit pattern */
 INTERNAL void expand(struct zint_symbol *symbol, const char data[], const int length);
+
+
+/* Set `symbol->errtxt` to "err_id: msg", returning `error_number`. If `err_id` is -1, the "err_id: " prefix is
+   omitted */
+INTERNAL int errtxt(const int error_number, struct zint_symbol *symbol, const int err_id, const char *msg);
+
+#if defined(__GNUC__) && !defined(__clang__)
+#define ZEXT __extension__ /* Suppress gcc pedantic warnings including when using format "%<n>$" with `errtxtf()` */
+#else
+#define ZEXT
+#endif
+
+/* Set `symbol->errtxt` to "err_id: msg" with restricted subset of `printf()` formatting, returning `error_number`.
+   If `err_id` is -1, the "err_id: " prefix is omitted. Only the following specifiers are supported: "c", "d", "f",
+   "g" and "s", with no modifiers apart from "<n>$" numbering for l10n ("<n>" 1-9), in which case all specifiers must
+   be numbered, "%s" with length precisions: "%.*s", "%<n+1>$.*<n>$s", "%.<p>s" and "%<n>$.<p>s", and "%d" with
+   zero-padded minimum field lengths: "%0<m>d" or %<n>$0<m>d" ("<m>" 1-99) */
+INTERNAL int errtxtf(const int error_number, struct zint_symbol *symbol, const int err_id, const char *fmt, ...)
+    ZINT_FORMAT_PRINTF(4, 5);
+
+/* Helper to prepend/append to existing `symbol->errtxt` by calling `errtxtf(fmt)` with 2 arguments (copy of `errtxt`
+   & `msg`) if `msg` not NULL, or 1 argument (just copy of `errtxt`) if `msg` NULL, returning `error_number` */
+INTERNAL int errtxt_adj(const int error_number, struct zint_symbol *symbol, const char *fmt, const char *msg);
 
 
 /* Whether `symbology` can have row binding */
@@ -250,8 +304,27 @@ INTERNAL int utf8_to_unicode(struct zint_symbol *symbol, const unsigned char sou
                 int *length, const int disallow_4byte);
 
 /* Treats source as ISO/IEC 8859-1 and copies into `symbol->text`, converting to UTF-8. Control chars (incl. DEL) and
-   non-ISO/IEC 8859-1 (0x80-9F) are replaced with spaces. Returns warning if truncated, else 0 */
+   non-ISO/IEC 8859-1 (0x80-9F) are replaced with spaces, unless BARCODE_RAW_TEXT set in `output_options`.
+   Returns warning if truncated, else 0 */
 INTERNAL int hrt_cpy_iso8859_1(struct zint_symbol *symbol, const unsigned char source[], const int length);
+
+/* No-check as-is copy of ASCII into `symbol->text`, assuming `length` fits */
+INTERNAL void hrt_cpy_nochk(struct zint_symbol *symbol, const unsigned char source[], const int length);
+
+/* Copy a single ASCII character into `symbol->text` (i.e. replaces content) */
+INTERNAL void hrt_cpy_chr(struct zint_symbol *symbol, const char ch);
+
+/* No-check as-is append of ASCII to `symbol->text`, assuming current `symbol->text_length` + `length` fits */
+INTERNAL void hrt_cat_nochk(struct zint_symbol *symbol, const unsigned char source[], const int length);
+
+/* No-check append of `ch` to `symbol->text`, assuming current `symbol->text_length` + 1 fits */
+INTERNAL void hrt_cat_chr_nochk(struct zint_symbol *symbol, const char ch);
+
+/* No-check `sprintf()` into `symbol->text`, assuming it fits */
+INTERNAL void hrt_printf_nochk(struct zint_symbol *symbol, const char *fmt, ...) ZINT_FORMAT_PRINTF(2, 3);
+
+/* No-check copy of `source` into `symbol->text`, converting GS1 square brackets into round ones. Assumes it fits */
+INTERNAL void hrt_conv_gs1_brackets_nochk(struct zint_symbol *symbol, const unsigned char source[], const int length);
 
 
 /* Sets symbol height, returning a warning if not within minimum and/or maximum if given.
@@ -272,6 +345,8 @@ INTERNAL void segs_cpy(const struct zint_symbol *symbol, const struct zint_seg s
                 struct zint_seg local_segs[]);
 
 
+/* Helper for ZINT_DEBUG_PRINT to put all but graphical ASCII in hex escapes. Output to `buf` if non-NULL, else
+   stdout */
 INTERNAL char *debug_print_escape(const unsigned char *source, const int first_len, char *buf);
 
 #ifdef ZINT_TEST

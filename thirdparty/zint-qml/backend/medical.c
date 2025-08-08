@@ -1,7 +1,7 @@
-/* medical.c - Handles 1 track and 2 track pharmacode and Codabar */
+/* medical.c - Handles Pharmacode One-Track, Pharmacode Two-Track, Italian Pharmacode and PZN */
 /*
     libzint - the open source barcode library
-    Copyright (C) 2008-2023 Robin Stuart <rstuart114@gmail.com>
+    Copyright (C) 2008-2025 Robin Stuart <rstuart114@gmail.com>
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions
@@ -35,20 +35,7 @@
 
 INTERNAL int code39(struct zint_symbol *symbol, unsigned char source[], int length);
 
-static const char CALCIUM[] = "0123456789-$:/.+ABCD";
-#define CALCIUM_INNER_F (IS_NUM_F | IS_MNS_F | IS_CLI_F | IS_PLS_F) /* CALCIUM_INNER "0123456789-$:/.+" */
-
-/* Codabar table checked against EN 798:1995 */
-static const char CodaTable[20][8] = {
-    {'1','1','1','1','1','2','2','1'}, {'1','1','1','1','2','2','1','1'}, {'1','1','1','2','1','1','2','1'},
-    {'2','2','1','1','1','1','1','1'}, {'1','1','2','1','1','2','1','1'}, {'2','1','1','1','1','2','1','1'},
-    {'1','2','1','1','1','1','2','1'}, {'1','2','1','1','2','1','1','1'}, {'1','2','2','1','1','1','1','1'},
-    {'2','1','1','2','1','1','1','1'}, {'1','1','1','2','2','1','1','1'}, {'1','1','2','2','1','1','1','1'},
-    {'2','1','1','1','2','1','2','1'}, {'2','1','2','1','1','1','2','1'}, {'2','1','2','1','2','1','1','1'},
-    {'1','1','2','1','2','1','2','1'}, {'1','1','2','2','1','2','1','1'}, {'1','2','1','2','1','1','2','1'},
-    {'1','1','1','2','1','2','2','1'}, {'1','1','1','2','2','2','1','1'}
-};
-
+/* Pharmacode One-Track */
 INTERNAL int pharma(struct zint_symbol *symbol, unsigned char source[], int length) {
     /* "Pharmacode can represent only a single integer from 3 to 131070. Unlike other
        commonly used one-dimensional barcode schemes, pharmacode does not store the data in a
@@ -63,26 +50,26 @@ INTERNAL int pharma(struct zint_symbol *symbol, unsigned char source[], int leng
        the specification at http://www.laetus.com/laetus.php?request=file&id=69
        (http://www.gomaro.ch/ftproot/Laetus_PHARMA-CODE.pdf) */
 
+    int i;
     int tester;
     int counter, error_number = 0, h;
     char inter[18] = {0}; /* 131070 -> 17 bits */
     char *in = inter;
     char dest[64]; /* 17 * 2 + 1 */
     char *d = dest;
+    const int raw_text = symbol->output_options & BARCODE_RAW_TEXT;
 
     if (length > 6) {
-        strcpy(symbol->errtxt, "350: Input too long (6 character maximum)");
-        return ZINT_ERROR_TOO_LONG;
+        return errtxtf(ZINT_ERROR_TOO_LONG, symbol, 350, "Input length %d too long (maximum 6)", length);
     }
-    tester = to_int(source, length);
-    if (tester == -1) {
-        strcpy(symbol->errtxt, "351: Invalid character in data (digits only)");
-        return ZINT_ERROR_INVALID_DATA;
+    if ((i = not_sane(NEON_F, source, length))) {
+        return errtxtf(ZINT_ERROR_INVALID_DATA, symbol, 351,
+                        "Invalid character at position %d in input (digits only)", i);
     }
 
+    tester = to_int(source, length);
     if ((tester < 3) || (tester > 131070)) {
-        strcpy(symbol->errtxt, "352: Data out of range (3 to 131070)");
-        return ZINT_ERROR_INVALID_DATA;
+        return errtxtf(ZINT_ERROR_INVALID_DATA, symbol, 352, "Input value '%d' out of range (3 to 131070)", tester);
     }
 
     do {
@@ -109,6 +96,10 @@ INTERNAL int pharma(struct zint_symbol *symbol, unsigned char source[], int leng
         error_number = set_height(symbol, 16.0f, 0.0f, 0.0f, 0 /*no_errtxt*/);
     } else {
         (void) set_height(symbol, 0.0f, 50.0f, 0.0f, 1 /*no_errtxt*/);
+    }
+
+    if (raw_text) {
+        hrt_cpy_nochk(symbol, source, length);
     }
 
     return error_number;
@@ -150,26 +141,28 @@ static int pharma_two_calc(int tester, char *d) {
     return h;
 }
 
+/* Pharmacode Two-Track */
 INTERNAL int pharma_two(struct zint_symbol *symbol, unsigned char source[], int length) {
     /* Draws the patterns for two track pharmacode */
+    int i;
     int tester;
     char height_pattern[200];
     unsigned int loopey, h;
     int writer;
     int error_number = 0;
+    const int raw_text = symbol->output_options & BARCODE_RAW_TEXT;
 
     if (length > 8) {
-        strcpy(symbol->errtxt, "354: Input too long (8 character maximum");
-        return ZINT_ERROR_TOO_LONG;
+        return errtxtf(ZINT_ERROR_TOO_LONG, symbol, 354, "Input length %d too long (maximum 8)", length);
     }
+    if ((i = not_sane(NEON_F, source, length))) {
+        return errtxtf(ZINT_ERROR_INVALID_DATA, symbol, 355,
+                        "Invalid character at position %d in input (digits only)", i);
+    }
+
     tester = to_int(source, length);
-    if (tester == -1) {
-        strcpy(symbol->errtxt, "355: Invalid character in data (digits only)");
-        return ZINT_ERROR_INVALID_DATA;
-    }
     if ((tester < 4) || (tester > 64570080)) {
-        strcpy(symbol->errtxt, "353: Data out of range (4 to 64570080)");
-        return ZINT_ERROR_INVALID_DATA;
+        return errtxtf(ZINT_ERROR_INVALID_DATA, symbol, 353, "Input value '%d' out of range (4 to 64570080)", tester);
     }
     h = pharma_two_calc(tester, height_pattern);
 
@@ -195,102 +188,8 @@ INTERNAL int pharma_two(struct zint_symbol *symbol, unsigned char source[], int 
         (void) set_height(symbol, 0.0f, 10.0f, 0.0f, 1 /*no_errtxt*/);
     }
 
-    return error_number;
-}
-
-/* The Codabar system consisting of simple substitution */
-INTERNAL int codabar(struct zint_symbol *symbol, unsigned char source[], int length) {
-
-    int i, error_number = 0;
-    int posns[103];
-    char dest[833]; /* (103 + 1) * 8 + 1 == 833 */
-    char *d = dest;
-    int add_checksum, count = 0, checksum = 0;
-    int d_chars = 0;
-
-    if (length > 103) { /* No stack smashing please (103 + 1) * 11 = 1144 */
-        strcpy(symbol->errtxt, "356: Input too long (103 character maximum)");
-        return ZINT_ERROR_TOO_LONG;
-    }
-    /* BS EN 798:1995 4.2 "'Codabar' symbols shall consist of ... b) start character;
-       c) one or more symbol characters representing data ... d) stop character ..." */
-    if (length < 3) {
-        strcpy(symbol->errtxt, "362: Input too short (3 character minimum)");
-        return ZINT_ERROR_TOO_LONG;
-    }
-    to_upper(source, length);
-
-    /* Codabar must begin and end with the characters A, B, C or D */
-    if ((source[0] != 'A') && (source[0] != 'B') && (source[0] != 'C')
-            && (source[0] != 'D')) {
-        strcpy(symbol->errtxt, "358: Does not begin with \"A\", \"B\", \"C\" or \"D\"");
-        return ZINT_ERROR_INVALID_DATA;
-    }
-    if ((source[length - 1] != 'A') && (source[length - 1] != 'B') &&
-            (source[length - 1] != 'C') && (source[length - 1] != 'D')) {
-        strcpy(symbol->errtxt, "359: Does not end with \"A\", \"B\", \"C\" or \"D\"");
-        return ZINT_ERROR_INVALID_DATA;
-    }
-    if (!is_sane_lookup(CALCIUM, sizeof(CALCIUM) - 1, source, length, posns)) {
-        sprintf(symbol->errtxt, "357: Invalid character in data (\"%s\" only)", CALCIUM);
-        return ZINT_ERROR_INVALID_DATA;
-    }
-    /* And must not use A, B, C or D otherwise (BS EN 798:1995 4.3.2) */
-    if (!is_sane(CALCIUM_INNER_F, source + 1, length - 2)) {
-        strcpy(symbol->errtxt, "363: Cannot contain \"A\", \"B\", \"C\" or \"D\"");
-        return ZINT_ERROR_INVALID_DATA;
-    }
-
-    /* Add check character: 1 don't show to HRT, 2 do show to HRT
-      (unfortunately to maintain back-compatibility, this is reverse of C25) */
-    add_checksum = symbol->option_2 == 1 || symbol->option_2 == 2;
-
-    for (i = 0; i < length; i++, d += 8) {
-        if (add_checksum) {
-            /* BS EN 798:1995 A.3 suggests using ISO 7064 algorithm but leaves it application defined.
-               Following BWIPP and TEC-IT, use this simple mod-16 algorithm (not in ISO 7064) */
-            count += posns[i];
-            if (i + 1 == length) {
-                checksum = count % 16;
-                if (checksum) {
-                    checksum = 16 - checksum;
-                }
-                if (symbol->debug & ZINT_DEBUG_PRINT) {
-                    printf("Codabar: %s, count %d, checksum %d (%c)\n", source, count, checksum, CALCIUM[checksum]);
-                }
-                memcpy(d, CodaTable[checksum], 8);
-                d += 8;
-            }
-        }
-        memcpy(d, CodaTable[posns[i]], 8);
-        if (source[i] == '/' || source[i] == ':' || source[i] == '.' || source[i] == '+') { /* Wide data characters */
-            d_chars++;
-        }
-    }
-
-    expand(symbol, dest, d - dest);
-
-    if (symbol->output_options & COMPLIANT_HEIGHT) {
-        /* BS EN 798:1995 4.4.1 (d) max of 5mm / 0.43mm (X max) ~ 11.628 or 15% of width where (taking N =
-           narrow/wide ratio as 2 and I = X) width = ((2 * N + 5) * C + (N – 1) * (D + 2)) * X + I * (C – 1) + 2Q
-           = ((4 + 5) * C + (D + 2) + C - 1 + 2 * 10) * X = (10 * C + D + 21) * X
-           Length (C) includes start/stop chars */
-        const float min_height_min = stripf(5.0f / 0.43f);
-        float min_height = stripf((10.0f * ((add_checksum ? length + 1 : length) + 2.0f) + d_chars + 21.0f) * 0.15f);
-        if (min_height < min_height_min) {
-            min_height = min_height_min;
-        }
-        /* Using 50 as default as none recommended */
-        error_number = set_height(symbol, min_height, min_height > 50.0f ? min_height : 50.0f, 0.0f, 0 /*no_errtxt*/);
-    } else {
-        (void) set_height(symbol, 0.0f, 50.0f, 0.0f, 1 /*no_errtxt*/);
-    }
-
-    ustrcpy(symbol->text, source);
-    if (symbol->option_2 == 2) {
-        symbol->text[length - 1] = CALCIUM[checksum]; /* Place before final A/B/C/D character (BS EN 798:1995 A.3) */
-        symbol->text[length] = source[length - 1];
-        symbol->text[length + 1] = '\0';
+    if (raw_text) {
+        hrt_cpy_nochk(symbol, source, length);
     }
 
     return error_number;
@@ -298,33 +197,34 @@ INTERNAL int codabar(struct zint_symbol *symbol, unsigned char source[], int len
 
 /* Italian Pharmacode */
 INTERNAL int code32(struct zint_symbol *symbol, unsigned char source[], int length) {
-    static const char TABELLA[] = "0123456789BCDFGHJKLMNPQRSTUVWXYZ";
+    static const unsigned char TABELLA[] = "0123456789BCDFGHJKLMNPQRSTUVWXYZ";
     int i, zeroes, error_number = 0, checksum, checkpart, checkdigit;
-    char localstr[10], risultante[7];
-    long int pharmacode, devisor;
+    unsigned char local_source[10], risultante[7];
+    unsigned int pharmacode, devisor;
     int codeword[6];
+    const int saved_option_2 = symbol->option_2;
+    const int raw_text = symbol->output_options & BARCODE_RAW_TEXT;
 
     /* Validate the input */
     if (length > 8) {
-        strcpy(symbol->errtxt, "360: Input too long (8 character maximum)");
-        return ZINT_ERROR_TOO_LONG;
+        return errtxtf(ZINT_ERROR_TOO_LONG, symbol, 360, "Input length %d too long (maximum 8)", length);
     }
-    if (!is_sane(NEON_F, source, length)) {
-        strcpy(symbol->errtxt, "361: Invalid character in data (digits only)");
-        return ZINT_ERROR_INVALID_DATA;
+    if ((i = not_sane(NEON_F, source, length))) {
+        return errtxtf(ZINT_ERROR_INVALID_DATA, symbol, 361,
+                        "Invalid character at position %d in input (digits only)", i);
     }
 
     /* Add leading zeros as required */
     zeroes = 8 - length;
-    memset(localstr, '0', zeroes);
-    ustrcpy(localstr + zeroes, source);
+    memset(local_source, '0', zeroes);
+    memcpy(local_source + zeroes, source, length);
 
     /* Calculate the check digit */
     checksum = 0;
     for (i = 0; i < 4; i++) {
-        checkpart = ctoi(localstr[i * 2]);
+        checkpart = ctoi(local_source[i * 2]);
         checksum += checkpart;
-        checkpart = 2 * (ctoi(localstr[(i * 2) + 1]));
+        checkpart = 2 * (ctoi(local_source[(i * 2) + 1]));
         if (checkpart >= 10) {
             checksum += (checkpart - 10) + 1;
         } else {
@@ -334,16 +234,15 @@ INTERNAL int code32(struct zint_symbol *symbol, unsigned char source[], int leng
 
     /* Add check digit to data string */
     checkdigit = checksum % 10;
-    localstr[8] = itoc(checkdigit);
-    localstr[9] = '\0';
+    local_source[8] = itoc(checkdigit);
 
     /* Convert string into an integer value */
-    pharmacode = atoi(localstr);
+    pharmacode = to_int(local_source, 9);
 
     /* Convert from decimal to base-32 */
     devisor = 33554432;
     for (i = 5; i >= 0; i--) {
-        long int remainder;
+        unsigned int remainder;
         codeword[i] = pharmacode / devisor;
         remainder = pharmacode % devisor;
         pharmacode = remainder;
@@ -354,12 +253,16 @@ INTERNAL int code32(struct zint_symbol *symbol, unsigned char source[], int leng
     for (i = 5; i >= 0; i--) {
         risultante[5 - i] = TABELLA[codeword[i]];
     }
-    risultante[6] = '\0';
+
+    symbol->option_2 = 0; /* Need to overwrite this so `code39()` doesn't add a check digit itself */
+
     /* Plot the barcode using Code 39 */
-    error_number = code39(symbol, (unsigned char *) risultante, 6);
+    error_number = code39(symbol, risultante, 6);
     if (error_number != 0) { /* Should never happen */
         return error_number; /* Not reached */
     }
+
+    symbol->option_2 = saved_option_2; /* Restore */
 
     if (symbol->output_options & COMPLIANT_HEIGHT) {
         /* Allegato A Caratteristiche tecniche del bollino farmaceutico
@@ -373,9 +276,95 @@ INTERNAL int code32(struct zint_symbol *symbol, unsigned char source[], int leng
         (void) set_height(symbol, 0.0f, 50.0f, 0.0f, 1 /*no_errtxt*/);
     }
 
-    /* Override the normal text output with the Pharmacode number */
-    ustrcpy(symbol->text, "A");
-    ustrcat(symbol->text, localstr);
+    if (!raw_text) {
+        /* Override the normal text output with the Pharmacode number */
+        hrt_cpy_chr(symbol, 'A');
+        hrt_cat_nochk(symbol, local_source, 9);
+    }
+
+    return error_number;
+}
+
+/* Pharmazentralnummer (PZN) */
+/* PZN https://www.ifaffm.de/mandanten/1/documents/04_ifa_coding_system/IFA_Info_Code_39_EN.pdf */
+/* PZN https://www.ifaffm.de/mandanten/1/documents/04_ifa_coding_system/
+       IFA-Info_Check_Digit_Calculations_PZN_PPN_UDI_EN.pdf */
+INTERNAL int pzn(struct zint_symbol *symbol, unsigned char source[], int length) {
+
+    int i, error_number, zeroes;
+    int count, check_digit;
+    unsigned char have_check_digit = '\0';
+    unsigned char local_source[1 + 8]; /* '-' prefix + 8 digits */
+    const int pzn7 = symbol->option_2 == 1;
+    const int saved_option_2 = symbol->option_2;
+    const int raw_text = symbol->output_options & BARCODE_RAW_TEXT;
+
+    if (length > 8 - pzn7) {
+        return ZEXT errtxtf(ZINT_ERROR_TOO_LONG, symbol, 325, "Input length %1$d too long (maximum %2$d)", length,
+                            8 - pzn7);
+    }
+    if (length == 8 - pzn7) {
+        have_check_digit = source[7 - pzn7];
+        length--;
+    }
+    if ((i = not_sane(NEON_F, source, length))) {
+        return errtxtf(ZINT_ERROR_INVALID_DATA, symbol, 326,
+                        "Invalid character at position %d in input (digits only)", i);
+    }
+
+    local_source[0] = '-';
+    zeroes = 7 - pzn7 - length + 1;
+    for (i = 1; i < zeroes; i++)
+        local_source[i] = '0';
+    memcpy(local_source + zeroes, source, length);
+
+    count = 0;
+    for (i = 1; i < 8 - pzn7; i++) {
+        count += (i + pzn7) * ctoi(local_source[i]);
+    }
+
+    check_digit = count % 11;
+
+    if (symbol->debug & ZINT_DEBUG_PRINT) {
+        printf("PZN: %.*s, check digit %d\n", 8 - pzn7, local_source, (int) check_digit);
+    }
+
+    if (check_digit == 10) {
+        return errtxt(ZINT_ERROR_INVALID_DATA, symbol, 327, "Invalid PZN, check digit is '10'");
+    }
+    if (have_check_digit && ctoi(have_check_digit) != check_digit) {
+        return ZEXT errtxtf(ZINT_ERROR_INVALID_CHECK, symbol, 890, "Invalid check digit '%1$c', expecting '%2$c'",
+                            have_check_digit, itoc(check_digit));
+    }
+
+    local_source[8 - pzn7] = itoc(check_digit);
+
+    symbol->option_2 = 0; /* Need to overwrite this so `code39()` doesn't add a check digit itself */
+
+    error_number = code39(symbol, local_source, 9 - pzn7);
+
+    symbol->option_2 = saved_option_2; /* Restore */
+
+    if (symbol->output_options & COMPLIANT_HEIGHT) {
+        /* Technical Information regarding PZN Coding V 2.1 (25 Feb 2019) Code size
+           https://www.ifaffm.de/mandanten/1/documents/04_ifa_coding_system/IFA_Info_Code_39_EN.pdf
+           "normal" X 0.25mm (0.187mm - 0.45mm), height 8mm - 20mm for 0.25mm X, 10mm mentioned so use that
+           as default, 10mm / 0.25mm = 40 */
+        if (error_number < ZINT_ERROR) {
+            const float min_height = 17.7777786f; /* 8.0 / 0.45 */
+            const float max_height = 106.951874f; /* 20.0 / 0.187 */
+            error_number = set_height(symbol, min_height, 40.0f, max_height, 0 /*no_errtxt*/);
+        }
+    } else {
+        if (error_number < ZINT_ERROR) {
+            (void) set_height(symbol, 0.0f, 50.0f, 0.0f, 1 /*no_errtxt*/);
+        }
+    }
+
+    if (!raw_text) {
+        hrt_cpy_nochk(symbol, (const unsigned char *) "PZN - ", 6); /* Note changed to put space after hyphen */
+        hrt_cat_nochk(symbol, local_source + 1, 9 - pzn7 - 1);
+    }
 
     return error_number;
 }

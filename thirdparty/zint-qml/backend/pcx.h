@@ -1,7 +1,7 @@
 /*  pcx.h - header structure for ZSoft PCX files */
 /*
     libzint - the open source barcode library
-    Copyright (C) 2016-2022 Robin Stuart <rstuart114@gmail.com>
+    Copyright (C) 2016-2024 Robin Stuart <rstuart114@gmail.com>
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions
@@ -35,9 +35,11 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif
+#endif /* __cplusplus */
 
-#pragma pack (1)
+#ifdef OUT_USE_PRAGMA_PACK
+#pragma pack(1)
+#endif
 
     typedef struct pcx_header {
         uint8_t manufacturer;
@@ -58,13 +60,15 @@ extern "C" {
         uint16_t horiz_screen_size;
         uint16_t vert_screen_size;
         uint8_t filler[54];
-    } pcx_header_t;
+    } OUT_PACK pcx_header_t;
 
-#pragma pack ()
+#ifdef OUT_USE_PRAGMA_PACK
+#pragma pack()
+#endif
 
 #ifdef __cplusplus
 }
-#endif
+#endif /* __cplusplus */
 
 /* vim: set ts=4 sw=4 et : */
 #endif /* Z_PCX_H */

@@ -1,7 +1,7 @@
 /*  output.h - Common routines for raster/vector */
 /*
     libzint - the open source barcode library
-    Copyright (C) 2020-2023 Robin Stuart <rstuart114@gmail.com>
+    Copyright (C) 2020-2025 Robin Stuart <rstuart114@gmail.com>
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions
@@ -50,7 +50,8 @@ INTERNAL int out_colour_get_cmyk(const char *colour, int *cyan, int *magenta, in
                 unsigned char *rgb_alpha);
 
 /* Convert internal colour chars "WCBMRYGK" to RGB */
-INTERNAL int out_colour_char_to_rgb(const char ch, unsigned char *red, unsigned char *green, unsigned char *blue);
+INTERNAL int out_colour_char_to_rgb(const unsigned char ch, unsigned char *red, unsigned char *green,
+                unsigned char *blue);
 
 /* Set left (x), top (y), right and bottom offsets for whitespace, also right quiet zone */
 INTERNAL void out_set_whitespace_offsets(const struct zint_symbol *symbol, const int hide_text,
@@ -77,8 +78,50 @@ INTERNAL FILE *out_fopen(const char filename[256], const char *mode);
 INTERNAL FILE *out_win_fopen(const char *filename, const char *mode);
 #endif
 
-/* Output float without trailing zeroes to `fp` with decimal pts `dp` (precision) */
-INTERNAL void out_putsf(const char *const prefix, const int dp, const float arg, FILE *fp);
+/* Little-endian output */
+#define out_le_u16(b, n) do { \
+        unsigned char *bp = (unsigned char *) &(b); \
+        uint16_t u16 = (uint16_t) (n); \
+        bp[0] = (unsigned char) (u16 & 0xFF); \
+        bp[1] = (unsigned char) ((u16 >> 8) & 0xFF); \
+    } while (0)
+
+#define out_le_u32(b, n) do { \
+        unsigned char *bp = (unsigned char *) &(b); \
+        uint32_t u32 = (uint32_t) (n); \
+        bp[0] = (unsigned char) (u32 & 0xFF); \
+        bp[1] = (unsigned char) ((u32 >> 8) & 0xFF); \
+        bp[2] = (unsigned char) ((u32 >> 16) & 0xFF); \
+        bp[3] = (unsigned char) ((u32 >> 24) & 0xFF); \
+    } while (0)
+
+#define out_le_i32(b, n) do { \
+        unsigned char *bp = (unsigned char *) &(b); \
+        int32_t i32 = (int32_t) (n); \
+        bp[0] = (unsigned char) (i32 & 0xFF); \
+        bp[1] = (unsigned char) ((i32 >> 8) & 0xFF); \
+        bp[2] = (unsigned char) ((i32 >> 16) & 0xFF); \
+        bp[3] = (unsigned char) ((i32 >> 24) & 0xFF); \
+    } while (0)
+
+#define out_le_float(b, n) do { \
+        unsigned char *bp = (unsigned char *) &(b); \
+        float f = (float) (n); \
+        uint32_t *p_u32 = (uint32_t *) &f; \
+        bp[0] = (unsigned char) (*p_u32 & 0xFF); \
+        bp[1] = (unsigned char) ((*p_u32 >> 8) & 0xFF); \
+        bp[2] = (unsigned char) ((*p_u32 >> 16) & 0xFF); \
+        bp[3] = (unsigned char) ((*p_u32 >> 24) & 0xFF); \
+    } while (0)
+
+/* If `#pragma pack()` not supported, try per-type packed attribute */
+#ifdef __COMPCERT__
+/* Can't use `__attribute__` as may be defined to be no-op by libc if not GNU C or Clang (e.g. glibc does this) */
+#  define OUT_PACK __attribute((__packed__)) /* CompCert C workaround extension `__attribute` */
+#else
+#  define OUT_USE_PRAGMA_PACK
+#  define OUT_PACK
+#endif
 
 #ifdef __cplusplus
 }

@@ -1,7 +1,7 @@
 /*  tif_lzw.h - LZW compression for TIFF */
 /*
     libzint - the open source barcode library
-    Copyright (C) 2021-2022 Robin Stuart <rstuart114@gmail.com>
+    Copyright (C) 2021-2024 Robin Stuart <rstuart114@gmail.com>
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions
@@ -32,6 +32,10 @@
 
 #ifndef Z_TIF_LZW_H
 #define Z_TIF_LZW_H
+
+#ifdef  __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 /*
  * Adapted from TIFF Library 4.2.0 libtiff/tif_lzw.c */
@@ -161,13 +165,13 @@ static void tif_lzw_cl_hash(tif_lzw_state *sp) {
 }
 
 /* Explicit 0xff masking to make icc -check=conversions happy */
-#define PutNextCode(op_file, c) { \
+#define PutNextCode(op_fmp, c) { \
     nextdata = (nextdata << nbits) | c; \
     nextbits += nbits; \
-    putc((nextdata >> (nextbits - 8)) & 0xff, op_file); \
+    fm_putc((nextdata >> (nextbits - 8)) & 0xff, op_fmp); \
     nextbits -= 8; \
     if (nextbits >= 8) { \
-        putc((nextdata >> (nextbits - 8)) & 0xff, op_file); \
+        fm_putc((nextdata >> (nextbits - 8)) & 0xff, op_fmp); \
         nextbits -= 8; \
     } \
     outcount += nbits; \
@@ -187,7 +191,7 @@ static void tif_lzw_cl_hash(tif_lzw_state *sp) {
  * are re-sized at this point, and a CODE_CLEAR is generated
  * for the decoder.
  */
-static int tif_lzw_encode(tif_lzw_state *sp, FILE *op_file, const unsigned char *bp, int cc) {
+static int tif_lzw_encode(tif_lzw_state *sp, struct filemem *op_fmp, const unsigned char *bp, int cc) {
     register long fcode;
     register tif_lzw_hash *hp;
     register int h, c;
@@ -229,7 +233,7 @@ static int tif_lzw_encode(tif_lzw_state *sp, FILE *op_file, const unsigned char 
     ent = (tif_lzw_hcode) -1;
 
     if (cc > 0) {
-        PutNextCode(op_file, CODE_CLEAR);
+        PutNextCode(op_fmp, CODE_CLEAR);
         ent = *bp++; cc--; incount++;
     }
     while (cc > 0) {
@@ -275,7 +279,7 @@ static int tif_lzw_encode(tif_lzw_state *sp, FILE *op_file, const unsigned char 
         /*
          * New entry, emit code and add to table.
          */
-        PutNextCode(op_file, ent);
+        PutNextCode(op_fmp, ent);
         ent = (tif_lzw_hcode) c;
         hp->code = (tif_lzw_hcode) (free_ent++);
         hp->hash = fcode;
@@ -286,7 +290,7 @@ static int tif_lzw_encode(tif_lzw_state *sp, FILE *op_file, const unsigned char 
             incount = 0;
             outcount = 0;
             free_ent = CODE_FIRST;
-            PutNextCode(op_file, CODE_CLEAR);
+            PutNextCode(op_fmp, CODE_CLEAR);
             nbits = BITS_MIN;
             maxcode = MAXCODE(BITS_MIN);
         } else {
@@ -314,7 +318,7 @@ static int tif_lzw_encode(tif_lzw_state *sp, FILE *op_file, const unsigned char 
                     incount = 0;
                     outcount = 0;
                     free_ent = CODE_FIRST;
-                    PutNextCode(op_file, CODE_CLEAR);
+                    PutNextCode(op_fmp, CODE_CLEAR);
                     nbits = BITS_MIN;
                     maxcode = MAXCODE(BITS_MIN);
                 } else {
@@ -332,13 +336,13 @@ static int tif_lzw_encode(tif_lzw_state *sp, FILE *op_file, const unsigned char 
      */
     if (ent != (tif_lzw_hcode) -1) {
 
-        PutNextCode(op_file, ent);
+        PutNextCode(op_fmp, ent);
         free_ent++;
 
         if (free_ent == CODE_MAX - 1) {
             /* table is full, emit clear code and reset */
             outcount = 0;
-            PutNextCode(op_file, CODE_CLEAR);
+            PutNextCode(op_fmp, CODE_CLEAR);
             nbits = BITS_MIN;
         } else {
             /*
@@ -351,10 +355,10 @@ static int tif_lzw_encode(tif_lzw_state *sp, FILE *op_file, const unsigned char 
             }
         }
     }
-    PutNextCode(op_file, CODE_EOI);
+    PutNextCode(op_fmp, CODE_EOI);
     /* Explicit 0xff masking to make icc -check=conversions happy */
     if (nextbits > 0) {
-        putc((nextdata << (8 - nextbits)) & 0xff, op_file);
+        fm_putc((nextdata << (8 - nextbits)) & 0xff, op_fmp);
     }
 
     return 1;
@@ -369,6 +373,10 @@ static void tif_lzw_cleanup(tif_lzw_state *sp) {
 static void tif_lzw_init(tif_lzw_state *sp) {
     sp->enc_hashtab = NULL;
 }
+
+#ifdef  __cplusplus
+}
+#endif /* __cplusplus */
 
 /* vim: set ts=4 sw=4 et : */
 #endif /* Z_TIF_LZW_H */

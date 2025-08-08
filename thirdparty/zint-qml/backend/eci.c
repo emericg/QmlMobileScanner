@@ -1,7 +1,7 @@
 /*  eci.c - Extended Channel Interpretations */
 /*
     libzint - the open source barcode library
-    Copyright (C) 2009-2023 Robin Stuart <rstuart114@gmail.com>
+    Copyright (C) 2009-2024 Robin Stuart <rstuart114@gmail.com>
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions
@@ -764,7 +764,7 @@ INTERNAL int utf8_to_eci(const int eci, const unsigned char source[], unsigned c
     return 0;
 }
 
-/* Find the lowest single-byte ECI mode which will encode a given set of Unicode text */
+/* Find the lowest single-byte ECI mode which will encode a given set of Unicode text, assuming valid UTF-8 */
 INTERNAL int get_best_eci(const unsigned char source[], int length) {
     int eci = 3;
     /* Note: attempting single-byte conversions only, so get_eci_length() unnecessary */
@@ -782,14 +782,12 @@ INTERNAL int get_best_eci(const unsigned char source[], int length) {
         eci++;
     } while (eci < 25);
 
-    if (!is_valid_utf8(source, length)) {
-        return 0;
-    }
+    assert(is_valid_utf8(source, length));
 
     return 26; /* If all of these fail, use UTF-8! */
 }
 
-/* Call `get_best_eci()` for each segment. Returns 0 on failure, first ECI set on success */
+/* Call `get_best_eci()` for each segment, assuming valid UTF-8. Returns 0 on failure, first ECI set on success */
 INTERNAL int get_best_eci_segs(struct zint_symbol *symbol, struct zint_seg segs[], const int seg_count) {
     const int default_eci = symbol->symbology == BARCODE_GRIDMATRIX ? 29 : symbol->symbology == BARCODE_UPNQR ? 4 : 3;
     int first_eci_set = 0;
@@ -797,10 +795,7 @@ INTERNAL int get_best_eci_segs(struct zint_symbol *symbol, struct zint_seg segs[
 
     for (i = 0; i < seg_count; i++) {
         if (segs[i].eci == 0) {
-            int eci = get_best_eci(segs[i].source, segs[i].length);
-            if (eci == 0) {
-                return 0;
-            }
+            const int eci = get_best_eci(segs[i].source, segs[i].length);
             if (eci == default_eci) {
                 if (i != 0 && segs[i - 1].eci != 0 && segs[i - 1].eci != default_eci) {
                     segs[i].eci = eci;
@@ -839,8 +834,7 @@ INTERNAL int sjis_utf8(struct zint_symbol *symbol, const unsigned char source[],
 
     for (i = 0, length = *p_length; i < length; i++) {
         if (!u_sjis_int(utfdata[i], ddata + i)) {
-            strcpy(symbol->errtxt, "800: Invalid character in input data");
-            return ZINT_ERROR_INVALID_DATA;
+            return errtxt(ZINT_ERROR_INVALID_DATA, symbol, 800, "Invalid character in input");
         }
     }
 
@@ -934,8 +928,7 @@ INTERNAL int gb2312_utf8(struct zint_symbol *symbol, const unsigned char source[
             ddata[i] = utfdata[i];
         } else {
             if (!u_gb2312_int(utfdata[i], ddata + i)) {
-                strcpy(symbol->errtxt, "810: Invalid character in input data");
-                return ZINT_ERROR_INVALID_DATA;
+                return errtxt(ZINT_ERROR_INVALID_DATA, symbol, 810, "Invalid character in input");
             }
         }
     }
@@ -1038,8 +1031,7 @@ INTERNAL int gb18030_utf8(struct zint_symbol *symbol, const unsigned char source
         } else {
             ret = u_gb18030_int(utfdata[i], ddata + j, ddata + j + 1);
             if (ret == 0) { /* Should never happen, as GB 18030 is a UTF i.e. maps all Unicode codepoints */
-                strcpy(symbol->errtxt, "820: Invalid character in input data"); /* Not reached */
-                return ZINT_ERROR_INVALID_DATA;
+                return errtxt(ZINT_ERROR_INVALID_DATA, symbol, 820, "Invalid character in input"); /* Not reached */
             }
             if (ret == 4) {
                 j++;

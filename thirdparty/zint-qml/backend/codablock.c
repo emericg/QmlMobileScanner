@@ -1,7 +1,7 @@
 /* codablock.c - Handles Codablock-F */
 /*
     libzint - the open source barcode library
-    Copyright (C) 2016-2023 Harald Oehlmann
+    Copyright (C) 2016-2025 Harald Oehlmann
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions
@@ -47,8 +47,8 @@
 #define CFill    32
 #define CodeFNC1 64
 #define CodeFNC4 128
-#define ZTNum    (CodeA + CodeB + CodeC)
-#define ZTFNC1   (CodeA + CodeB + CodeC + CodeFNC1)
+#define ZTNum    (CodeA | CodeB | CodeC)
+#define ZTFNC1   (CodeA | CodeB | CodeC | CodeFNC1)
 
 /* ASCII-Extension for Codablock-F */
 #define aFNC1  ((uchar) 128)
@@ -69,31 +69,29 @@ typedef struct sCharacterSetTable {
 } CharacterSetTable;
 
 /* Find the possible Code-128 Character sets for a character
- * The result is an or of CodeA, CodeB, CodeC, CodeFNC1, CodeFNC4 depending on the
+ * The result is an OR of CodeA, CodeB, CodeC, CodeFNC1, CodeFNC4 depending on the
  * possible Code 128 character sets.
  */
 static int GetPossibleCharacterSet(unsigned char C) {
     if (C <= '\x1f') /* Control chars */
         return CodeA;
     if (z_isdigit(C))
-        return ZTNum; /* ZTNum=CodeA+CodeB+CodeC */
+        return ZTNum; /* ZTNum = CodeA | CodeB | CodeC */
     if (C == aFNC1) /* FNC1s (GS1) not used */
-        return ZTFNC1; /* ZTFNC1=CodeA+CodeB+CodeC+CodeFNC1 */ /* Not reached */
+        return ZTFNC1; /* ZTFNC1 = CodeA | CodeB | CodeC | CodeFNC1 */ /* Not reached */
     if (C == aFNC4)
         return (CodeA | CodeB | CodeFNC4);
     if (C >= '\x60' && C <= '\x7f') /* 60 to 127 */
         return CodeB;
-    return CodeA + CodeB;
+    return CodeA | CodeB;
 }
 
 /* Create a Table with the following information for each Data character:
- *  int CharacterSet    is an or of CodeA, CodeB, CodeC, CodeFNC1, CodeFNC4,
- *          depending on which character set is applicable.
- *          (Result of GetPossibleCharacterSet)
- *  int AFollowing,BFollowing   The number of source characters you still may encode
- *          in this character set.
- *  int CFollowing  The number of characters encodable in CodeC if we
- *          start here.
+ *  int CharacterSet            is an OR of CodeA, CodeB, CodeC, CodeFNC1, CodeFNC4,
+ *                              depending on which character set is applicable.
+ *                              (Result of GetPossibleCharacterSet)
+ *  int AFollowing, BFollowing  The number of source characters you still may encode in this character set.
+ *  int CFollowing              The number of characters encodable in CodeC if we start here.
  */
 static void CreateCharacterSetTable(CharacterSetTable T[], unsigned char *data, const int dataLength) {
     int charCur;
@@ -260,6 +258,7 @@ static int Columns2Rows(struct zint_symbol *symbol, CharacterSetTable *T, const 
                                     if (isFNC4) { /* So skip FNC4 and shift value instead */
                                         --emptyColumns;
                                         ++charCur;
+                                        assert(charCur < dataLength); /* FNC4s always followed by char */
                                     }
                                     pSet[charCur] |= CShift;
                                 } else {
@@ -292,6 +291,7 @@ static int Columns2Rows(struct zint_symbol *symbol, CharacterSetTable *T, const 
                                     if (isFNC4) { /* So skip FNC4 and shift value instead */
                                         --emptyColumns;
                                         ++charCur;
+                                        assert(charCur < dataLength); /* FNC4s always followed by char */
                                     }
                                     pSet[charCur] |= CShift;
                                 } else {
@@ -561,7 +561,7 @@ INTERNAL int codablockf(struct zint_symbol *symbol, unsigned char source[], int 
             if (symbol->border_width == 0) { /* Allow override if non-zero */
                 symbol->border_width = 1; /* AIM ISS-X-24 Section 4.6.1 b) (note change from previous default 2) */
             }
-            symbol->text[0] = '\0'; /* Disable HRT for compatibility with CODABLOCKF */
+            hrt_cpy_nochk(symbol, (const unsigned char *) "", 0); /* Zap HRT for compatibility with CODABLOCKF */
             if (symbol->output_options & COMPLIANT_HEIGHT) {
                 /* AIM ISS-X-24 Section 4.6.1 minimum row height 8X (for compatibility with CODABLOCKF, not specced
                    for CODE128) */
@@ -577,14 +577,13 @@ INTERNAL int codablockf(struct zint_symbol *symbol, unsigned char source[], int 
         return error_number;
     }
     if (rows > 44) {
-        strcpy(symbol->errtxt, "410: Rows parameter not in 0..44");
-        return ZINT_ERROR_INVALID_OPTION;
+        return errtxtf(ZINT_ERROR_INVALID_OPTION, symbol, 410, "Number of rows '%d' out of range (0 to 44)", rows);
     }
     /* option_2: (usable data) columns: <= 0: automatic, 9..67 (min 9 == 4 data, max 67 == 62 data) */
     columns = symbol->option_2;
     if (!(columns <= 0 || (columns >= 9 && columns <= 67))) {
-        strcpy(symbol->errtxt, "411: Columns parameter not in 0, 9..67");
-        return ZINT_ERROR_INVALID_OPTION;
+        return errtxtf(ZINT_ERROR_INVALID_OPTION, symbol, 411, "Number of columns '%d' out of range (9 to 67)",
+                        columns);
     }
     if (columns < 0) { /* Protect against negative overflow (ticket #300 (#9) Andre Maute) */
         columns = 0;
@@ -614,9 +613,10 @@ INTERNAL int codablockf(struct zint_symbol *symbol, unsigned char source[], int 
     CreateCharacterSetTable(T, data, dataLength);
 
     /* Find final row and column count */
-    /* nor row nor column count given */
+
+    /* Neither row nor column count given */
     if (rows <= 0 && columns <= 0) {
-        /* use 1/1 aspect/ratio Codablock */
+        /* Use 1/1 aspect/ratio */
         columns = (int) floor(sqrt(dataLength)) + 5;
         if (columns > 67) {
             columns = 67;
@@ -630,15 +630,15 @@ INTERNAL int codablockf(struct zint_symbol *symbol, unsigned char source[], int 
     /* There are 5 Codewords for Organisation Start(2),row(1),CheckSum,Stop */
     useColumns = columns - 5;
     if (rows > 0) {
-        /* row count given */
+        /* Row count given */
         error_number = Rows2Columns(symbol, T, dataLength, &rows, &useColumns, pSet, &fillings);
     } else {
-        /* column count given */
+        /* Column count given */
         error_number = Columns2Rows(symbol, T, dataLength, &rows, &useColumns, pSet, &fillings);
     }
     if (error_number != 0) {
-        strcpy(symbol->errtxt, "413: Data string too long");
-        return error_number;
+        return errtxt(error_number, symbol, 413,
+                        "Input too long, requires too many symbol characters (maximum 2726)");
     }
     /* Suppresses clang-analyzer-core.VLASize warning */
     assert(rows >= 2 && useColumns >= 4);
@@ -650,14 +650,14 @@ INTERNAL int codablockf(struct zint_symbol *symbol, unsigned char source[], int 
         Sum2 = (Sum2 + charCur * source[charCur]) % 86;
     }
 
-    if (symbol->debug & ZINT_DEBUG_PRINT) { /* start a new level of local variables */
+    if (symbol->debug & ZINT_DEBUG_PRINT) {
         int DPos;
         fputs("\nData:", stdout);
         for (DPos = 0; DPos < dataLength; DPos++)
             fputc(data[DPos], stdout);
         fputs("\n Set:", stdout);
         for (DPos = 0; DPos < dataLength; DPos++) {
-            switch (pSet[DPos] & (CodeA + CodeB + CodeC)) {
+            switch (pSet[DPos] & (CodeA | CodeB | CodeC)) {
             case CodeA: fputc('A', stdout); break;
             case CodeB: fputc('B', stdout); break;
             case CodeC: fputc('C', stdout); break;
@@ -684,17 +684,15 @@ INTERNAL int codablockf(struct zint_symbol *symbol, unsigned char source[], int 
 
     /* >>> Build C128 code numbers */
     /* The C128 column count contains Start (2CW), Row ID, Checksum, Stop */
-    pOutput = (unsigned char *) z_alloca(columns * rows);
+    pOutput = (unsigned char *) z_alloca((size_t) columns * (size_t) rows);
     pOutPos = pOutput;
     charCur = 0;
     /* >> Loop over rows */
     for (rowCur = 0; rowCur < rows; rowCur++) {
         if (charCur >= dataLength) {
             /* >> Empty line with StartA, aCodeB, row #, and then filler aCodeC aCodeB etc */
-            *pOutPos = '\x67';
-            pOutPos++;
-            *pOutPos = 100; /* aCodeB */
-            pOutPos++;
+            *pOutPos++ = '\x67';
+            *pOutPos++ = 100; /* aCodeB */
             characterSetCur = CodeB;
             SumASCII(&pOutPos, rowCur + 42, characterSetCur); /* Row # */
             emptyColumns = useColumns;
@@ -712,29 +710,23 @@ INTERNAL int codablockf(struct zint_symbol *symbol, unsigned char source[], int 
                 --emptyColumns;
             }
         } else {
-            /* >> Normal Line */
+            /* >> Normal line */
             /* > Startcode */
-            switch (pSet[charCur] & (CodeA + CodeB + CodeC)) {
+            switch (pSet[charCur] & (CodeA | CodeB | CodeC)) {
             case CodeA:
-                *pOutPos = '\x67';
-                pOutPos++;
-                *pOutPos = '\x62';
-                pOutPos++;
+                *pOutPos++ = '\x67';
+                *pOutPos++ = '\x62';
                 characterSetCur = CodeA;
                 break;
             case CodeB:
-                *pOutPos = '\x67';
-                pOutPos++;
-                *pOutPos = '\x64';
-                pOutPos++;
+                *pOutPos++ = '\x67';
+                *pOutPos++ = '\x64';
                 characterSetCur = CodeB;
                 break;
             case CodeC:
             default:
-                *pOutPos = '\x67';
-                pOutPos++;
-                *pOutPos = '\x63';
-                pOutPos++;
+                *pOutPos++ = '\x67';
+                *pOutPos++ = '\x63';
                 characterSetCur = CodeC;
                 break;
             }
@@ -788,8 +780,8 @@ INTERNAL int codablockf(struct zint_symbol *symbol, unsigned char source[], int 
                     --emptyColumns;
                 }
                 /* >> End Criteria */
-                if ((pSet[charCur] & CFill) || (pSet[charCur] & CEnd)) {
-                    /* Fill Line but leave space for checks in last line */
+                if (charCur < dataLength && ((pSet[charCur] & CFill) || (pSet[charCur] & CEnd))) {
+                    /* Fill line but leave space for checks in last line */
                     if (rowCur == rows - 1) {
                         emptyColumns -= 2;
                     }
@@ -813,13 +805,14 @@ INTERNAL int codablockf(struct zint_symbol *symbol, unsigned char source[], int 
                 }
                 ++charCur;
             } /* Loop over characters */
-        }     /* if filling-Line / normal */
+        } /* if filling line / normal line */
 
         /* Add checksum in last line */
         if (rowCur == rows - 1) {
             SumASCII(&pOutPos, Sum1, characterSetCur);
             SumASCII(&pOutPos, Sum2, characterSetCur);
         }
+        assert(columns * rowCur + useColumns + 3 == (int) (pOutPos - pOutput)); /* Suppress clang-tidy warning */
         /* Add Code 128 checksum */
         {
             int Sum = pOutput[columns * rowCur] % 103;
@@ -827,26 +820,20 @@ INTERNAL int codablockf(struct zint_symbol *symbol, unsigned char source[], int 
             for (; Pos < useColumns + 3; Pos++) {
                 Sum = (Sum + pOutput[columns * rowCur + Pos] * Pos) % 103;
             }
-            *pOutPos = (uchar) Sum;
-            pOutPos++;
+            *pOutPos++ = (uchar) Sum;
         }
         /* Add end character */
-        *pOutPos = 106;
-        pOutPos++;
+        *pOutPos++ = 106;
     } /* End Lineloop */
 
     if (symbol->debug & ZINT_DEBUG_PRINT) {
-        /* Dump the output to the screen
-         */
+        int DPos, DPos2;
         fputs("\nCode 128 Code Numbers:\n", stdout);
-        { /* start a new level of local variables */
-            int DPos, DPos2;
-            for (DPos = 0; DPos < rows; DPos++) {
-                for (DPos2 = 0; DPos2 < columns; DPos2++) {
-                    printf("%3d ", (int) (pOutput[DPos * columns + DPos2]));
-                }
-                fputc('\n', stdout);
+        for (DPos = 0; DPos < rows; DPos++) {
+            for (DPos2 = 0; DPos2 < columns; DPos2++) {
+                printf("%3d ", (int) pOutput[DPos * columns + DPos2]);
             }
+            fputc('\n', stdout);
         }
         printf("rows=%d columns=%d (%d data) fillings=%d\n", rows, columns, columns - 5, fillings);
     }

@@ -1,6 +1,6 @@
 /*
     libzint - the open source barcode library
-    Copyright (C) 2020-2023 Robin Stuart <rstuart114@gmail.com>
+    Copyright (C) 2020-2024 Robin Stuart <rstuart114@gmail.com>
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions
@@ -38,24 +38,9 @@ extern "C" {
 
 /* Allow for a reasonable number of special Code Set escapes and for GS1 AI delimiters */
 #define C128_MAX    256
-
-#define C128_LATCHA 'A'
-#define C128_LATCHB 'B'
-#define C128_LATCHC 'C'
-#define C128_SHIFTA 'a'
-#define C128_SHIFTB 'b'
-#define C128_ABORC  '9'
-#define C128_AORB   'Z'
+#define C128_MAX_S  "256" /* String version of above */
 
 INTERNAL int code128(struct zint_symbol *symbol, unsigned char source[], int length);
-
-INTERNAL int c128_parunmodd(const unsigned char llyth);
-INTERNAL void c128_dxsmooth(int list[2][C128_MAX], int *indexliste, const char *manual_set);
-INTERNAL void c128_set_a(const unsigned char source, int values[], int *bar_chars);
-INTERNAL int c128_set_b(const unsigned char source, int values[], int *bar_chars);
-INTERNAL void c128_set_c(const unsigned char source_a, const unsigned char source_b, int values[], int *bar_chars);
-INTERNAL void c128_put_in_set(int list[2][C128_MAX], const int indexliste, char set[C128_MAX],
-                const unsigned char *source);
 
 INTERNAL_DATA_EXTERN const char C128Table[107][6];
 
