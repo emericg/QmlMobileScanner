@@ -45,6 +45,7 @@ set(SOURCES
     src/main.cpp
     src/SettingsManager.cpp src/SettingsManager.h
     src/DatabaseManager.cpp src/DatabaseManager.h
+    src/PermissionManager.cpp src/PermissionManager.h
     src/BarcodeManager.cpp src/BarcodeManager.h
     src/Barcode.cpp src/Barcode.h
     src/utils_camera.cpp src/utils_camera.h

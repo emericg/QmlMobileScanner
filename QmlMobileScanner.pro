@@ -43,12 +43,14 @@ DESTDIR     = bin/
 SOURCES  += src/main.cpp \
             src/SettingsManager.cpp \
             src/DatabaseManager.cpp \
+            src/PermissionManager.cpp \
             src/BarcodeManager.cpp \
             src/Barcode.cpp \
             src/utils_camera.cpp
 
 HEADERS  += src/DatabaseManager.h  \
             src/SettingsManager.h \
+            src/PermissionManager.h \
             src/BarcodeManager.h \
             src/Barcode.h \
             src/utils_camera.h

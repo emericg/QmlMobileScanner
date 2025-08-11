@@ -1,6 +1,4 @@
 import QtQuick
-import QtQuick.Controls
-import QtQuick.Window
 
 import ComponentLibrary
 import QmlMobileScanner
@@ -12,10 +10,10 @@ Rectangle {
     anchors.bottom: parent.bottom
 
     z: 10
-    width: isHdpi ? 72 : 80
+    width: isHdpi ? 220 : 240
     color: Theme.colorSidebar
 
-    ////////////////////////////////////////////////////////////////////////////
+    ////////////
 
     DragHandler {
         // Drag on the sidebar to drag the whole window // Qt 5.15+
@@ -24,101 +22,102 @@ Rectangle {
         target: null
     }
 
-    ////////////////////////////////////////////////////////////////////////////
+    ////////////
 
-    // MENUS up
-
-    Column {
+    Column { // top menu
         anchors.top: parent.top
-        anchors.topMargin: 20
+        anchors.topMargin: 16
         anchors.left: parent.left
-        anchors.leftMargin: 0
+        anchors.leftMargin: 12
         anchors.right: parent.right
-        anchors.rightMargin: 0
+        anchors.rightMargin: 12
+        spacing: 8
 
-        spacing: 0
-
-        DesktopSidebarItem {
+        DesktopSidebarMenu {
+            text: qsTr("Scanner")
             source: "qrc:/IconLibrary/material-icons/duotone/qr_code_scanner.svg"
-            sourceSize: 40
-
-            highlightMode: "background"
-            highlighted: (appContent.state === "ScreenBarcodeReader")
-
-            indicatorVisible: false
-            indicatorSource: "qrc:/IconLibrary/material-symbols/media/camera.svg"
+            checked: (appContent.state === "ScreenBarcodeReader")
 
             onClicked: screenBarcodeReader.loadScreen()
         }
-        DesktopSidebarItem {
+        DesktopSidebarMenu {
+            text: qsTr("Generator")
             source: "qrc:/IconLibrary/material-icons/duotone/qr_code_2.svg"
-            sourceSize: 40
-
-            highlightMode: "background"
-            highlighted: (appContent.state === "ScreenBarcodeWriter")
+            checked: (appContent.state === "ScreenBarcodeWriter")
 
             onClicked: screenBarcodeWriter.loadScreen()
         }
-        DesktopSidebarItem {
+        DesktopSidebarMenu {
+            text: qsTr("Barcode history")
             source: "qrc:/IconLibrary/material-icons/duotone/list.svg"
-            sourceSize: 40
-
-            highlightMode: "background"
-            highlighted: (appContent.state === "ScreenBarcodeHistory")
+            checked: (appContent.state === "ScreenBarcodeHistory")
 
             onClicked: screenBarcodeHistory.loadScreen()
         }
     }
 
-    // MENUS down
+    ////////////
 
-    Column {
+    Column { // bottom menu
         anchors.left: parent.left
-        anchors.leftMargin: 0
+        anchors.leftMargin: 12
         anchors.right: parent.right
-        anchors.rightMargin: 0
+        anchors.rightMargin: 12
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: 20
+        anchors.bottomMargin: 16
+        spacing: 8
 
-        spacing: 0
-
-        DesktopSidebarItem {
+        DesktopSidebarMenu {
+            text: qsTr("Settings")
             source: "qrc:/IconLibrary/material-icons/duotone/tune.svg"
-            sourceSize: 40
-
-            highlightMode: (Theme.sidebarSelector) ? "indicator" : "background"
-            highlighted: appContent.state === "ScreenSettings"
+            checked: (appContent.state === "ScreenSettings")
 
             onClicked: screenSettings.loadScreen()
         }
-        DesktopSidebarItem {
-            source: "qrc:/IconLibrary/material-icons/duotone/info.svg"
-            sourceSize: 40
 
-            highlightMode: (Theme.sidebarSelector) ? "indicator" : "background"
-            highlighted: (appContent.state === "ScreenAbout" ||
-                          appContent.state === "ScreenAboutFormats" ||
-                          appContent.state === "ScreenAboutPermissions")
+        DesktopSidebarMenu {
+            text: qsTr("About")
+            source: "qrc:/IconLibrary/material-icons/duotone/info.svg"
+            checked: (appContent.state === "ScreenAbout" ||
+                      appContent.state === "ScreenAboutFormats" ||
+                      appContent.state === "ScreenAboutPermissions")
 
             onClicked: screenAbout.loadScreen()
         }
-        DesktopSidebarItem {
+
+        DesktopSidebarMenu {
+            text: qsTr("Exit")
             source: "qrc:/IconLibrary/material-icons/duotone/exit_to_app.svg"
-            sourceSize: 40
-            highlightMode: "circle"
-            onClicked: appWindow.close()
+            onClicked: Qt.quit()
         }
     }
 
-    //
+    ////////////
 
-    Rectangle {
+    Rectangle { // border
         anchors.top: parent.top
         anchors.right: parent.right
         anchors.bottom: parent.bottom
+
         width: 2
-        color: Theme.colorSidebarHighlight
+        opacity: 1.0
+        color: Theme.colorSeparator
     }
 
-    ////////////////////////////////////////////////////////////////////////////
+    Rectangle { // fake shadow
+        anchors.top: parent.top
+        anchors.left: parent.right
+        anchors.bottom: parent.bottom
+
+        width: 8
+        opacity: 0.333
+
+        gradient: Gradient {
+            orientation: Gradient.Horizontal
+            GradientStop { position: 0.0; color: Theme.colorSeparator; }
+            GradientStop { position: 1.0; color: "transparent"; }
+        }
+    }
+
+    ////////////
 }
