@@ -1,4 +1,7 @@
 
+# Optional stuff
+#CONFIG += UTILS_QT_RHI
+
 # Optional stuff (for macOS)
 #CONFIG += UTILS_DOCK_ENABLED
 
@@ -32,8 +35,11 @@ HEADERS += $${PWD}/utils_app.h \
 
 INCLUDEPATH += $${PWD}
 
-versionAtLeast(QT_VERSION, 6.6) {
-    QT += gui-private # to get RHI info
+# to get RHI info (optional)
+UTILS_QT_RHI {
+    versionAtLeast(QT_VERSION, 6.6) {
+        QT += gui-private
+    }
 }
 
 # Linux OS utils
@@ -47,6 +53,7 @@ linux:!android {
 # macOS utils
 macx {
     LIBS    += -framework IOKit
+
     SOURCES += $${PWD}/utils_os_macos.mm
     HEADERS += $${PWD}/utils_os_macos.h
 
@@ -54,6 +61,7 @@ macx {
     UTILS_DOCK_ENABLED {
         DEFINES += UTILS_DOCK_ENABLED
         LIBS    += -framework AppKit
+
         SOURCES += $${PWD}/utils_os_macos_dock.mm
         HEADERS += $${PWD}/utils_os_macos_dock.h
     }
@@ -62,6 +70,7 @@ macx {
 # Windows OS utils
 win32 {
     DEFINES += _USE_MATH_DEFINES
+
     SOURCES += $${PWD}/utils_os_windows.cpp
     HEADERS += $${PWD}/utils_os_windows.h
 }
@@ -69,23 +78,16 @@ win32 {
 # Android OS utils
 android {
     DEFINES += UTILS_NOTIFICATIONS_ENABLED UTILS_WIFI_ENABLED
+    QT += core-private
 
-    versionAtLeast(QT_VERSION, 6.0) {
-        QT += core-private
-
-        SOURCES += $${PWD}/utils_os_android_qt6.cpp
-        HEADERS += $${PWD}/utils_os_android.h
-    } else {
-        QT += androidextras
-
-        SOURCES += $${PWD}/utils_os_android_qt5.cpp
-        HEADERS += $${PWD}/utils_os_android.h
-    }
+    SOURCES += $${PWD}/utils_os_android.cpp
+    HEADERS += $${PWD}/utils_os_android.h
 }
 
 # iOS utils
 ios {
     LIBS    += -framework UIKit
+
     SOURCES += $${PWD}/utils_os_ios.mm
     HEADERS += $${PWD}/utils_os_ios.h
 
@@ -93,6 +95,7 @@ ios {
     UTILS_NOTIFICATIONS_ENABLED {
         DEFINES += UTILS_NOTIFICATIONS_ENABLED
         LIBS    += -framework UserNotifications
+
         SOURCES += $${PWD}/utils_os_ios_notif.mm
         HEADERS += $${PWD}/utils_os_ios_notif.h
     }
@@ -101,6 +104,7 @@ ios {
     UTILS_WIFI_ENABLED {
         DEFINES += UTILS_WIFI_ENABLED
         LIBS    += -framework SystemConfiguration
+
         SOURCES += $${PWD}/utils_os_ios_wifi.mm
         HEADERS += $${PWD}/utils_os_ios_wifi.h
     }
