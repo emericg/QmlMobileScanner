@@ -52,9 +52,9 @@ Loader {
         Column {
             id: columnContent
             anchors.left: parent.left
-            anchors.leftMargin: screenPaddingLeft
+            anchors.leftMargin: screenPaddingLeft + ((singleColumn || isPhone) ? 0 : parent.width * 0.12)
             anchors.right: parent.right
-            anchors.rightMargin: screenPaddingRight
+            anchors.rightMargin: screenPaddingRight + ((singleColumn || isPhone) ? 0 : parent.width * 0.12)
 
             ////////////////
 

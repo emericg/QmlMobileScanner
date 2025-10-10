@@ -6,7 +6,7 @@ import ComponentLibrary
 import QmlMobileScanner
 import MobileUI
 
-ApplicationWindow {
+Window {
     id: appWindow
     minimumWidth: 480
     minimumHeight: 800
@@ -77,6 +77,7 @@ ApplicationWindow {
 
         statusbarColor: "transparent"
         statusbarTheme: (appContent.state === "ScreenBarcodeReader") ? MobileUI.Dark : Theme.themeStatusbar
+
         navbarColor: "transparent"
         navbarTheme: (appContent.state === "ScreenBarcodeReader") ? MobileUI.Dark : Theme.themeStatusbar
 
@@ -87,6 +88,8 @@ ApplicationWindow {
             // safe areas are only taken into account when using maximized geometry / full screen mode
 
             mobileUI.refreshUI() // hack
+
+            mobileUI.statusbarTheme = Theme.themeStatusbar // hack
 
             if (appWindow.visibility === Window.FullScreen ||
                 appWindow.flags & Qt.MaximizeUsingFullscreenGeometryHint) {
