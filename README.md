@@ -7,6 +7,9 @@ QmlMobileScanner
 
 QmlMobileScanner is a DEMO barcode & QR code scanner based on qzxing and zxing-cpp libraries to scan and generate barcodes, and zint to generate some extra formats.
 
+Qt 6.8+, Qt Multimedia (with ffmpeg backend) and CMake are needed.
+Qt 6.x "minor" versions are full of major breakages, it's just not feasible to support a matrix of different versions or build systems, sorry.
+
 Available backends:
 - QZXing / v3.3.0 + Qt6 port + many patches
 - zxing-cpp / v2.3.0 + custom QML integration
@@ -83,8 +86,8 @@ You will need a C++20 compiler and Qt 6.8+ with the following 'additional librai
 - Qt Positioning
 
 For macOS and iOS builds, you'll need Xcode (15+) installed.  
-For Windows builds, you'll need MSVC 2022 (for Qt 6.8+) installed.  
-For Android builds, you'll need the appropriates JDK (17) SDK (23+) and NDK (28+). You can customize Android build environment using the `assets/android/gradle.properties` file.  
+For Windows builds, you'll need MSVC (2022) installed.  
+For Android builds, you'll need the appropriates JDK (17) SDK (28+) and NDK (28+). You can customize Android build environment using the `assets/android/gradle.properties` file.  
 
 #### Building QmlMobileScanner
 
