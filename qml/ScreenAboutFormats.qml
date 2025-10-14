@@ -54,6 +54,8 @@ Flickable {
 
         ListModel {
             id: qzxing
+            property string name: "QZXing"
+            property string version: "3.3.0"
             ListElement { type: "linear"; name: "UPC-A"; decode: 1; encode: 0; }
             ListElement { type: "linear"; name: "UPC-E"; decode: 1; encode: 0; }
             ListElement { type: "linear"; name: "EAN-8"; decode: 1; encode: 0; }
@@ -70,6 +72,8 @@ Flickable {
         }
         ListModel {
             id: zxingcpp
+            property string name: "zxing-cpp"
+            property string version: "2.3.0"
             ListElement { type: "linear"; name: "UPC-A"; decode: 1; encode: 1; }
             ListElement { type: "linear"; name: "UPC-E"; decode: 1; encode: 1; }
             ListElement { type: "linear"; name: "EAN-8"; decode: 1; encode: 1; }
@@ -93,6 +97,8 @@ Flickable {
         }
         ListModel {
             id: zint
+            property string name: "zint"
+            property string version: "2.15"
             ListElement { type: "linear"; name: "Channel Code"; decode: 0; encode: 1; }
             ListElement { type: "linear"; name: "Codabar"; decode: 0; encode: 1; }
             ListElement { type: "linear"; name: "Code 11"; decode: 0; encode: 1; }
@@ -161,8 +167,8 @@ Flickable {
             ////
 
             header: GridHeader {
-                textTitle: (settingsManager.backend_reader === "zxingcpp") ? "zxing-cpp" : "QZXing"
-                textVersion: qsTr("version") + " " + (settingsManager.backend_reader === "zxingcpp") ? "2.3.0" : "3.3.0"
+                textTitle: (settingsManager.backend_reader === "zxingcpp") ? zxingcpp.name : qzxing.name
+                textVersion: qsTr("version %1").arg((settingsManager.backend_reader === "zxingcpp") ? zxingcpp.version : qzxing.version)
             }
 
             ////
@@ -200,8 +206,8 @@ Flickable {
             ////
 
             header: GridHeader {
-                textTitle: "zint"
-                textVersion: qsTr("version") + " " + "2.15"
+                textTitle: zint.name
+                textVersion: qsTr("version %1").arg(zint.version)
             }
 
             ////
@@ -249,7 +255,8 @@ Flickable {
                 height: 32
 
                 Text {
-                    Layout.preferredWidth: 256
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: 128
                     Layout.preferredHeight: 32
 
                     text: textTitle
@@ -260,7 +267,7 @@ Flickable {
                     verticalAlignment: Text.AlignVCenter
                 }
                 Rectangle {
-                    Layout.preferredWidth: 256
+                    Layout.preferredWidth: 128
                     Layout.preferredHeight: 28
                     Layout.margins: 2
                     radius: 4
@@ -300,14 +307,16 @@ Flickable {
 
             text: name
             textFormat: Text.PlainText
-            color: Theme.colorText
-            font.pixelSize: Theme.fontSizeContent
             verticalAlignment: Text.AlignVCenter
+            font.pixelSize: Theme.fontSizeContent
+            wrapMode: Text.Wrap
+            lineHeight: 0.72
+            color: Theme.colorText
         }
         Rectangle {
             Layout.fillHeight: true
             Layout.fillWidth: true
-            Layout.preferredWidth: 64
+            Layout.preferredWidth: singleColumn ? 48 : 64
             Layout.margins: 2
             radius: 4
 
@@ -320,7 +329,7 @@ Flickable {
         Rectangle {
             Layout.fillHeight: true
             Layout.fillWidth: true
-            Layout.preferredWidth: 64
+            Layout.preferredWidth: singleColumn ? 48 : 64
             Layout.margins: 2
             radius: 4
 
@@ -368,7 +377,7 @@ Flickable {
                 }
                 Rectangle {
                     Layout.fillWidth: true
-                    Layout.preferredWidth: 64
+                    Layout.preferredWidth: singleColumn ? 48 : 64
                     Layout.preferredHeight: 28
                     Layout.margins: 2
                     radius: 4
@@ -384,7 +393,7 @@ Flickable {
                 }
                 Rectangle {
                     Layout.fillWidth: true
-                    Layout.preferredWidth: 64
+                    Layout.preferredWidth: singleColumn ? 48 : 64
                     Layout.preferredHeight: 28
                     Layout.margins: 2
                     radius: 4

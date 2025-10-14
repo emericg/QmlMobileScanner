@@ -5,13 +5,13 @@ import ComponentLibrary
 import QmlMobileScanner
 
 Rectangle {
-    width: 480
-    height: 720
+    id: screenTutorial
     anchors.fill: parent
 
     color: Theme.colorHeader
 
     property string entryPoint: "ScreenBarcodeReader"
+    property string entryPointDefault: "ScreenBarcodeReader"
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -23,6 +23,14 @@ Rectangle {
     function loadScreenFrom(screenname) {
         entryPoint = screenname
         appContent.state = "ScreenTutorial"
+    }
+
+    function backAction() {
+        if (entryPoint === entryPointDefault) {
+            return // do nothing
+        } else {
+            appContent.state = entryPoint
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -80,6 +88,8 @@ Rectangle {
                         anchors.verticalCenter: parent.verticalCenter
                         spacing: 32
 
+                        // TODO
+
                         Text {
                             anchors.right: parent.right
                             anchors.rightMargin: tutorialPages.margins
@@ -119,7 +129,7 @@ Rectangle {
                             anchors.horizontalCenter: parent.horizontalCenter
                             layoutDirection: Qt.RightToLeft
                             color: Theme.colorHeaderHighlight
-                            text: qsTr("a button")
+                            text: qsTr("A button")
                             source: "qrc:/IconLibrary/material-icons/duotone/launch.svg"
                         }
                     }
@@ -137,6 +147,20 @@ Rectangle {
                         spacing: 32
 
                         // TODO
+
+                        Text {
+                            anchors.right: parent.right
+                            anchors.rightMargin: tutorialPages.margins
+                            anchors.left: parent.left
+                            anchors.leftMargin: tutorialPages.margins
+
+                            text: qsTr("There is no tutorial...")
+                            textFormat: Text.PlainText
+                            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                            font.pixelSize: Theme.fontSizeContentBig
+                            color: Theme.colorHeaderContent
+                            horizontalAlignment: Text.AlignHCenter
+                        }
                     }
                 }
 
@@ -152,21 +176,20 @@ Rectangle {
                         spacing: 32
 
                         // TODO
-                    }
-                }
 
-                ////////
+                        Text {
+                            anchors.right: parent.right
+                            anchors.rightMargin: tutorialPages.margins
+                            anchors.left: parent.left
+                            anchors.leftMargin: tutorialPages.margins
 
-                Item {
-                    id: page4
-
-                    Column {
-                        anchors.right: parent.right
-                        anchors.left: parent.left
-                        anchors.verticalCenter: parent.verticalCenter
-                        spacing: 32
-
-                        // TODO
+                            text: qsTr("I lied...")
+                            textFormat: Text.PlainText
+                            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                            font.pixelSize: Theme.fontSizeContentBig
+                            color: Theme.colorHeaderContent
+                            horizontalAlignment: Text.AlignHCenter
+                        }
                     }
                 }
 

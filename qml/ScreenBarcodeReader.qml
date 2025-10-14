@@ -558,7 +558,7 @@ Loader {
                 anchors.rightMargin: Theme.componentMargin
                 height: 48
 
-                spacing: Theme.componentMarginXL
+                spacing: Theme.componentMarginL
 
                 ////
 
@@ -808,11 +808,11 @@ Loader {
             Column { // bottom menus
                 id: bottomemnus
                 anchors.left: parent.left
-                anchors.leftMargin: Theme.componentMarginXL
+                anchors.leftMargin: Theme.componentMarginL
                 anchors.right: parent.right
-                anchors.rightMargin: Theme.componentMarginXL
+                anchors.rightMargin: Theme.componentMarginL
                 anchors.bottom: parent.bottom
-                anchors.bottomMargin: Theme.componentMarginXL + Math.max(screenPaddingBottom, screenPaddingNavbar)
+                anchors.bottomMargin: Theme.componentMarginL + Math.max(screenPaddingBottom, screenPaddingNavbar)
 
                 spacing: Theme.componentMargin
 
@@ -839,7 +839,7 @@ Loader {
                     anchors.right: parent.right
                     height: 48
 
-                    spacing: Theme.componentMarginXL
+                    spacing: Theme.componentMarginL
 
                     visible: !exitTimer.running
 

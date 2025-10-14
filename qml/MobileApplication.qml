@@ -226,7 +226,14 @@ Window {
     function backAction() {
         //console.log("backAction() backAction() backAction() backAction()")
 
-        if (appContent.state === "ScreenTutorial")  return // do nothing
+        if (appContent.state === "ScreenTutorial") {
+            if (screenTutorial.entryPoint === "ScreenBarcodeReader") {
+                return // do nothing
+            } else {
+                appContent.state = screenTutorial.entryPoint
+                return
+            }
+        }
 
         if (appContent.state === "ScreenBarcodeReader") {
             screenBarcodeReader.backAction()
