@@ -78,13 +78,13 @@ Available backends:
 
 #### Dependencies
 
-You will need a C++20 compiler and Qt 6.7+ with the following 'additional librairies':  
+You will need a C++20 compiler and Qt 6.8+ with the following 'additional librairies':  
 - Qt Multimedia
 - Qt Positioning
 
 For macOS and iOS builds, you'll need Xcode (15+) installed.  
-For Windows builds, you'll need MSVC 2019 (up to Qt 6.7) or MSVC 2022 (for Qt 6.8+) installed. Bluetooth won't work with MinGW.  
-For Android builds, you'll need the appropriates JDK (17) SDK (23+) and NDK (26b+). You can customize Android build environment using the `assets/android/gradle.properties` file.  
+For Windows builds, you'll need MSVC 2022 (for Qt 6.8+) installed.  
+For Android builds, you'll need the appropriates JDK (17) SDK (23+) and NDK (28+). You can customize Android build environment using the `assets/android/gradle.properties` file.  
 
 #### Building QmlMobileScanner
 

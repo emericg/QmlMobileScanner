@@ -34,12 +34,12 @@ find_package(Qt6 REQUIRED COMPONENTS Core Sql Multimedia Positioning)
 find_package(Qt6 REQUIRED COMPONENTS Gui Svg Qml Quick QuickControls2)
 find_package(Qt6 REQUIRED COMPONENTS LinguistTools)
 
-qt_standard_project_setup(REQUIRES 6.7)
+qt_standard_project_setup(REQUIRES 6.8)
 
 qt_policy(SET QTP0001 NEW)
 qt_policy(SET QTP0002 NEW)
 qt_policy(SET QTP0003 NEW) # Qt 6.7
-#qt_policy(SET QTP0004 NEW) # Qt 6.8
+qt_policy(SET QTP0004 NEW) # Qt 6.8
 
 set(SOURCES
     src/main.cpp
@@ -63,6 +63,8 @@ else()
 endif()
 
 qt_add_executable(${CMAKE_PROJECT_NAME} ${SOURCES} ${SOURCES_DESKTOP} ${SOURCES_MOBILE})
+
+qt_add_ios_ffmpeg_libraries(${CMAKE_PROJECT_NAME})
 
 qt_add_qml_module(${CMAKE_PROJECT_NAME}
     URI ${CMAKE_PROJECT_NAME}
