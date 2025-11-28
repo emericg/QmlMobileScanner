@@ -4,9 +4,9 @@ project(QmlMobileScanner VERSION 0.4 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(APP_NAME ${CMAKE_PROJECT_NAME})
 set(APP_VERSION ${CMAKE_PROJECT_VERSION})
@@ -30,11 +30,13 @@ message(STATUS "[PROJECT] QT_HOST_PATH              = ${QT_HOST_PATH}")
 
 ################################################################################
 
-find_package(Qt6 REQUIRED COMPONENTS Core Sql Multimedia Positioning)
-find_package(Qt6 REQUIRED COMPONENTS Gui Svg Qml Quick QuickControls2)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Svg Qml Quick QuickControls2)
+find_package(Qt6 REQUIRED COMPONENTS Sql Multimedia Positioning)
 find_package(Qt6 REQUIRED COMPONENTS LinguistTools)
 
-qt_standard_project_setup(REQUIRES 6.8)
+qt_standard_project_setup(REQUIRES 6.8
+                          I18N_SOURCE_LANGUAGE en
+                          I18N_TRANSLATED_LANGUAGES en)
 
 qt_policy(SET QTP0001 NEW)
 qt_policy(SET QTP0002 NEW)
@@ -54,12 +56,19 @@ set(SOURCES
     thirdparty/IconLibrary/IconLibrary_material.qrc
 )
 
-if (IOS OR ANDROID)
+if(IOS OR ANDROID)
     # Mobile
     set(QAPPLICATION_CLASS QGuiApplication)
 else()
     # Desktop
     set(QAPPLICATION_CLASS QApplication)
+
+    # Set app icons
+    #if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    #    set(SOURCES_DESKTOP "${CMAKE_SOURCE_DIR}/assets/windows/${CMAKE_PROJECT_NAME}.rc")
+    #elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    #    set(SOURCES_DESKTOP "${CMAKE_SOURCE_DIR}/assets/macos/${CMAKE_PROJECT_NAME}.icns")
+    #endif()
 endif()
 
 qt_add_executable(${CMAKE_PROJECT_NAME} ${SOURCES} ${SOURCES_DESKTOP} ${SOURCES_MOBILE})
@@ -68,6 +77,7 @@ qt_add_ios_ffmpeg_libraries(${CMAKE_PROJECT_NAME})
 
 qt_add_qml_module(${CMAKE_PROJECT_NAME}
     URI ${CMAKE_PROJECT_NAME}
+    NO_PLUGIN
     QML_FILES
         qml/MobileApplication.qml
         qml/MobileHeader.qml
@@ -103,14 +113,6 @@ qt_add_qml_module(${CMAKE_PROJECT_NAME}
         qml/components/WidgetBarcodeResult.qml
 )
 
-target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE src/)
-
-################################################################################
-
-qt_standard_project_setup(
-    I18N_SOURCE_LANGUAGE en
-    I18N_TRANSLATED_LANGUAGES fr
-)
 qt_add_translations(${CMAKE_PROJECT_NAME}
     TS_FILE_BASE ${CMAKE_PROJECT_NAME}
     TS_FILE_DIR ${CMAKE_SOURCE_DIR}/i18n/
@@ -119,29 +121,18 @@ qt_add_translations(${CMAKE_PROJECT_NAME}
 
 ################################################################################
 
-# Qt libraries
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
-    Qt6::Core
-    Qt6::Sql
-    Qt6::Multimedia
-    Qt6::Positioning
-    Qt6::Sql
-    Qt6::Gui
-    Qt6::Svg
-    Qt6::Qml
-    Qt6::Quick
-    Qt6::QuickControls2
+# 'Other Files" macro
+function(add_other_files target)
+    foreach(file IN LISTS ARGN)
+        target_sources(${target} PRIVATE ${file})
+        source_group("Other Files" FILES ${file})
+    endforeach()
+endfunction()
+
+add_other_files(${CMAKE_PROJECT_NAME}
+    README.md TODO.md LICENSE.md
+    .gitignore
 )
-
-if (NOT IOS AND NOT ANDROID)
-    # for proper systray and menubar support
-    find_package(Qt6 REQUIRED COMPONENTS Widgets)
-    target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Qt6::Widgets)
-endif()
-
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    #
-endif()
 
 ################################################################################
 
@@ -163,7 +154,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE MobileSharing)
 add_subdirectory(thirdparty/ComponentLibrary)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ComponentLibraryplugin)
 
-if (USE_ZXINGCPP)
+if(USE_ZXINGCPP)
     # build zxing-cpp
     add_subdirectory(thirdparty/zxing-cpp)
     target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ZXing)
@@ -174,7 +165,7 @@ if (USE_ZXINGCPP)
 
     set(zxingcpp true)
     add_definitions(-Dzxingcpp)
-elseif (USE_QZXING)
+elseif(USE_QZXING)
     # build QZxing
     add_subdirectory(thirdparty/QZXing)
     target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE QZXing)
@@ -184,7 +175,7 @@ elseif (USE_QZXING)
 else()
 endif()
 
-if (USE_ZINT)
+if(USE_ZINT)
     # build zint
     add_subdirectory(thirdparty/zint-qml)
     target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE zint)
@@ -197,10 +188,51 @@ if (USE_ZINT)
     add_definitions(-Dzint)
 endif()
 
+# Qt libraries
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
+    Qt6::Core
+    Qt6::Gui
+    Qt6::Svg
+    Qt6::Qml
+    Qt6::Quick
+    Qt6::QuickControls2
+    Qt6::Sql
+    Qt6::Multimedia
+    Qt6::Positioning
+)
+if(NOT IOS AND NOT ANDROID)
+    # for proper systray and menubar support
+    find_package(Qt6 REQUIRED COMPONENTS Widgets)
+    target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Qt6::Widgets)
+endif()
+
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE src/)
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE thirdparty/)
+
 ################################################################################
 
+## Release build? Set "no debug" macros
+if(CMAKE_BUILD_TYPE STREQUAL Release)
+    target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
+        NDEBUG
+        QT_NO_DEBUG
+        QT_NO_DEBUG_OUTPUT
+    )
+endif()
+
+## Linux
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    # System install rules
+    install(TARGETS ${CMAKE_PROJECT_NAME} RUNTIME DESTINATION bin/)
+    #install(FILES ${CMAKE_SOURCE_DIR}/assets/linux/${CMAKE_PROJECT_NAME}.desktop DESTINATION share/applications/)
+    #install(FILES ${CMAKE_SOURCE_DIR}/assets/linux/${CMAKE_PROJECT_NAME}.appdata.xml DESTINATION share/appdata/)
+    #install(FILES ${CMAKE_SOURCE_DIR}/assets/linux/${CMAKE_PROJECT_NAME}.svg DESTINATION share/pixmaps/)
+    #install(FILES ${CMAKE_SOURCE_DIR}/assets/linux/${CMAKE_PROJECT_NAME}.svg DESTINATION share/icons/hicolor/scalable/apps/)
+    #install(FILES ${CMAKE_SOURCE_DIR}/LICENSE.md DESTINATION share/licenses/${CMAKE_PROJECT_NAME}/)
+endif()
+
 ## Android
-if (CMAKE_SYSTEM_NAME STREQUAL "Android")
+if(CMAKE_SYSTEM_NAME STREQUAL "Android")
     set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
         #QT_ANDROID_ABIS "armeabi-v7a;arm64-v8a;x86;x86_64"
         #QT_ANDROID_BUILD_ALL_ABIS ON
@@ -208,12 +240,27 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Android")
         QT_ANDROID_TARGET_SDK_VERSION 36
         QT_ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_SOURCE_DIR}/assets/android/"
     )
+
+    # Download SSL Libraries
+    include(FetchContent)
+    FetchContent_Declare(
+        android_openssl
+        DOWNLOAD_EXTRACT_TIMESTAMP true
+        URL https://github.com/KDAB/android_openssl/archive/refs/heads/master.zip
+    )
+    FetchContent_MakeAvailable(android_openssl)
+    include(${android_openssl_SOURCE_DIR}/android_openssl.cmake)
+    # Include SSL Libraries
+    add_android_openssl_libraries(${CMAKE_PROJECT_NAME})
 endif()
 
 ## macOS
-if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     #set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64")
     set(CMAKE_OSX_DEPLOYMENT_TARGET "12.0")
+
+    #set(app_icon_macos "${CMAKE_SOURCE_DIR}/assets/macos/${CMAKE_PROJECT_NAME}.icns")
+    #set_source_files_properties(${app_icon_macos} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
 
     set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
         MACOSX_BUNDLE ON
@@ -229,7 +276,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 endif()
 
 ## iOS
-if (CMAKE_SYSTEM_NAME STREQUAL "iOS")
+if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
     #set(app_icon_ios "${CMAKE_SOURCE_DIR}/assets/ios/Assets.xcassets")
     #set_source_files_properties(${app_icon_ios} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
 
@@ -251,36 +298,19 @@ if (CMAKE_SYSTEM_NAME STREQUAL "iOS")
 endif()
 
 ## Windows
-if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    #set(app_icon_windows "${CMAKE_SOURCE_DIR}/assets/windows/${CMAKE_PROJECT_NAME}.rc")
-
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
         WIN32_EXECUTABLE ON
     )
 endif()
 
-## Release build? Set "no debug" macros
-if (CMAKE_BUILD_TYPE STREQUAL Release)
-    target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
-        NDEBUG
-        QT_NO_DEBUG
-        QT_NO_DEBUG_OUTPUT
-    )
-endif()
-
 ################################################################################
 
-# Output?
+# Output (build)
 set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
     #ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib"
     #LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib"
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin"
-)
-
-# Output?
-install(TARGETS ${CMAKE_PROJECT_NAME}
-    BUNDLE DESTINATION "${CMAKE_SOURCE_DIR}/bin"
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
 ################################################################################

@@ -24,14 +24,19 @@
 /* ************************************************************************** */
 
 #include <QObject>
-#include <QString>
-#include <QDateTime>
+
+#if !QT_CONFIG(permissions)
+#error "QtPermission is not available. Qt 6.6 is required!"
+#endif
+
+#include <QPermission>
 
 /* ************************************************************************** */
 
 /*!
  * \brief The PermissionManager class
  *
+ * REQUIRES Qt 6.6+
  * https://doc.qt.io/qt-6/permissions.html
  *
  * - https://doc.qt.io/qt-6/qbluetoothpermission.html
@@ -56,6 +61,27 @@ class PermissionManager: public QObject
     PermissionManager();
     ~PermissionManager();
 
+    static const int s_waittimeout = 12000; // in ms
+    static const int s_waittimeout_interval = 33; // in ms
+
+    bool m_bluetoothPermission = false;
+    bool m_calendarPermission = false;
+    bool m_cameraPermission = false;
+    bool m_contactsPermission = false;
+    bool m_locationPermission = false;
+    bool m_microphonePermission = false;
+
+    void setBluetoothPermission(bool perm);
+    void setCalendarPermission(bool perm);
+    void setCameraPermission(bool perm);
+    void setContactsPermission(bool perm);
+    void setLocationPermission(bool perm);
+    void setMicrophonePermission(bool perm);
+
+    void requestBluetoothPermission_results(const QPermission &permission);
+    void requestCameraPermission_results(const QPermission &permission);
+    void requestLocationPermission_results(const QPermission &permission);
+
 Q_SIGNALS:
     void bluetoothPermissionChanged();
     void calendarPermissionChanged();
@@ -67,16 +93,24 @@ Q_SIGNALS:
 public:
     static PermissionManager *getInstance();
 
-    bool hasBluetoothPermission() const { return false; }
-    bool hasCalendarPermission() const { return false; }
-    bool hasCameraPermission() const { return false; }
-    bool hasContactsPermission() const { return false; }
-    bool hasLocationPermission() const { return false; }
-    bool hasMicrophonePermission() const { return false; }
+    bool hasBluetoothPermission() const { return m_bluetoothPermission; }
+    bool hasCalendarPermission() const { return m_calendarPermission; }
+    bool hasCameraPermission() const { return m_cameraPermission; }
+    bool hasContactsPermission() const { return m_contactsPermission; }
+    bool hasLocationPermission() const { return m_locationPermission; }
+    bool hasMicrophonePermission() const { return m_microphonePermission; }
+
+    Q_INVOKABLE bool requestBluetoothPermission();
+    Q_INVOKABLE bool checkBluetoothPermission();
+    Q_INVOKABLE bool waitBluetoothPermission();
 
     Q_INVOKABLE bool requestCameraPermission();
     Q_INVOKABLE bool checkCameraPermission();
     Q_INVOKABLE bool waitCameraPermission();
+
+    Q_INVOKABLE bool requestLocationPermission();
+    Q_INVOKABLE bool checkLocationPermission();
+    Q_INVOKABLE bool waitLocationPermission();
 };
 
 /* ************************************************************************** */
