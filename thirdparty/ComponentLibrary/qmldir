@@ -47,6 +47,8 @@ SquareButtonSolid 1.0 SquareButtonSolid.qml
 SquareButtonWireframe 1.0 SquareButtonWireframe.qml
 SquareButtonSunken 1.0 SquareButtonSunken.qml
 SquareButtonImpl 1.0 SquareButtonImpl.qml
+BannerButton 1.0 BannerButton.qml
+BannerProgressButton 1.0 BannerProgressButton.qml
 ButtonChip 1.0 ButtonChip.qml
 ButtonFab 1.0 ButtonFab.qml
 ButtonFabExtended 1.0 ButtonFabExtended.qml
@@ -61,6 +63,7 @@ ItemLicenseBadge 1.0 ItemLicenseBadge.qml
 ItemBadge 1.0 ItemBadge.qml
 ProgressArc 1.0 ProgressArc.qml
 ProgressCircle 1.0 ProgressCircle.qml
+ProgressChip 1.0 ProgressChip.qml
 SelectorMenu 1.0 SelectorMenu.qml
 SelectorMenuSunken 1.0 SelectorMenuSunken.qml
 SelectorMenuItem 1.0 SelectorMenuItem.qml
