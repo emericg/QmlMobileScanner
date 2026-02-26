@@ -121,7 +121,7 @@ qt_add_translations(${CMAKE_PROJECT_NAME}
 
 ################################################################################
 
-# 'Other Files" macro
+# "Other Files" macro
 function(add_other_files target)
     foreach(file IN LISTS ARGN)
         target_sources(${target} PRIVATE ${file})
@@ -220,6 +220,8 @@ if(CMAKE_BUILD_TYPE STREQUAL Release)
     )
 endif()
 
+################################################################################
+
 ## Linux
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     # System install rules
@@ -240,6 +242,9 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Android")
         QT_ANDROID_TARGET_SDK_VERSION 36
         QT_ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_SOURCE_DIR}/assets/android/"
     )
+
+    # Support 16 KB page sizes / pre NDK28
+    target_link_options(${CMAKE_PROJECT_NAME} PRIVATE "-Wl,-z,max-page-size=16384")
 
     # Download SSL Libraries
     include(FetchContent)
@@ -291,7 +296,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
         XCODE_ATTRIBUTE_CURRENT_PROJECT_VERSION             ${CMAKE_PROJECT_VERSION}
         XCODE_ATTRIBUTE_MARKETING_VERSION                   ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
         XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET          "16.0"
-        XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY              "1,2"   # iPhone,iPad
+        XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY              "1,2" # iPhone,iPad
         XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME  "AppIcon"
         XCODE_ATTRIBUTE_GCC_GENERATE_DEBUGGING_SYMBOLS      "YES"
     )
