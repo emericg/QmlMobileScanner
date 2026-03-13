@@ -1,7 +1,6 @@
-qt_add_library(ComponentLibrary STATIC)
+cmake_minimum_required(VERSION 3.20)
 
-# Use that find_package() call in the root project:
-find_package(Qt6 6.5 REQUIRED COMPONENTS Core Quick QuickControls2)
+qt_add_library(ComponentLibrary STATIC)
 
 ################################################################################
 
@@ -191,8 +190,9 @@ set_source_files_properties(ThemeEngine.qml PROPERTIES
 set_target_properties(ComponentLibrary PROPERTIES AUTOMOC ON)
 set_target_properties(ComponentLibrary PROPERTIES AUTORCC ON)
 
-target_include_directories(ComponentLibrary PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+find_package(Qt6 6.5 REQUIRED COMPONENTS Core Quick QuickControls2)
 target_link_libraries(ComponentLibrary PRIVATE Qt6::Core Qt6::Quick Qt6::QuickControls2)
+target_include_directories(ComponentLibrary PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 qt_add_qml_module(ComponentLibrary
     URI ComponentLibrary

@@ -1,7 +1,10 @@
-QmlMobileScanner
-================
+# QmlMobileScanner
 
-### TODOs
+## TODO # quality of life
+
+[ ] 
+
+## TODO # v1
 
 - Barcode content handling
   - [rw] url

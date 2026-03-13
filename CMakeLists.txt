@@ -233,6 +233,36 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     #install(FILES ${CMAKE_SOURCE_DIR}/LICENSE.md DESTINATION share/licenses/${CMAKE_PROJECT_NAME}/)
 endif()
 
+## macOS
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    #set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64")
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "12.0")
+
+    #set(app_icon_macos "${CMAKE_SOURCE_DIR}/assets/macos/${CMAKE_PROJECT_NAME}.icns")
+    #set_source_files_properties(${app_icon_macos} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+
+    set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
+        MACOSX_BUNDLE ON
+        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/assets/macos/Info.plist"
+        # New Xcode attributes (???)
+        XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER           "io.emeric.qmlmobilescanner"
+        XCODE_ATTRIBUTE_PRODUCT_NAME                        ${CMAKE_PROJECT_NAME}
+        XCODE_ATTRIBUTE_CURRENT_PROJECT_VERSION             ${CMAKE_PROJECT_VERSION}
+        XCODE_ATTRIBUTE_MARKETING_VERSION                   ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+        XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS             "${CMAKE_SOURCE_DIR}/assets/macos/${CMAKE_PROJECT_NAME}.entitlements"
+        #XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME  AppIcon
+    )
+endif()
+
+## Windows
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
+        WIN32_EXECUTABLE ON
+    )
+endif()
+
+################################################################################
+
 ## Android
 if(CMAKE_SYSTEM_NAME STREQUAL "Android")
     set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
@@ -259,27 +289,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Android")
     add_android_openssl_libraries(${CMAKE_PROJECT_NAME})
 endif()
 
-## macOS
-if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    #set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64")
-    set(CMAKE_OSX_DEPLOYMENT_TARGET "12.0")
-
-    #set(app_icon_macos "${CMAKE_SOURCE_DIR}/assets/macos/${CMAKE_PROJECT_NAME}.icns")
-    #set_source_files_properties(${app_icon_macos} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
-
-    set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
-        MACOSX_BUNDLE ON
-        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/assets/macos/Info.plist"
-        # New Xcode attributes (???)
-        XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER           "io.emeric.qmlmobilescanner"
-        XCODE_ATTRIBUTE_PRODUCT_NAME                        ${CMAKE_PROJECT_NAME}
-        XCODE_ATTRIBUTE_CURRENT_PROJECT_VERSION             ${CMAKE_PROJECT_VERSION}
-        XCODE_ATTRIBUTE_MARKETING_VERSION                   ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-        XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS             "${CMAKE_SOURCE_DIR}/assets/macos/${CMAKE_PROJECT_NAME}.entitlements"
-        #XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME  AppIcon
-    )
-endif()
-
 ## iOS
 if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
     #set(app_icon_ios "${CMAKE_SOURCE_DIR}/assets/ios/Assets.xcassets")
@@ -299,13 +308,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
         XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY              "1,2" # iPhone,iPad
         XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME  "AppIcon"
         XCODE_ATTRIBUTE_GCC_GENERATE_DEBUGGING_SYMBOLS      "YES"
-    )
-endif()
-
-## Windows
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
-        WIN32_EXECUTABLE ON
     )
 endif()
 
