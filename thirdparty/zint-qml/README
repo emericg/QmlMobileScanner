@@ -24,8 +24,8 @@ Code 2 of 5 Data Logic                  Micro QR Code
 Code 2 of 5 IATA                        MSI Plessey
 Code 2 of 5 Industrial                  NVE-18 (SSCC-18)
 Code 2 of 5 Interleaved                 PDF417 (and Compact and HIBC)
-Code 2 of 5 Standard (Matrix)           Pharmacode
-Code 32 (Italian Pharmacode)            Pharmacode 2-track
+Code 2 of 5 Standard (Matrix)           Pharmacode One-Track
+Code 32 (Italian Pharmacode)            Pharmacode Two-Track
 Code 39 (and HIBC)                      Pharma Zentralnummer (PZN)
 Code 39 Extended                        PLANET
 Code 49                                 POSTNET
@@ -38,19 +38,20 @@ Deutsche Post Leitcode                  Telepen
 DotCode                                 Telepen Numeric
 DPD Code                                UK Plessey
 Dutch Post KIX                          Ultracode
-EAN (EAN-2, EAN-5, EAN-8 and EAN-13)    UPC-A
-EAN-14                                  UPC-E
-FIM (Facing Identification Mark)        UPNQR
-Flattermarken                           UPU S10
-Grid Matrix                             USPS Intelligent Mail (OneCode)
-GS1 Composite (EAN/UPC/DataBar/GS-128)  VIN (Vehicle Identification Number)
+DX Film Edge Barcode                    UPC-A
+EAN (EAN-2, EAN-5, EAN-8 and EAN-13)    UPC-E
+EAN-14                                  UPNQR
+FIM (Facing Identification Mark)        UPU S10
+Flattermarken                           USPS Intelligent Mail (OneCode)
+Grid Matrix                             VIN (Vehicle Identification Number)
+GS1 Composite (EAN/UPC/DataBar/GS-128)
 
 Output can be saved as BMP, EMF, EPS, GIF, PCX, PNG, SVG or TIF.
 
 
 DOCUMENTATION
 -------------
-For documentation see "docs/manual.txt" or online at
+For documentation see "docs/manual.txt" or "docs/manual.html" or online at
 
     <https://zint.org.uk/manual/>
 
@@ -62,7 +63,7 @@ Please see "ChangeLog" in the project root directory.
 
 LICENSE
 -------
-Zint, libzint and Zint Barcode Studio are Copyright © 2023 Robin Stuart. All
+Zint, libzint and Zint Barcode Studio are Copyright © 2025 Robin Stuart. All
 historical versions are distributed under the GNU General Public License
 version 3 or later. Versions 2.5 and later are released under a dual license:
 the encoding library is released under the BSD (3 clause) license whereas the
@@ -93,10 +94,8 @@ or join the mailing list at
 BEFORE POSTING TO THE LIST
 --------------------------
 Please note the following points...
-* Zint is primarily developed for Linux. While we have some experience of
-  using Zint on Windows we may be unable to resolve problems if they are
-  specific to other operating systems. We cannot provide support for using
-  Zint with commercial packages such as MS Office or Crystal Reports.
+* We cannot provide support for using Zint with commercial packages such as MS
+  Office or Crystal Reports.
 * Always ensure you are using the latest version of Zint before posting bug
   reports - the bug you are reporting may have been fixed already.
 * Please remember to state what operating system you are using and include

@@ -171,14 +171,14 @@ static void dm_ecc(unsigned char *binary, const int bytes, const int datablock, 
     int n;
     rs_t rs;
 
-    rs_init_gf(&rs, 0x12d);
-    rs_init_code(&rs, rsblock, 1);
+    zint_rs_init_gf(&rs, 0x12d);
+    zint_rs_init_code(&rs, rsblock, 1);
     for (b = 0; b < blocks; b++) {
         unsigned char buf[256], ecc[256];
         int p = 0;
         for (n = b; n < bytes; n += blocks)
             buf[p++] = binary[n];
-        rs_encode(&rs, p, buf, ecc);
+        zint_rs_encode(&rs, p, buf, ecc);
         if (skew) {
             /* Rotate ecc data to make 144x144 size symbols acceptable */
             /* See http://groups.google.com/group/postscriptbarcode/msg/5ae8fda7757477da
@@ -306,14 +306,10 @@ static int dm_look_ahead_test(const unsigned char source[], const int length, co
     }
 
     switch (current_mode) {
-        case DM_C40: c40_count = 0;
-            break;
-        case DM_TEXT: text_count = 0;
-            break;
-        case DM_X12: x12_count = 0;
-            break;
-        case DM_EDIFACT: edf_count = 0;
-            break;
+        case DM_C40: c40_count = 0; break;
+        case DM_TEXT: text_count = 0; break;
+        case DM_X12: x12_count = 0; break;
+        case DM_EDIFACT: edf_count = 0; break;
         case DM_BASE256:
             b256_count = mode_arg == 249 ? DM_MULT_1 : 0; /* Adjusted to use no. of bytes written */
             break;
@@ -406,7 +402,7 @@ static int dm_look_ahead_test(const unsigned char source[], const int length, co
             }
             cnt_1 = b256_count + DM_MULT_1;
             if (cnt_1 <= ascii_count || (cnt_1 < edf_count && cnt_1 < text_count && cnt_1 < x12_count
-                    && cnt_1 < c40_count)) {
+                                            && cnt_1 < c40_count)) {
                 if (debug_print) fputs("BAS->", stdout);
                 return DM_BASE256; /* step (r)(2) */
             }
@@ -539,7 +535,7 @@ static int dm_edi_buffer_xfer(int process_buffer[8], int process_p, unsigned cha
 
     for (i = 0; i < process_e; i += 4) {
         target[tp++] = (unsigned char) (process_buffer[i] << 2 | (process_buffer[i + 1] & 0x30) >> 4);
-        target[tp++] = (unsigned char) ((process_buffer[i + 1] & 0x0f) << 4 | (process_buffer[i + 2] & 0x3c) >> 2);
+        target[tp++] = (unsigned char) ((process_buffer[i + 1] & 0x0F) << 4 | (process_buffer[i + 2] & 0x3C) >> 2);
         target[tp++] = (unsigned char) ((process_buffer[i + 2] & 0x03) << 6 | process_buffer[i + 3]);
         if (debug_print) {
             printf("[%d %d %d %d (%d %d %d)] ", process_buffer[i], process_buffer[i + 1], process_buffer[i + 2],
@@ -553,22 +549,25 @@ static int dm_edi_buffer_xfer(int process_buffer[8], int process_p, unsigned cha
         memmove(process_buffer, process_buffer + process_e, sizeof(int) * process_p);
         if (empty) {
             if (process_p == 3) {
+                assert(i < 6); /* Suppress clang-tidy-21 clang-analyzer-security.ArrayBound */
                 target[tp++] = (unsigned char) (process_buffer[i] << 2 | (process_buffer[i + 1] & 0x30) >> 4);
-                target[tp++] = (unsigned char) ((process_buffer[i + 1] & 0x0f) << 4
-                                                | (process_buffer[i + 2] & 0x3c) >> 2);
+                target[tp++] = (unsigned char) ((process_buffer[i + 1] & 0x0F) << 4
+                                                | (process_buffer[i + 2] & 0x3C) >> 2);
                 target[tp++] = (unsigned char) ((process_buffer[i + 2] & 0x03) << 6);
                 if (debug_print) {
                     printf("[%d %d %d (%d %d %d)] ", process_buffer[i], process_buffer[i + 1], process_buffer[i + 2],
                             target[tp - 3], target[tp - 2], target[tp - 1]);
                 }
             } else if (process_p == 2) {
+                assert(i < 7); /* Suppress clang-tidy-21 clang-analyzer-security.ArrayBound */
                 target[tp++] = (unsigned char) (process_buffer[i] << 2 | (process_buffer[i + 1] & 0x30) >> 4);
-                target[tp++] = (unsigned char) ((process_buffer[i + 1] & 0x0f) << 4);
+                target[tp++] = (unsigned char) ((process_buffer[i + 1] & 0x0F) << 4);
                 if (debug_print) {
                     printf("[%d %d (%d %d)] ", process_buffer[i], process_buffer[i + 1], target[tp - 2],
                             target[tp - 1]);
                 }
             } else {
+                assert(i < 8); /* Suppress clang-tidy-21 clang-analyzer-security.ArrayBound */
                 target[tp++] = (unsigned char) (process_buffer[i] << 2);
                 if (debug_print) printf("[%d (%d)] ", process_buffer[i], target[tp - 1]);
             }
@@ -586,7 +585,7 @@ static int dm_edi_buffer_xfer(int process_buffer[8], int process_p, unsigned cha
 static int dm_get_symbolsize(struct zint_symbol *symbol, const int minimum) {
     int i;
 
-    if ((symbol->option_2 >= 1) && (symbol->option_2 <= DMSIZESCOUNT)) {
+    if (symbol->option_2 >= 1 && symbol->option_2 <= DMSIZESCOUNT) {
         return dm_intsymbol[symbol->option_2 - 1];
     }
     if (minimum > 1304) {
@@ -656,19 +655,24 @@ static int dm_switch_mode(const int next_mode, unsigned char target[], int tp, i
         case DM_ASCII:
             if (debug_print) fputs("ASC ", stdout);
             break;
-        case DM_C40: target[tp++] = 230;
+        case DM_C40:
+            target[tp++] = 230;
             if (debug_print) fputs("C40 ", stdout);
             break;
-        case DM_TEXT: target[tp++] = 239;
+        case DM_TEXT:
+            target[tp++] = 239;
             if (debug_print) fputs("TEX ", stdout);
             break;
-        case DM_X12: target[tp++] = 238;
+        case DM_X12:
+            target[tp++] = 238;
             if (debug_print) fputs("X12 ", stdout);
             break;
-        case DM_EDIFACT: target[tp++] = 240;
+        case DM_EDIFACT:
+            target[tp++] = 240;
             if (debug_print) fputs("EDI ", stdout);
             break;
-        case DM_BASE256: target[tp++] = 231;
+        case DM_BASE256:
+            target[tp++] = 231;
             *p_b256_start = tp;
             target[tp++] = 0; /* Byte count holder (may be expanded to 2 codewords) */
             if (debug_print) fputs("BAS ", stdout);
@@ -931,6 +935,8 @@ static void dm_addEdges(struct zint_symbol *symbol, const unsigned char source[]
             const int last_seg, struct dm_edge *edges, const int from, struct dm_edge *previous, const int gs1) {
     int i, pos;
 
+    assert(from < length); /* Suppress clang-tidy-21 clang-analyzer-security.ArrayBound */
+
     /* Not possible to unlatch a full EDF edge to something else */
     if (previous == NULL || previous->endMode != DM_EDIFACT) {
 
@@ -973,7 +979,7 @@ static void dm_addEdges(struct zint_symbol *symbol, const unsigned char source[]
 }
 
 /* Calculate optimized encoding modes */
-static int dm_define_mode(struct zint_symbol *symbol, char modes[], const unsigned char source[], const int length,
+static int dm_define_modes(struct zint_symbol *symbol, char modes[], const unsigned char source[], const int length,
             const int last_seg, const int gs1, const int debug_print) {
 
     int i, j, v_i;
@@ -1061,8 +1067,8 @@ static int dm_minimalenc(struct zint_symbol *symbol, const unsigned char source[
 
     assert(length <= 10921); /* Can only handle (10921 + 1) * 6 = 65532 < 65536 (2*16) due to sizeof(previous) */
 
-    if (!dm_define_mode(symbol, modes, source, length, last_seg, gs1, debug_print)) {
-        return errtxt(ZINT_ERROR_MEMORY, symbol, 728, "Insufficient memory for mode buffers");
+    if (!dm_define_modes(symbol, modes, source, length, last_seg, gs1, debug_print)) {
+        return z_errtxt(ZINT_ERROR_MEMORY, symbol, 728, "Insufficient memory for mode buffers");
     }
 
     while (sp < length) {
@@ -1097,7 +1103,7 @@ static int dm_minimalenc(struct zint_symbol *symbol, const unsigned char source[
                     tp = dm_update_b256_field_length(target, tp, *p_b256_start);
                     /* B.2.1 255-state randomising algorithm */
                     for (i = *p_b256_start; i < tp; i++) {
-                        const int prn = ((149 * (i + 1)) % 255) + 1;
+                        const int prn = (149 * (i + 1)) % 255 + 1;
                         target[i] = (unsigned char) ((target[i] + prn) & 0xFF);
                     }
                     break;
@@ -1110,8 +1116,8 @@ static int dm_minimalenc(struct zint_symbol *symbol, const unsigned char source[
 
         if (current_mode == DM_ASCII) {
 
-            if (is_twodigits(source, length, sp)) {
-                target[tp++] = (unsigned char) ((10 * ctoi(source[sp])) + ctoi(source[sp + 1]) + 130);
+            if (z_is_twodigits(source, length, sp)) {
+                target[tp++] = (unsigned char) (10 * z_ctoi(source[sp]) + z_ctoi(source[sp + 1]) + 130);
                 if (debug_print) printf("N%02d ", target[tp - 1] - 130);
                 sp += 2;
             } else {
@@ -1189,7 +1195,7 @@ static int dm_minimalenc(struct zint_symbol *symbol, const unsigned char source[
             } else if (z_isupper(source[sp])) {
                 value = (source[sp] - 'A') + 14;
             } else {
-                value = posn(x12_nonalphanum_chars, source[sp]);
+                value = z_posn(x12_nonalphanum_chars, source[sp]);
             }
 
             process_buffer[process_p++] = value;
@@ -1221,7 +1227,7 @@ static int dm_minimalenc(struct zint_symbol *symbol, const unsigned char source[
         }
 
         if (tp > 1558) {
-            return errtxt(ZINT_ERROR_TOO_LONG, symbol, 729,
+            return z_errtxt(ZINT_ERROR_TOO_LONG, symbol, 729,
                             "Input too long, requires too many codewords (maximum 1558)");
         }
 
@@ -1275,8 +1281,8 @@ static int dm_isoenc(struct zint_symbol *symbol, const unsigned char source[], c
         if (current_mode == DM_ASCII) {
             next_mode = DM_ASCII;
 
-            if (is_twodigits(source, length, sp)) {
-                target[tp++] = (unsigned char) ((10 * ctoi(source[sp])) + ctoi(source[sp + 1]) + 130);
+            if (z_is_twodigits(source, length, sp)) {
+                target[tp++] = (unsigned char) (10 * z_ctoi(source[sp]) + z_ctoi(source[sp + 1]) + 130);
                 if (debug_print) printf("N%02d ", target[tp - 1] - 130);
                 sp += 2;
             } else {
@@ -1391,7 +1397,7 @@ static int dm_isoenc(struct zint_symbol *symbol, const unsigned char source[], c
                 } else if (z_isupper(source[sp])) {
                     value = (source[sp] - 'A') + 14;
                 } else {
-                    value = posn(x12_nonalphanum_chars, source[sp]);
+                    value = z_posn(x12_nonalphanum_chars, source[sp]);
                 }
 
                 process_buffer[process_p++] = value;
@@ -1456,7 +1462,7 @@ static int dm_isoenc(struct zint_symbol *symbol, const unsigned char source[], c
                 tp = dm_update_b256_field_length(target, tp, *p_b256_start);
                 /* B.2.1 255-state randomising algorithm */
                 for (i = *p_b256_start; i < tp; i++) {
-                    const int prn = ((149 * (i + 1)) % 255) + 1;
+                    const int prn = (149 * (i + 1)) % 255 + 1;
                     target[i] = (unsigned char) ((target[i] + prn) & 0xFF);
                 }
                 /* We switch directly here to avoid flipping back to Base 256 due to `dm_text_sp_cnt()` */
@@ -1475,7 +1481,7 @@ static int dm_isoenc(struct zint_symbol *symbol, const unsigned char source[], c
         }
 
         if (tp > 1558) {
-            return errtxt(ZINT_ERROR_TOO_LONG, symbol, 520,
+            return z_errtxt(ZINT_ERROR_TOO_LONG, symbol, 520,
                             "Input too long, requires too many codewords (maximum 1558)");
         }
 
@@ -1528,7 +1534,8 @@ static int dm_encode(struct zint_symbol *symbol, const unsigned char source[], c
         error_number = dm_minimalenc(symbol, source, length, last_seg, &sp, target, &tp, process_buffer, &process_p,
                                         &b256_start, &current_mode, gs1, debug_print);
     }
-    if (error_number != 0) {
+    if (error_number) {
+        assert(error_number >= ZINT_ERROR);
         return error_number;
     }
 
@@ -1579,8 +1586,8 @@ static int dm_encode(struct zint_symbol *symbol, const unsigned char source[], c
                 target[tp++] = 254; /* Unlatch */
                 if (debug_print) fputs("ASC ", stdout);
                 for (; sp < length; sp++) {
-                    if (is_twodigits(source, length, sp)) {
-                        target[tp++] = (unsigned char) ((10 * ctoi(source[sp])) + ctoi(source[sp + 1]) + 130);
+                    if (z_is_twodigits(source, length, sp)) {
+                        target[tp++] = (unsigned char) (10 * z_ctoi(source[sp]) + z_ctoi(source[sp + 1]) + 130);
                         if (debug_print) printf("N%02d ", target[tp - 1] - 130);
                         sp++;
                     } else if (source[sp] & 0x80) {
@@ -1605,7 +1612,7 @@ static int dm_encode(struct zint_symbol *symbol, const unsigned char source[], c
 
     } else if (current_mode == DM_X12) {
         if (debug_print) fputs("X12 ", stdout);
-        if ((symbols_left == 1) && (process_p == 1)) {
+        if (symbols_left == 1 && process_p == 1) {
             /* Unlatch not required! */
             target[tp++] = source[length - 1] + 1;
             if (debug_print) printf("A%02X ", target[tp - 1] - 1);
@@ -1650,7 +1657,7 @@ static int dm_encode(struct zint_symbol *symbol, const unsigned char source[], c
         }
         /* B.2.1 255-state randomising algorithm */
         for (i = b256_start; i < tp; i++) {
-            int prn = ((149 * (i + 1)) % 255) + 1;
+            const int prn = (149 * (i + 1)) % 255 + 1;
             target[i] = (unsigned char) ((target[i] + prn) & 0xFF);
         }
     }
@@ -1669,8 +1676,8 @@ static int dm_encode(struct zint_symbol *symbol, const unsigned char source[], c
 }
 
 #ifdef ZINT_TEST /* Wrapper for direct testing */
-INTERNAL int dm_encode_test(struct zint_symbol *symbol, const unsigned char source[], const int length, const int eci,
-                const int last_seg, const int gs1, unsigned char target[], int *p_tp) {
+INTERNAL int zint_test_dm_encode(struct zint_symbol *symbol, const unsigned char source[], const int length,
+                const int eci, const int last_seg, const int gs1, unsigned char target[], int *p_tp) {
     return dm_encode(symbol, source, length, eci, last_seg, gs1, target, p_tp);
 }
 #endif
@@ -1682,26 +1689,30 @@ static int dm_encode_segs(struct zint_symbol *symbol, struct zint_seg segs[], co
     int error_number;
     int i;
     int tp = 0;
-    int gs1;
     int in_macro = 0;
     const struct zint_seg *last_seg = &segs[seg_count - 1];
+    /* gs1 flag values: 0: no GS1, 1: GS1 with FNC1 serparator, 2: GS separator */
+    const int gs1 = (symbol->input_mode & 0x07) == GS1_MODE ? 1 + !!(symbol->output_options & GS1_GS_SEPARATOR) : 0;
+    /* Raw text dealt with by `ZBarcode_Encode_Segs()`, except for `eci` feedback.
+       Note not updating `eci` for GS1 mode as not converted */
+    const int content_segs = !gs1 && (symbol->output_options & BARCODE_CONTENT_SEGS);
     const int debug_print = symbol->debug & ZINT_DEBUG_PRINT;
 
-    if ((i = segs_length(segs, seg_count)) > 3116) { /* Max is 3166 digits */
-        return errtxtf(ZINT_ERROR_TOO_LONG, symbol, 719, "Input length %d too long (maximum 3116)", i);
+    if ((i = z_segs_length(segs, seg_count)) > 3116) { /* Max is 3166 digits */
+        return z_errtxtf(ZINT_ERROR_TOO_LONG, symbol, 719, "Input length %d too long (maximum 3116)", i);
     }
 
     if (symbol->structapp.count) {
         int id1, id2;
 
         if (symbol->structapp.count < 2 || symbol->structapp.count > 16) {
-            return errtxtf(ZINT_ERROR_INVALID_OPTION, symbol, 720,
+            return z_errtxtf(ZINT_ERROR_INVALID_OPTION, symbol, 720,
                             "Structured Append count '%d' out of range (2 to 16)", symbol->structapp.count);
         }
         if (symbol->structapp.index < 1 || symbol->structapp.index > symbol->structapp.count) {
-            return ZEXT errtxtf(ZINT_ERROR_INVALID_OPTION, symbol, 721,
-                                "Structured Append index '%1$d' out of range (1 to count %2$d)",
-                                symbol->structapp.index, symbol->structapp.count);
+            return ZEXT z_errtxtf(ZINT_ERROR_INVALID_OPTION, symbol, 721,
+                                    "Structured Append index '%1$d' out of range (1 to count %2$d)",
+                                    symbol->structapp.index, symbol->structapp.count);
         }
         if (symbol->structapp.id[0]) {
             int id, id_len, id1_err, id2_err;
@@ -1709,13 +1720,13 @@ static int dm_encode_segs(struct zint_symbol *symbol, struct zint_seg segs[], co
             for (id_len = 1; id_len < 7 && symbol->structapp.id[id_len]; id_len++);
 
             if (id_len > 6) { /* ID1 * 1000 + ID2 */
-                return errtxtf(ZINT_ERROR_INVALID_OPTION, symbol, 722,
+                return z_errtxtf(ZINT_ERROR_INVALID_OPTION, symbol, 722,
                                 "Structured Append ID length %d too long (6 digit maximum)", id_len);
             }
 
-            id = to_int((const unsigned char *) symbol->structapp.id, id_len);
+            id = z_to_int(ZCUCP(symbol->structapp.id), id_len);
             if (id == -1) {
-                return errtxt(ZINT_ERROR_INVALID_OPTION, symbol, 723, "Invalid Structured Append ID (digits only)");
+                return z_errtxt(ZINT_ERROR_INVALID_OPTION, symbol, 723, "Invalid Structured Append ID (digits only)");
             }
             id1 = id / 1000;
             id2 = id % 1000;
@@ -1723,17 +1734,17 @@ static int dm_encode_segs(struct zint_symbol *symbol, struct zint_seg segs[], co
             id2_err = id2 < 1 || id2 > 254;
             if (id1_err || id2_err) {
                 if (id1_err && id2_err) {
-                    return ZEXT errtxtf(ZINT_ERROR_INVALID_OPTION, symbol, 724,
-                                        "Structured Append ID1 '%1$03d' and ID2 '%2$03d' out of range (001 to 254)"
-                                        " (ID \"%3$03d%4$03d\")",
-                                        id1, id2, id1, id2);
+                    return ZEXT z_errtxtf(ZINT_ERROR_INVALID_OPTION, symbol, 724,
+                                            "Structured Append ID1 '%1$03d' and ID2 '%2$03d' out of range"
+                                            " (001 to 254) (ID \"%3$03d%4$03d\")",
+                                            id1, id2, id1, id2);
                 }
                 if (id1_err) {
-                    return ZEXT errtxtf(ZINT_ERROR_INVALID_OPTION, symbol, 725,
+                    return ZEXT z_errtxtf(ZINT_ERROR_INVALID_OPTION, symbol, 725,
                                     "Structured Append ID1 '%1$03d' out of range (001 to 254) (ID \"%2$03d%3$03d\")",
                                     id1, id1, id2);
                 }
-                return ZEXT errtxtf(ZINT_ERROR_INVALID_OPTION, symbol, 726,
+                return ZEXT z_errtxtf(ZINT_ERROR_INVALID_OPTION, symbol, 726,
                                     "Structured Append ID2 '%1$03d' out of range (001 to 254) (ID \"%2$03d%3$03d\")",
                                     id2, id1, id2);
             }
@@ -1747,17 +1758,6 @@ static int dm_encode_segs(struct zint_symbol *symbol, struct zint_seg segs[], co
         target[tp++] = id2;
     }
 
-    /* gs1 flag values: 0: no gs1, 1: gs1 with FNC1 serparator, 2: GS separator */
-    if ((symbol->input_mode & 0x07) == GS1_MODE) {
-        if (symbol->output_options & GS1_GS_SEPARATOR) {
-            gs1 = 2;
-        } else {
-            gs1 = 1;
-        }
-    } else {
-        gs1 = 0;
-    }
-
     if (gs1) {
         target[tp++] = 232;
         if (debug_print) fputs("FN1 ", stdout);
@@ -1765,10 +1765,10 @@ static int dm_encode_segs(struct zint_symbol *symbol, struct zint_seg segs[], co
 
     if (symbol->output_options & READER_INIT) {
         if (gs1) {
-            return errtxt(ZINT_ERROR_INVALID_OPTION, symbol, 521, "Cannot use Reader Initialisation in GS1 mode");
+            return z_errtxt(ZINT_ERROR_INVALID_OPTION, symbol, 521, "Cannot use Reader Initialisation in GS1 mode");
         }
         if (symbol->structapp.count) {
-            return errtxt(ZINT_ERROR_INVALID_OPTION, symbol, 727,
+            return z_errtxt(ZINT_ERROR_INVALID_OPTION, symbol, 727,
                             "Cannot have Structured Append and Reader Initialisation at the same time");
         }
         target[tp++] = 234; /* Reader Programming */
@@ -1808,10 +1808,13 @@ static int dm_encode_segs(struct zint_symbol *symbol, struct zint_seg segs[], co
                 len_dec += 2;  /* Remove RS + EOT from end */
             }
         }
-        error_number = dm_encode(symbol, segs[i].source + src_inc, segs[i].length - len_dec, segs[i].eci,
-                                i + 1 == seg_count, gs1, target, &tp);
-        if (error_number != 0) {
+        if ((error_number = dm_encode(symbol, segs[i].source + src_inc, segs[i].length - len_dec, segs[i].eci,
+                                        i + 1 == seg_count, gs1, target, &tp))) {
+            assert(error_number >= ZINT_ERROR);
             return error_number;
+        }
+        if (content_segs && segs[i].eci) {
+            z_ct_set_seg_eci(symbol, i, segs[i].eci);
         }
     }
 
@@ -1822,15 +1825,15 @@ static int dm_encode_segs(struct zint_symbol *symbol, struct zint_seg segs[], co
 
 /* add pad bits */
 static void dm_add_tail(unsigned char target[], int tp, const int tail_length) {
-    int i, prn, temp;
+    int i;
 
     target[tp++] = 129; /* Pad */
     for (i = 1; i < tail_length; i++) {
         /* B.1.1 253-state randomising algorithm */
-        prn = ((149 * (tp + 1)) % 253) + 1;
-        temp = 129 + prn;
+        const int prn = (149 * (tp + 1)) % 253 + 1;
+        const int temp = 129 + prn;
         if (temp <= 254) {
-            target[tp++] = (unsigned char) (temp);
+            target[tp++] = (unsigned char) temp;
         } else {
             target[tp++] = (unsigned char) (temp - 254);
         }
@@ -1855,15 +1858,24 @@ static int dm_ecc200(struct zint_symbol *symbol, struct zint_seg segs[], const i
     symbolsize = dm_get_symbolsize(symbol, binlen);
 
     if (binlen > dm_matrixbytes[symbolsize]) {
-        if ((symbol->option_2 >= 1) && (symbol->option_2 <= DMSIZESCOUNT)) {
+        if (symbol->option_2 >= 1 && symbol->option_2 <= DMSIZESCOUNT) {
             /* The symbol size was given by --ver (option_2) */
-            return ZEXT errtxtf(ZINT_ERROR_TOO_LONG, symbol, 522,
-                                "Input too long for Version %1$d, requires %2$d codewords (maximum %3$d)",
-                                symbol->option_2, binlen, dm_matrixbytes[symbolsize]);
+            return ZEXT z_errtxtf(ZINT_ERROR_TOO_LONG, symbol, 522,
+                                    "Input too long for Version %1$d, requires %2$d codewords (maximum %3$d)",
+                                    symbol->option_2, binlen, dm_matrixbytes[symbolsize]);
         }
-        return errtxtf(ZINT_ERROR_TOO_LONG, symbol, 523, "Input too long, requires %d codewords (maximum 1558)",
+        return z_errtxtf(ZINT_ERROR_TOO_LONG, symbol, 523, "Input too long, requires %d codewords (maximum 1558)",
                         binlen);
     }
+
+    /* Feedback options */
+    if (symbol->option_2 < 1 || symbol->option_2 > DMSIZESCOUNT) {
+        for (i = 0; i < DMSIZESCOUNT && symbolsize != dm_intsymbol[i]; i++); /* TODO: replace with reverse table? */
+        assert(i < DMSIZESCOUNT);
+        symbol->option_2 = i + 1;
+    }
+
+    if (debug_print) printf("Symbol size: %d, output option 2: %d\n", symbolsize, symbol->option_2);
 
     H = dm_matrixH[symbolsize];
     W = dm_matrixW[symbolsize];
@@ -1872,6 +1884,8 @@ static int dm_ecc200(struct zint_symbol *symbol, struct zint_seg segs[], const i
     bytes = dm_matrixbytes[symbolsize];
     datablock = dm_matrixdatablock[symbolsize];
     rsblock = dm_matrixrsblock[symbolsize];
+
+    assert(H > 1 && W > 1); /* Suppress clang-tidy-21 clang-analyzer-security.ArrayBound */
 
     taillength = bytes - binlen;
 
@@ -1891,13 +1905,14 @@ static int dm_ecc200(struct zint_symbol *symbol, struct zint_seg segs[], const i
     dm_ecc(binary, bytes, datablock, rsblock, skew);
     if (debug_print) {
         printf("ECC (%d): ", rsblock * (bytes / datablock));
+        assert(bytes > 0); /* Suppress clang-tidy-21 clang-analyzer-security.ArrayBound */
         for (i = bytes; i < bytes + rsblock * (bytes / datablock); i++) printf("%d ", binary[i]);
         fputc('\n', stdout);
     }
 
 #ifdef ZINT_TEST
     if (symbol->debug & ZINT_DEBUG_TEST) {
-        debug_test_codeword_dump(symbol, binary, skew ? 1558 + 620 : bytes + rsblock * (bytes / datablock));
+        z_debug_test_codeword_dump(symbol, binary, skew ? 1558 + 620 : bytes + rsblock * (bytes / datablock));
     }
 #endif
     { /* placement */
@@ -1905,20 +1920,20 @@ static int dm_ecc200(struct zint_symbol *symbol, struct zint_seg segs[], const i
         const int NR = H - 2 * (H / FH);
         int x, y, *places;
         if (!(places = (int *) calloc((size_t) NC * (size_t) NR, sizeof(int)))) {
-            return errtxt(ZINT_ERROR_MEMORY, symbol, 718, "Insufficient memory for placement array");
+            return z_errtxt(ZINT_ERROR_MEMORY, symbol, 718, "Insufficient memory for placement array");
         }
         dm_placement(places, NR, NC);
         for (y = 0; y < H; y += FH) {
             for (x = 0; x < W; x++)
-                set_module(symbol, (H - y) - 1, x);
+                z_set_module(symbol, (H - y) - 1, x);
             for (x = 0; x < W; x += 2)
-                set_module(symbol, y, x);
+                z_set_module(symbol, y, x);
         }
         for (x = 0; x < W; x += FW) {
             for (y = 0; y < H; y++)
-                set_module(symbol, (H - y) - 1, x);
+                z_set_module(symbol, (H - y) - 1, x);
             for (y = 0; y < H; y += 2)
-                set_module(symbol, (H - y) - 1, x + FW - 1);
+                z_set_module(symbol, (H - y) - 1, x + FW - 1);
         }
 #ifdef DM_DEBUG
         /* Print position matrix as in standard */
@@ -1935,7 +1950,7 @@ static int dm_ecc200(struct zint_symbol *symbol, struct zint_seg segs[], const i
             for (x = 0; x < NC; x++) {
                 const int v = places[(NR - y - 1) * NC + x];
                 if (v == 1 || (v > 7 && (binary[(v >> 3) - 1] & (1 << (v & 7))))) {
-                    set_module(symbol, H - (1 + y + 2 * (y / (FH - 2))) - 1, 1 + x + 2 * (x / (FW - 2)));
+                    z_set_module(symbol, H - (1 + y + 2 * (y / (FH - 2))) - 1, 1 + x + 2 * (x / (FW - 2)));
                 }
             }
         }
@@ -1952,14 +1967,14 @@ static int dm_ecc200(struct zint_symbol *symbol, struct zint_seg segs[], const i
     return error_number;
 }
 
-INTERNAL int datamatrix(struct zint_symbol *symbol, struct zint_seg segs[], const int seg_count) {
+INTERNAL int zint_datamatrix(struct zint_symbol *symbol, struct zint_seg segs[], const int seg_count) {
 
     if (symbol->option_1 <= 1) {
         /* ECC 200 */
         return dm_ecc200(symbol, segs, seg_count);
     }
     /* ECC 000 - 140 */
-    return errtxt(ZINT_ERROR_INVALID_OPTION, symbol, 524, "Older Data Matrix standards are no longer supported");
+    return z_errtxt(ZINT_ERROR_INVALID_OPTION, symbol, 524, "Older Data Matrix standards are no longer supported");
 }
 
 /* vim: set ts=4 sw=4 et : */

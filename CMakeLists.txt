@@ -13,7 +13,7 @@ set(APP_VERSION ${CMAKE_PROJECT_VERSION})
 
 option(USE_QZXING "Build with QZXing support (decoder&encoder)" OFF)
 option(USE_ZXINGCPP "Build with zxing-cpp support (decoder&encoder)" ON)
-option(USE_ZINT "Build with zint support (encoder)" OFF)
+option(USE_ZINT "Build with zint support (encoder)" ON)
 
 ################################################################################
 

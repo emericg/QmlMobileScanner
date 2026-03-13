@@ -8,7 +8,7 @@ project(zint-package)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(ZINT_VERSION_MAJOR 2)
-set(ZINT_VERSION_MINOR 15)
+set(ZINT_VERSION_MINOR 16)
 set(ZINT_VERSION_RELEASE 0)
 set(ZINT_VERSION_BUILD 0) # Set to 0 before release, set to 9 after release
 set(ZINT_VERSION "${ZINT_VERSION_MAJOR}.${ZINT_VERSION_MINOR}.${ZINT_VERSION_RELEASE}.${ZINT_VERSION_BUILD}")
@@ -23,11 +23,12 @@ option(ZINT_TEST      "Set test compile flag"           OFF)
 option(ZINT_COVERAGE  "Set code coverage flags"         OFF)
 option(ZINT_SHARED    "Build shared library"            ON)
 option(ZINT_STATIC    "Build static library"            OFF)
+option(ZINT_FRONTEND  "Build frontend"                  OFF)
+option(ZINT_USE_GS1SE "Build with GS1 Syntax Engine"    OFF)
 option(ZINT_USE_PNG   "Build with PNG support"          OFF)
 option(ZINT_USE_QT    "Build with Qt support"           OFF)
 option(ZINT_QT6       "If ZINT_USE_QT, use Qt6"         OFF)
 option(ZINT_UNINSTALL "Add uninstall target"            OFF)
-option(ZINT_FRONTEND  "Build frontend"                  OFF)
 
 if(NOT ZINT_SHARED AND NOT ZINT_STATIC)
     message(SEND_ERROR "Either ZINT_SHARED or ZINT_STATIC or both must be set")
@@ -195,10 +196,10 @@ if(ZINT_UNINSTALL)
       "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
       "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
       IMMEDIATE @ONLY)
-    
+
     add_custom_target(uninstall
       "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
 endif()
 
 configure_file("zint-config.cmake.in" "zint-config.cmake" @ONLY)
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/zint-config.cmake" DESTINATION "${CMAKE_INSTALL_DATADIR}/zint")
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/zint-config.cmake" DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/zint")

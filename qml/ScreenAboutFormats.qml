@@ -98,7 +98,7 @@ Flickable {
         ListModel {
             id: zint
             property string name: "zint"
-            property string version: "2.15"
+            property string version: "2.16"
             ListElement { type: "linear"; name: "Channel Code"; decode: 0; encode: 1; }
             ListElement { type: "linear"; name: "Codabar"; decode: 0; encode: 1; }
             ListElement { type: "linear"; name: "Code 11"; decode: 0; encode: 1; }

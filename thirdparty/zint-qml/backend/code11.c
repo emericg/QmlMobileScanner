@@ -46,31 +46,31 @@ static const char C11Table[11 + 1][6] = {
 };
 
 /* Code 11 */
-INTERNAL int code11(struct zint_symbol *symbol, unsigned char source[], int length) {
-
+INTERNAL int zint_code11(struct zint_symbol *symbol, unsigned char source[], int length) {
+    static const unsigned char checkchrs[11] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-' };
     int i;
     int h;
     int weight[141]; /* 140 + 1 extra for 1st check */
     char dest[864]; /* 6 + 140 * 6 + 2 * 6 + 5 + 1 = 864 */
-    int error_number = 0;
     char *d = dest;
     int num_check_digits;
     unsigned char checkstr[2];
-    static const unsigned char checkchrs[11] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-' };
+    int error_number = 0;
+    const int content_segs = symbol->output_options & BARCODE_CONTENT_SEGS;
 
     /* Suppresses clang-tidy clang-analyzer-core.UndefinedBinaryOperatorResult warning */
     assert(length > 0);
 
     if (length > 140) { /* 8 (Start) + 140 * 8 + 2 * 8 (Check) + 7 (Stop) = 1151 */
-        return errtxtf(ZINT_ERROR_TOO_LONG, symbol, 320, "Input length %d too long (maximum 140)", length);
+        return z_errtxtf(ZINT_ERROR_TOO_LONG, symbol, 320, "Input length %d too long (maximum 140)", length);
     }
-    if ((i = not_sane(SODIUM_MNS_F, source, length))) {
-        return errtxtf(ZINT_ERROR_INVALID_DATA, symbol, 321,
+    if ((i = z_not_sane(SODIUM_MNS_F, source, length))) {
+        return z_errtxtf(ZINT_ERROR_INVALID_DATA, symbol, 321,
                         "Invalid character at position %d in input (digits and \"-\" only)", i);
     }
 
     if (symbol->option_2 < 0 || symbol->option_2 > 2) {
-        return errtxtf(ZINT_ERROR_INVALID_OPTION, symbol, 339, "Invalid check digit version '%d' (1 or 2 only)",
+        return z_errtxtf(ZINT_ERROR_INVALID_OPTION, symbol, 339, "Invalid check digit version '%d' (1 or 2 only)",
                         symbol->option_2);
     }
     if (symbol->option_2 == 2) {
@@ -91,12 +91,12 @@ INTERNAL int code11(struct zint_symbol *symbol, unsigned char source[], int leng
         if (source[i] == '-')
             weight[i] = 10;
         else
-            weight[i] = ctoi(source[i]);
+            weight[i] = z_ctoi(source[i]);
         memcpy(d, C11Table[weight[i]], 6);
     }
 
     if (num_check_digits) {
-		int c_weight = 1, c_count = 0, c_digit;
+        int c_weight = 1, c_count = 0, c_digit;
         /* Calculate C checksum */
         for (h = length - 1; h >= 0; h--) {
             c_count += (c_weight * weight[h]);
@@ -113,7 +113,7 @@ INTERNAL int code11(struct zint_symbol *symbol, unsigned char source[], int leng
         d += 6;
 
         if (num_check_digits == 2) {
-			int k_weight = 1, k_count = 0, k_digit;
+            int k_weight = 1, k_count = 0, k_digit;
             weight[length] = c_digit;
 
             /* Calculate K checksum */
@@ -142,14 +142,20 @@ INTERNAL int code11(struct zint_symbol *symbol, unsigned char source[], int leng
     memcpy(d, C11Table[11], 5);
     d += 5;
 
-    expand(symbol, dest, d - dest);
+    z_expand(symbol, dest, d - dest);
 
     /* TODO: Find documentation on BARCODE_CODE11 dimensions/height */
 
-    hrt_cpy_nochk(symbol, source, length);
+    z_hrt_cpy_nochk(symbol, source, length);
     if (num_check_digits) {
-        hrt_cat_nochk(symbol, checkstr, num_check_digits);
+        z_hrt_cat_nochk(symbol, checkstr, num_check_digits);
     }
+
+    if (content_segs && z_ct_cpy_cat(symbol, source, length, '\xFF' /*separator (none)*/, checkstr,
+                                    num_check_digits)) {
+        return ZINT_ERROR_MEMORY; /* `z_ct_cpy_cat()` only fails with OOM */
+    }
+
     return error_number;
 }
 
