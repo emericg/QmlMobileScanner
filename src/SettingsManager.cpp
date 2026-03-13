@@ -252,9 +252,9 @@ void SettingsManager::setAppThemeAuto(const bool value)
 
 QString SettingsManager::getBackendReader() const
 {
-#if defined(zxingcpp)
+#if defined(QMS_USE_ZXINGCPP)
     return "zxingcpp";
-#elif defined(qzxing)
+#elif defined(QMS_USE_QZXING)
     return "qzxing";
 #endif
 
@@ -293,7 +293,7 @@ void SettingsManager::setBackendWriter(const QString &value)
 
 bool SettingsManager::getBackendQZXing() const
 {
-#if defined(qzxing)
+#if defined(QMS_USE_QZXING)
     return true;
 #endif
     return false;
@@ -301,14 +301,14 @@ bool SettingsManager::getBackendQZXing() const
 
 bool SettingsManager::getBackendZXingCpp() const
 {
-#if defined(zxingcpp)
+#if defined(QMS_USE_ZXINGCPP)
     return true;
 #endif
     return false;
 }
 bool SettingsManager::getBackendZint() const
 {
-#if defined(zint)
+#if defined(QMS_USE_ZINT)
     return true;
 #endif
     return false;
@@ -327,9 +327,9 @@ void SettingsManager::setDefaultTab(const QString &value)
 
 unsigned SettingsManager::getFormatsEnabled() const
 {
-#if defined(zxingcpp)
+#if defined(QMS_USE_ZXINGCPP)
     return m_formatsEnabled_zxingcpp;
-#elif defined(qzxing)
+#elif defined(QMS_USE_QZXING)
     return m_formatsEnabled_qzxing;
 #endif
     return 0;
@@ -337,7 +337,7 @@ unsigned SettingsManager::getFormatsEnabled() const
 
 void SettingsManager::setFormatsEnabled(const unsigned value)
 {
-#if defined(zxingcpp)
+#if defined(QMS_USE_ZXINGCPP)
     if (m_formatsEnabled_zxingcpp != value)
     {
         m_formatsEnabled_zxingcpp = value;
@@ -345,7 +345,7 @@ void SettingsManager::setFormatsEnabled(const unsigned value)
 
         writeSettings();
     }
-#elif defined(qzxing)
+#elif defined(QMS_USE_QZXING)
     if (m_formatsEnabled_qzxing != value)
     {
         m_formatsEnabled_qzxing = value;

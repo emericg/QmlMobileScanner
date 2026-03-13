@@ -32,15 +32,15 @@
 #include <MobileUI>
 #include <MobileSharing>
 
-#if defined(qzxing)
+#if defined(QMS_USE_QZXING)
 #include <QZXing>
 #endif
 
-#if defined(zxingcpp)
+#if defined(QMS_USE_ZXINGCPP)
 #include <ZXingQt>
 #endif
 
-#if defined(zint)
+#if defined(QMS_USE_ZINT)
 #include <ZintQml>
 #endif
 
@@ -140,19 +140,19 @@ int main(int argc, char *argv[])
     }
 #endif
 
-#if defined(qzxing)
+#if defined(QMS_USE_QZXING)
     // Barcode (QZXing)
     QZXing::registerQMLTypes();
     QZXing::registerQMLImageProvider(engine);
 #endif
 
-#if defined(zxingcpp)
+#if defined(QMS_USE_ZXINGCPP)
     // Barcode (zxing-cpp)
     ZXingQt::registerQMLTypes();
     ZXingQt::registerQMLImageProvider(engine);
 #endif
 
-#if defined(zint)
+#if defined(QMS_USE_ZINT)
     // Barcode generator (zint-qml)
     ZintQml::registerQMLTypes();
     ZintQml::registerQMLImageProvider(engine);

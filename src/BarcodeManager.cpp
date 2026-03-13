@@ -38,7 +38,7 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 
-#if defined(zxingcpp)
+#if defined(QMS_USE_ZXINGCPP)
 #include <ZXingQt>
 #endif
 
@@ -114,6 +114,7 @@ bool BarcodeManager::loadImage(const QUrl &fileUrl)
     bool status = false;
 
 #if defined(zxingcpp)
+#if defined(QMS_USE_ZXINGCPP)
     QImage img;
     if (img.load(fileUrl.toLocalFile()))
     {

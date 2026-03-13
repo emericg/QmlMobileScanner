@@ -13,7 +13,7 @@ set(APP_VERSION ${CMAKE_PROJECT_VERSION})
 
 option(USE_QZXING "Build with QZXing support (decoder&encoder)" OFF)
 option(USE_ZXINGCPP "Build with zxing-cpp support (decoder&encoder)" ON)
-option(USE_ZINT "Build with zint support (encoder)" ON)
+option(USE_ZINT "Build with zint support (encoder)" OFF)
 
 ################################################################################
 
@@ -56,12 +56,15 @@ set(SOURCES
     thirdparty/IconLibrary/IconLibrary_material.qrc
 )
 
-if(IOS OR ANDROID)
-    # Mobile
+if(IOS OR ANDROID) # Mobile
+
     set(QAPPLICATION_CLASS QGuiApplication)
-else()
-    # Desktop
+    set(USE_ZINT OFF)
+
+else() # Desktop
+
     set(QAPPLICATION_CLASS QApplication)
+    set(USE_ZINT ON)
 
     # Set app icons
     #if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
@@ -162,16 +165,12 @@ if(USE_ZXINGCPP)
     # build zxing-cpp Qt wrapper
     add_subdirectory(thirdparty/zxing-cpp/wrappers/qt)
     target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ZXingQt)
-
-    set(zxingcpp true)
-    add_definitions(-Dzxingcpp)
+    target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE QMS_USE_ZXINGCPP)
 elseif(USE_QZXING)
     # build QZxing
     add_subdirectory(thirdparty/QZXing)
     target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE QZXing)
-
-    set(qzxing true)
-    add_definitions(-Dqzxing)
+    target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE QMS_USE_QZXING)
 else()
 endif()
 
@@ -183,9 +182,7 @@ if(USE_ZINT)
     # build ZintQml
     add_subdirectory(thirdparty/zint-qml/wrappers/qml)
     target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ZintQml)
-
-    set(zint true)
-    add_definitions(-Dzint)
+    target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE QMS_USE_ZINT)
 endif()
 
 # Qt libraries

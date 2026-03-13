@@ -7,6 +7,8 @@
 #ifndef ZXING_QT_H
 #define ZXING_QT_H
 
+#include "ZXingCpp.h"
+
 #include <QObject>
 #include <QQmlEngine>
 
@@ -18,9 +20,6 @@
 #include <QImage>
 #include <QVideoFrame>
 
-#include "Result.h" // Cannot use "Barcode.h" ???
-#include "Quadrilateral.h"
-#include "ReaderOptions.h"
 
 class Position : public ZXing::Quadrilateral<QPoint>
 {
