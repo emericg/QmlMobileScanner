@@ -113,7 +113,6 @@ bool BarcodeManager::loadImage(const QUrl &fileUrl)
 {
     bool status = false;
 
-#if defined(zxingcpp)
 #if defined(QMS_USE_ZXINGCPP)
     QImage img;
     if (img.load(fileUrl.toLocalFile()))
@@ -121,7 +120,7 @@ bool BarcodeManager::loadImage(const QUrl &fileUrl)
         qDeleteAll(m_barcodes_onscreen);
         m_barcodes_onscreen.clear();
 
-        QList<BarcodeQml> results = ZXingQt::loadImage(fileUrl);
+        const QList<BarcodeQml> results = ZXingQt::loadImage(fileUrl);
         for (const auto &r: results)
         {
             QPointF tl = r.position().topLeft();
