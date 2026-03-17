@@ -6,25 +6,13 @@
 #pragma once
 
 #include "BarcodeFormat.h"
+#include "CreateBarcode.h"
 #include "ReadBarcode.h"
 #include "WriteBarcode.h"
+#include "Version.h"
 
 namespace ZXing {
 
 const std::string& Version();
-
-#ifdef ZXING_EXPERIMENTAL_API
-
-enum class Operation
-{
-	Create,
-	Read,
-	CreateAndRead,
-	CreateOrRead,
-};
-
-BarcodeFormats SupportedBarcodeFormats(Operation op = Operation::CreateOrRead);
-
-#endif // ZXING_EXPERIMENTAL_API
 
 } // namespace ZXing

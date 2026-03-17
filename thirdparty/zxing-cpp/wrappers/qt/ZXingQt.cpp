@@ -47,13 +47,14 @@ void ZXingQt::registerQMLImageProvider(QQmlEngine &engine)
 
 int ZXingQt::stringToFormat(const QString &str)
 {
-    if (str == "aztec") return (int)ZXing::BarcodeFormat::Aztec;
+    if (str == "aztec") return (int)ZXing::BarcodeFormat::AztecCode;
+    if (str == "aztecrune") return (int)ZXing::BarcodeFormat::AztecRune;
     if (str == "codabar") return (int)ZXing::BarcodeFormat::Codabar;
     if (str == "code39") return (int)ZXing::BarcodeFormat::Code39;
     if (str == "code93") return (int)ZXing::BarcodeFormat::Code93;
     if (str == "code128") return (int)ZXing::BarcodeFormat::Code128;
     if (str == "databar") return (int)ZXing::BarcodeFormat::DataBar;
-    if (str == "databarexpanded") return (int)ZXing::BarcodeFormat::DataBarExpanded;
+    if (str == "databarexpanded") return (int)ZXing::BarcodeFormat::DataBarExp;
     if (str == "datamatrix") return (int)ZXing::BarcodeFormat::DataMatrix;
     if (str == "ean8") return (int)ZXing::BarcodeFormat::EAN8;
     if (str == "ean13") return (int)ZXing::BarcodeFormat::EAN13;
@@ -70,13 +71,14 @@ int ZXingQt::stringToFormat(const QString &str)
 
 QString ZXingQt::formatToString(const int fmt)
 {
-    if (fmt == (int)ZXing::BarcodeFormat::Aztec) return "aztec";
+    if (fmt == (int)ZXing::BarcodeFormat::AztecCode) return "aztec";
+    if (fmt == (int)ZXing::BarcodeFormat::AztecRune) return "aztecrune";
     if (fmt == (int)ZXing::BarcodeFormat::Codabar) return "codabar";
     if (fmt == (int)ZXing::BarcodeFormat::Code39) return "code39";
     if (fmt == (int)ZXing::BarcodeFormat::Code93) return "code93";
     if (fmt == (int)ZXing::BarcodeFormat::Code128) return "code128";
     if (fmt == (int)ZXing::BarcodeFormat::DataBar) return "databar";
-    if (fmt == (int)ZXing::BarcodeFormat::DataBarExpanded) return "databarexpanded";
+    if (fmt == (int)ZXing::BarcodeFormat::DataBarExp) return "databarexpanded";
     if (fmt == (int)ZXing::BarcodeFormat::DataMatrix) return "datamatrix";
     if (fmt == (int)ZXing::BarcodeFormat::EAN8) return "ean8";
     if (fmt == (int)ZXing::BarcodeFormat::EAN13) return "ean13";
@@ -328,15 +330,19 @@ QList<BarcodeQml> ZXingQt::loadImage(const QImage &img)
 }
 
 QImage ZXingQt::generateImage(const QString &data, const int width, const int height, const int margins,
-                               const int format, const int encoding, const int eccLevel,
-                               const QColor backgroundColor, const QColor foregroundColor)
+                              const int format, const int encoding, const int eccLevel,
+                              const QColor backgroundColor, const QColor foregroundColor)
 {
     try
     {
-        auto writer = ZXing::MultiFormatWriter((ZXing::BarcodeFormat)format).setEccLevel(eccLevel).setEncoding((ZXing::CharacterSet)encoding).setMargin(margins);
+        auto writer = ZXing::MultiFormatWriter((ZXing::BarcodeFormat)format)
+                          .setEccLevel(eccLevel)
+                          .setEncoding((ZXing::CharacterSet)encoding)
+                          .setMargin(margins);
         auto matrix = writer.encode(data.toStdString(), width, height);
 
-        bool formatMatrix = (format & (int)BarcodeFormat::MatrixCodes);
+        //bool formatMatrix = (format & (int)BarcodeFormat::MatrixCodes);
+        //int hhh = (formatMatrix) height : width / 3;
 
         QColor bgc(0, 0, 0, 0);
         QColor fgc(0, 0, 0, 255);
@@ -346,11 +352,7 @@ QImage ZXingQt::generateImage(const QString &data, const int width, const int he
         QImage image(width, height, QImage::Format_ARGB32);
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                if (formatMatrix) {
-                    image.setPixel(i, j, matrix.get(j, i) ? fgc.rgba() : bgc.rgba()); // 2D codes
-                } else {
-                    image.setPixel(i, j, matrix.get(i, j) ? fgc.rgba() : bgc.rgba()); // 1D codes
-                }
+                image.setPixel(i, j, matrix.get(i, j) ? fgc.rgba() : bgc.rgba());
             }
         }
 
@@ -396,6 +398,12 @@ QString ZXingQt::shareImage(const QString &data, int width, int height, int marg
     qDebug() << "ZXingQt::shareImage()";
 
     QString exportFilePath;
+/*
+    // Get temp directory path
+    QString exportDirectoryPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QDir exportDirectory(exportDirectoryPath + "/export");
+    if (!exportDirectory.exists()) exportDirectory.mkpath(exportDirectoryPath + "/export");
+*/
     // Get temp directory path (2)
     QString exportDirectoryPath = getExternalFilesDirPath();
     QDir exportDirectory(exportDirectoryPath);
@@ -408,6 +416,9 @@ QString ZXingQt::shareImage(const QString &data, int width, int height, int marg
                   backgroundColor, foregroundColor, exportFilePath))
     {
         QFileInfo saveFileInfo(exportFilePath);
+        qDebug() << "saveFileInfo " << saveFileInfo << ")";
+        qDebug() << "saveFileInfo e " << saveFileInfo.exists() << ")";
+
         return exportFilePath;
     }
 
@@ -415,9 +426,9 @@ QString ZXingQt::shareImage(const QString &data, int width, int height, int marg
 }
 
 bool ZXingQt::saveImage(const QString &data, int width, int height, int margins,
-                         const int format, const int encoding, const int eccLevel,
-                         const QColor backgroundColor, const QColor foregroundColor,
-                         const QUrl &fileurl)
+                        const int format, const int encoding, const int eccLevel,
+                        const QColor backgroundColor, const QColor foregroundColor,
+                        const QUrl &fileurl)
 {
     qDebug() << "ZXingQt::saveImage(" << data << fileurl << ")";
     qDebug() << "width:" << width << "height:" << height << "margins:" << margins;
@@ -428,31 +439,37 @@ bool ZXingQt::saveImage(const QString &data, int width, int height, int margins,
 
     QString filepath = fileurl.toLocalFile();
     if (filepath.isEmpty()) filepath = fileurl.toString();
+
+    qDebug() << "fileurl " << fileurl << ")";
+    qDebug() << "filepath " << filepath << ")";
+
     QFileInfo saveFileInfo(filepath);
     if (saveFileInfo.suffix() == "svg")
     {
+        qDebug() << "saveFileInfo " << saveFileInfo << ")";
+
         // to vector
         QFile efile(filepath);
         if (efile.open(QIODevice::WriteOnly | QIODevice::Text))
         {
-            bool formatMatrix = (format & (int)BarcodeFormat::MatrixCodes);
+            //bool formatMatrix = (format & (int)BarcodeFormat::MatrixCodes);
+            //int hhh = (formatMatrix) height : width / 3;
             int ww = 64;
             int hh = 64;
 
             try
             {
-                auto writer = ZXing::MultiFormatWriter((ZXing::BarcodeFormat)format).setEccLevel(eccLevel).setEncoding((ZXing::CharacterSet)encoding).setMargin(margins);
+                auto writer = ZXing::MultiFormatWriter((ZXing::BarcodeFormat)format)
+                                  .setEccLevel(eccLevel)
+                                  .setEncoding((ZXing::CharacterSet)encoding)
+                                  .setMargin(margins);
                 auto matrix = writer.encode(data.toStdString(), ww, hh);
 
                 QString barcodePath;
                 for (int i = 0; i < ww; i++) {
                     for (int j = 0; j < hh; j++) {
                         if (matrix.get(j, i)) {
-                            if (formatMatrix) {
-                                barcodePath += " M" + QString::number(i) + "," + QString::number(j) + "h1v1h-1z";
-                            } else {
-                                barcodePath += " M" + QString::number(i) + "," + QString::number(j) + "h1v1h-1z";
-                            }
+                            barcodePath += " M" + QString::number(i) + "," + QString::number(j) + "h1v1h-1z";
                         }
                     }
                 }

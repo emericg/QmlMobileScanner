@@ -73,7 +73,7 @@ Flickable {
         ListModel {
             id: zxingcpp
             property string name: "zxing-cpp"
-            property string version: "2.3.0"
+            property string version: "3.0.2"
             ListElement { type: "linear"; name: "UPC-A"; decode: 1; encode: 1; }
             ListElement { type: "linear"; name: "UPC-E"; decode: 1; encode: 1; }
             ListElement { type: "linear"; name: "EAN-8"; decode: 1; encode: 1; }

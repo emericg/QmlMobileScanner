@@ -87,52 +87,53 @@ class ZXingQt : public QObject
     Q_OBJECT
 
 public:
-    const int AZTEC_ERROR_CORRECTION_0  = 0;
-    const int AZTEC_ERROR_CORRECTION_12 = 1;
-    const int AZTEC_ERROR_CORRECTION_25 = 2;
-    const int AZTEC_ERROR_CORRECTION_37 = 3;
-    const int AZTEC_ERROR_CORRECTION_50 = 4;
-    const int AZTEC_ERROR_CORRECTION_62 = 5;
-    const int AZTEC_ERROR_CORRECTION_75 = 6;
-    const int AZTEC_ERROR_CORRECTION_87 = 7;
-    const int AZTEC_ERROR_CORRECTION_100= 8;
+    const int AZTEC_ERROR_CORRECTION_0      = 0;
+    const int AZTEC_ERROR_CORRECTION_12     = 1;
+    const int AZTEC_ERROR_CORRECTION_25     = 2;
+    const int AZTEC_ERROR_CORRECTION_37     = 3;
+    const int AZTEC_ERROR_CORRECTION_50     = 4;
+    const int AZTEC_ERROR_CORRECTION_62     = 5;
+    const int AZTEC_ERROR_CORRECTION_75     = 6;
+    const int AZTEC_ERROR_CORRECTION_87     = 7;
+    const int AZTEC_ERROR_CORRECTION_100    = 8;
     const int QR_ERROR_CORRECTION_LOW       = 2;
     const int QR_ERROR_CORRECTION_MEDIUM    = 4;
     const int QR_ERROR_CORRECTION_QUARTILE  = 6;
     const int QR_ERROR_CORRECTION_HIGH      = 8;
-    const int PDF417_ERROR_CORRECTION_0 = 0;
-    const int PDF417_ERROR_CORRECTION_1 = 1;
-    const int PDF417_ERROR_CORRECTION_2 = 2;
-    const int PDF417_ERROR_CORRECTION_3 = 3;
-    const int PDF417_ERROR_CORRECTION_4 = 4;
-    const int PDF417_ERROR_CORRECTION_5 = 5;
-    const int PDF417_ERROR_CORRECTION_6 = 6;
-    const int PDF417_ERROR_CORRECTION_7 = 7;
-    const int PDF417_ERROR_CORRECTION_8 = 8;
+    const int PDF417_ERROR_CORRECTION_0     = 0;
+    const int PDF417_ERROR_CORRECTION_1     = 1;
+    const int PDF417_ERROR_CORRECTION_2     = 2;
+    const int PDF417_ERROR_CORRECTION_3     = 3;
+    const int PDF417_ERROR_CORRECTION_4     = 4;
+    const int PDF417_ERROR_CORRECTION_5     = 5;
+    const int PDF417_ERROR_CORRECTION_6     = 6;
+    const int PDF417_ERROR_CORRECTION_7     = 7;
+    const int PDF417_ERROR_CORRECTION_8     = 8;
 
     enum class BarcodeFormat {
         None            = 0,         ///< Used as a return value if no valid barcode has been detected
-        Aztec           = (1 << 0),  ///< Aztec
-        Codabar         = (1 << 1),  ///< Codabar
-        Code39          = (1 << 2),  ///< Code39
-        Code93          = (1 << 3),  ///< Code93
-        Code128         = (1 << 4),  ///< Code128
-        DataBar         = (1 << 5),  ///< GS1 DataBar, formerly known as RSS 14
-        DataBarExpanded = (1 << 6),  ///< GS1 DataBar Expanded, formerly known as RSS EXPANDED
-        DataMatrix      = (1 << 7),  ///< DataMatrix
-        EAN8            = (1 << 8),  ///< EAN-8
-        EAN13           = (1 << 9),  ///< EAN-13
-        ITF             = (1 << 10), ///< ITF (Interleaved Two of Five)
-        MaxiCode        = (1 << 11), ///< MaxiCode
-        PDF417          = (1 << 12), ///< PDF417
-        QRCode          = (1 << 13), ///< QR Code
-        MicroQRCode     = (1 << 14), ///< Micro QR Code
-        RMQRCode        = (1 << 15), ///< rMQR Code
-        UPCA            = (1 << 16), ///< UPC-A
-        UPCE            = (1 << 17), ///< UPC-E
+        AztecCode       = (1 <<  0), ///< AztecCode
+        AztecRune       = (1 <<  1), ///< AztecRune
+        Codabar         = (1 <<  2), ///< Codabar
+        Code39          = (1 <<  3), ///< Code39
+        Code93          = (1 <<  4), ///< Code93
+        Code128         = (1 <<  5), ///< Code128
+        DataBar         = (1 <<  6), ///< GS1 DataBar, formerly known as RSS 14
+        DataBarExpanded = (1 <<  7), ///< GS1 DataBar Expanded, formerly known as RSS EXPANDED
+        DataMatrix      = (1 <<  8), ///< DataMatrix
+        EAN8            = (1 <<  9), ///< EAN-8
+        EAN13           = (1 << 10), ///< EAN-13
+        ITF             = (1 << 11), ///< ITF (Interleaved Two of Five)
+        MaxiCode        = (1 << 12), ///< MaxiCode
+        PDF417          = (1 << 13), ///< PDF417
+        QRCode          = (1 << 14), ///< QR Code
+        MicroQRCode     = (1 << 15), ///< Micro QR Code
+        RMQRCode        = (1 << 16), ///< rMQR Code
+        UPCA            = (1 << 17), ///< UPC-A
+        UPCE            = (1 << 18), ///< UPC-E
 
         LinearCodes = Codabar | Code39 | Code93 | Code128 | EAN8 | EAN13 | ITF | DataBar | DataBarExpanded | UPCA | UPCE,
-        MatrixCodes = Aztec | DataMatrix | MaxiCode | PDF417 | QRCode | RMQRCode | MicroQRCode,
+        MatrixCodes = AztecCode | AztecRune | DataMatrix | MaxiCode | PDF417 | QRCode | RMQRCode | MicroQRCode,
         Any         = LinearCodes | MatrixCodes,
     };
     Q_ENUM(BarcodeFormat)
@@ -178,7 +179,6 @@ public:
         EUC_JP,
         EUC_KR,
         UTF16BE,
-        UnicodeBig [[deprecated]] = UTF16BE,
         UTF8,
         UTF16LE,
         UTF32BE,

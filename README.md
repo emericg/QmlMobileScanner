@@ -12,7 +12,7 @@ Qt 6.x "minor" versions are full of major breakages, it's just not feasible to s
 
 Available backends:
 - QZXing / v3.3.0 + Qt6 port + many patches
-- zxing-cpp / v2.3.0 + custom QML integration
+- zxing-cpp / v3.0.2 + custom QML integration
 - zint / v2.16 + custom QML integration
 
 > Works on Android and iOS!

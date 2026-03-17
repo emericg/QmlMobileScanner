@@ -7,10 +7,6 @@
 #include "ZXingQtImageProvider.h"
 #include "ZXingQt.h"
 
-#include "BarcodeFormat.h"
-#include "BitMatrix.h"
-#include "MultiFormatWriter.h"
-
 #include <QDebug>
 #include <QUrlQuery>
 #include <QRegularExpression>
@@ -155,7 +151,7 @@ QImage ZXingQtImageProvider::requestImage(const QString &id, QSize *size, const 
 
     // Generate barcode
     int width = requestedSize.width(), height = requestedSize.height();
-    bool formatMatrix = ((int)format & (int)ZXing::BarcodeFormat::MatrixCodes);
+    bool formatMatrix = ((int)format & (int)ZXing::BarcodeFormat::AllMatrix);
     if (!formatMatrix) height /= 3; // 1D codes
 
     QImage img = ZXingQt::generateImage(data, width, height, margins,
