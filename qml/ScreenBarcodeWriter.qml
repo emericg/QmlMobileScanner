@@ -120,7 +120,7 @@ Loader {
                         smooth: false
 
                         sourceSize.width: width
-                        sourceSize.height: height
+                        sourceSize.height: (selectorBarcodes.currentMode === "2d") ? height : height/4
                         fillMode: Image.PreserveAspectFit
 
                         source: {
@@ -382,17 +382,18 @@ Loader {
                             id: lmSelectorBarcodes_zintqml
 
                             // matrix
-                            ListElement { idx:  0; type: "2d"; txt: "QrCode"; format: "qrcode";         maxnum: 0; maxchar: 4296; maxbytes: 2953; ecc: 4; }
+                            ListElement { idx:  0; type: "2d"; txt: "QR Code"; format: "qrcode";        maxnum: 0; maxchar: 4296; maxbytes: 2953; ecc: 4; }
                             ListElement { idx:  1; type: "2d"; txt: "µQrCode"; format: "microqrcode";   maxnum: 0; maxchar: 21; maxbytes: 256; ecc: 4; }
                             ListElement { idx:  2; type: "2d"; txt: "rect. µQrCode"; format: "rmqr";    maxnum: 0; maxchar: 21; maxbytes: 256; ecc: 4; }
-                            ListElement { idx:  3; type: "2d"; txt: "Aztec"; format: "aztec";           maxnum: 0; maxchar: 3067; maxbytes: 3067; ecc: 8; }
+                            ListElement { idx:  3; type: "2d"; txt: "Aztec Code"; format: "aztec";      maxnum: 0; maxchar: 3067; maxbytes: 3067; ecc: 8; }
+                            //ListElement { idx:  4; type: "2d"; txt: "Aztec Rune"; format: "aztecrune";  maxnum: 0; maxchar: 3067; maxbytes: 3067; ecc: 8; }
                             ListElement { idx:  4; type: "2d"; txt: "DataMatrix"; format: "datamatrix"; maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
                             ListElement { idx:  5; type: "2d"; txt: "PDF417"; format: "pdf417";         maxnum: 0; maxchar: 1850; maxbytes: 1108; ecc: 8; }
                             ListElement { idx:  6; type: "2d"; txt: "µPDF417"; format: "micropdf417";   maxnum: 0; maxchar: 256; maxbytes: 1108; ecc: 8; }
                             ListElement { idx:  7; type: "2d"; txt: "GridMatrix"; format: "gridmatrix"; maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
                             // esoteric (but fun)
-                            ListElement { idx: 8; type: "2d"; txt: "DotCode"; format: "dotcode";        maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
-                            ListElement { idx: 9; type: "2d"; txt: "MaxiCode"; format: "maxicode";      maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
+                            ListElement { idx:  8; type: "2d"; txt: "DotCode"; format: "dotcode";       maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
+                            ListElement { idx:  9; type: "2d"; txt: "MaxiCode"; format: "maxicode";     maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
                             ListElement { idx: 10; type: "2d"; txt: "UltraCode"; format: "ultracode";   maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
                             ListElement { idx: 11; type: "2d"; txt: "Code One"; format: "codeone";      maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
                             // esoteric (but not particularly fun)
@@ -406,16 +407,17 @@ Loader {
 
                             // matrix
                             ListElement { idx:  0; type: "2d"; txt: "QR Code"; format: "qrcode";        maxchar: 4296; maxbytes: 2953; ecc: 4; }
-                            ListElement { idx:  1; type: "2d"; txt: "Aztec"; format: "aztec";           maxchar: 3067; maxbytes: 3067; ecc: 8; }
+                            ListElement { idx:  1; type: "2d"; txt: "Aztec Code"; format: "aztec";      maxchar: 3067; maxbytes: 3067; ecc: 8; }
+                            //ListElement { idx:  2; type: "2d"; txt: "Aztec Rune"; format: "aztecrune";  maxchar: 3067; maxbytes: 3067; ecc: 8; }
                             ListElement { idx:  2; type: "2d"; txt: "DataMatrix"; format: "datamatrix"; maxchar: 2335; maxbytes: 1556; ecc: 0; }
                             // linear
-                            ListElement { idx:  3; type: "1d"; txt: "Codabar"; format: "codabar";       maxnum: 12; }
-                            ListElement { idx:  4; type: "1d"; txt: "EAN 13"; format: "ean13";          maxnum: 12; }
-                            ListElement { idx:  5; type: "1d"; txt: "EAN 8"; format: "ean8";            maxnum: 7; }
-                            ListElement { idx:  6; type: "1d"; txt: "UPC-A"; format: "upca";            maxnum: 11; }
-                            ListElement { idx:  7; type: "1d"; txt: "UPC-E"; format: "upce";            maxnum: 7; }
-                            ListElement { idx:  8; type: "1d"; txt: "Code 39"; format: "code39";        maxnum: 39; }
-                            ListElement { idx:  9; type: "1d"; txt: "Code 93"; format: "code93";        maxnum: 93; }
+                            ListElement { idx: 3; type: "1d"; txt: "Codabar"; format: "codabar";       maxnum: 12; }
+                            ListElement { idx: 4; type: "1d"; txt: "EAN 13"; format: "ean13";          maxnum: 12; }
+                            ListElement { idx: 5; type: "1d"; txt: "EAN 8"; format: "ean8";            maxnum: 7; }
+                            ListElement { idx: 6; type: "1d"; txt: "UPC-A"; format: "upca";            maxnum: 11; }
+                            ListElement { idx: 7; type: "1d"; txt: "UPC-E"; format: "upce";            maxnum: 7; }
+                            ListElement { idx: 8; type: "1d"; txt: "Code 39"; format: "code39";        maxnum: 39; }
+                            ListElement { idx: 9; type: "1d"; txt: "Code 93"; format: "code93";        maxnum: 93; }
                             ListElement { idx: 10; type: "1d"; txt: "Code 128"; format: "code128";      maxnum: 128; }
                             ListElement { idx: 11; type: "1d"; txt: "ITF"; format: "itf";               maxnum: 10; }
                         }
@@ -496,7 +498,9 @@ Loader {
 
                             currentSelection: 0
                             model: {
-                                if (barcodeAdvanced.format === "aztec") return lmBarcodeEccAz
+                                if (barcodeAdvanced.format === "aztec" ||
+                                    barcodeAdvanced.format === "azteccode"||
+                                    barcodeAdvanced.format === "aztecrune") return lmBarcodeEccAz
                                 if (barcodeAdvanced.format === "datamatrix") return lmBarcodeEccDM
                                 if (barcodeAdvanced.format === "qrcode" ||
                                     barcodeAdvanced.format === "microqrcode" ||
@@ -514,7 +518,9 @@ Loader {
                                 currentSelection = index
 
                                 var vvv = 0
-                                if (barcodeAdvanced.format === "aztec") vvv = lmBarcodeEccAz.get(index).ecc
+                                if (barcodeAdvanced.format === "aztec" ||
+                                    barcodeAdvanced.format === "azteccode"||
+                                    barcodeAdvanced.format === "aztecrune") vvv = lmBarcodeEccAz.get(index).ecc
                                 if (barcodeAdvanced.format === "datamatrix") vvv = lmBarcodeEccDM.get(index).ecc
                                 if (barcodeAdvanced.format === "qrcode" ||
                                     barcodeAdvanced.format === "microqrcode" ||

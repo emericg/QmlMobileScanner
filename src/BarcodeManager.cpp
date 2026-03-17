@@ -258,7 +258,7 @@ void BarcodeManager::addHistory(const QString &data, const QString &format,
             }
             addBarcode.bindValue(":data", data);
             addBarcode.bindValue(":format", format);
-            addBarcode.bindValue(":date", QDateTime::currentDateTime().toMSecsSinceEpoch());
+            addBarcode.bindValue(":date", QDateTime::currentMSecsSinceEpoch());
 
             if (addBarcode.exec() == false)
             {
