@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(QmlMobileScanner VERSION 0.4 LANGUAGES C CXX)
+project(QmlMobileScanner VERSION 0.5 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -136,8 +136,8 @@ function(add_other_files target)
 endfunction()
 
 add_other_files(${CMAKE_PROJECT_NAME}
-    README.md TODO.md LICENSE.md
-    .gitignore
+    README.md TODO.md LICENSE.md .gitignore
+    .github/workflows/builds_mobile.yml
 )
 
 ################################################################################

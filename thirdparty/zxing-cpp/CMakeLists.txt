@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 project(ZXing)
 
 option (ZXING_READERS "Build with reader support (decoders)" ON)
-set    (ZXING_WRITERS "ON" CACHE STRING "Build with old and/or new writer (encoder) backend (OFF/ON/OLD/NEW/BOTH)")
+set    (ZXING_WRITERS "OLD" CACHE STRING "Build with old and/or new writer (encoder) backend (OFF/ON/OLD/NEW/BOTH)")
 option (ZXING_C_API "Build the C-API" OFF)
 option (ZXING_QT_QML "Build the Qt/QML wrapper" OFF)
 option (ZXING_EXPERIMENTAL_API "Build with experimental API" OFF)

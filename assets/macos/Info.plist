@@ -24,10 +24,10 @@
 	<string>QmlMobileScanners.icns</string>
 
 	<key>CFBundleVersion</key>
-	<string>000401</string>
+	<string>000501</string>
 
 	<key>CFBundleShortVersionString</key>
-	<string>0.4</string>
+	<string>0.5</string>
 
 	<key>LSMinimumSystemVersion</key>
 	<string>11.0</string>

@@ -21,10 +21,10 @@
 	<string>io.emeric.qmlmobilescanner</string>
 
 	<key>CFBundleVersion</key>
-	<string>000401</string>
+	<string>000501</string>
 
 	<key>CFBundleShortVersionString</key>
-	<string>0.4</string>
+	<string>0.5</string>
 
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
@@ -50,7 +50,7 @@
 	<true/>
 
 	<key>MinimumOSVersion</key>
-	<string>14.0</string>
+	<string>16.0</string>
 
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
