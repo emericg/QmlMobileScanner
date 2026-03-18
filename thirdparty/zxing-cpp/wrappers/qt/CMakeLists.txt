@@ -26,4 +26,6 @@ target_include_directories(ZXingQt PRIVATE ZXing::ZXing)
 find_package(Qt6 REQUIRED COMPONENTS Core Concurrent Quick Multimedia)
 target_link_libraries(ZXingQt PRIVATE Qt6::Core Qt6::Concurrent Qt6::Quick Qt6::Multimedia)
 
+qt_add_ios_ffmpeg_libraries(ZXingQt)
+
 target_include_directories(ZXingQt PUBLIC ${CMAKE_CURRENT_LIST_DIR})
