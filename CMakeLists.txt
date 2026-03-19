@@ -13,7 +13,7 @@ set(APP_VERSION ${CMAKE_PROJECT_VERSION})
 
 option(USE_QZXING "Build with QZXing support (decoder&encoder)" OFF)
 option(USE_ZXINGCPP "Build with zxing-cpp support (decoder&encoder)" ON)
-option(USE_ZINT "Build with zint support (encoder)" OFF)
+option(USE_ZINT "Build with zint support (encoder)" ON)
 
 ################################################################################
 
@@ -62,12 +62,10 @@ set(SOURCES
 if(IOS OR ANDROID) # Mobile
 
     set(QAPPLICATION_CLASS QGuiApplication)
-    set(USE_ZINT OFF)
 
 else() # Desktop
 
     set(QAPPLICATION_CLASS QApplication)
-    set(USE_ZINT ON)
 
     # Set app icons
     #if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
@@ -136,8 +134,9 @@ function(add_other_files target)
 endfunction()
 
 add_other_files(${CMAKE_PROJECT_NAME}
-    README.md TODO.md LICENSE.md .gitignore
+    README.md LICENSE.md TODO.md
     .github/workflows/builds_mobile.yml
+    .gitignore
 )
 
 ################################################################################
@@ -182,7 +181,7 @@ if(USE_ZINT)
     add_subdirectory(thirdparty/zint-qml)
     target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE zint)
 
-    # build ZintQml
+    # build ZintQml wrapper
     add_subdirectory(thirdparty/zint-qml/wrappers/qml)
     target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ZintQml)
     target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE QMS_USE_ZINT)
@@ -276,17 +275,17 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Android")
     # Support 16 KB page sizes / pre NDK28
     target_link_options(${CMAKE_PROJECT_NAME} PRIVATE "-Wl,-z,max-page-size=16384")
 
-    # Download SSL Libraries
-    include(FetchContent)
-    FetchContent_Declare(
-        android_openssl
-        DOWNLOAD_EXTRACT_TIMESTAMP true
-        URL https://github.com/KDAB/android_openssl/archive/refs/heads/master.zip
-    )
-    FetchContent_MakeAvailable(android_openssl)
-    include(${android_openssl_SOURCE_DIR}/android_openssl.cmake)
-    # Include SSL Libraries
-    add_android_openssl_libraries(${CMAKE_PROJECT_NAME})
+    ## Download SSL Libraries
+    #include(FetchContent)
+    #FetchContent_Declare(
+    #    android_openssl
+    #    DOWNLOAD_EXTRACT_TIMESTAMP true
+    #    URL https://github.com/KDAB/android_openssl/archive/refs/heads/master.zip
+    #)
+    #FetchContent_MakeAvailable(android_openssl)
+    #include(${android_openssl_SOURCE_DIR}/android_openssl.cmake)
+    ## Include SSL Libraries
+    #add_android_openssl_libraries(${CMAKE_PROJECT_NAME})
 endif()
 
 ## iOS
