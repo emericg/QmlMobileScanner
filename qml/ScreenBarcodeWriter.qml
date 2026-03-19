@@ -383,11 +383,11 @@ Loader {
 
                             // matrix
                             ListElement { idx:  0; type: "2d"; txt: "QR Code"; format: "qrcode";        maxnum: 0; maxchar: 4296; maxbytes: 2953; ecc: 4; }
-                            ListElement { idx:  1; type: "2d"; txt: "µQrCode"; format: "microqrcode";   maxnum: 0; maxchar: 21; maxbytes: 256; ecc: 4; }
+                            ListElement { idx:  1; type: "2d"; txt: "µQR Code"; format: "microqrcode";   maxnum: 0; maxchar: 21; maxbytes: 256; ecc: 4; }
                             ListElement { idx:  2; type: "2d"; txt: "rect. µQrCode"; format: "rmqr";    maxnum: 0; maxchar: 21; maxbytes: 256; ecc: 4; }
                             ListElement { idx:  3; type: "2d"; txt: "Aztec Code"; format: "aztec";      maxnum: 0; maxchar: 3067; maxbytes: 3067; ecc: 8; }
                             //ListElement { idx:  4; type: "2d"; txt: "Aztec Rune"; format: "aztecrune";  maxnum: 0; maxchar: 3067; maxbytes: 3067; ecc: 8; }
-                            ListElement { idx:  4; type: "2d"; txt: "DataMatrix"; format: "datamatrix"; maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
+                            ListElement { idx:  4; type: "2d"; txt: "Data Matrix"; format: "datamatrix"; maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
                             ListElement { idx:  5; type: "2d"; txt: "PDF417"; format: "pdf417";         maxnum: 0; maxchar: 1850; maxbytes: 1108; ecc: 8; }
                             ListElement { idx:  6; type: "2d"; txt: "µPDF417"; format: "micropdf417";   maxnum: 0; maxchar: 256; maxbytes: 1108; ecc: 8; }
                             ListElement { idx:  7; type: "2d"; txt: "GridMatrix"; format: "gridmatrix"; maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }
@@ -409,7 +409,7 @@ Loader {
                             ListElement { idx:  0; type: "2d"; txt: "QR Code"; format: "qrcode";        maxchar: 4296; maxbytes: 2953; ecc: 4; }
                             ListElement { idx:  1; type: "2d"; txt: "Aztec Code"; format: "aztec";      maxchar: 3067; maxbytes: 3067; ecc: 8; }
                             //ListElement { idx:  2; type: "2d"; txt: "Aztec Rune"; format: "aztecrune";  maxchar: 3067; maxbytes: 3067; ecc: 8; }
-                            ListElement { idx:  2; type: "2d"; txt: "DataMatrix"; format: "datamatrix"; maxchar: 2335; maxbytes: 1556; ecc: 0; }
+                            ListElement { idx:  2; type: "2d"; txt: "Data Matrix"; format: "datamatrix"; maxchar: 2335; maxbytes: 1556; ecc: 0; }
                             // linear
                             ListElement { idx: 3; type: "1d"; txt: "Codabar"; format: "codabar";       maxnum: 12; }
                             ListElement { idx: 4; type: "1d"; txt: "EAN 13"; format: "ean13";          maxnum: 12; }

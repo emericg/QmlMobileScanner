@@ -7,12 +7,12 @@ QmlMobileScanner
 
 QmlMobileScanner is a DEMO barcode & QR code scanner based on qzxing and zxing-cpp libraries to scan and generate barcodes, and zint to generate some extra formats.
 
-Qt 6.8+, Qt Multimedia (with ffmpeg backend) and CMake are needed.
-Qt 6.x "minor" versions are full of major breakages, it's just not feasible to support a matrix of different versions or build systems, sorry.
+Qt 6.8+, Qt Multimedia (with ffmpeg backend) and CMake are needed.  
+Qt 6 major and minor versions are full of API and build breakages, it's just not feasible for me to support a matrix of different versions or build systems, sorry.
 
 Available backends:
-- QZXing / v3.3.0 + Qt6 port + many patches
 - zxing-cpp / v3.0.2 + custom QML integration
+- QZXing / v3.3.0 + Qt6 port + many patches
 - zint / v2.16 + custom QML integration
 
 > Works on Android and iOS!
@@ -35,21 +35,9 @@ Available backends:
   - [x] Barcodes history
 
 
-## Supported Formats (QZXing)
+## Supported Formats (zint)
 
-[QZXing](https://github.com/ftylitak/qzxing/) is a Qt/QML wrapper library for the ZXing barcode image processing library.
-
-| Linear / 1D barcodes | Matrix / 2D barcodes |
-| -------------------- | -------------------- |
-| UPC-A                | QR Code              |
-| UPC-E                | Data Matrix          |
-| EAN-8                | PDF 417              |
-| EAN-13               | Aztec (beta)         |
-| Code 39              |                      |
-| Code 93              |                      |
-| Code 128 (GS1)       |                      |
-| Codabar              |                      |
-| ITF                  |                      |
+[zint](https://github.com/zint/zint/) is a barcode encoding library supporting over 50 symbologies including Code 128, Data Matrix, USPS OneCode, EAN-128, UPC/EAN, ITF, QR Code, Code 16k, PDF417, MicroPDF417, LOGMARS, Maxicode, GS1 DataBar, Aztec, Composite Symbols and more.
 
 
 ## Supported Formats (zxing-cpp)
@@ -60,21 +48,35 @@ Available backends:
 | -------------------- | -------------------- |
 | UPC-A                | QR Code              |
 | UPC-E                | Micro QR Code        |
-| EAN-8                | Aztec                |
-| EAN-13               | Aztec Runes          |
-| DataBar              | DataMatrix           |
-| DataBar Expanded     | PDF417               |
-| DataBar Limited      | MaxiCode (partial)   |
-| Code 39              | DX Film Edge         |
+| EAN-8                | rMQR Code            |
+| EAN-13               | Aztec Code           |
+| DataBar              | Aztec Rune           |
+| DataBar Expanded     | Data Matrix          |
+| DataBar Limited      | PDF417               |
+| Code 39              | Compact PDF417       |
+| Code 93              | MicroPDF417          |
+| Code 128 (GS1)       | MaxiCode (partial)   |
+| Codabar              | DX Film Edge         |
+| ITF                  |                      |
+
+
+## Supported Formats (QZXing)
+
+[QZXing](https://github.com/ftylitak/qzxing/) is a Qt/QML wrapper library for the ZXing barcode image processing library.
+
+> QZXing still works fine, but is considered deprecated
+
+| Linear / 1D barcodes | Matrix / 2D barcodes |
+| -------------------- | -------------------- |
+| UPC-A                | QR Code              |
+| UPC-E                | Data Matrix          |
+| EAN-8                | PDF417               |
+| EAN-13               | Aztec (beta)         |
+| Code 39              |                      |
 | Code 93              |                      |
 | Code 128 (GS1)       |                      |
 | Codabar              |                      |
 | ITF                  |                      |
-
-
-## Supported Formats (zint)
-
-[zint](https://github.com/zint/zint/) is a barcode encoding library supporting over 50 symbologies including Code 128, Data Matrix, USPS OneCode, EAN-128, UPC/EAN, ITF, QR Code, Code 16k, PDF417, MicroPDF417, LOGMARS, Maxicode, GS1 DataBar, Aztec, Composite Symbols and more.
 
 
 ## Documentation

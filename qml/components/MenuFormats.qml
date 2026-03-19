@@ -17,20 +17,20 @@ Column {
         id: formatsAvailable_zxingcpp
         ListElement { txt: "Linear codes"; value: 51070; }
         ListElement { txt: "Aztec"; value: 1; }
-        ListElement { txt: "DataMatrix"; value: 128; }
+        ListElement { txt: "Data Matrix"; value: 128; }
         ListElement { txt: "MaxiCode"; value: 2048; }
         ListElement { txt: "PDF417"; value: 4096; }
-        ListElement { txt: "QRCode"; value: 8192; }
-        ListElement { txt: "µQRCode"; value: 65536; }
+        ListElement { txt: "QR Code"; value: 8192; }
+        ListElement { txt: "µQR Code"; value: 65536; }
     }
     ListModel {
         id: formatsAvailable_qzxing
         ListElement { txt: "Linear codes"; value: 517052; }
         ListElement { txt: "Aztec"; value: 2; }
-        ListElement { txt: "DataMatrix"; value: 64; }
+        ListElement { txt: "Data Matrix"; value: 64; }
         ListElement { txt: "MaxiCode"; value: 1024; }
         ListElement { txt: "PDF417"; value: 2048; }
-        ListElement { txt: "QRCode"; value: 4096; }
+        ListElement { txt: "QR Code"; value: 4096; }
     }
 
     Repeater {

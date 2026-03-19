@@ -67,8 +67,8 @@ Flickable {
             ListElement { type: "linear"; name: "Codabar"; decode: 1; encode: 0; }
             ListElement { type: "matrix"; name: "QR Code"; decode: 1; encode: 1; }
             ListElement { type: "matrix"; name: "Data Matrix"; decode: 1; encode: 0; }
-            ListElement { type: "matrix"; name: "Aztec"; decode: 1; encode: 0; }
-            ListElement { type: "matrix"; name: "PDF 417"; decode: 1; encode: 0; }
+            ListElement { type: "matrix"; name: "Aztec Code"; decode: 2; encode: 0; }
+            ListElement { type: "matrix"; name: "PDF417"; decode: 1; encode: 0; }
         }
         ListModel {
             id: zxingcpp
@@ -88,12 +88,16 @@ Flickable {
             ListElement { type: "linear"; name: "ITF"; decode: 1; encode: 1; }
             ListElement { type: "matrix"; name: "QR Code"; decode: 1; encode: 1; }
             ListElement { type: "matrix"; name: "Micro QR Code"; decode: 1; encode: 0; }
-            ListElement { type: "matrix"; name: "Aztec"; decode: 1; encode: 1; }
-            ListElement { type: "matrix"; name: "Aztec Runes"; decode: 1; encode: 0; }
+            ListElement { type: "matrix"; name: "rMQR Code"; decode: 1; encode: 0; }
+            ListElement { type: "matrix"; name: "Aztec Code"; decode: 1; encode: 1; }
+            ListElement { type: "matrix"; name: "Aztec Rune"; decode: 1; encode: 1; }
             ListElement { type: "matrix"; name: "Data Matrix"; decode: 1; encode: 1; }
-            ListElement { type: "matrix"; name: "DX Film Edge"; decode: 1; encode: 0; }
-            ListElement { type: "matrix"; name: "PDF 417"; decode: 1; encode: 1; }
+            ListElement { type: "matrix"; name: "PDF417"; decode: 1; encode: 1; }
+            ListElement { type: "matrix"; name: "Micro PDF417"; decode: 1; encode: 0; }
+            ListElement { type: "matrix"; name: "Compact PDF417"; decode: 1; encode: 1; }
+            ListElement { type: "matrix"; name: "PDF417"; decode: 1; encode: 1; }
             ListElement { type: "matrix"; name: "MaxiCode"; decode: 2; encode: 0; }
+            ListElement { type: "matrix"; name: "DX Film Edge"; decode: 1; encode: 0; }
         }
         ListModel {
             id: zint
@@ -137,7 +141,7 @@ Flickable {
             ListElement { type: "2d"; name: "Royal Mail 4-State Mailmark"; decode: 0; encode: 1; }
             ListElement { type: "2d"; name: "USPS OneCode (Intelligent Mail)"; decode: 0; encode: 1; }
             ListElement { type: "matrix"; name: "Aztec Code"; decode: 0; encode: 1; }
-            ListElement { type: "matrix"; name: "Aztec Runes"; decode: 0; encode: 1; }
+            ListElement { type: "matrix"; name: "Aztec Rune"; decode: 0; encode: 1; }
             ListElement { type: "matrix"; name: "Data Matrix ECC200"; decode: 0; encode: 1; }
             ListElement { type: "matrix"; name: "DotCode"; decode: 0; encode: 1; }
             ListElement { type: "matrix"; name: "Grid Matrix"; decode: 0; encode: 1; }

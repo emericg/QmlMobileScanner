@@ -169,7 +169,7 @@ if(USE_ZXINGCPP)
     target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ZXingQt)
     target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE QMS_USE_ZXINGCPP)
 elseif(USE_QZXING)
-    # build QZxing
+    # build QZXing
     add_subdirectory(thirdparty/QZXing)
     target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE QZXing)
     target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE QMS_USE_QZXING)
@@ -181,7 +181,7 @@ if(USE_ZINT)
     add_subdirectory(thirdparty/zint-qml)
     target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE zint)
 
-    # build ZintQml wrapper
+    # build Zint QML wrapper
     add_subdirectory(thirdparty/zint-qml/wrappers/qml)
     target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ZintQml)
     target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE QMS_USE_ZINT)
