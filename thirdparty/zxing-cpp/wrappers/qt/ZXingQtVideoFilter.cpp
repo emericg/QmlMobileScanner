@@ -15,6 +15,8 @@ ZXingQtVideoFilter::ZXingQtVideoFilter(QObject *parent) : QObject(parent)
 {
     m_readerOptions.setMinLineCount(4); // default is 2
     m_readerOptions.setMaxNumberOfSymbols(4); // default is 255
+    m_readerOptions.setFormats(ZXing::BarcodeFormat::AllReadable); // default is
+    m_readerOptions.setTextMode(ZXing::TextMode::HRI); // default is
     //m_readerOptions.setBinarizer(ZXing::Binarizer::GlobalHistogram); // default is LocalAverage
 }
 
@@ -96,8 +98,8 @@ void ZXingQtVideoFilter::setFormats(int newVal)
 {
     if (formats() != newVal)
     {
-        m_readerOptions.setFormats(static_cast<ZXing::BarcodeFormat>(newVal));
-        emit formatsChanged();
+        //m_readerOptions.setFormats(static_cast<ZXing::BarcodeFormat>(newVal));
+        //emit formatsChanged();
     }
 }
 
