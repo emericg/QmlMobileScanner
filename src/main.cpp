@@ -63,20 +63,12 @@ int main(int argc, char *argv[])
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     // Qt 6.6+ mouse wheel hack
-    qputenv("QT_QUICK_FLICKABLE_WHEEL_DECELERATION", "2500");
-#endif
-
-#if defined(Q_OS_ANDROID) && (QT_VERSION <= QT_VERSION_CHECK(6,6,1))
-    // Force "old" Android native multimedia backend
-    // android backend doesn't work past Qt 6.6.1
-    // ffmpeg backend doesn't work below Qt 6.6.2
-    // (ffmpeg multimedia backend is buggy as hell...)
-    qputenv("QT_MEDIA_BACKEND", "android");
+    qputenv("QT_QUICK_FLICKABLE_WHEEL_DECELERATION", "7500");
 #endif
 
     //qputenv("QT_MEDIA_BACKEND", "ffmpeg");
-    //qputenv("QT_MEDIA_BACKEND", "android");
-    //qputenv("QT_MEDIA_BACKEND", "gstreamer");
+    //qputenv("QT_MEDIA_BACKEND", "gstreamer"); // deprecated
+    //qputenv("QT_MEDIA_BACKEND", "android"); // deprecated
 
     // GUI application /////////////////////////////////////////////////////////
 
@@ -84,8 +76,6 @@ int main(int argc, char *argv[])
     SharingApplication app(argc, argv);
 #else
     QGuiApplication app(argc, argv);
-    QIcon appIcon(":/assets/gfx/logos/logo_black.svg");
-    app.setWindowIcon(appIcon);
 #endif
 
     // Application name
@@ -93,6 +83,8 @@ int main(int argc, char *argv[])
     app.setApplicationDisplayName("QmlMobileScanner");
     app.setOrganizationName("emeric");
     app.setOrganizationDomain("emeric");
+
+    app.setWindowIcon(QIcon(":/assets/gfx/logos/logo_black.svg"));
 
     // Init app components
     DatabaseManager *dbm = DatabaseManager::getInstance();
