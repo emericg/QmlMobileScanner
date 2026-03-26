@@ -132,6 +132,10 @@ BarcodeQml ZXingQtVideoFilter::process(const QVideoFrame &frame)
                     r.runTime = t.elapsed();
                     emit tagFound(r);
                 }
+                else
+                {
+                    qWarning() << ">>> ZXingQtVideoFilter::process() >>> INVALID RESULTS";
+                }
             }
 
             if (results.size())

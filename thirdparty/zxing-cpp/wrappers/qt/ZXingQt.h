@@ -20,7 +20,6 @@
 #include <QImage>
 #include <QVideoFrame>
 
-
 class Position : public ZXing::Quadrilateral<QPoint>
 {
     Q_GADGET
@@ -201,13 +200,15 @@ public:
     Q_INVOKABLE static int stringToFormat(const QString &str);
     Q_INVOKABLE static QString formatToString(const int fmt);
 
-    static int qimageFormatToXZingFormat(const QImage &img);
-    static int qvideoframeFormatToXZingFormat(const QVideoFrame &frame);
+    static ZXing::ImageFormat qimageFormatToXZingFormat(const QImage &img);
+    static void qvideoframeFormatToXZingFormat(const QVideoFrame &frame,
+                                               ZXing::ImageFormat &format, int &pixStride, int &pixOffset);
 
     ///
 
-    static BarcodeQml ReadBarcode(const QImage &img,
-                                  const ZXing::ReaderOptions &opts = {});
+    static BarcodeQml ReadBarcode(const QImage &image,
+                                  const ZXing::ReaderOptions &opts = {},
+                                  const QRect captureRect = QRect());
 
     static BarcodeQml ReadBarcode(const QVideoFrame &frame,
                                   const ZXing::ReaderOptions &opts = {},
@@ -215,7 +216,7 @@ public:
 
     ///
 
-    static QList<BarcodeQml> ReadBarcodes(const QImage &img,
+    static QList<BarcodeQml> ReadBarcodes(const QImage &image,
                                           const ZXing::ReaderOptions &opts = {},
                                           const QRect captureRect = QRect());
 

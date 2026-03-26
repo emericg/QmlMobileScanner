@@ -39,6 +39,22 @@ class ZXingQtVideoFilter : public QObject
     QVideoSink *m_videoSink = nullptr;
     void setVideoSink(QVideoSink *sink);
 
+    // capture rectangle
+    QRect captureRect() const { return m_captureRect; }
+    void setCaptureRect(const QRect &captureRect);
+
+    // barcode reader options
+    int formats() const noexcept;
+    void setFormats(int newVal);
+    bool tryHarder() const { return m_readerOptions.tryHarder(); }
+    void setTryHarder(const bool value);
+    bool tryRotate() const { return m_readerOptions.tryRotate(); }
+    void setTryRotate(const bool value);
+    bool tryInvert() const { return m_readerOptions.tryInvert(); }
+    void setTryInvert(const bool value);
+    bool tryDownscale() const { return m_readerOptions.tryDownscale(); }
+    void setTryDownscale(const bool value);
+
 signals:
     void tryHarderChanged();
     void tryRotateChanged();
@@ -60,22 +76,6 @@ public:
     virtual ~ZXingQtVideoFilter();
 
     Q_INVOKABLE void stopFilter();
-
-    // capture rectangle
-    QRect captureRect() const { return m_captureRect; }
-    void setCaptureRect(const QRect &captureRect);
-
-    // barcode reader options
-    int formats() const noexcept;
-    void setFormats(int newVal);
-    bool tryHarder() const { return m_readerOptions.tryHarder(); }
-    void setTryHarder(const bool value);
-    bool tryRotate() const { return m_readerOptions.tryRotate(); }
-    void setTryRotate(const bool value);
-    bool tryInvert() const { return m_readerOptions.tryInvert(); }
-    void setTryInvert(const bool value);
-    bool tryDownscale() const { return m_readerOptions.tryDownscale(); }
-    void setTryDownscale(const bool value);
 };
 
 #endif // ZXING_QT_VIDEOFILTER_H

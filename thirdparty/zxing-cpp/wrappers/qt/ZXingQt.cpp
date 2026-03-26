@@ -29,6 +29,8 @@
 #include <QJniObject>
 #endif
 
+/* ************************************************************************** */
+
 void ZXingQt::registerQMLTypes()
 {
     //qRegisterMetaType<ZXingQt::BarcodeFormat>("BarcodeFormat");
@@ -44,6 +46,8 @@ void ZXingQt::registerQMLImageProvider(QQmlEngine &engine)
 {
     engine.addImageProvider("ZXingQt", new ZXingQtImageProvider());
 }
+
+/* ************************************************************************** */
 
 int ZXingQt::stringToFormat(const QString &str)
 {
@@ -65,6 +69,8 @@ int ZXingQt::stringToFormat(const QString &str)
     if (str == "upca") return (int)ZXing::BarcodeFormat::UPCA;
     if (str == "upce") return (int)ZXing::BarcodeFormat::UPCE;
     if (str == "microqrcode") return (int)ZXing::BarcodeFormat::MicroQRCode;
+
+    qWarning() << "ZXingQt::stringToFormat() unknown string";
 
     return 0;
 }
@@ -90,10 +96,12 @@ QString ZXingQt::formatToString(const int fmt)
     if (fmt == (int)ZXing::BarcodeFormat::UPCE) return "upce";
     if (fmt == (int)ZXing::BarcodeFormat::MicroQRCode) return "microqrcode";
 
+    qWarning() << "ZXingQt::formatToString() unknown format";
+
     return QString();
 }
 
-int ZXingQt::qimageFormatToXZingFormat(const QImage &img)
+ZXing::ImageFormat ZXingQt::qimageFormatToXZingFormat(const QImage &img)
 {
     ZXing::ImageFormat format = ZXing::ImageFormat::None;
 
@@ -119,62 +127,76 @@ int ZXingQt::qimageFormatToXZingFormat(const QImage &img)
         case QImage::Format_Grayscale8:
             format = ZXing::ImageFormat::Lum; break;
 
-        default: break;
+        default:
+            qWarning() << "ZXingQt::qimageFormatToXZingFormat() unknown format";
+            break;
     }
 
-    return (int)format;
+    return format;
 }
 
-int ZXingQt::qvideoframeFormatToXZingFormat(const QVideoFrame &frame)
+void ZXingQt::qvideoframeFormatToXZingFormat(const QVideoFrame &frame,
+                                             ZXing::ImageFormat &format, int &pixStride, int &pixOffset)
 {
-    ZXing::ImageFormat format = ZXing::ImageFormat::None;
+    format = ZXing::ImageFormat::None;
+    pixStride = 0;
+    pixOffset = 0;
 
     switch (frame.pixelFormat())
     {
-        case QVideoFrameFormat::Format_ARGB8888:
-        case QVideoFrameFormat::Format_ARGB8888_Premultiplied:
-        case QVideoFrameFormat::Format_XRGB8888:
-            format = ZXing::ImageFormat::ARGB; break;
-        case QVideoFrameFormat::Format_BGRA8888:
-        case QVideoFrameFormat::Format_BGRA8888_Premultiplied:
-        case QVideoFrameFormat::Format_BGRX8888:
-            format = ZXing::ImageFormat::BGRA; break;
-        case QVideoFrameFormat::Format_ABGR8888:
-        case QVideoFrameFormat::Format_XBGR8888:
-            format = ZXing::ImageFormat::ABGR; break;
-        case QVideoFrameFormat::Format_RGBA8888:
-        case QVideoFrameFormat::Format_RGBX8888:
-            format = ZXing::ImageFormat::RGBA; break;
-/*
-        case QVideoFrameFormat::Format_AYUV:
-        case QVideoFrameFormat::Format_AYUV_Premultiplied:
-        case QVideoFrameFormat::Format_YUV420P:
-        case QVideoFrameFormat::Format_YUV422P:
-        case QVideoFrameFormat::Format_YV12:
-        case QVideoFrameFormat::Format_UYVY:
-        case QVideoFrameFormat::Format_YUYV:
-        case QVideoFrameFormat::Format_NV12:
-        case QVideoFrameFormat::Format_NV21:
-        case QVideoFrameFormat::Format_IMC1:
-        case QVideoFrameFormat::Format_IMC2:
-        case QVideoFrameFormat::Format_IMC3:
-        case QVideoFrameFormat::Format_IMC4:
-        case QVideoFrameFormat::Format_Y8:
-        case QVideoFrameFormat::Format_Y16:
-            format = ZXing::ImageFormat::Lum; break;
+    case QVideoFrameFormat::Format_ARGB8888:
+    case QVideoFrameFormat::Format_ARGB8888_Premultiplied:
+    case QVideoFrameFormat::Format_XRGB8888:
+        format = ZXing::ImageFormat::ARGB; break;
 
-        case QVideoFrameFormat::Format_P010:
-        case QVideoFrameFormat::Format_P016:
-        case QVideoFrameFormat::Format_YUV420P10:
-            format = ZXing::ImageFormat::Lum; break;
-*/
-        case QVideoFrameFormat::Format_SamplerExternalOES:
-        case QVideoFrameFormat::Format_Jpeg:
-        case QVideoFrameFormat::Format_SamplerRect:
-        default: break;
+    case QVideoFrameFormat::Format_BGRA8888:
+    case QVideoFrameFormat::Format_BGRA8888_Premultiplied:
+    case QVideoFrameFormat::Format_BGRX8888:
+        format = ZXing::ImageFormat::BGRA; break;
+
+    case QVideoFrameFormat::Format_ABGR8888:
+    case QVideoFrameFormat::Format_XBGR8888:
+        format = ZXing::ImageFormat::ABGR; break;
+
+    case QVideoFrameFormat::Format_RGBA8888:
+    case QVideoFrameFormat::Format_RGBX8888:
+        format = ZXing::ImageFormat::RGBA; break;
+
+    case QVideoFrameFormat::Format_P010:
+    case QVideoFrameFormat::Format_P016:
+        format = ZXing::ImageFormat::Lum;
+        pixStride = 1;
+        break;
+
+    case QVideoFrameFormat::Format_YUV420P:
+    case QVideoFrameFormat::Format_YUV422P:
+    case QVideoFrameFormat::Format_NV12:
+    case QVideoFrameFormat::Format_NV21:
+    case QVideoFrameFormat::Format_IMC1:
+    case QVideoFrameFormat::Format_IMC2:
+    case QVideoFrameFormat::Format_IMC3:
+    case QVideoFrameFormat::Format_IMC4:
+    case QVideoFrameFormat::Format_YV12:
+        format = ZXing::ImageFormat::Lum; break;
+
+    case QVideoFrameFormat::Format_AYUV_Premultiplied:
+    case QVideoFrameFormat::Format_AYUV: format = ZXing::ImageFormat::Lum, pixStride = 4, pixOffset = 1; break;
+    case QVideoFrameFormat::Format_UYVY: format = ZXing::ImageFormat::Lum, pixStride = 2, pixOffset = 1; break;
+    case QVideoFrameFormat::Format_YUYV: format = ZXing::ImageFormat::Lum, pixStride = 2; break;
+
+    case QVideoFrameFormat::Format_Y8: format = ZXing::ImageFormat::Lum; break;
+    case QVideoFrameFormat::Format_Y16: format = ZXing::ImageFormat::Lum, pixStride = 2, pixOffset = 1; break;
+
+    case QVideoFrameFormat::Format_Jpeg:
+    case QVideoFrameFormat::Format_SamplerRect:
+    case QVideoFrameFormat::Format_SamplerExternalOES:
+        qDebug() << "ZXingQt::qvideoframeFormatToXZingFormat() unsupported format";
+        break;
+
+    default:
+        qWarning() << "ZXingQt::qvideoframeFormatToXZingFormat() unknow format";
+        break;
     }
-
-    return (int)format;
 }
 
 inline QList<BarcodeQml> QListBarcodes(ZXing::Barcodes && zxres)
@@ -190,10 +212,11 @@ inline QList<BarcodeQml> QListBarcodes(ZXing::Barcodes && zxres)
 
 /* ************************************************************************** */
 
-BarcodeQml ZXingQt::ReadBarcode(const QImage &img,
-                                const ZXing::ReaderOptions &opts)
+BarcodeQml ZXingQt::ReadBarcode(const QImage &image,
+                                const ZXing::ReaderOptions &opts,
+                                const QRect captureRect)
 {
-    auto res = ReadBarcodes(img, ZXing::ReaderOptions(opts).setMaxNumberOfSymbols(1));
+    auto res = ReadBarcodes(image, ZXing::ReaderOptions(opts).setMaxNumberOfSymbols(1), captureRect);
     return !res.isEmpty() ? res.takeFirst() : BarcodeQml();
 }
 
@@ -208,110 +231,121 @@ BarcodeQml ZXingQt::ReadBarcode(const QVideoFrame &frame,
 /* ************************************************************************** */
 
 //! Read barcode from QImage
-QList<BarcodeQml> ZXingQt::ReadBarcodes(const QImage &img,
+QList<BarcodeQml> ZXingQt::ReadBarcodes(const QImage &image,
                                         const ZXing::ReaderOptions &opts,
                                         const QRect captureRect)
 {
-    ZXing::ImageFormat format = (ZXing::ImageFormat)qimageFormatToXZingFormat(img);
+    if (image.isNull())
+    {
+        qWarning() << "ZXingQt::ReadBarcodes(QImage) invalid QImage!";
+        return {};
+    }
 
+    //qDebug() << ">>> ZXingQt::ReadBarcodes(QImage)";
+    //qDebug() << "QImage geometry     :" << image.width() << "x" << image.height();
+    //qDebug() << "QImage QPixelFormat :" << image.pixelFormat();
+    //qDebug() << "ZXing ImageFormat   :" << (int)qimageFormatToXZingFormat(image);
+
+    ZXing::ImageFormat format = qimageFormatToXZingFormat(image);
     if (format != ZXing::ImageFormat::None)
-    {
-        return QListBarcodes(ZXing::ReadBarcodes(ZXing::ImageView { img.constBits(), img.width(), img.height(),
-                                                                   format, static_cast<int>(img.bytesPerLine()) },
-                                                 opts));
-    }
-    else
-    {
-        QImage converted = img.convertToFormat(QImage::Format_Grayscale8);
-
-        return QListBarcodes(ZXing::ReadBarcodes(ZXing::ImageView { converted.constBits(), converted.width(), converted.height(),
-                                                                   ZXing::ImageFormat::Lum, static_cast<int>(converted.bytesPerLine()) },
-                                                 opts));
-    }
-}
-
-//! Read barcode DIRECTLY from QVideoFrame
-QList<BarcodeQml> ZXingQt::ReadBarcodes(const QVideoFrame &frame,
-                                        const ZXing::ReaderOptions &opts,
-                                        const QRect captureRect)
-{
-    if (!frame.isValid()) return {};
-
-    // shallow copy just get access to non-const map() function
-    auto frame_ro = frame;
-    if (frame_ro.handleType() == QVideoFrame::RhiTextureHandle)
-    {
-        if (!frame_ro.map(QVideoFrame::ReadOnly))
-        {
-            qWarning() << "ZXingQtVideoFilter error: invalid QVideoFrame, could not map memory";
-            return {};
-        }
-    }
-
-    ZXing::ImageFormat fmt = (ZXing::ImageFormat)qvideoframeFormatToXZingFormat(frame_ro);
-
-    //qWarning() << "QVideoFrame pixel format :" << frame_ro.pixelFormat();
-    //qWarning() << "ZXing::ImageFormat       :" << (int)fmt;
-    //fmt = ZXing::ImageFormat::Lum;
-
-    if (fmt != ZXing::ImageFormat::None)
     {
         return QListBarcodes(
             ZXing::ReadBarcodes(
-                ZXing::ImageView(frame_ro.bits(0), frame_ro.width(), frame_ro.height(),
-                                 fmt, frame_ro.bytesPerLine(0)),//.cropped(captureRect.left(), captureRect.top(),
-                                                                //   captureRect.width(), captureRect.height()),
+                ZXing::ImageView(image.constBits(), image.width(), image.height(),
+                                 format, static_cast<int>(image.bytesPerLine())).cropped(captureRect.left(), captureRect.top(),
+                                                                                         captureRect.width(), captureRect.height()),
                 opts)
             );
     }
     else
     {
-        // convert to greyscale QImage
-        return ReadBarcodes(frame_ro.toImage().convertToFormat(QImage::Format_Grayscale8),
-                            opts, captureRect);
+        QImage converted = image.convertToFormat(QImage::Format_Grayscale8, Qt::MonoOnly);
+        if (!converted.isNull() && converted.format() != QImage::Format_Invalid)
+        {
+            return QListBarcodes(
+                ZXing::ReadBarcodes(
+                    ZXing::ImageView(converted.constBits(), converted.width(), converted.height(),
+                                     ZXing::ImageFormat::Lum, static_cast<int>(converted.bytesPerLine())).cropped(captureRect.left(), captureRect.top(),
+                                                                                                                  captureRect.width(), captureRect.height()),
+                    opts)
+                );
+        }
+        else
+        {
+            qWarning() << "ZXingQt::ReadBarcodes(QImage) error: unable to convert to QImage";
+        }
     }
+
+    return {};
 }
 
-//! Read barcode from QVideoFrame, converting it to QImage
+//! Read barcode from QVideoFrame DIRECTLY if possible, otherwise convert to QImage
+QList<BarcodeQml> ZXingQt::ReadBarcodes(const QVideoFrame &frame,
+                                        const ZXing::ReaderOptions &opts,
+                                        const QRect captureRect)
+{
+    if (!frame.isValid())
+    {
+        qWarning() << "ZXingQt::ReadBarcodes(QVideoFrame) invalid QVideoFrame!";
+        return {};
+    }
+
+    ZXing::ImageFormat format = ZXing::ImageFormat::None;
+    int pixStride = 0;
+    int pixOffset = 0;
+
+    qvideoframeFormatToXZingFormat(frame, format, pixStride, pixOffset);
+
+    //qDebug() << ">>> ZXingQt::ReadBarcodes(QVideoFrame)";
+    //qDebug() << "QVideoFrame geometry    :" << frame.width() << "x" << frame.height() << "/" << frame.rotation();
+    //qDebug() << "QVideoFrame PixelFormat :" << frame.pixelFormat();
+    //qDebug() << "ZXing::ImageFormat       :" << (int)format;
+
+    if (format != ZXing::ImageFormat::None)
+    {
+        // shallow copy just get access to non-const map() function
+        auto frame_ro = frame;
+        //if (frame_ro.handleType() == QVideoFrame::RhiTextureHandle)
+        {
+            if (!frame_ro.map(QVideoFrame::ReadOnly))
+            {
+                qWarning() << "ZXingQtVideoFilter error: invalid QVideoFrame, could not map memory";
+                return {};
+            }
+            //QScopeGuard unmap([&] { frame_ro.unmap(); });
+        }
+
+        return QListBarcodes(
+            ZXing::ReadBarcodes(
+                ZXing::ImageView(frame_ro.bits(0) + pixOffset, frame_ro.width(), frame_ro.height(),
+                                 format, frame_ro.bytesPerLine(0), pixStride).cropped(captureRect.left(), captureRect.top(),
+                                                                                      captureRect.width(), captureRect.height()),
+                opts)
+            );
+    }
+
+    // QImage fallback
+    QImage image = frame.toImage(); // .convertToFormat(QImage::Format_Grayscale8, Qt::MonoOnly);
+    return ReadBarcodes(image, opts, captureRect);
+}
+
+//! Read barcode from QVideoFrame, but converting it to QImage first
 QList<BarcodeQml> ZXingQt::ReadBarcodes2(const QVideoFrame &frame,
                                          const ZXing::ReaderOptions &opts,
                                          const QRect captureRect)
 {
-    if (!frame.isValid()) return {};
-
-    QImage image = frame.toImage();
-    if (image.isNull())
+    if (!frame.isValid())
     {
-        qWarning() << "ZXingQtVideoFilter error: Cant create image file to process.";
+        qWarning() << "ZXingQt::ReadBarcodes2(QVideoFrame) invalid QVideoFrame!";
         return {};
     }
 
-    return QListBarcodes(ZXing::ReadBarcodes(
-                            ZXing::ImageView(image.constBits(), image.width(), image.height(), (ZXing::ImageFormat)qimageFormatToXZingFormat(image))
-                                .cropped(captureRect.left(), captureRect.top(), captureRect.width(), captureRect.height()), opts) );
-/*
-    QImage img(image);
-    if (captureRect.isValid() && img.size() != captureRect.size())
-    {
-        //img = image.copy(captureRect);
-        img = image.convertToFormat(QImage::Format_Grayscale8);
-    }
+    //qDebug() << ">>> ZXingQt::ReadBarcodes2(QVideoFrame)";
+    //qDebug() << "QVideoFrame geometry    :" << frame.width() << "x" << frame.height() << "/" << frame.rotation();
+    //qDebug() << "QVideoFrame PixelFormat :" << frame.pixelFormat();
 
-    return QListBarcodes(ZXing::ReadBarcodes(
-                            ZXing::ImageView(img.constBits(), img.width(), img.height(), ZXing::ImageFormat::Lum)
-                                .cropped(captureRect.left(), captureRect.top(), captureRect.width(), captureRect.height()), opts) );
-
-    return QListBarcodes(ZXing::ReadBarcodes(ZXing::ImageView {image.constBits(), image.width(), image.height(),
-                             (ZXing::ImageFormat)qimageFormatToXZingFormat(image)}.cropped(captureRect.left(), captureRect.top(),
-                         captureRect.width(), captureRect.height()),
-            opts)
-        );
-
-    return QListBarcodes(ZXing::ReadBarcodes(ZXing::ImageView { img.constBits(), img.width(), img.height(),
-                                                               ZXing::ImageFormat::Lum, static_cast<int>(img.bytesPerLine()) },
-                                            opts));
-*/
-    //return ReadBarcodes(img, opts/*, captureRect*/);
+    QImage image = frame.toImage(); // .convertToFormat(QImage::Format_Grayscale8, Qt::MonoOnly);
+    return ReadBarcodes(image, opts, captureRect);
 }
 
 /* ************************************************************************** */
@@ -398,12 +432,12 @@ QString ZXingQt::shareImage(const QString &data, int width, int height, int marg
     qDebug() << "ZXingQt::shareImage()";
 
     QString exportFilePath;
-/*
-    // Get temp directory path
-    QString exportDirectoryPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-    QDir exportDirectory(exportDirectoryPath + "/export");
-    if (!exportDirectory.exists()) exportDirectory.mkpath(exportDirectoryPath + "/export");
-*/
+
+    // Get temp directory path (1)
+    //QString exportDirectoryPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    //QDir exportDirectory(exportDirectoryPath + "/export");
+    //if (!exportDirectory.exists()) exportDirectory.mkpath(exportDirectoryPath + "/export");
+
     // Get temp directory path (2)
     QString exportDirectoryPath = getExternalFilesDirPath();
     QDir exportDirectory(exportDirectoryPath);
@@ -491,8 +525,7 @@ bool ZXingQt::saveImage(const QString &data, int width, int height, int margins,
             efile.close();
         }
     }
-    else if (saveFileInfo.suffix() == "bmp" ||
-             saveFileInfo.suffix() == "png" ||
+    else if (saveFileInfo.suffix() == "bmp" || saveFileInfo.suffix() == "png" ||
              saveFileInfo.suffix() == "jpg" || saveFileInfo.suffix() == "jpeg" ||
              saveFileInfo.suffix() == "webp")
     {
