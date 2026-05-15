@@ -426,6 +426,9 @@ Loader {
                     opacity: modelData.isOnScreen ? 0.80 : 0
                     Behavior on opacity { NumberAnimation { duration: 133 } }
 
+                    layer.enabled: appWindow.isDesktop
+                    layer.samples: 4
+
                     ShapePath {
                         strokeWidth: 4
                         strokeColor: modelData.color

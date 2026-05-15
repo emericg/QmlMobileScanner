@@ -8,7 +8,7 @@ Item {
     id: widgetBarcodeResult
 
     implicitWidth: 256
-    implicitHeight: 40
+    implicitHeight: 44
 
     clip: true
 

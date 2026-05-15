@@ -4,6 +4,7 @@ import ComponentLibrary
 
 Rectangle {
     id: appHeader
+
     anchors.top: parent.top
     anchors.left: parent.left
     anchors.right: parent.right
@@ -61,11 +62,11 @@ Rectangle {
             spacing: 4
 
             MouseArea { // left button
-                width: headerHeight
-                height: headerHeight
+                width: appHeader.headerHeight
+                height: appHeader.headerHeight
 
                 visible: true
-                onClicked: leftMenuClicked()
+                onClicked: appHeader.leftMenuClicked()
 
                 RippleThemed {
                     anchors.fill: parent
@@ -78,14 +79,14 @@ Rectangle {
 
                 IconSvg {
                     anchors.centerIn: parent
-                    width: (headerHeight / 2)
-                    height: (headerHeight / 2)
+                    width: (appHeader.headerHeight / 2)
+                    height: (appHeader.headerHeight / 2)
 
                     source: {
-                        if (leftMenuMode === "drawer") return "qrc:/IconLibrary/material-symbols/menu.svg"
-                        if (leftMenuMode === "close") return "qrc:/IconLibrary/material-symbols/close.svg"
-                        if (leftMenuMode === "lock") return "qrc:/IconLibrary/material-symbols/lock.svg"
-                        if (leftMenuMode === "login") return "qrc:/IconLibrary/material-symbols/supervised_user_circle.svg"
+                        if (appHeader.leftMenuMode === "drawer") return "qrc:/IconLibrary/material-symbols/menu.svg"
+                        if (appHeader.leftMenuMode === "close") return "qrc:/IconLibrary/material-symbols/close.svg"
+                        if (appHeader.leftMenuMode === "lock") return "qrc:/IconLibrary/material-symbols/lock.svg"
+                        if (appHeader.leftMenuMode === "login") return "qrc:/IconLibrary/material-symbols/supervised_user_circle.svg"
                         return "qrc:/IconLibrary/material-symbols/arrow_back.svg"
                     }
                     color: Theme.colorHeaderContent
@@ -96,10 +97,11 @@ Rectangle {
                 anchors.verticalCenter: parent.verticalCenter
 
                 text: headerTitle
+                textFormat: Text.PlainText
+                color: Theme.colorHeaderContent
                 font.bold: true
                 font.pixelSize: Theme.fontSizeHeader
-                color: Theme.colorHeaderContent
-                elide: Text.ElideRight
+                font.capitalization: Font.Capitalize
             }
         }
 
