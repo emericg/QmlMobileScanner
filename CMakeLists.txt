@@ -11,25 +11,28 @@ set(CMAKE_AUTORCC ON)
 set(APP_NAME ${CMAKE_PROJECT_NAME})
 set(APP_VERSION ${CMAKE_PROJECT_VERSION})
 
-option(USE_QZXING "Build with QZXing support (decoder&encoder)" OFF)
-option(USE_ZXINGCPP "Build with zxing-cpp support (decoder&encoder)" ON)
-option(USE_ZINT "Build with zint support (encoder)" ON)
+option(USE_QZXING "Build with QZXing support (decoder&encoder)"                 OFF)
+option(USE_ZXINGCPP "Build with zxing-cpp support (decoder&encoder)"            ON)
+option(USE_ZINT "Build with zint support (encoder)"                             ON)
 
 ################################################################################
 
-message(STATUS "[CMAKE]   CMAKE_VERSION             = ${CMAKE_VERSION}")
-message(STATUS "[CMAKE]   CMAKE_PREFIX_PATH         = ${CMAKE_PREFIX_PATH}")
-message(STATUS "[SYSTEM]  (HOST) SYSTEM NAME        = ${CMAKE_HOST_SYSTEM_NAME}")
-message(STATUS "[SYSTEM]  (HOST) SYSTEM VERSION     = ${CMAKE_HOST_SYSTEM_VERSION}")
-message(STATUS "[SYSTEM]  (HOST) SYSTEM PROCESSOR   = ${CMAKE_HOST_SYSTEM_PROCESSOR}")
-message(STATUS "[SYSTEM]  (TARGET) SYSTEM NAME      = ${CMAKE_SYSTEM_NAME}")
-message(STATUS "[SYSTEM]  (TARGET) SYSTEM VERSION   = ${CMAKE_SYSTEM_VERSION}")
-message(STATUS "[SYSTEM]  (TARGET) SYSTEM PROCESSOR = ${CMAKE_SYSTEM_PROCESSOR}")
+message(STATUS ">>> BUILDING ${PROJECT_NAME} >>>")
+message(STATUS "[CMAKE] CMAKE_VERSION               = ${CMAKE_VERSION}")
+message(STATUS "[CMAKE] CMAKE_PREFIX_PATH           = ${CMAKE_PREFIX_PATH}")
+message(STATUS "[BUILD] QT_HOST_PATH                = ${QT_HOST_PATH}")
+message(STATUS "[BUILD] TOOLCHAIN_FILE              = ${CMAKE_TOOLCHAIN_FILE}")
+message(STATUS "[SYSTEM] (HOST) SYSTEM NAME         = ${CMAKE_HOST_SYSTEM_NAME}")
+message(STATUS "[SYSTEM] (HOST) SYSTEM VERSION      = ${CMAKE_HOST_SYSTEM_VERSION}")
+message(STATUS "[SYSTEM] (HOST) SYSTEM PROCESSOR    = ${CMAKE_HOST_SYSTEM_PROCESSOR}")
+message(STATUS "[SYSTEM] (TARGET) SYSTEM NAME       = ${CMAKE_SYSTEM_NAME}")
+message(STATUS "[SYSTEM] (TARGET) SYSTEM VERSION    = ${CMAKE_SYSTEM_VERSION}")
+message(STATUS "[SYSTEM] (TARGET) SYSTEM PROCESSOR  = ${CMAKE_SYSTEM_PROCESSOR}")
+message(STATUS "[PROJECT] CMAKE_PROJECT_NAME        = ${PROJECT_NAME}")
 message(STATUS "[PROJECT] CURRENT_SOURCE_DIR        = ${CMAKE_CURRENT_SOURCE_DIR}")
+message(STATUS "[PROJECT] PROJECT_NAME              = ${CMAKE_PROJECT_NAME}")
 message(STATUS "[PROJECT] SOURCE_DIR                = ${CMAKE_SOURCE_DIR}")
 message(STATUS "[PROJECT] BUILD_TYPE                = ${CMAKE_BUILD_TYPE}")
-message(STATUS "[PROJECT] TOOLCHAIN_FILE            = ${CMAKE_TOOLCHAIN_FILE}")
-message(STATUS "[PROJECT] QT_HOST_PATH              = ${QT_HOST_PATH}")
 
 ################################################################################
 
@@ -142,8 +145,8 @@ add_other_files(${CMAKE_PROJECT_NAME}
 ################################################################################
 
 # AppUtils
-set(UTILS_CLIPBOARD true)
-set(UTILS_DOCK_ENABLED true)
+set(UTILS_CLIPBOARD true CACHE BOOL "UTILS_CLIPBOARD" FORCE)
+set(UTILS_DOCK_ENABLED true CACHE BOOL "UTILS_DOCK_ENABLED" FORCE)
 add_subdirectory(thirdparty/AppUtils)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE AppUtils)
 
@@ -174,12 +177,17 @@ elseif(USE_QZXING)
     target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE QZXing)
     target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE QMS_USE_QZXING)
 else()
+    #
 endif()
 
 if(USE_ZINT)
     # build zint
     add_subdirectory(thirdparty/zint-qml)
+if (BUILD_SHARED_LIBS)
     target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE zint)
+else()
+    target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE zint-static)
+endif()
 
     # build Zint QML wrapper
     add_subdirectory(thirdparty/zint-qml/wrappers/qml)

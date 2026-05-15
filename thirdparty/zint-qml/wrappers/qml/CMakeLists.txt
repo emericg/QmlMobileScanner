@@ -6,7 +6,12 @@ set(SOURCES
 
 add_library(ZintQml ${SOURCES})
 
-target_link_libraries(ZintQml PRIVATE zint)
+if (BUILD_SHARED_LIBS)
+    target_link_libraries(ZintQml PRIVATE zint)
+else()
+    target_link_libraries(ZintQml PRIVATE zint-static)
+endif()
+
 target_include_directories(ZintQml PRIVATE zint)
 
 find_package(Qt6 REQUIRED COMPONENTS Core Quick)
