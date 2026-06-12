@@ -1,3 +1,11 @@
+cmake_minimum_required(VERSION 3.20)
+
+project(ZXingQt LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+################################################################################
 
 set(SOURCES
     ZXingQt.cpp
@@ -18,14 +26,17 @@ if(ZXING_WRITERS)
     )
 endif()
 
-add_library(ZXingQt ${SOURCES})
+################################################################################
+
+find_package(Qt6 6.5 REQUIRED COMPONENTS Core Concurrent Quick Multimedia)
+
+qt_add_library(ZXingQt STATIC ${SOURCES})
 
 target_link_libraries(ZXingQt PRIVATE ZXing::ZXing)
-target_include_directories(ZXingQt PRIVATE ZXing::ZXing)
-
-find_package(Qt6 REQUIRED COMPONENTS Core Concurrent Quick Multimedia)
 target_link_libraries(ZXingQt PRIVATE Qt6::Core Qt6::Concurrent Qt6::Quick Qt6::Multimedia)
+#qt_add_ios_ffmpeg_libraries(ZXingQt)
 
-qt_add_ios_ffmpeg_libraries(ZXingQt)
+target_include_directories(ZXingQt PRIVATE ZXing::ZXing)
+target_include_directories(ZXingQt PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_include_directories(ZXingQt PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+################################################################################

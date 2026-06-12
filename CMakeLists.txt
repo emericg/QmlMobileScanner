@@ -11,9 +11,9 @@ set(CMAKE_AUTORCC ON)
 set(APP_NAME ${CMAKE_PROJECT_NAME})
 set(APP_VERSION ${CMAKE_PROJECT_VERSION})
 
-option(USE_QZXING "Build with QZXing support (decoder&encoder)"                 OFF)
-option(USE_ZXINGCPP "Build with zxing-cpp support (decoder&encoder)"            ON)
 option(USE_ZINT "Build with zint support (encoder)"                             ON)
+option(USE_ZXINGCPP "Build with zxing-cpp support (decoder & encoder)"          ON)
+option(USE_QZXING "Build with QZXing support (decoder & encoder) (LEGACY)"      OFF)
 
 ################################################################################
 
