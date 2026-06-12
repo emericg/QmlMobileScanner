@@ -9,8 +9,9 @@ import QtQuick.Dialogs
 import QtPositioning
 import QtMultimedia
 
-import ComponentLibrary
 import QmlMobileScanner
+import ComponentLibrary
+import MobileUI
 
 Loader {
     id: screenBarcodeReader
@@ -21,7 +22,7 @@ Loader {
     function loadScreen() {
         appContent.state = "ScreenBarcodeReader"
 
-        mobileUI.setScreenAlwaysOn(true)
+        MobileUI.setScreenAlwaysOn(true)
 
         screenBarcodeReader.active = true
 

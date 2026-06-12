@@ -1,6 +1,5 @@
 import QtQuick
 import QtQuick.Effects
-import QtQuick.Controls.impl
 import QtQuick.Templates as T
 
 import ComponentLibrary
@@ -23,6 +22,10 @@ T.Slider {
     property bool kshort: false
     property bool showvalue: true
 
+    // display value convertion, if needed, if supported...
+    property string value_unit
+    property string display_unit
+
     // colors
     property color colorBackground: Theme.colorForeground
     property color colorForeground: Theme.colorPrimary
@@ -44,9 +47,9 @@ T.Slider {
         scale: control.horizontal && control.mirrored ? -1 : 1
 
         Rectangle {
-            y: control.horizontal ? 0 : handle.y
-            width: control.horizontal ? Math.max(control.position * parent.width, handle.x + handle.width*0.66) : control.hhh
-            height: control.horizontal ? control.hhh : parent.height - handle.y
+            y: control.horizontal ? 0 : control.handle.y
+            width: control.horizontal ? Math.max(control.position * parent.width, control.handle.x + control.handle.width*0.66) : control.hhh
+            height: control.horizontal ? control.hhh : parent.height - control.handle.y
 
             radius: control.hhh
             color: enabled ? control.colorForeground : control.colorForegroundDisabled
@@ -61,11 +64,11 @@ T.Slider {
             maskSpreadAtMax: 0.0
             maskSource: ShaderEffectSource {
                 sourceItem: Rectangle {
-                    x: background.x
-                    y: background.y
-                    width: background.width
-                    height: background.height
-                    radius: background.radius
+                    x: control.background.x
+                    y: control.background.y
+                    width: control.background.width
+                    height: control.background.height
+                    radius: control.background.radius
                 }
             }
         }
@@ -93,13 +96,17 @@ T.Slider {
 
             text: {
                 var vvalue = control.value
-                if (control.unit === "°" && settingsManager.tempUnit === "F") vvalue = UtilsNumber.tempCelsiusToFahrenheit(vvalue)
+                if (control.value_unit && control.display_unit) {
+                    // display value convertion
+                    if (control.value_unit === "°C" && control.display_unit === "°F") vvalue = UtilsNumber.tempCelsiusToFahrenheit(vvalue)
+                    else if (control.value_unit === "°F" && control.display_unit === "°C") vvalue = UtilsNumber.tempFahrenheitToCelsius(vvalue)
+                }
                 vvalue = vvalue.toFixed(control.floatprecision)
                 return ((control.kshort && control.value > 999) ? (vvalue / 1000) : vvalue) + control.unit
             }
             textFormat: Text.PlainText
             font.bold: true
-            font.pixelSize: isDesktop ? 12 : 13
+            font.pixelSize: Theme.isDesktop ? 12 : 13
             fontSizeMode: Text.Fit
             minimumPixelSize: Theme.fontSizeContentVerySmall
             color: control.colorText
@@ -123,13 +130,17 @@ T.Slider {
 
             text: {
                 var vvalue = control.value
-                if (control.unit === "°" && settingsManager.tempUnit === "F") vvalue = UtilsNumber.tempCelsiusToFahrenheit(vvalue)
+                if (control.value_unit && control.display_unit) {
+                    // display value convertion
+                    if (control.value_unit === "°C" && control.display_unit === "°F") vvalue = UtilsNumber.tempCelsiusToFahrenheit(vvalue)
+                    else if (control.value_unit === "°F" && control.display_unit === "°C") vvalue = UtilsNumber.tempFahrenheitToCelsius(vvalue)
+                }
                 vvalue = vvalue.toFixed(control.floatprecision)
                 return ((control.kshort && control.value > 999) ? (vvalue / 1000) : vvalue) + control.unit
             }
             textFormat: Text.PlainText
             font.bold: true
-            font.pixelSize: isDesktop ? 12 : 13
+            font.pixelSize: Theme.isDesktop ? 12 : 13
             fontSizeMode: Text.Fit
             minimumPixelSize: Theme.fontSizeContentVerySmall
             color: control.colorText

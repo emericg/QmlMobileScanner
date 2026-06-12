@@ -68,6 +68,8 @@ T.TextField {
         sourceComponent: FolderDialog {
             title: control.dialogTitle
 
+            //options: FolderDialog.DontUseNativeDialog
+
             currentFolder: UtilsPath.makeUrl(control.text)
             //currentFolder: UtilsPath.makeUrl(control.currentFolder)
 
@@ -128,7 +130,7 @@ T.TextField {
     }
 
     Rectangle {
-        anchors.fill: background
+        anchors.fill: control.background
         radius: Theme.componentRadius
         color: "transparent"
 

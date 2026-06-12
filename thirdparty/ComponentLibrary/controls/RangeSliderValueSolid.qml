@@ -1,5 +1,4 @@
 import QtQuick
-import QtQuick.Controls.impl
 import QtQuick.Templates as T
 
 import ComponentLibrary
@@ -23,6 +22,10 @@ T.RangeSlider {
     property int floatprecision: 0
     property bool kshort: false
     property bool showvalue: true
+
+    // display value convertion, if needed, if supported...
+    property string value_unit
+    property string display_unit
 
     // colors
     property color colorBackground: Theme.colorForeground
@@ -76,14 +79,18 @@ T.RangeSlider {
             visible: control.showvalue
 
             text: {
-                var vvalue = first.value
-                if (control.unit === "°" && settingsManager.tempUnit === "F") vvalue = UtilsNumber.tempCelsiusToFahrenheit(vvalue)
+                var vvalue = control.first.value
+                if (control.value_unit && control.display_unit) {
+                    // display value convertion
+                    if (control.value_unit === "°C" && control.display_unit === "°F") vvalue = UtilsNumber.tempCelsiusToFahrenheit(vvalue)
+                    else if (control.value_unit === "°F" && control.display_unit === "°C") vvalue = UtilsNumber.tempFahrenheitToCelsius(vvalue)
+                }
                 vvalue = vvalue.toFixed(control.floatprecision)
-                return ((control.kshort && first.value > 999) ? (vvalue / 1000) : vvalue) + control.unit
+                return ((control.kshort && control.first.value > 999) ? (vvalue / 1000) : vvalue) + control.unit
             }
             textFormat: Text.PlainText
             font.bold: true
-            font.pixelSize: isDesktop ? 12 : 13
+            font.pixelSize: Theme.isDesktop ? 12 : 13
             fontSizeMode: Text.Fit
             minimumPixelSize: Theme.fontSizeContentVerySmall
             color: control.colorText
@@ -112,14 +119,18 @@ T.RangeSlider {
             visible: control.showvalue
 
             text: {
-                var vvalue = second.value
-                if (control.unit === "°" && settingsManager.tempUnit === "F") vvalue = UtilsNumber.tempCelsiusToFahrenheit(vvalue)
+                var vvalue = control.second.value
+                if (control.value_unit && control.display_unit) {
+                    // display value convertion
+                    if (control.value_unit === "°C" && control.display_unit === "°F") vvalue = UtilsNumber.tempCelsiusToFahrenheit(vvalue)
+                    else if (control.value_unit === "°F" && control.display_unit === "°C") vvalue = UtilsNumber.tempFahrenheitToCelsius(vvalue)
+                }
                 vvalue = vvalue.toFixed(control.floatprecision)
-                return ((control.kshort && second.value > 999) ? (vvalue / 1000) : vvalue) + control.unit
+                return ((control.kshort && control.second.value > 999) ? (vvalue / 1000) : vvalue) + control.unit
             }
             textFormat: Text.PlainText
             font.bold: true
-            font.pixelSize: isDesktop ? 12 : 13
+            font.pixelSize: Theme.isDesktop ? 12 : 13
             fontSizeMode: Text.Fit
             minimumPixelSize: Theme.fontSizeContentVerySmall
             color: control.colorText

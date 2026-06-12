@@ -1,5 +1,4 @@
 import QtQuick
-import QtQuick.Controls.impl
 import QtQuick.Templates as T
 
 import ComponentLibrary
@@ -18,6 +17,10 @@ T.ComboBox {
 
     font.pixelSize: Theme.componentFontSize
 
+    // colors
+    property color colorBackground: control.down ? Theme.colorComponentDown : Theme.colorComponent
+    property color colorBackgroundBorder: Theme.colorComponentBorder
+
     ////////////////
 
     background: Rectangle {
@@ -26,15 +29,15 @@ T.ComboBox {
 
         radius: Theme.componentRadius
         opacity: control.enabled ? 1 : 0.66
-        color: control.down ? Theme.colorComponentDown : Theme.colorComponent
+        color: control.colorBackground
         border.width: 2
-        border.color: Theme.colorComponentBorder
+        border.color: control.colorBackgroundBorder
     }
 
     ////////////////
 
     contentItem: Text {
-        rightPadding: indicator.width
+        rightPadding: control.indicator.width
         verticalAlignment: Text.AlignVCenter
 
         text: control.displayText
@@ -59,7 +62,7 @@ T.ComboBox {
 
         Connections {
             target: Theme
-            function onCurrentThemeChanged() { indicator.requestPaint() }
+            function onCurrentThemeChanged() { control.indicator.requestPaint() }
         }
 
         onPaint: {

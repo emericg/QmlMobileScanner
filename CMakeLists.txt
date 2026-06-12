@@ -152,7 +152,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE AppUtils)
 
 # MobileUI
 add_subdirectory(thirdparty/MobileUI)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE MobileUI)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE MobileUI MobileUI_plugin)
 
 # MobileSharing
 add_subdirectory(thirdparty/MobileSharing)
@@ -160,7 +160,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE MobileSharing)
 
 # ComponentLibrary
 add_subdirectory(thirdparty/ComponentLibrary)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ComponentLibraryplugin)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ComponentLibrary_plugin)
 
 if(USE_ZXINGCPP)
     # build zxing-cpp

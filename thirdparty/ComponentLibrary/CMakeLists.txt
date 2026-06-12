@@ -1,12 +1,11 @@
 cmake_minimum_required(VERSION 3.20)
 
-qt_add_library(ComponentLibrary STATIC)
+#project(ComponentLibrary LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 ################################################################################
-
-list(APPEND MODULE_ASSETS
-    #
-)
 
 list(APPEND MODULE_QML_FILES
     ThemeEngine.qml
@@ -80,6 +79,7 @@ list(APPEND MODULE_QML_FILES
     generic/SelectorMenuColorfulItem.qml
     generic/SelectorGrid.qml
     generic/SelectorGridItem.qml
+    generic/TextSelectable.qml
 
     layouts/FrameBox.qml
     layouts/FrameThemed.qml
@@ -143,7 +143,7 @@ list(APPEND MODULE_QML_FILES
     utils/WindowGeometrySaver.qml
 )
 
-if(TARGET Qt::Location)
+if(TARGET Qt6::Location)
     list(APPEND MODULE_QML_FILES
         maps/MapButton.qml
         maps/MapButtonCompass.qml
@@ -176,29 +176,42 @@ list(APPEND MODULE_SOURCES
     #
 )
 
+list(APPEND MODULE_ASSETS
+    #
+)
+
 ################################################################################
 
-set_source_files_properties(${MODULE_QML_FILES} ${MODULE_JS_FILES} PROPERTIES
-    QT_QML_SKIP_CACHEGEN TRUE
-)
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    # Do not compile QML files to byte code for debug targets
+    set_source_files_properties(${MODULE_QML_FILES} ${MODULE_JS_FILES} PROPERTIES
+        QT_QML_SKIP_CACHEGEN TRUE
+    )
+endif()
 
 set_source_files_properties(ThemeEngine.qml PROPERTIES
     QT_QML_SINGLETON_TYPE TRUE
     QT_QML_SOURCE_TYPENAME Theme
 )
 
-set_target_properties(ComponentLibrary PROPERTIES AUTOMOC ON)
-set_target_properties(ComponentLibrary PROPERTIES AUTORCC ON)
+################################################################################
 
 find_package(Qt6 6.5 REQUIRED COMPONENTS Core Quick QuickControls2)
-target_link_libraries(ComponentLibrary PRIVATE Qt6::Core Qt6::Quick Qt6::QuickControls2)
-target_include_directories(ComponentLibrary PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+qt_add_library(ComponentLibrary STATIC)
 
 qt_add_qml_module(ComponentLibrary
     URI ComponentLibrary
     VERSION 1.0
     DEPENDENCIES QtCore QtQuick
+    PLUGIN_TARGET ComponentLibrary_plugin
     QML_FILES ${MODULE_QML_FILES} ${MODULE_JS_FILES}
     RESOURCES ${MODULE_ASSETS}
     SOURCES ${MODULE_SOURCES}
 )
+
+target_link_libraries(ComponentLibrary PUBLIC Qt6::Core Qt6::Quick Qt6::QuickControls2)
+
+target_include_directories(ComponentLibrary PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+################################################################################

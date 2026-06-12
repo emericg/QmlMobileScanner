@@ -172,7 +172,7 @@ ApplicationWindow {
         }
     }
     Shortcut {
-        sequence: StandardKey.Preferences
+        sequences: [StandardKey.Preferences]
         onActivated: appContent.state = "settings"
     }
     Shortcut {
@@ -191,9 +191,9 @@ ApplicationWindow {
         acceptedButtons: Qt.BackButton | Qt.ForwardButton
         onClicked: (mouse) => {
             if (mouse.button === Qt.BackButton) {
-                backAction()
+                appWindow.backAction()
             } else if (mouse.button === Qt.ForwardButton) {
-                forwardAction()
+                appWindow.forwardAction()
             }
         }
     }
