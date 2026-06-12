@@ -1,10 +1,15 @@
-project(QZXing)
+cmake_minimum_required(VERSION 3.20)
 
-set(CMAKE_AUTOMOC ON)
+project(QZXing LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(SOVERSION_MAJOR 4)
 set(SOVERSION_MINOR 0)
 set(SOVERSION_PATCH 0)
+
+################################################################################
 
 OPTION(QZXING_MULTIMEDIA "" ON)
 OPTION(QZXING_USE_QML "" ON)
@@ -18,6 +23,8 @@ OPTION(QZXING_USE_DECODER_DATA_MATRIX "" ON)
 OPTION(QZXING_USE_DECODER_AZTEC "" ON)
 OPTION(QZXING_USE_DECODER_PDF17 "" ON)
 OPTION(QZXING_USE_DECODER_1D_BARCODES "" ON)
+
+################################################################################
 
 set(BIGINT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/zxing/bigint)
 set(WIN32_DIR  ${CMAKE_CURRENT_SOURCE_DIR}/zxing/win32/zxing)
@@ -38,9 +45,6 @@ set(SOURCES
     ${PUBLIC_HEADERS}
 )
 
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick QuickControls2)
-find_package(Qt6 COMPONENTS Multimedia)
-
 if(QZXING_MULTIMEDIA)
     LIST(APPEND SOURCES QZXingFilterVideoSink.cpp QZXingFilterVideoSink.h)
     LIST(APPEND PUBLIC_HEADERS QZXingFilter.h)
@@ -56,13 +60,6 @@ endif(QZXING_USE_QML)
 if(QZXING_USE_ENCODER)
     add_definitions(-DENABLE_ENCODER_GENERIC -DENABLE_ENCODER_QR_CODE)
 endif(QZXING_USE_ENCODER)
-
-add_library(qzxing ${SOURCES})
-set_target_properties(qzxing
-    PROPERTIES
-    VERSION ${SOVERSION_MAJOR}.${SOVERSION_MINOR}.${SOVERSION_PATCH}
-    SOVERSION ${SOVERSION_MAJOR}
-)
 
 if(WIN32)
     add_subdirectory(zxing/win32)
@@ -85,6 +82,16 @@ add_subdirectory(zxing/bigint)
 
 add_subdirectory(zxing/zxing)
 
+################################################################################
+
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick QuickControls2 Multimedia)
+
+qt_add_library(qzxing ${SOURCES})
+set_target_properties(qzxing
+    PROPERTIES
+    VERSION ${SOVERSION_MAJOR}.${SOVERSION_MINOR}.${SOVERSION_PATCH}
+    SOVERSION ${SOVERSION_MAJOR}
+)
 target_link_libraries(qzxing Qt6::Core Qt6::Gui)
 
 if(QZXING_MULTIMEDIA)
@@ -139,3 +146,5 @@ target_include_directories(qzxing
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 )
+
+################################################################################
