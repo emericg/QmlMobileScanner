@@ -303,17 +303,14 @@ QList<BarcodeQml> ZXingQt::ReadBarcodes(const QVideoFrame &frame,
 
     if (format != ZXing::ImageFormat::None)
     {
-        // shallow copy just get access to non-const map() function
+        // shallow copy just to get access to the non-const map() function
         auto frame_ro = frame;
-        //if (frame_ro.handleType() == QVideoFrame::RhiTextureHandle)
+        if (!frame_ro.map(QVideoFrame::ReadOnly))
         {
-            if (!frame_ro.map(QVideoFrame::ReadOnly))
-            {
-                qWarning() << "ZXingQtVideoFilter error: invalid QVideoFrame, could not map memory";
-                return {};
-            }
-            //QScopeGuard unmap([&] { frame_ro.unmap(); });
+            qWarning() << "ZXingQt::ReadBarcodes(QVideoFrame) error: could not map QVideoFrame memory";
+            return {};
         }
+        QScopeGuard unmap([&] { frame_ro.unmap(); });
 
         return QListBarcodes(
             ZXing::ReadBarcodes(
