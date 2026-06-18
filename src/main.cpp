@@ -23,6 +23,7 @@
 #include "SettingsManager.h"
 #include "BarcodeManager.h"
 #include "utils_camera.h"
+#include "utils_barcode.h"
 
 #include <utils_app.h>
 #include <utils_screen.h>
@@ -109,6 +110,9 @@ int main(int argc, char *argv[])
     UtilsCamera *utilsCamera = UtilsCamera::getInstance();
     if (!utilsCamera) return EXIT_FAILURE;
 
+    UtilsBarcode *utilsBarcode = UtilsBarcode::getInstance();
+    if (!utilsBarcode) return EXIT_FAILURE;
+
     // QML engine
     QQmlApplicationEngine engine;
     QQmlContext *engine_context = engine.rootContext();
@@ -117,6 +121,7 @@ int main(int argc, char *argv[])
     engine_context->setContextProperty("utilsApp", utilsApp);
     engine_context->setContextProperty("utilsScreen", utilsScreen);
     engine_context->setContextProperty("utilsCamera", utilsCamera);
+    engine_context->setContextProperty("utilsBarcode", utilsBarcode);
     engine_context->setContextProperty("utilsClipboard", utilsClipboard);
 
 #if QT_CONFIG(permissions)

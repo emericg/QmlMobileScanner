@@ -36,6 +36,8 @@ class ZXingQtVideoFilter : public QObject
     QRect m_captureRect;
     ZXing::ReaderOptions m_readerOptions;
 
+    int m_formats = 0xffffffff;
+
     QVideoSink *m_videoSink = nullptr;
     void setVideoSink(QVideoSink *sink);
 

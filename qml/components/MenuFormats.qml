@@ -12,7 +12,7 @@ Column {
     width: singleColumn ? screenBarcodeReader.width - Theme.componentMargin*2 : 300
     spacing: Theme.componentMargin /2
     visible: false
-
+/*
     ListModel {
         id: formatsAvailable_zxingcpp
         ListElement { txt: "Linear codes"; value: 51070; }
@@ -32,16 +32,16 @@ Column {
         ListElement { txt: "PDF417"; value: 2048; }
         ListElement { txt: "QR Code"; value: 4096; }
     }
-
+*/
     Repeater {
-        model: (settingsManager.backend_reader === "zxingcpp") ? formatsAvailable_zxingcpp : formatsAvailable_qzxing
+        model: utilsBarcode.getAvailableFormats()
 
         delegate: Item {
             anchors.left: parent.left
             anchors.right: parent.right
             height: 40
 
-            //required property var modelData
+            required property var modelData
 
             Rectangle {
                 anchors.fill: parent
@@ -55,15 +55,15 @@ Column {
                 width: parent.width - 16
                 LayoutMirroring.enabled: true
 
-                text: txt
+                text: modelData.text
                 colorText: "white"
                 colorSubText: "grey"
-                checked: (settingsManager.formatsEnabled & value)
+                checked: (settingsManager.formatsEnabled & modelData.value)
                 onClicked: {
-                    if (settingsManager.formatsEnabled & value)
-                        settingsManager.formatsEnabled -= value
+                    if (settingsManager.formatsEnabled & modelData.value)
+                        settingsManager.formatsEnabled -= modelData.value
                     else
-                        settingsManager.formatsEnabled += value
+                        settingsManager.formatsEnabled += modelData.value
                 }
             }
         }

@@ -87,19 +87,55 @@ void ZXingQtVideoFilter::setTryDownscale(const bool value)
         emit tryDownscaleChanged();
     }
 }
+static ZXing::BarcodeFormats appBitmaskToZXingFormats(int bitmask)
+{
+    using AF = ZXingQt::BarcodeFormat; // app flags (legacy layout, canonical)
+    using ZF = ZXing::BarcodeFormat;   // library enum (ID based)
+
+    static const struct { AF bit; ZF zx; } s_map[] = {
+        { AF::Aztec,           ZF::Aztec },
+        { AF::Codabar,         ZF::Codabar },
+        { AF::Code39,          ZF::Code39 },
+        { AF::Code93,          ZF::Code93 },
+        { AF::Code128,         ZF::Code128 },
+        { AF::DataBar,         ZF::DataBar },
+        { AF::DataBarExpanded, ZF::DataBarExp },
+        { AF::DataMatrix,      ZF::DataMatrix },
+        { AF::EAN8,            ZF::EAN8 },
+        { AF::EAN13,           ZF::EAN13 },
+        { AF::ITF,             ZF::ITF },
+        { AF::MaxiCode,        ZF::MaxiCode },
+        { AF::PDF417,          ZF::PDF417 },
+        { AF::QRCode,          ZF::QRCode },
+        { AF::UPCA,            ZF::UPCA },
+        { AF::UPCE,            ZF::UPCE },
+        { AF::MicroQRCode,     ZF::MicroQRCode },
+        { AF::RMQRCode,        ZF::RMQRCode },
+        { AF::DataBarLimited,  ZF::DataBarLtd },
+        { AF::DXFilmEdge,      ZF::DXFilmEdge },
+    };
+
+    std::vector<ZF> formats;
+    for (const auto &m : s_map)
+    {
+        if (bitmask & static_cast<int>(m.bit)) formats.push_back(m.zx);
+    }
+
+    return ZXing::BarcodeFormats(std::move(formats));
+}
 
 int ZXingQtVideoFilter::formats() const noexcept
 {
-    auto fmts = m_readerOptions.formats();
-    return *reinterpret_cast<int*>(&fmts);
+    return m_formats;
 }
 
 void ZXingQtVideoFilter::setFormats(int newVal)
 {
-    if (formats() != newVal)
+    if (m_formats != newVal)
     {
-        //m_readerOptions.setFormats(static_cast<ZXing::BarcodeFormat>(newVal));
-        //emit formatsChanged();
+        m_formats = newVal;
+        m_readerOptions.setFormats(appBitmaskToZXingFormats(newVal));
+        emit formatsChanged();
     }
 }
 

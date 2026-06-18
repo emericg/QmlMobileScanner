@@ -33,11 +33,6 @@
 
 void ZXingQt::registerQMLTypes()
 {
-    //qRegisterMetaType<ZXingQt::BarcodeFormat>("BarcodeFormat");
-    //qRegisterMetaType<ZXingQt::ContentType>("ContentType");
-    //qRegisterMetaType<ZXingQt::Position>("Position");
-    //qRegisterMetaType<ZXingQt::Result>("Result");
-
     qmlRegisterType<ZXingQt>("ZXingQt", 1, 0, "ZXingQt");
     qmlRegisterType<ZXingQtVideoFilter>("ZXingQt", 1, 0, "ZXingQtVideoFilter");
 }
@@ -69,6 +64,7 @@ int ZXingQt::stringToFormat(const QString &str)
     if (str == "upca") return (int)ZXing::BarcodeFormat::UPCA;
     if (str == "upce") return (int)ZXing::BarcodeFormat::UPCE;
     if (str == "microqrcode") return (int)ZXing::BarcodeFormat::MicroQRCode;
+    if (str == "rmqrcode") return (int)ZXing::BarcodeFormat::RMQRCode;
 
     qWarning() << "ZXingQt::stringToFormat() unknown string";
 
@@ -95,6 +91,7 @@ QString ZXingQt::formatToString(const int fmt)
     if (fmt == (int)ZXing::BarcodeFormat::UPCA) return "upca";
     if (fmt == (int)ZXing::BarcodeFormat::UPCE) return "upce";
     if (fmt == (int)ZXing::BarcodeFormat::MicroQRCode) return "microqrcode";
+    if (fmt == (int)ZXing::BarcodeFormat::RMQRCode) return "rmqrcode";
 
     qWarning() << "ZXingQt::formatToString() unknown format";
 
@@ -526,7 +523,7 @@ bool ZXingQt::saveImage(const QString &data, int width, int height, int margins,
              saveFileInfo.suffix() == "jpg" || saveFileInfo.suffix() == "jpeg" ||
              saveFileInfo.suffix() == "webp")
     {
-        bool formatMatrix = (format & (int)BarcodeFormat::MatrixCodes);
+        bool formatMatrix = (format & (int)ZXing::BarcodeFormat::AllMatrix);
         if (!formatMatrix) height = width / 3;
 
         QImage img = generateImage(data, width, height, margins,

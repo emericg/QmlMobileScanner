@@ -110,29 +110,31 @@ public:
     const int PDF417_ERROR_CORRECTION_8     = 8;
 
     enum class BarcodeFormat {
-        None            = 0,         ///< Used as a return value if no valid barcode has been detected
-        AztecCode       = (1 <<  0), ///< AztecCode
-        AztecRune       = (1 <<  1), ///< AztecRune
-        Codabar         = (1 <<  2), ///< Codabar
-        Code39          = (1 <<  3), ///< Code39
-        Code93          = (1 <<  4), ///< Code93
-        Code128         = (1 <<  5), ///< Code128
-        DataBar         = (1 <<  6), ///< GS1 DataBar, formerly known as RSS 14
-        DataBarExpanded = (1 <<  7), ///< GS1 DataBar Expanded, formerly known as RSS EXPANDED
-        DataMatrix      = (1 <<  8), ///< DataMatrix
-        EAN8            = (1 <<  9), ///< EAN-8
-        EAN13           = (1 << 10), ///< EAN-13
-        ITF             = (1 << 11), ///< ITF (Interleaved Two of Five)
-        MaxiCode        = (1 << 12), ///< MaxiCode
-        PDF417          = (1 << 13), ///< PDF417
-        QRCode          = (1 << 14), ///< QR Code
-        MicroQRCode     = (1 << 15), ///< Micro QR Code
-        RMQRCode        = (1 << 16), ///< rMQR Code
-        UPCA            = (1 << 17), ///< UPC-A
-        UPCE            = (1 << 18), ///< UPC-E
+        None            = 0,
+        Aztec           = (1 <<  0),
+        Codabar         = (1 <<  1),
+        Code39          = (1 <<  2),
+        Code93          = (1 <<  3),
+        Code128         = (1 <<  4),
+        DataBar         = (1 <<  5),
+        DataBarExpanded = (1 <<  6),
+        DataMatrix      = (1 <<  7),
+        EAN8            = (1 <<  8),
+        EAN13           = (1 <<  9),
+        ITF             = (1 << 10),
+        MaxiCode        = (1 << 11),
+        PDF417          = (1 << 12),
+        QRCode          = (1 << 13),
+        UPCA            = (1 << 14),
+        UPCE            = (1 << 15),
+        MicroQRCode     = (1 << 16),
+        RMQRCode        = (1 << 17),
+        DataBarLimited  = (1 << 18),
+        DXFilmEdge      = (1 << 19),
 
-        LinearCodes = Codabar | Code39 | Code93 | Code128 | EAN8 | EAN13 | ITF | DataBar | DataBarExpanded | UPCA | UPCE,
-        MatrixCodes = AztecCode | AztecRune | DataMatrix | MaxiCode | PDF417 | QRCode | RMQRCode | MicroQRCode,
+        LinearCodes = Codabar | Code39 | Code93 | Code128 | DataBar | DataBarExpanded |
+                      EAN8 | EAN13 | ITF | UPCA | UPCE,
+        MatrixCodes = Aztec | DataMatrix | MaxiCode | PDF417 | QRCode | MicroQRCode | RMQRCode,
         Any         = LinearCodes | MatrixCodes,
     };
     Q_ENUM(BarcodeFormat)
