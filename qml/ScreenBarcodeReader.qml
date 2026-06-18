@@ -38,7 +38,7 @@ Loader {
     function hide() {
         console.log("screenBarcodeReader::hide()")
 
-        mobileUI.setScreenAlwaysOn(false)
+        MobileUI.setScreenAlwaysOn(false)
 
         if (screenBarcodeReader.status === Loader.Ready) {
             screenBarcodeReader.item.close()
@@ -47,7 +47,7 @@ Loader {
     function close() {
         console.log("screenBarcodeReader::close()")
 
-        mobileUI.setScreenAlwaysOn(false)
+        MobileUI.setScreenAlwaysOn(false)
 
         if (screenBarcodeReader.status === Loader.Ready) {
             screenBarcodeReader.item.close()
@@ -101,7 +101,6 @@ Loader {
 
             if (isMobile) {
                 //appWindow.showFullScreen()
-                //mobileUI.refreshUI()
             }
         }
         function open_video() {
@@ -127,7 +126,6 @@ Loader {
 
             if (isMobile) {
                 //appWindow.showNormal()
-                //mobileUI.refreshUI()
             }
         }
 

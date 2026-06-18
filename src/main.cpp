@@ -109,9 +109,6 @@ int main(int argc, char *argv[])
     UtilsCamera *utilsCamera = UtilsCamera::getInstance();
     if (!utilsCamera) return EXIT_FAILURE;
 
-    // Mobile UI
-    qmlRegisterType<MobileUI>("MobileUI", 1, 0, "MobileUI");
-
     // QML engine
     QQmlApplicationEngine engine;
     QQmlContext *engine_context = engine.rootContext();
