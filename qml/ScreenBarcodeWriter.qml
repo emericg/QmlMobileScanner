@@ -411,13 +411,13 @@ Loader {
                             //ListElement { idx:  2; type: "2d"; txt: "Aztec Rune"; format: "aztecrune";  maxchar: 3067; maxbytes: 3067; ecc: 8; }
                             ListElement { idx:  2; type: "2d"; txt: "Data Matrix"; format: "datamatrix"; maxchar: 2335; maxbytes: 1556; ecc: 0; }
                             // linear
-                            ListElement { idx: 3; type: "1d"; txt: "Codabar"; format: "codabar";       maxnum: 12; }
-                            ListElement { idx: 4; type: "1d"; txt: "EAN 13"; format: "ean13";          maxnum: 12; }
-                            ListElement { idx: 5; type: "1d"; txt: "EAN 8"; format: "ean8";            maxnum: 7; }
-                            ListElement { idx: 6; type: "1d"; txt: "UPC-A"; format: "upca";            maxnum: 11; }
-                            ListElement { idx: 7; type: "1d"; txt: "UPC-E"; format: "upce";            maxnum: 7; }
-                            ListElement { idx: 8; type: "1d"; txt: "Code 39"; format: "code39";        maxnum: 39; }
-                            ListElement { idx: 9; type: "1d"; txt: "Code 93"; format: "code93";        maxnum: 93; }
+                            ListElement { idx:  3; type: "1d"; txt: "Codabar"; format: "codabar";       maxnum: 12; }
+                            ListElement { idx:  4; type: "1d"; txt: "EAN 13"; format: "ean13";          maxnum: 12; }
+                            ListElement { idx:  5; type: "1d"; txt: "EAN 8"; format: "ean8";            maxnum: 7; }
+                            ListElement { idx:  6; type: "1d"; txt: "UPC-A"; format: "upca";            maxnum: 11; }
+                            ListElement { idx:  7; type: "1d"; txt: "UPC-E"; format: "upce";            maxnum: 7; }
+                            ListElement { idx:  8; type: "1d"; txt: "Code 39"; format: "code39";        maxnum: 39; }
+                            ListElement { idx:  9; type: "1d"; txt: "Code 93"; format: "code93";        maxnum: 93; }
                             ListElement { idx: 10; type: "1d"; txt: "Code 128"; format: "code128";      maxnum: 128; }
                             ListElement { idx: 11; type: "1d"; txt: "ITF"; format: "itf";               maxnum: 10; }
                         }
@@ -435,7 +435,7 @@ Loader {
                             currentSelection = index
                             currentMode = model.get(currentSelection).type
                             barcodeAdvanced.format = model.get(currentSelection).format
-                            barcodeTextField.maximumLength = model.get(currentSelection).maxchar
+                            barcodeTextField.maximumLength = model.get(currentSelection).maxnum
                         }
                     }
 
