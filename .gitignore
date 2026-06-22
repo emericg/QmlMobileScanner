@@ -33,6 +33,10 @@ asset_catalog_compiler.Info.plist
 assets/ios/ios_signature.pri
 assets/macos/macos_signature.pri
 
+# MobileSharing module resources (from thirdparty/MobileSharing/android/)
+assets/android/src/io/emeric/mobilesharing/QShareActivity.java
+assets/android/src/io/emeric/mobilesharing/QShareUtils.java
+
 # Others
 stash/*
 .DS_Store

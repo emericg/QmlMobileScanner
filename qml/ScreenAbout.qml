@@ -390,9 +390,9 @@ Loader {
                                 "Qt6 (LGPL v3)",
                                 "MobileUI (MIT)",
                                 "MobileSharing (MIT)",
-                                "qzxing (Apache v2)",
-                                "zxing-cpp (Apache v2)",
                                 "zint (BSD 3 clause)",
+                                "zxing-cpp (Apache v2)",
+                                "qzxing (Apache v2)",
                                 "Google Material Icons (Apache v2)",
                             ]
                             delegate: Text {

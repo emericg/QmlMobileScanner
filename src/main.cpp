@@ -30,9 +30,6 @@
 #include <utils_clipboard.h>
 #include <utils_fpsmonitor.h>
 
-#include <MobileUI>
-#include <MobileSharing>
-
 #if defined(QMS_USE_QZXING)
 #include <QZXing>
 #endif
@@ -73,11 +70,7 @@ int main(int argc, char *argv[])
 
     // GUI application /////////////////////////////////////////////////////////
 
-#if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
-    SharingApplication app(argc, argv);
-#else
     QGuiApplication app(argc, argv);
-#endif
 
     // Application name
     app.setApplicationName("QmlMobileScanner");

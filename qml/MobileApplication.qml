@@ -2,8 +2,10 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Window
 
-import ComponentLibrary
 import QmlMobileScanner
+
+import ComponentLibrary
+import MobileSharing
 import MobileUI
 
 Window {
@@ -60,6 +62,10 @@ Window {
         id: appDrawer
 
         interactive: (appContent.state !== "Tutorial")
+    }
+
+    MobileSharing {
+        id: mobileSharing
     }
 
     // Events handling /////////////////////////////////////////////////////////
