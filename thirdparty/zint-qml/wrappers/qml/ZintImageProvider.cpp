@@ -97,7 +97,6 @@ QImage ZintImageProvider::requestImage(const QString &id, QSize *size, const QSi
 
     // Generate barcode
     int width = requestedSize.width(), height = requestedSize.height();
-    //if (!format_matrix) height /= 3; // 1D codes
 
     QImage img = ZintQml::generateImage(data, width, height, margins,
                                         (int)format, (int)encoding, eccLevel,

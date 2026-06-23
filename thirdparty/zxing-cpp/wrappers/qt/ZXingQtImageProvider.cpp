@@ -149,11 +149,19 @@ QImage ZXingQtImageProvider::requestImage(const QString &id, QSize *size, const 
         }
     }
 
-    // Generate barcode
+    // Preview dimensions
     int width = requestedSize.width(), height = requestedSize.height();
-    bool formatMatrix = ((int)format & (int)ZXing::BarcodeFormat::AllMatrix);
-    if (!formatMatrix) height /= 3; // 1D codes
 
+    // Cap the preview resolution
+    const int kPreviewCap = 1024;
+    const int maxDim = qMax(width, height);
+    if (maxDim > kPreviewCap)
+    {
+        width = qMax(1, width * kPreviewCap / maxDim);
+        height = qMax(1, height * kPreviewCap / maxDim);
+    }
+
+    // Generate barcode
     QImage img = ZXingQt::generateImage(data, width, height, margins,
                                         (int)format, (int)encoding, eccLevel,
                                         bgc, fgc);

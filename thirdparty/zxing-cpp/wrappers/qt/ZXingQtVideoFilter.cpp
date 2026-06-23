@@ -87,6 +87,7 @@ void ZXingQtVideoFilter::setTryDownscale(const bool value)
         emit tryDownscaleChanged();
     }
 }
+
 static ZXing::BarcodeFormats appBitmaskToZXingFormats(int bitmask)
 {
     using AF = ZXingQt::BarcodeFormat; // app flags (legacy layout, canonical)

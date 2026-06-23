@@ -11,8 +11,8 @@
 #include "ReadBarcode.h"
 #include "BarcodeFormat.h"
 
-#include "BitMatrix.h"
-#include "MultiFormatWriter.h"
+#include "CreateBarcode.h"
+#include "WriteBarcode.h"
 
 #include <QString>
 #include <QColor>
@@ -64,7 +64,8 @@ int ZXingQt::stringToFormat(const QString &str)
     if (str == "upca") return (int)ZXing::BarcodeFormat::UPCA;
     if (str == "upce") return (int)ZXing::BarcodeFormat::UPCE;
     if (str == "microqrcode") return (int)ZXing::BarcodeFormat::MicroQRCode;
-    if (str == "rmqrcode") return (int)ZXing::BarcodeFormat::RMQRCode;
+    if (str == "rmqr") return (int)ZXing::BarcodeFormat::RMQRCode;
+    if (str == "micropdf417") return (int)ZXing::BarcodeFormat::MicroPDF417;
 
     qWarning() << "ZXingQt::stringToFormat() unknown string";
 
@@ -91,7 +92,8 @@ QString ZXingQt::formatToString(const int fmt)
     if (fmt == (int)ZXing::BarcodeFormat::UPCA) return "upca";
     if (fmt == (int)ZXing::BarcodeFormat::UPCE) return "upce";
     if (fmt == (int)ZXing::BarcodeFormat::MicroQRCode) return "microqrcode";
-    if (fmt == (int)ZXing::BarcodeFormat::RMQRCode) return "rmqrcode";
+    if (fmt == (int)ZXing::BarcodeFormat::RMQRCode) return "rmqr";
+    if (fmt == (int)ZXing::BarcodeFormat::MicroPDF417) return "micropdf417";
 
     qWarning() << "ZXingQt::formatToString() unknown format";
 
@@ -357,31 +359,67 @@ QList<BarcodeQml> ZXingQt::loadImage(const QImage &img)
     return ReadBarcodes(img);
 }
 
+//! Build the CreatorOptions string
+static std::string makeCreatorOptions(const int encoding, const int eccLevel)
+{
+    Q_UNUSED(encoding) // we only support ECC level ATM
+
+    // from the app: (QR: 2/4/6/8 = L/M/Q/H) (Aztec/PDF417: 0..8)
+    if (eccLevel >= 0 && eccLevel <= 8) return "ecLevel=" + std::to_string(eccLevel);
+
+    return {};
+}
+
 QImage ZXingQt::generateImage(const QString &data, const int width, const int height, const int margins,
                               const int format, const int encoding, const int eccLevel,
                               const QColor backgroundColor, const QColor foregroundColor)
 {
     try
     {
-        auto writer = ZXing::MultiFormatWriter((ZXing::BarcodeFormat)format)
-                          .setEccLevel(eccLevel)
-                          .setEncoding((ZXing::CharacterSet)encoding)
-                          .setMargin(margins);
-        auto matrix = writer.encode(data.toStdString(), width, height);
+        const auto zformat = static_cast<ZXing::BarcodeFormat>(format);
+        if (zformat == ZXing::BarcodeFormat::None)
+        {
+            qWarning() << "ZXingQt::generateImage() unsupported barcode format: this format is not writable by the zxing-cpp backend";
+            return QImage();
+        }
 
-        //bool formatMatrix = (format & (int)BarcodeFormat::MatrixCodes);
-        //int hhh = (formatMatrix) height : width / 3;
+        ZXing::CreatorOptions copts(zformat, makeCreatorOptions(encoding, eccLevel));
+        auto barcode = ZXing::CreateBarcodeFromText(data.toStdString(), copts);
+        if (!barcode.isValid())
+        {
+            qWarning() << "ZXingQt::generateImage() failed to encode data";
+            return QImage();
+        }
 
-        QColor bgc(0, 0, 0, 0);
-        QColor fgc(0, 0, 0, 255);
-        if (backgroundColor.isValid()) bgc = backgroundColor;
-        if (foregroundColor.isValid()) fgc = foregroundColor;
+        // Render the barcode at its natural aspect ratio, auto-scaled to fit
+        // the requested size minus the margin we draw ourselves
 
-        QImage image(width, height, QImage::Format_ARGB32);
-        for (int i = 0; i < width; i++) {
-            for (int j = 0; j < height; j++) {
-                image.setPixel(i, j, matrix.get(i, j) ? fgc.rgba() : bgc.rgba());
-            }
+        // The new writer API can only toggle a standard quiet zone on/off (addQuietZones),
+        // so we add it here as a 'margins'-pixel border of background color
+        const int border = qMax(0, margins);
+        int targetPx = qMax(width, height) - 2 * border;
+        if (targetPx < 16) targetPx = qMax(width, height); // margin too large for the target size
+
+        auto wopts = ZXing::WriterOptions().scale(targetPx > 0 ? -targetPx : 4).addQuietZones(false);
+        ZXing::Image img = ZXing::WriteBarcodeToImage(barcode, wopts);
+        if (!img.data() || img.width() <= 0 || img.height() <= 0) return QImage();
+
+        const QColor bgc = backgroundColor.isValid() ? backgroundColor : QColor(0, 0, 0, 0);
+        const QColor fgc = foregroundColor.isValid() ? foregroundColor : QColor(0, 0, 0, 255);
+        const QRgb fg = fgc.rgba();
+        const QRgb bg = bgc.rgba();
+
+        // Recolor (black modules -> foreground, white -> background)
+        // into an image padded with a 'border'-pixel background margin on every side
+        const int w = img.width();
+        const int h = img.height();
+        QImage image(w + 2 * border, h + 2 * border, QImage::Format_ARGB32);
+        image.fill(bg);
+        for (int y = 0; y < h; y++)
+        {
+            const uint8_t *s = img.data() + static_cast<qsizetype>(y) * w;
+            QRgb *d = reinterpret_cast<QRgb *>(image.scanLine(y + border)) + border;
+            for (int x = 0; x < w; x++) d[x] = (s[x] < 128) ? fg : bg;
         }
 
         return image;
@@ -474,46 +512,38 @@ bool ZXingQt::saveImage(const QString &data, int width, int height, int margins,
     QFileInfo saveFileInfo(filepath);
     if (saveFileInfo.suffix() == "svg")
     {
-        qDebug() << "saveFileInfo " << saveFileInfo << ")";
-
-        // to vector
+        // Vector output, rendered by the library (replaces the old hand-rolled SVG path).
         QFile efile(filepath);
         if (efile.open(QIODevice::WriteOnly | QIODevice::Text))
         {
-            //bool formatMatrix = (format & (int)BarcodeFormat::MatrixCodes);
-            //int hhh = (formatMatrix) height : width / 3;
-            int ww = 64;
-            int hh = 64;
-
             try
             {
-                auto writer = ZXing::MultiFormatWriter((ZXing::BarcodeFormat)format)
-                                  .setEccLevel(eccLevel)
-                                  .setEncoding((ZXing::CharacterSet)encoding)
-                                  .setMargin(margins);
-                auto matrix = writer.encode(data.toStdString(), ww, hh);
+                const auto zformat = static_cast<ZXing::BarcodeFormat>(format);
+                if (zformat == ZXing::BarcodeFormat::None)
+                {
+                    qWarning() << "ZXingQt::saveImage() unsupported barcode format: this format is not writable by the zxing-cpp backend";
+                }
+                else
+                {
+                    ZXing::CreatorOptions copts(zformat, makeCreatorOptions(encoding, eccLevel));
+                    auto barcode = ZXing::CreateBarcodeFromText(data.toStdString(), copts);
+                    if (barcode.isValid())
+                    {
+                        std::string svg = ZXing::WriteBarcodeToSVG(barcode, ZXing::WriterOptions().addQuietZones(margins > 0));
 
-                QString barcodePath;
-                for (int i = 0; i < ww; i++) {
-                    for (int j = 0; j < hh; j++) {
-                        if (matrix.get(j, i)) {
-                            barcodePath += " M" + QString::number(i) + "," + QString::number(j) + "h1v1h-1z";
-                        }
+                        QTextStream eout(&efile);
+                        eout << QString::fromStdString(svg);
+                        status = true;
+                    }
+                    else
+                    {
+                        qWarning() << "ZXingQt::saveImage(svg) failed to encode data";
                     }
                 }
-
-                QTextStream eout(&efile);
-                eout << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"  << Qt::endl;
-                eout << "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" viewBox=\"0 0 " << QString::number(ww) << " " << QString::number(hh) << "\" stroke=\"none\">" << Qt::endl;
-                eout << "<style type=\"text/css\">" << Qt::endl;
-                eout << ".black {fill:#000000;}" << Qt::endl;
-                eout << "</style>" << Qt::endl;
-                eout << "<path class=\"black\"  d=\"" << barcodePath << "\"/>" << Qt::endl;
-                eout << "</svg>" << Qt::endl;
             }
             catch (...)
             {
-                qWarning() << "ZXingQt::saveImage() writer.encode() error";
+                qWarning() << "ZXingQt::saveImage(svg) unknown ERROR";
             }
 
             efile.close();
@@ -523,9 +553,7 @@ bool ZXingQt::saveImage(const QString &data, int width, int height, int margins,
              saveFileInfo.suffix() == "jpg" || saveFileInfo.suffix() == "jpeg" ||
              saveFileInfo.suffix() == "webp")
     {
-        bool formatMatrix = (format & (int)ZXing::BarcodeFormat::AllMatrix);
-        if (!formatMatrix) height = width / 3;
-
+        // The library renders the barcode at its natural aspect ratio, so no 1D height tweak here.
         QImage img = generateImage(data, width, height, margins,
                                    format, encoding, eccLevel,
                                    backgroundColor, foregroundColor);
@@ -534,7 +562,7 @@ bool ZXingQt::saveImage(const QString &data, int width, int height, int margins,
     }
     else
     {
-        qWarning() << "ZXingQt::saveImage() unknown format error:" << saveFileInfo.suffix();
+        qWarning() << "ZXingQt::saveImage() unknown format ERROR:" << saveFileInfo.suffix();
     }
 
     return status;

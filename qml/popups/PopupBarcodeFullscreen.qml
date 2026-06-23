@@ -54,12 +54,16 @@ Popup {
         width: parent.width - 64 - screenPaddingLeft - screenPaddingRight
         height: width
 
-        cache: false
         sourceSize.width: width
         sourceSize.height: width
         fillMode: Image.PreserveAspectFit
 
-        source: popupBarcodeFullscreen.barcode_string
+        cache: false
+        smooth: false
+        asynchronous: true
+
+        // Only generate the full-screen barcode while the popup is actually open
+        source: popupBarcodeFullscreen.opened ? popupBarcodeFullscreen.barcode_string : ""
     }
 
     ////////

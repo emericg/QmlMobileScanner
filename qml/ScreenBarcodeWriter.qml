@@ -116,12 +116,13 @@ Loader {
                         anchors.fill: parent
                         anchors.margins: 2 // enough not to be over the shadowarea
 
-                        cache: false
-                        smooth: false
-
                         sourceSize.width: width
                         sourceSize.height: (selectorBarcodes.currentMode === "2d") ? height : height/4
                         fillMode: Image.PreserveAspectFit
+
+                        cache: false
+                        smooth: false
+                        asynchronous: false
 
                         source: {
                             if (settingsManager.backend_writer === "zint") return "image://ZintQml/encode/" + barcodeAdvanced.barcode_string + barcodeAdvanced.barcode_settings_zxingcpp
