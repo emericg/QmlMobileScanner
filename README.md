@@ -11,7 +11,7 @@ Qt 6.8+, Qt Multimedia (with ffmpeg backend) and CMake are needed.
 Qt 6 major and minor versions are full of API and build breakages, it's just not feasible for me to support a matrix of different versions or build systems, sorry.
 
 Available backends:
-- zxing-cpp / v3.0.2 + custom QML integration
+- zxing-cpp / v3.1.1 + custom QML integration
 - QZXing / v3.3.0 + Qt6 port + many patches
 - zint / v2.16 + custom QML integration
 
@@ -51,13 +51,12 @@ Available backends:
 | EAN-8                | rMQR Code            |
 | EAN-13               | Aztec Code           |
 | DataBar              | Aztec Rune           |
-| DataBar Expanded     | Data Matrix          |
-| DataBar Limited      | PDF417               |
-| Code 39              | Compact PDF417       |
-| Code 93              | MicroPDF417          |
-| Code 128 (GS1)       | MaxiCode (partial)   |
-| Codabar              | DX Film Edge         |
-| ITF                  |                      |
+| Code 39              | Data Matrix          |
+| Code 93              | PDF417               |
+| Code 128             | Compact PDF417       |
+| Codabar              | MicroPDF417          |
+| ITF                  | MaxiCode (partial)   |
+| Telepen              | DX Film Edge         |
 
 
 ## Supported Formats (QZXing)

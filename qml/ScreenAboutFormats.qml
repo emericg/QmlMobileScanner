@@ -72,19 +72,18 @@ Flickable {
         ListModel {
             id: zxingcpp
             property string name: "zxing-cpp"
-            property string version: "3.0.2"
+            property string version: "3.1.1"
             ListElement { type: "linear"; name: "UPC-A"; decode: 1; encode: 1; }
             ListElement { type: "linear"; name: "UPC-E"; decode: 1; encode: 1; }
             ListElement { type: "linear"; name: "EAN-8"; decode: 1; encode: 1; }
             ListElement { type: "linear"; name: "EAN-13"; decode: 1; encode: 1; }
             ListElement { type: "linear"; name: "DataBar"; decode: 1; encode: 0; }
-            ListElement { type: "linear"; name: "DataBar Expanded"; decode: 1; encode: 0; }
-            ListElement { type: "linear"; name: "DataBar Limited"; decode: 1; encode: 0; }
             ListElement { type: "linear"; name: "Code 39"; decode: 1; encode: 1; }
             ListElement { type: "linear"; name: "Code 93"; decode: 1; encode: 1; }
             ListElement { type: "linear"; name: "Code 128"; decode: 1; encode: 1; }
             ListElement { type: "linear"; name: "Codabar"; decode: 1; encode: 1; }
             ListElement { type: "linear"; name: "ITF"; decode: 1; encode: 1; }
+            ListElement { type: "linear"; name: "Telepen"; decode: 1; encode: 0; }
             ListElement { type: "matrix"; name: "QR Code"; decode: 1; encode: 1; }
             ListElement { type: "matrix"; name: "Micro QR Code"; decode: 1; encode: 0; }
             ListElement { type: "matrix"; name: "rMQR Code"; decode: 1; encode: 0; }

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
-project (ZXing VERSION "3.0.2")
-set (ZXING_VERSION_SUFFIX "")
+project (ZXing VERSION "3.1.1")
+set (ZXING_VERSION_SUFFIX "") # e.g. "-rc1"
 set (ZXING_SONAME 4) # see https://github.com/zxing-cpp/zxing-cpp/issues/333
 
 option (ZXING_USE_BUNDLED_ZINT "Use the bundled libzint for barcode creation/writing" ON)
@@ -120,6 +120,8 @@ set (COMMON_FILES
     src/ReaderOptions.h
     src/ReadBarcode.h
     src/ReadBarcode.cpp
+    src/ReedSolomon.h
+    src/ReedSolomon.cpp
     src/SymbologyIdentifier.h
     src/Utf.h
     src/Utf.cpp
@@ -127,6 +129,7 @@ set (COMMON_FILES
     src/WriteBarcode.cpp
     src/ZXingCpp.h
     src/ZXingCpp.cpp
+    #src/ZXingQt.h
     src/ZXAlgorithms.h
     src/ZXConfig.h
     src/ZXTestSupport.h
@@ -138,10 +141,6 @@ if (ZXING_READERS OR ZXING_WRITERS_OLD)
     set (COMMON_FILES ${COMMON_FILES}
         src/BitArray.h
         src/BitArray.cpp
-        src/GenericGF.h
-        src/GenericGF.cpp
-        src/GenericGFPoly.h
-        src/GenericGFPoly.cpp
     )
 endif()
 if (ZXING_READERS OR ZXING_WRITERS_NEW)
@@ -164,6 +163,8 @@ if (ZXING_READERS)
         src/GridSampler.h
         src/GridSampler.cpp
         src/LogMatrix.h
+        src/LocalGrid.h
+        src/LocalGrid.cpp
         src/HybridBinarizer.h
         src/HybridBinarizer.cpp
         src/MultiFormatReader.h
@@ -172,8 +173,6 @@ if (ZXING_READERS)
         src/PerspectiveTransform.h
         src/PerspectiveTransform.cpp
         src/Reader.h
-        src/ReedSolomonDecoder.h
-        src/ReedSolomonDecoder.cpp
         src/RegressionLine.h
         src/ResultPoint.h
         src/ResultPoint.cpp
@@ -199,8 +198,6 @@ endif()
 
 if (ZXING_WRITERS_OLD)
     set (COMMON_FILES ${COMMON_FILES}
-        src/ReedSolomonEncoder.h
-        src/ReedSolomonEncoder.cpp
         src/MultiFormatWriter.h
         src/MultiFormatWriter.cpp
     )
@@ -225,6 +222,7 @@ set (PUBLIC_HEADERS
     src/WriteBarcode.h
     src/ZXingCpp.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ZXVersion.h # deprecated, but keep it for now to not break old clients
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ZXingQt.h
     $<$<BOOL:${ZXING_C_API}>:${CMAKE_CURRENT_SOURCE_DIR}/src/ZXingC.h>
 )
 if (ZXING_READERS)
@@ -323,7 +321,6 @@ if ((ZXING_READERS OR ZXING_WRITERS_OLD) AND ZXING_ENABLE_1D)
         src/oned/ODUPCEANCommon.cpp
         src/oned/ODCode93Patterns.h
         src/oned/ODCode128Patterns.h
-        src/oned/ODCode128Patterns.cpp
     )
 endif()
 if (ZXING_READERS AND ZXING_ENABLE_1D)
@@ -350,6 +347,8 @@ if (ZXING_READERS AND ZXING_ENABLE_1D)
         src/oned/ODDXFilmEdgeReader.cpp
         src/oned/ODITFReader.h
         src/oned/ODITFReader.cpp
+        src/oned/ODTelepenReader.h
+        src/oned/ODTelepenReader.cpp
         src/oned/ODMultiUPCEANReader.h
         src/oned/ODMultiUPCEANReader.cpp
         src/oned/ODReader.h
@@ -391,6 +390,8 @@ if ((ZXING_READERS OR ZXING_WRITERS_OLD) AND ZXING_ENABLE_PDF417)
 endif()
 if (ZXING_READERS AND ZXING_ENABLE_PDF417)
     set (PDF417_FILES ${PDF417_FILES}
+        src/pdf417/PDF417.h
+        src/pdf417/PDF417.cpp
         src/pdf417/PDFBarcodeMetadata.h
         src/pdf417/PDFBarcodeValue.h
         src/pdf417/PDFBarcodeValue.cpp
@@ -408,15 +409,13 @@ if (ZXING_READERS AND ZXING_ENABLE_PDF417)
         src/pdf417/PDFDetectionResultColumn.cpp
         src/pdf417/PDFDetector.h
         src/pdf417/PDFDetector.cpp
-        src/pdf417/PDFModulusGF.h
-        src/pdf417/PDFModulusGF.cpp
-        src/pdf417/PDFModulusPoly.h
-        src/pdf417/PDFModulusPoly.cpp
         src/pdf417/PDFReader.h
         src/pdf417/PDFReader.cpp
         src/pdf417/PDFScanningDecoder.h
         src/pdf417/PDFScanningDecoder.cpp
         src/pdf417/ZXNullable.h
+        src/pdf417/MicroPDFReader.h
+        src/pdf417/MicroPDFReader.cpp
     )
 endif()
 if (ZXING_WRITERS_OLD AND ZXING_ENABLE_PDF417)
@@ -523,6 +522,15 @@ if (ZXING_READERS OR ZXING_WRITERS_OLD)
     )
     target_sources(ZXing PRIVATE ${LIBZUECI_FILES})
     source_group (Sources\\libzueci FILES ${LIBZUECI_FILES})
+
+    set (LIBRSCPP_FILES
+        src/librscpp/field.h
+        src/librscpp/poly.h
+        src/librscpp/encode.h
+        src/librscpp/decode.h
+    )
+    target_sources(ZXing PRIVATE ${LIBRSCPP_FILES})
+    source_group (Sources\\librscpp FILES ${LIBRSCPP_FILES})
 endif()
 
 # MARK: - ZINT
@@ -573,6 +581,7 @@ if (ZXING_WRITERS_NEW)
             list(APPEND LIBZINT_FILES
                 src/libzint/2of5inter.c
                 src/libzint/2of5inter_based.c
+                src/libzint/telepen.c
                 src/libzint/codabar.c
                 src/libzint/code128.c
                 src/libzint/code128.h
@@ -641,6 +650,19 @@ if (PROJECT_VERSION)
     set_target_properties(ZXing PROPERTIES SOVERSION ${ZXING_SONAME})
 endif()
 
+# Add Windows resource file for version information
+if (WIN32 AND BUILD_SHARED_LIBS)
+    # Convert version to comma-separated format for Windows resources
+    string(REPLACE "." "," FILE_VERSION_COMMA "${PROJECT_VERSION}.0")
+    set(FILE_VERSION_STR "${PROJECT_VERSION}.0")
+    configure_file(
+        ${CMAKE_CURRENT_SOURCE_DIR}/version.rc.in
+        ${CMAKE_CURRENT_BINARY_DIR}/version.rc
+        @ONLY
+    )
+    target_sources(ZXing PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
+endif()
+
 # TODO: use FILE_SET HEADERS instead of PUBLIC_HEADER and target_sources, once CMake 3.23+ is required
 set_target_properties(ZXing PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADERS}")
 
@@ -649,6 +671,7 @@ set_target_properties(ZXing PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADERS}")
 set(PRECOMPILE_HEADERS ${PUBLIC_HEADERS})
 list(REMOVE_ITEM PRECOMPILE_HEADERS
     "$<$<BOOL:${ZXING_C_API}>:${CMAKE_CURRENT_SOURCE_DIR}/src/ZXingC.h>"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/ZXingQt.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/ZXVersion.h")
 list(APPEND PRECOMPILE_HEADERS "src/BarcodeData.h" "src/Content.h" "src/Range.h")
 if (NOT ZXING_DISABLE_PCH)

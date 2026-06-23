@@ -1,24 +1,29 @@
 
 macro(zxing_add_package_stb)
-    unset (STB_FOUND CACHE)
-
-    if (ZXING_DEPENDENCIES STREQUAL "AUTO")
-        find_package(PkgConfig)
-        pkg_check_modules (STB IMPORTED_TARGET stb)
-    elseif (ZXING_DEPENDENCIES STREQUAL "LOCAL")
-        find_package(PkgConfig REQUIRED)
-        pkg_check_modules (STB REQUIRED IMPORTED_TARGET stb)
-    endif()
-
-    if (NOT STB_FOUND)
-        include(FetchContent)
-        FetchContent_Declare (stb
-            GIT_REPOSITORY https://github.com/nothings/stb.git)
-        FetchContent_MakeAvailable (stb)
+    if(STB_IMAGE_INCLUDE_DIR)
         add_library(stb::stb INTERFACE IMPORTED)
-        target_include_directories(stb::stb INTERFACE ${stb_SOURCE_DIR})
+        target_include_directories(stb::stb INTERFACE ${STB_IMAGE_INCLUDE_DIR})
     else()
-        add_library(stb::stb ALIAS PkgConfig::STB)
+        unset (STB_FOUND CACHE)
+
+        if (ZXING_DEPENDENCIES STREQUAL "AUTO")
+            find_package(PkgConfig)
+            pkg_check_modules (STB IMPORTED_TARGET stb)
+        elseif (ZXING_DEPENDENCIES STREQUAL "LOCAL")
+            find_package(PkgConfig REQUIRED)
+            pkg_check_modules (STB REQUIRED IMPORTED_TARGET stb)
+        endif()
+
+        if (NOT STB_FOUND)
+            include(FetchContent)
+            FetchContent_Declare (stb
+                GIT_REPOSITORY https://github.com/nothings/stb.git)
+            FetchContent_MakeAvailable (stb)
+            add_library(stb::stb INTERFACE IMPORTED)
+            target_include_directories(stb::stb INTERFACE ${stb_SOURCE_DIR})
+        else()
+            add_library(stb::stb ALIAS PkgConfig::STB)
+        endif()
     endif()
 endmacro()
 
@@ -71,5 +76,10 @@ macro(zxing_add_package name depname git_repo git_rev)
             endif()
         # set (${name}_POPULATED TRUE) # this is supposed to be done in MakeAvailable but it seems not to?!?
         endif()
+
+        if (${depname} STREQUAL "WebP" AND NOT TARGET WebP::webp)
+            add_library(WebP::webp ALIAS webp)
+        endif()
+
     endif()
 endmacro()

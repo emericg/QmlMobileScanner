@@ -9,10 +9,7 @@
 #include "BarcodeData.h"
 #include "BitMatrix.h"
 #include "CreateBarcode.h"
-
-#if !defined(ZXING_READERS) && !defined(ZXING_WRITERS)
 #include "Version.h"
-#endif
 
 #include <sstream>
 
@@ -136,6 +133,7 @@ std::string WriteBarcodeToSVG(const Barcode& barcode, [[maybe_unused]] const Wri
 		return ToSVG(barcode.symbol());
 
 #if defined(ZXING_WRITERS) && defined(ZXING_USE_ZINT)
+	auto zintLock = std::lock_guard(*barcode.d->zintMutex);
 	auto resetOnExit = SetCommonWriterOptions(zint, options);
 
 	zint->output_options |= BARCODE_MEMORY_FILE;// | EMBED_VECTOR_FONT;
@@ -157,6 +155,7 @@ Image WriteBarcodeToImage(const Barcode& barcode, [[maybe_unused]] const WriterO
 		return ToImage(barcode.d->symbol.copy(), barcode.format() & BarcodeFormat::AllLinear, options);
 
 #if defined(ZXING_WRITERS) && defined(ZXING_USE_ZINT)
+	auto zintLock = std::lock_guard(*barcode.d->zintMutex);
 	auto resetOnExit = SetCommonWriterOptions(zint, options);
 
 	CHECK(ZBarcode_Buffer(zint, options.rotate()));
