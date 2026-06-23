@@ -76,12 +76,18 @@ Loader {
 
     ////////////////////////////////////////////////////////////////////////////
 
+    Rectangle {
+            anchors.fill: parent
+            color: "black"
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+
     active: false
     asynchronous: true
 
-    sourceComponent: Rectangle {
+    sourceComponent: Item {
         anchors.fill: parent
-        color: "black"
 
         opacity: 0
         Behavior on opacity { NumberAnimation { duration: 233 } }
