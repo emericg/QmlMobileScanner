@@ -39,6 +39,15 @@ class BarcodeQml : private ZXing::Barcode
 {
     Q_GADGET
 
+    Q_PROPERTY(bool isValid READ isValid)
+    Q_PROPERTY(bool hasError READ hasError)
+    Q_PROPERTY(QString errorMessage READ errorMessage)
+
+    Q_PROPERTY(Position position READ position)
+    Q_PROPERTY(int orientation READ orientation)
+    Q_PROPERTY(bool isMirrored READ isMirrored)
+    Q_PROPERTY(bool isInverted READ isInverted)
+
     Q_PROPERTY(bool hasText READ hasText)
     Q_PROPERTY(QString text READ text)
 
@@ -47,9 +56,10 @@ class BarcodeQml : private ZXing::Barcode
 
     Q_PROPERTY(ZXing::BarcodeFormat format READ format)
     Q_PROPERTY(QString formatName READ formatName)
-    Q_PROPERTY(bool isValid READ isValid)
+    Q_PROPERTY(QString symbologyIdentifier READ symbologyIdentifier)
     Q_PROPERTY(ZXing::ContentType contentType READ contentType)
-    Q_PROPERTY(Position position READ position)
+    Q_PROPERTY(int lineCount READ lineCount)
+
     Q_PROPERTY(int runTime MEMBER runTime)
 
     QString m_text;
@@ -79,6 +89,15 @@ public:
     const QString &text() const { return m_text; }
     const QByteArray &bytes() const { return m_bytes; }
     const Position &position() const { return m_position; }
+
+    using ZXing::Barcode::orientation;
+    using ZXing::Barcode::isMirrored;
+    using ZXing::Barcode::isInverted;
+    using ZXing::Barcode::lineCount;
+
+    bool hasError() const { return bool(ZXing::Barcode::error()); }
+    QString errorMessage() const { return hasError() ? QString::fromStdString(ZXing::ToString(ZXing::Barcode::error())) : QString(); }
+    QString symbologyIdentifier() const { return QString::fromStdString(ZXing::Barcode::symbologyIdentifier()); }
 };
 
 class ZXingQt : public QObject
