@@ -4,34 +4,21 @@ bin/*
 contribs/*
 appdir/*
 
-# QtCreator temporary project files
-QmlMobileScanner.config
-QmlMobileScanner.creator*
-QmlMobileScanner.files
-QmlMobileScanner.includes
-QmlMobileScanner.pro.*
-
-# Qt Quick Compiler
+# QtQuick Compiler
 qrc_resources.cpp
 qmlcache_loader.cpp
 qml_*qml.cpp
-
-# QMake temporary project files
-Makefile
-.qmake.stash
+.qmlls.ini
 
 # CMake temporary project files
 CMakeLists.txt.user
+Makefile
 
 # XCode related
 Debug/*
 Release/*
-QmlMobileScanner.xcodeproj/*
+*.xcodeproj/*
 asset_catalog_compiler.Info.plist
-
-# XCode signatures
-assets/ios/ios_signature.pri
-assets/macos/macos_signature.pri
 
 # MobileSharing module resources (from thirdparty/MobileSharing/android/)
 assets/android/src/io/emeric/mobilesharing/QShareActivity.java

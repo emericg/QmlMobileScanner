@@ -90,6 +90,12 @@ int main(int argc, char *argv[])
     BarcodeManager *bch = BarcodeManager::getInstance();
     if (!bch) return EXIT_FAILURE;
 
+    UtilsBarcode *utilsBarcode = UtilsBarcode::getInstance();
+    if (!utilsBarcode) return EXIT_FAILURE;
+
+    UtilsCamera *utilsCamera = UtilsCamera::getInstance();
+    if (!utilsCamera) return EXIT_FAILURE;
+
     // Init app utils
     UtilsApp *utilsApp = UtilsApp::getInstance();
     if (!utilsApp) return EXIT_FAILURE;
@@ -100,21 +106,15 @@ int main(int argc, char *argv[])
     UtilsClipboard *utilsClipboard = new UtilsClipboard();
     if (!utilsClipboard) return EXIT_FAILURE;
 
-    UtilsCamera *utilsCamera = UtilsCamera::getInstance();
-    if (!utilsCamera) return EXIT_FAILURE;
-
-    UtilsBarcode *utilsBarcode = UtilsBarcode::getInstance();
-    if (!utilsBarcode) return EXIT_FAILURE;
-
     // QML engine
     QQmlApplicationEngine engine;
     QQmlContext *engine_context = engine.rootContext();
     engine_context->setContextProperty("settingsManager", stm);
     engine_context->setContextProperty("barcodeManager", bch);
+    engine_context->setContextProperty("utilsBarcode", utilsBarcode);
+    engine_context->setContextProperty("utilsCamera", utilsCamera);
     engine_context->setContextProperty("utilsApp", utilsApp);
     engine_context->setContextProperty("utilsScreen", utilsScreen);
-    engine_context->setContextProperty("utilsCamera", utilsCamera);
-    engine_context->setContextProperty("utilsBarcode", utilsBarcode);
     engine_context->setContextProperty("utilsClipboard", utilsClipboard);
 
 #if QT_CONFIG(permissions)
