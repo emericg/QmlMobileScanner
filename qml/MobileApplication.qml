@@ -71,7 +71,7 @@ Window {
     // Events handling /////////////////////////////////////////////////////////
 
     Component.onCompleted: {
-        if (settingsManager.defaultTab === "writer") {
+        if (SettingsManager.defaultTab === "writer") {
             screenBarcodeWriter.loadScreen()
         } else {
             screenBarcodeReader.loadScreen()
@@ -99,7 +99,7 @@ Window {
                         screenBarcodeReader.loadScreen()
 
                     // Check if we need an 'automatic' theme change
-                    Theme.loadTheme(settingsManager.appTheme)
+                    Theme.loadTheme(SettingsManager.appTheme)
 
                     break
             }
@@ -149,17 +149,17 @@ Window {
         }
     }
     function backAction_default() {
-        if ((appContent.state === "ScreenBarcodeReader" && settingsManager.defaultTab === "reader") ||
-            (appContent.state === "ScreenBarcodeWriter" && settingsManager.defaultTab === "writer")) {
+        if ((appContent.state === "ScreenBarcodeReader" && SettingsManager.defaultTab === "reader") ||
+            (appContent.state === "ScreenBarcodeWriter" && SettingsManager.defaultTab === "writer")) {
             if (exitTimer.running)
                 Qt.quit()
             else
                 exitTimer.start()
         }
 
-        if (settingsManager.defaultTab === "reader")
+        if (SettingsManager.defaultTab === "reader")
             screenBarcodeReader.loadScreen()
-        else if (settingsManager.defaultTab === "writer")
+        else if (SettingsManager.defaultTab === "writer")
             screenBarcodeWriter.loadScreen()
     }
     function forwardAction() {

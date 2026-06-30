@@ -411,7 +411,7 @@ Loader {
 
                 ////////
 
-                ListSeparatorPadded { visible: settingsManager.showDebug }
+                ListSeparatorPadded { visible: SettingsManager.showDebug }
 
                 Item { // debug infos
                     anchors.left: parent.left
@@ -420,7 +420,7 @@ Loader {
                     anchors.rightMargin: Theme.componentMargin
 
                     height: 16 + debugColumn.height
-                    visible: settingsManager.showDebug
+                    visible: SettingsManager.showDebug
 
                     IconSvg {
                         anchors.top: debugColumn.top
@@ -458,7 +458,7 @@ Loader {
                         }
                         Text {
                             color: Theme.colorSubText
-                            text: "Backend(s): %1".arg(settingsManager.backend_reader) + (settingsManager.backend_zint ? " + zint" : "")
+                            text: "Backend(s): %1".arg(SettingsManager.backend_reader) + (SettingsManager.backend_zint ? " + zint" : "")
                             textFormat: Text.PlainText
                             font.pixelSize: Theme.fontSizeContent
                         }
@@ -489,7 +489,7 @@ Loader {
                     }
                 }
 
-                ListSeparatorPadded { visible: settingsManager.showDebug }
+                ListSeparatorPadded { visible: SettingsManager.showDebug }
 
                 ////////
             }

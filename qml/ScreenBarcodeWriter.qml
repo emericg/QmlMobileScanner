@@ -54,7 +54,7 @@ Loader {
             }
 
             // change screen?
-            if (settingsManager.defaultTab === "reader")
+            if (SettingsManager.defaultTab === "reader")
                 screenBarcodeReader.loadScreen()
         }
 
@@ -125,9 +125,9 @@ Loader {
                         asynchronous: false
 
                         source: {
-                            if (settingsManager.backend_writer === "zint") return "image://ZintQml/encode/" + barcodeAdvanced.barcode_string + barcodeAdvanced.barcode_settings_zxingcpp
-                            if (settingsManager.backend_writer === "zxingcpp") return "image://ZXingQt/encode/" + barcodeAdvanced.barcode_string + barcodeAdvanced.barcode_settings_zxingcpp
-                            if (settingsManager.backend_writer === "qzxing") return "image://QZXing/encode/" + barcodeAdvanced.barcode_string + barcodeAdvanced.barcode_settings_qzxing
+                            if (SettingsManager.backend_writer === "zint") return "image://ZintQml/encode/" + barcodeAdvanced.barcode_string + barcodeAdvanced.barcode_settings_zxingcpp
+                            if (SettingsManager.backend_writer === "zxingcpp") return "image://ZXingQt/encode/" + barcodeAdvanced.barcode_string + barcodeAdvanced.barcode_settings_zxingcpp
+                            if (SettingsManager.backend_writer === "qzxing") return "image://QZXing/encode/" + barcodeAdvanced.barcode_string + barcodeAdvanced.barcode_settings_qzxing
                             return ""
                         }
 
@@ -135,7 +135,7 @@ Loader {
                             width: 80
                             height: 80
                             anchors.centerIn: parent
-                            visible: (!barcodeAdvanced.barcode_string && settingsManager.backend_writer === "zint")
+                            visible: (!barcodeAdvanced.barcode_string && SettingsManager.backend_writer === "zint")
                             source: "qrc:/IconLibrary/material-icons/duotone/edit.svg"
                             color: Theme.colorIcon
                         }
@@ -423,8 +423,8 @@ Loader {
                             ListElement { idx: 11; type: "1d"; txt: "ITF"; format: "itf";               maxnum: 10; }
                         }
                         model: {
-                            if (settingsManager.backend_writer === "zint") return lmSelectorBarcodes_zintqml
-                            if (settingsManager.backend_writer === "zxingcpp") return lmSelectorBarcodes_zxingcpp
+                            if (SettingsManager.backend_writer === "zint") return lmSelectorBarcodes_zintqml
+                            if (SettingsManager.backend_writer === "zxingcpp") return lmSelectorBarcodes_zxingcpp
                             return null
                         }
 
@@ -530,7 +530,7 @@ Loader {
                                     barcodeAdvanced.format === "micropdf417") vvv = lmBarcodeEccPdf.get(index).ecc
 
                                 barcodeAdvanced.eccLevel = parseInt(vvv)
-                                barcodeAdvanced.eccStr = (settingsManager.backend_writer === "qzxing") ? lmBarcodeEccQR.get(index).txt : "L"
+                                barcodeAdvanced.eccStr = (SettingsManager.backend_writer === "qzxing") ? lmBarcodeEccQR.get(index).txt : "L"
                             }
                         }
                     }
@@ -540,7 +540,7 @@ Loader {
                         anchors.right: parent.right
 
                         spacing: 16
-                        visible: (settingsManager.backend_writer === "qzxing")
+                        visible: (SettingsManager.backend_writer === "qzxing")
 
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
@@ -576,7 +576,7 @@ Loader {
                         anchors.right: parent.right
 
                         spacing: 16
-                        visible: (settingsManager.backend_writer !== "qzxing")
+                        visible: (SettingsManager.backend_writer !== "qzxing")
 
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
@@ -611,7 +611,7 @@ Loader {
 
                     Row {
                         spacing: Theme.componentMargin
-                        visible: (settingsManager.backend_writer !== "qzxing")
+                        visible: (SettingsManager.backend_writer !== "qzxing")
 
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
@@ -700,9 +700,9 @@ Loader {
                         active: true
                         asynchronous: true
                         source: {
-                            if (settingsManager.backend_writer === "zint") return "Writer_Zint.qml"
-                            if (settingsManager.backend_writer === "zxingcpp") return "Writer_ZXingCpp.qml"
-                            if (settingsManager.backend_writer === "qzxing") return "Writer_QZXing.qml"
+                            if (SettingsManager.backend_writer === "zint") return "Writer_Zint.qml"
+                            if (SettingsManager.backend_writer === "zxingcpp") return "Writer_ZXingCpp.qml"
+                            if (SettingsManager.backend_writer === "qzxing") return "Writer_QZXing.qml"
                         }
                     }
                     property alias barcodeWriter: backendLoader.item

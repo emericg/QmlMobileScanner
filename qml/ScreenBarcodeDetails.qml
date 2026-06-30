@@ -153,9 +153,9 @@ Rectangle {
                             fillMode: Image.PreserveAspectFit
 
                             source: {
-                                if (settingsManager.backend_writer === "zint") return "image://ZintQml/encode/" + screenBarcodeDetails.barcode_string + screenBarcodeDetails.barcode_settings_zxingcpp
-                                if (settingsManager.backend_writer === "zxingcpp") return "image://ZXingQt/encode/" + screenBarcodeDetails.barcode_string + screenBarcodeDetails.barcode_settings_zxingcpp
-                                if (settingsManager.backend_writer === "qzxing") return "image://QZXing/encode/" + screenBarcodeDetails.barcode_string + screenBarcodeDetails.barcode_settings_qzxing
+                                if (SettingsManager.backend_writer === "zint") return "image://ZintQml/encode/" + screenBarcodeDetails.barcode_string + screenBarcodeDetails.barcode_settings_zxingcpp
+                                if (SettingsManager.backend_writer === "zxingcpp") return "image://ZXingQt/encode/" + screenBarcodeDetails.barcode_string + screenBarcodeDetails.barcode_settings_zxingcpp
+                                if (SettingsManager.backend_writer === "qzxing") return "image://QZXing/encode/" + screenBarcodeDetails.barcode_string + screenBarcodeDetails.barcode_settings_qzxing
                                 return ""
                             }
                         }

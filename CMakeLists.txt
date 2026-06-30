@@ -53,9 +53,7 @@ qt_policy(SET QTP0004 NEW)
 
 set(SOURCES
     src/main.cpp
-    src/SettingsManager.cpp src/SettingsManager.h
     src/DatabaseManager.cpp src/DatabaseManager.h
-    src/PermissionManager.cpp src/PermissionManager.h
     src/BarcodeManager.cpp src/BarcodeManager.h
     src/Barcode.cpp src/Barcode.h
     src/utils_camera.cpp src/utils_camera.h
@@ -121,6 +119,9 @@ qt_add_qml_module(${PROJECT_NAME}
         qml/components/MenuScreens.qml
         qml/components/WidgetBarcodeHistory.qml
         qml/components/WidgetBarcodeResult.qml
+
+    SOURCES
+        src/SettingsManager.cpp src/SettingsManager.h
 )
 
 qt_add_translations(${PROJECT_NAME}

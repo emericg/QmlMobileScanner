@@ -13,7 +13,7 @@ QZXingFilter {
     property var framesDecodedTable: []
 
     videoSink: videoOutput.videoSink
-    captureRect: settingsManager.scan_fullscreen ?
+    captureRect: SettingsManager.scan_fullscreen ?
                      Qt.rect(videoOutput.sourceRect.x, videoOutput.sourceRect.y,
                              videoOutput.sourceRect.width, videoOutput.sourceRect.height) :
                      Qt.rect(videoOutput.sourceRect.width * videoOutput.captureRectStartFactorX,
@@ -22,8 +22,8 @@ QZXingFilter {
                              videoOutput.sourceRect.height * videoOutput.captureRectFactorHeight)
 
     decoder {
-        tryHarder: settingsManager.scan_tryHarder
-        enabledDecoders: settingsManager.formatsEnabled
+        tryHarder: SettingsManager.scan_tryHarder
+        enabledDecoders: SettingsManager.formatsEnabled
 /*
         enabledDecoders: QZXing.DecoderFormat_QR_CODE |
                          QZXing.DecoderFormat_Aztec |
@@ -46,7 +46,7 @@ QZXingFilter {
             if (newbarcode) {
                 utilsApp.vibrate(33)
 
-                if (settingsManager.save_barcodes) {
+                if (SettingsManager.save_barcodes) {
                     barcodeManager.addHistory(tag,
                                               decoder.foundedFormat(), decoder.charSet(), "",
                                               gps.coordinates)

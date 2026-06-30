@@ -13,7 +13,7 @@ ZXingQtVideoFilter {
     property var framesDecodedTable: []
 
     videoSink: videoOutput.videoSink
-    captureRect: settingsManager.scan_fullscreen ?
+    captureRect: SettingsManager.scan_fullscreen ?
                      Qt.rect(videoOutput.sourceRect.x, videoOutput.sourceRect.y,
                              videoOutput.sourceRect.width, videoOutput.sourceRect.height) :
                      Qt.rect(videoOutput.sourceRect.width * videoOutput.captureRectStartFactorX,
@@ -21,12 +21,12 @@ ZXingQtVideoFilter {
                              videoOutput.sourceRect.width * videoOutput.captureRectFactorWidth,
                              videoOutput.sourceRect.height * videoOutput.captureRectFactorHeight)
 
-    tryHarder: settingsManager.scan_tryHarder
-    tryRotate: settingsManager.scan_tryRotate
-    tryInvert: settingsManager.scan_tryInvert
-    tryDownscale: settingsManager.scan_tryDownscale
+    tryHarder: SettingsManager.scan_tryHarder
+    tryRotate: SettingsManager.scan_tryRotate
+    tryInvert: SettingsManager.scan_tryInvert
+    tryDownscale: SettingsManager.scan_tryDownscale
 
-    formats: settingsManager.formatsEnabled
+    formats: SettingsManager.formatsEnabled
 /*
     formats: ZXingQt.LinearCodes | ZXingQt.MatrixCodes
     formats: ZXingQt.Codabar |
@@ -91,7 +91,7 @@ ZXingQtVideoFilter {
             if (newbarcode) {
                 utilsApp.vibrate(33)
 
-                if (settingsManager.save_barcodes) {
+                if (SettingsManager.save_barcodes) {
                     barcodeManager.addHistory(result.text,
                                               result.formatName, result.contentType, "",
                                               gps.coordinates)

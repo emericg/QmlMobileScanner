@@ -22,6 +22,8 @@
 #include "SettingsManager.h"
 
 #include <QCoreApplication>
+#include <QQmlEngine>
+#include <QJSEngine>
 #include <QStandardPaths>
 #include <QSettings>
 #include <QLocale>
@@ -29,28 +31,24 @@
 #include <QDebug>
 
 /* ************************************************************************** */
-
-SettingsManager *SettingsManager::instance = nullptr;
+/* ************************************************************************** */
 
 SettingsManager *SettingsManager::getInstance()
 {
-    if (instance == nullptr)
-    {
-        instance = new SettingsManager();
-        return instance;
-    }
-
+    static SettingsManager *instance = new SettingsManager(QCoreApplication::instance());
     return instance;
 }
 
-SettingsManager::SettingsManager()
+SettingsManager *SettingsManager::create(QQmlEngine *, QJSEngine *)
 {
-    readSettings();
+    SettingsManager *instance = getInstance();
+    QJSEngine::setObjectOwnership(instance, QJSEngine::CppOwnership);
+    return instance;
 }
 
-SettingsManager::~SettingsManager()
+SettingsManager::SettingsManager(QObject *parent) : QObject(parent)
 {
-    //
+    readSettings();
 }
 
 /* ************************************************************************** */
@@ -82,14 +80,20 @@ bool SettingsManager::readSettings()
         if (m_appSize.height() > 8192) m_appSize.setHeight(1080);
         if (m_appVisibility < 1 || m_appVisibility > 5) m_appVisibility = 1;
 #endif
-
-        ////
-
         if (settings.contains("settings/appTheme"))
             m_appTheme = settings.value("settings/appTheme").toString();
 
         if (settings.contains("settings/appThemeAuto"))
             m_appThemeAuto = settings.value("settings/appThemeAuto").toBool();
+
+        if (settings.contains("settings/appThemeAutoMethod"))
+            m_appThemeAutoMethod = settings.value("settings/appThemeAutoMethod").toUInt();
+
+        if (settings.contains("settings/appUnitSystem"))
+            m_appUnitSystem = settings.value("settings/appUnitSystem").toUInt();
+
+        if (settings.contains("settings/appLanguage"))
+            m_appLanguage = settings.value("settings/appLanguage").toString();
 
         ////
 
@@ -159,6 +163,9 @@ bool SettingsManager::writeSettings()
     {
         settings.setValue("settings/appTheme", m_appTheme);
         settings.setValue("settings/appThemeAuto", m_appThemeAuto);
+        settings.setValue("settings/appThemeAutoMethod", m_appThemeAutoMethod);
+        settings.setValue("settings/appUnitSystem", m_appUnitSystem);
+        settings.setValue("settings/appLanguage", m_appLanguage);
 
         settings.setValue("settings/defaultTab", m_defaultTab);
         settings.setValue("settings/backendWriter", m_backendWriter);
@@ -243,6 +250,39 @@ void SettingsManager::setAppThemeAuto(const bool value)
     {
         m_appThemeAuto = value;
         Q_EMIT appThemeAutoChanged();
+
+        writeSettings();
+    }
+}
+
+void SettingsManager::setAppThemeAutoMethod(const unsigned value)
+{
+    if (m_appThemeAutoMethod != value)
+    {
+        m_appThemeAutoMethod = value;
+        Q_EMIT appThemeAutoMethodChanged();
+
+        writeSettings();
+    }
+}
+
+void SettingsManager::setAppUnitSystem(const unsigned value)
+{
+    if (m_appUnitSystem != value)
+    {
+        m_appUnitSystem = value;
+        Q_EMIT appUnitSystemChanged();
+
+        writeSettings();
+    }
+}
+
+void SettingsManager::setAppLanguage(const QString &value)
+{
+    if (m_appLanguage != value)
+    {
+        m_appLanguage = value;
+        Q_EMIT appLanguageChanged();
 
         writeSettings();
     }

@@ -26,20 +26,20 @@ ApplicationWindow {
     // Desktop stuff ///////////////////////////////////////////////////////////
 
     width: {
-        if (settingsManager.initialSize.width > 0)
-            return settingsManager.initialSize.width
+        if (SettingsManager.initialSize.width > 0)
+            return SettingsManager.initialSize.width
         else
             return isHdpi ? 960 : 1280
     }
     height: {
-        if (settingsManager.initialSize.height > 0)
-            return settingsManager.initialSize.height
+        if (SettingsManager.initialSize.height > 0)
+            return SettingsManager.initialSize.height
         else
             return isHdpi ? 640 : 720
     }
-    x: settingsManager.initialPosition.width
-    y: settingsManager.initialPosition.height
-    visibility: settingsManager.initialVisibility
+    x: SettingsManager.initialPosition.width
+    y: SettingsManager.initialPosition.height
+    visibility: SettingsManager.initialVisibility
 
     WindowGeometrySaver {
         windowInstance: appWindow
@@ -79,7 +79,7 @@ ApplicationWindow {
     Component.onCompleted: {
         //screenBarcodeHistory.loadScreen(); return; // DEBUG
 
-        if (settingsManager.defaultTab === "writer") {
+        if (SettingsManager.defaultTab === "writer") {
             screenBarcodeWriter.loadScreen()
         } else {
             screenBarcodeReader.loadScreen()
@@ -108,7 +108,7 @@ ApplicationWindow {
                     screenBarcodeReader.loadScreen()
 
                 // Check if we need an 'automatic' theme change
-                Theme.loadTheme(settingsManager.appTheme)
+                Theme.loadTheme(SettingsManager.appTheme)
 
                 break
             }
@@ -144,9 +144,9 @@ ApplicationWindow {
         }
     }
     function backAction_default() {
-        if (settingsManager.defaultTab === "reader")
+        if (SettingsManager.defaultTab === "reader")
             screenBarcodeReader.loadScreen()
-        else if (settingsManager.defaultTab === "writer")
+        else if (SettingsManager.defaultTab === "writer")
             screenBarcodeWriter.loadScreen()
     }
     function forwardAction() {

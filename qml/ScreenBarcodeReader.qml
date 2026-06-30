@@ -62,7 +62,7 @@ Loader {
 
         property geoCoordinate coordinates: QtPositioning.coordinate(0, 0)
 
-        active: (isMobile && settingsManager.save_gps)
+        active: (isMobile && SettingsManager.save_gps)
         updateInterval: 3333
 
         onSupportedPositioningMethodsChanged: {
@@ -144,7 +144,7 @@ Loader {
             }
 
             // change screen?
-            if (settingsManager.defaultTab === "writer")
+            if (SettingsManager.defaultTab === "writer")
                 screenBarcodeWriter.loadScreen()
         }
 
@@ -178,7 +178,7 @@ Loader {
 
                 cameraDevice: mediaDevices.videoInputs[mediaDevices.selectedDevice] ? mediaDevices.videoInputs[mediaDevices.selectedDevice] : mediaDevices.defaultVideoInput
                 cameraFormat: utilsCamera.selectCameraFormat(cameraDevice)
-                //cameraFormat: (settingsManager.scanFullres) ? utilsCamera.selectCameraFormat(cameraDevice) : undefined
+                //cameraFormat: (SettingsManager.scanFullres) ? utilsCamera.selectCameraFormat(cameraDevice) : undefined
 
                 onCameraDeviceChanged: {
                     console.log("CaptureSession::onCameraDeviceChanged()")
@@ -201,7 +201,7 @@ Loader {
             id: backendLoader
             active: true
             asynchronous: true
-            source: (settingsManager.backend_reader === "zxingcpp") ? "Reader_ZXingCpp.qml" : "Reader_QZXing.qml"
+            source: (SettingsManager.backend_reader === "zxingcpp") ? "Reader_ZXingCpp.qml" : "Reader_QZXing.qml"
         }
         property alias barcodeReader: backendLoader.item
 
@@ -296,7 +296,7 @@ Loader {
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
 
-                visible: !settingsManager.scan_fullscreen && !captureZone.visible
+                visible: !SettingsManager.scan_fullscreen && !captureZone.visible
                 color: "black"
                 opacity: 0.4
             }
@@ -305,7 +305,7 @@ Loader {
                 id: captureZone
                 anchors.fill: parent
 
-                visible: !settingsManager.scan_fullscreen &&
+                visible: !SettingsManager.scan_fullscreen &&
                          !(appDrawer.visible ||
                            imageOutput.visible ||
                            menuDebug.visible || menuFormats.visible ||
@@ -536,7 +536,7 @@ Loader {
                 anchors.leftMargin: Theme.componentMargin
                 height: 48
 
-                visible: settingsManager.showDebug
+                visible: SettingsManager.showDebug
 
                 Column {
                     anchors.left: parent.left
@@ -668,7 +668,7 @@ Loader {
                     width: 48
                     height: 48
 
-                    visible: (currentMode === "video" && settingsManager.showDebug)
+                    visible: (currentMode === "video" && SettingsManager.showDebug)
 
                     Rectangle {
                         anchors.fill: parent
@@ -775,7 +775,7 @@ Loader {
                 anchors.left: parent.left
                 anchors.leftMargin: Theme.componentMargin
 
-                visible: (currentMode === "video" && settingsManager.showDebug)
+                visible: (currentMode === "video" && SettingsManager.showDebug)
 
                 RoundButton {
                     text: "1"

@@ -171,13 +171,13 @@ Flickable {
             ////
 
             header: GridHeader {
-                textTitle: (settingsManager.backend_reader === "zxingcpp") ? zxingcpp.name : qzxing.name
-                textVersion: qsTr("version %1").arg((settingsManager.backend_reader === "zxingcpp") ? zxingcpp.version : qzxing.version)
+                textTitle: (SettingsManager.backend_reader === "zxingcpp") ? zxingcpp.name : qzxing.name
+                textVersion: qsTr("version %1").arg((SettingsManager.backend_reader === "zxingcpp") ? zxingcpp.version : qzxing.version)
             }
 
             ////
 
-            model: (settingsManager.backend_reader === "zxingcpp") ? zxingcpp : qzxing
+            model: (SettingsManager.backend_reader === "zxingcpp") ? zxingcpp : qzxing
             delegate: GridDelegate {
                 //
             }

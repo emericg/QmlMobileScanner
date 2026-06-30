@@ -122,12 +122,12 @@ Loader {
                             radius: 2
                             color: (Theme.currentTheme === Theme.THEME_MOBILE_LIGHT) ? Theme.colorForeground : "#dddddd"
                             border.color: Theme.colorSecondary
-                            border.width: (settingsManager.appTheme === "THEME_MOBILE_LIGHT") ? 2 : 0
+                            border.width: (SettingsManager.appTheme === "THEME_MOBILE_LIGHT") ? 2 : 0
 
                             MouseArea {
                                 anchors.fill: parent
                                 onClicked: {
-                                    settingsManager.appTheme = "THEME_MOBILE_LIGHT"
+                                    SettingsManager.appTheme = "THEME_MOBILE_LIGHT"
                                 }
                             }
 
@@ -151,12 +151,12 @@ Loader {
                             radius: 2
                             color: (Theme.currentTheme === Theme.THEME_MOBILE_DARK) ? Theme.colorForeground : "#313236"
                             border.color: Theme.colorSecondary
-                            border.width: (settingsManager.appTheme === "THEME_MOBILE_DARK") ? 2 : 0
+                            border.width: (SettingsManager.appTheme === "THEME_MOBILE_DARK") ? 2 : 0
 
                             MouseArea {
                                 anchors.fill: parent
                                 onClicked: {
-                                    settingsManager.appTheme = "THEME_MOBILE_DARK"
+                                    SettingsManager.appTheme = "THEME_MOBILE_DARK"
                                 }
                             }
 
@@ -219,10 +219,10 @@ Loader {
                         anchors.verticalCenter: parent.verticalCenter
                         z: 1
 
-                        checked: settingsManager.appThemeAuto
+                        checked: SettingsManager.appThemeAuto
                         onClicked: {
-                            settingsManager.appThemeAuto = checked
-                            Theme.loadTheme(settingsManager.appTheme)
+                            SettingsManager.appThemeAuto = checked
+                            Theme.loadTheme(SettingsManager.appTheme)
                         }
                     }
                 }
@@ -237,7 +237,7 @@ Loader {
                     bottomPadding: 0
                     visible: element_appThemeAuto.visible
 
-                    text: settingsManager.appThemeAuto ?
+                    text: SettingsManager.appThemeAuto ?
                               qsTr("Dark mode will switch on automatically between 9 PM and 9 AM.") :
                               qsTr("Dark mode schedule is disabled.")
                     textFormat: Text.PlainText
@@ -294,7 +294,7 @@ Loader {
                             ListElement { idx: 2; txt: "Writer"; src: ""; sz: 0; }
                         }
                         currentSelection: {
-                            if (settingsManager.defaultTab === "writer") return 2
+                            if (SettingsManager.defaultTab === "writer") return 2
                             return 1
                         }
 
@@ -302,8 +302,8 @@ Loader {
                             console.log("SelectorMenu clicked #" + index)
                             currentSelection = index
 
-                            if (index === 1) settingsManager.defaultTab = "reader"
-                            else if (index === 2) settingsManager.defaultTab = "writer"
+                            if (index === 1) SettingsManager.defaultTab = "reader"
+                            else if (index === 2) SettingsManager.defaultTab = "writer"
                         }
                     }
                 }
@@ -355,8 +355,8 @@ Loader {
                             ListElement { idx: 2; txt: "zxingcpp"; src: ""; sz: 0; }
                         }
                         currentSelection: {
-                            if (settingsManager.backend_reader === "qzxing") return 1
-                            if (settingsManager.backend_reader === "zxingcpp") return 2
+                            if (SettingsManager.backend_reader === "qzxing") return 1
+                            if (SettingsManager.backend_reader === "zxingcpp") return 2
                             return 0
                         }
                     }
@@ -409,9 +409,9 @@ Loader {
                             ListElement { idx: 3; txt: "zint"; src: ""; sz: 0; }
                         }
                         currentSelection: {
-                            if (settingsManager.backend_writer === "qzxing") return 1
-                            if (settingsManager.backend_writer === "zxingcpp") return 2
-                            if (settingsManager.backend_writer === "zint") return 3
+                            if (SettingsManager.backend_writer === "qzxing") return 1
+                            if (SettingsManager.backend_writer === "zxingcpp") return 2
+                            if (SettingsManager.backend_writer === "zint") return 3
                             return 3
                         }
 
@@ -419,9 +419,9 @@ Loader {
                             console.log("SelectorMenu clicked #" + index)
                             currentSelection = index
 
-                            if (index === 1) settingsManager.backend_writer = "qzxing"
-                            else if (index === 2) settingsManager.backend_writer = "zxingcpp"
-                            else if (index === 3) settingsManager.backend_writer = "zint"
+                            if (index === 1) SettingsManager.backend_writer = "qzxing"
+                            else if (index === 2) SettingsManager.backend_writer = "zxingcpp"
+                            else if (index === 3) SettingsManager.backend_writer = "zint"
                         }
                     }
                 }
@@ -471,8 +471,8 @@ Loader {
                         Layout.rightMargin: 12
                         z: 1
 
-                        checked: settingsManager.save_barcodes
-                        onClicked: settingsManager.save_barcodes = checked
+                        checked: SettingsManager.save_barcodes
+                        onClicked: SettingsManager.save_barcodes = checked
                     }
                 }
 
@@ -514,8 +514,8 @@ Loader {
                         Layout.rightMargin: 12
                         z: 1
 
-                        checked: settingsManager.save_camera
-                        onClicked: settingsManager.save_camera = checked
+                        checked: SettingsManager.save_camera
+                        onClicked: SettingsManager.save_camera = checked
                     }
                 }
 
@@ -620,8 +620,8 @@ Loader {
                         anchors.verticalCenter: parent.verticalCenter
                         z: 1
 
-                        checked: settingsManager.showDebug
-                        onClicked: settingsManager.showDebug = checked
+                        checked: SettingsManager.showDebug
+                        onClicked: SettingsManager.showDebug = checked
                     }
                 }
 
@@ -634,7 +634,7 @@ Loader {
                     anchors.rightMargin: contentColumn.padMargin
                     height: 36
 
-                    visible: settingsManager.showDebug
+                    visible: SettingsManager.showDebug
 
                     Item {
                         Layout.preferredWidth: 56
@@ -664,8 +664,8 @@ Loader {
                         Layout.rightMargin: 12
                         z: 1
 
-                        checked: settingsManager.scan_fullres
-                        onClicked: settingsManager.scan_fullres = checked
+                        checked: SettingsManager.scan_fullres
+                        onClicked: SettingsManager.scan_fullres = checked
                     }
                 }
                 RowLayout {
@@ -675,7 +675,7 @@ Loader {
                     anchors.rightMargin: contentColumn.padMargin
                     height: 36
 
-                    visible: settingsManager.showDebug
+                    visible: SettingsManager.showDebug
 
                     Item {
                         Layout.preferredWidth: 56
@@ -705,8 +705,8 @@ Loader {
                         Layout.rightMargin: 12
                         z: 1
 
-                        checked: settingsManager.scan_fullscreen
-                        onClicked: settingsManager.scan_fullscreen = checked
+                        checked: SettingsManager.scan_fullscreen
+                        onClicked: SettingsManager.scan_fullscreen = checked
                     }
                 }
                 RowLayout {
@@ -716,7 +716,7 @@ Loader {
                     anchors.rightMargin: contentColumn.padMargin
                     height: 36
 
-                    visible: settingsManager.showDebug
+                    visible: SettingsManager.showDebug
 
                     Item {
                         Layout.preferredWidth: 56
@@ -746,8 +746,8 @@ Loader {
                         Layout.rightMargin: 12
                         z: 1
 
-                        checked: settingsManager.scan_tryHarder
-                        onClicked: settingsManager.scan_tryHarder = checked
+                        checked: SettingsManager.scan_tryHarder
+                        onClicked: SettingsManager.scan_tryHarder = checked
                     }
                 }
                 RowLayout {
@@ -757,7 +757,7 @@ Loader {
                     anchors.rightMargin: contentColumn.padMargin
                     height: 36
 
-                    visible: settingsManager.showDebug
+                    visible: SettingsManager.showDebug
 
                     Item {
                         Layout.preferredWidth: 56
@@ -787,8 +787,8 @@ Loader {
                         Layout.rightMargin: 12
                         z: 1
 
-                        checked: settingsManager.scan_tryRotate
-                        onClicked: settingsManager.scan_tryRotate = checked
+                        checked: SettingsManager.scan_tryRotate
+                        onClicked: SettingsManager.scan_tryRotate = checked
                     }
                 }
                 RowLayout {
@@ -798,7 +798,7 @@ Loader {
                     anchors.rightMargin: contentColumn.padMargin
                     height: 36
 
-                    visible: settingsManager.showDebug
+                    visible: SettingsManager.showDebug
 
                     Item {
                         Layout.preferredWidth: 56
@@ -828,8 +828,8 @@ Loader {
                         Layout.rightMargin: 12
                         z: 1
 
-                        checked: settingsManager.scan_tryInvert
-                        onClicked: settingsManager.scan_tryInvert = checked
+                        checked: SettingsManager.scan_tryInvert
+                        onClicked: SettingsManager.scan_tryInvert = checked
                     }
                 }
                 RowLayout {
@@ -839,7 +839,7 @@ Loader {
                     anchors.rightMargin: contentColumn.padMargin
                     height: 36
 
-                    visible: settingsManager.showDebug
+                    visible: SettingsManager.showDebug
 
                     Item {
                         Layout.preferredWidth: 56
@@ -869,8 +869,8 @@ Loader {
                         Layout.rightMargin: 12
                         z: 1
 
-                        checked: settingsManager.scan_tryDownscale
-                        onClicked: settingsManager.scan_tryDownscale = checked
+                        checked: SettingsManager.scan_tryDownscale
+                        onClicked: SettingsManager.scan_tryDownscale = checked
                     }
                 }
 

@@ -33,8 +33,8 @@ Column {
             text: qsTr("fullscreen")
             colorText: "white"
             colorSubText: "grey"
-            checked: settingsManager.scan_fullscreen
-            onClicked: settingsManager.scan_fullscreen = checked
+            checked: SettingsManager.scan_fullscreen
+            onClicked: SettingsManager.scan_fullscreen = checked
         }
     }
     Item {
@@ -57,8 +57,8 @@ Column {
             text: qsTr("tryHarder")
             colorText: "white"
             colorSubText: "grey"
-            checked: settingsManager.scan_tryHarder
-            onClicked: settingsManager.scan_tryHarder = checked
+            checked: SettingsManager.scan_tryHarder
+            onClicked: SettingsManager.scan_tryHarder = checked
         }
     }
     Item {
@@ -66,7 +66,7 @@ Column {
         anchors.right: parent.right
         height: 40
 
-        visible: (settingsManager.backend_reader === "zxingcpp")
+        visible: (SettingsManager.backend_reader === "zxingcpp")
 
         Rectangle {
             anchors.fill: parent
@@ -83,8 +83,8 @@ Column {
             text: qsTr("tryRotate")
             colorText: "white"
             colorSubText: "grey"
-            checked: settingsManager.scan_tryRotate
-            onClicked: settingsManager.scan_tryRotate = checked
+            checked: SettingsManager.scan_tryRotate
+            onClicked: SettingsManager.scan_tryRotate = checked
         }
     }
     Item {
@@ -92,7 +92,7 @@ Column {
         anchors.right: parent.right
         height: 40
 
-        visible: (settingsManager.backend_reader === "zxingcpp")
+        visible: (SettingsManager.backend_reader === "zxingcpp")
 
         Rectangle {
             anchors.fill: parent
@@ -109,8 +109,8 @@ Column {
             text: qsTr("tryInvert")
             colorText: "white"
             colorSubText: "grey"
-            checked: settingsManager.scan_tryInvert
-            onClicked: settingsManager.scan_tryInvert = checked
+            checked: SettingsManager.scan_tryInvert
+            onClicked: SettingsManager.scan_tryInvert = checked
         }
     }
     Item {
@@ -118,7 +118,7 @@ Column {
         anchors.right: parent.right
         height: 40
 
-        visible: (settingsManager.backend_reader === "zxingcpp")
+        visible: (SettingsManager.backend_reader === "zxingcpp")
 
         Rectangle {
             anchors.fill: parent
@@ -135,8 +135,8 @@ Column {
             text: qsTr("tryDownscale")
             colorText: "white"
             colorSubText: "grey"
-            checked: settingsManager.scan_tryDownscale
-            onClicked: settingsManager.scan_tryDownscale = checked
+            checked: SettingsManager.scan_tryDownscale
+            onClicked: SettingsManager.scan_tryDownscale = checked
         }
     }
 }

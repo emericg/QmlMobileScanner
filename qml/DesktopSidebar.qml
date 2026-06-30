@@ -1,7 +1,6 @@
 import QtQuick
 
 import ComponentLibrary
-import QmlMobileScanner
 
 Rectangle {
     id: appSidebar
