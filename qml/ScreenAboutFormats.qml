@@ -3,7 +3,6 @@ import QtQuick.Layouts
 import QtQuick.Controls
 
 import ComponentLibrary
-import QmlMobileScanner
 
 Flickable {
     id: screenAboutFormats

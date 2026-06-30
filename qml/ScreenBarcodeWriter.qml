@@ -1,11 +1,10 @@
 import QtQuick
-import QtQuick.Layouts
 import QtQuick.Effects
 import QtQuick.Dialogs
 import QtQuick.Controls
 
 import ComponentLibrary
-import QmlMobileScanner
+import AppUtils
 
 Loader {
     id: screenBarcodeWriter
@@ -624,7 +623,7 @@ Loader {
 
                         ButtonFlat {
                             color: barcodeAdvanced.colorBg
-                            colorText: utilsApp.isQColorLight(barcodeAdvanced.colorBg) ? "#333" : "#f4f4f4"
+                            colorText: UtilsApp.isQColorLight(barcodeAdvanced.colorBg) ? "#333" : "#f4f4f4"
                             font.bold: true
 
                             text: qsTr("background color")
@@ -639,7 +638,7 @@ Loader {
 
                         ButtonFlat {
                             color: barcodeAdvanced.colorFg
-                            colorText: utilsApp.isQColorLight(barcodeAdvanced.colorFg) ? "#333" : "#f4f4f4"
+                            colorText: UtilsApp.isQColorLight(barcodeAdvanced.colorFg) ? "#333" : "#f4f4f4"
                             font.bold: true
 
                             text: qsTr("foreground color")

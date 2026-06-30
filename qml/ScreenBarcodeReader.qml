@@ -3,15 +3,14 @@ import QtCore
 import QtQuick
 import QtQuick.Shapes
 import QtQuick.Layouts
-import QtQuick.Controls
 import QtQuick.Dialogs
 
 import QtPositioning
 import QtMultimedia
 
-import QmlMobileScanner
 import ComponentLibrary
 import MobileUI
+import AppUtils
 
 Loader {
     id: screenBarcodeReader
@@ -276,14 +275,14 @@ Loader {
                 console.log("> Camera > " + mediaDevices.videoInputs[mediaDevices.selectedDevice].description)
 
                 console.log("- videoOutput sz: " + videoOutput.x + "," + videoOutput.y + " - " + videoOutput.width + "x" + videoOutput.height)
-                console.log("- videoOutput2sz: (SCALED) " + videoOutput.x*utilsScreen.screenPar + "," + videoOutput.y*utilsScreen.screenPar + " - " +
-                                                            videoOutput.width*utilsScreen.screenPar + "x" + videoOutput.height*utilsScreen.screenPar)
+                console.log("- videoOutput2sz: (SCALED) " + videoOutput.x*UtilsScreen.screenPar + "," + videoOutput.y*UtilsScreen.screenPar + " - " +
+                                                            videoOutput.width*UtilsScreen.screenPar + "x" + videoOutput.height*UtilsScreen.screenPar)
                 console.log("- sourceRect  sz: " + videoOutput.sourceRect.x.toFixed() + "," + videoOutput.sourceRect.y + " - " +
                                                    videoOutput.sourceRect.width + "x" + videoOutput.sourceRect.height)
                 console.log("- contentRect sz: " + videoOutput.contentRect.x.toFixed() + "," + videoOutput.contentRect.y.toFixed() + " - " +
                                                    videoOutput.contentRect.width.toFixed() + "x" + videoOutput.contentRect.height.toFixed())
-                console.log("- contentRect sz: (SCALED) " + videoOutput.contentRect.x.toFixed()*utilsScreen.screenPar + "," + videoOutput.contentRect.y.toFixed()*utilsScreen.screenPar + " - " +
-                                                            videoOutput.contentRect.width.toFixed()*utilsScreen.screenPar + "x" + videoOutput.contentRect.height.toFixed()*utilsScreen.screenPar)
+                console.log("- contentRect sz: (SCALED) " + videoOutput.contentRect.x.toFixed()*UtilsScreen.screenPar + "," + videoOutput.contentRect.y.toFixed()*UtilsScreen.screenPar + " - " +
+                                                            videoOutput.contentRect.width.toFixed()*UtilsScreen.screenPar + "x" + videoOutput.contentRect.height.toFixed()*UtilsScreen.screenPar)
                 console.log("- captureRect sz: " + barcodeReader.captureRect.x.toFixed() + "," + barcodeReader.captureRect.y.toFixed() + " - " +
                                                    barcodeReader.captureRect.width.toFixed() + "x" + barcodeReader.captureRect.height.toFixed())
             }
@@ -431,7 +430,7 @@ Loader {
                     opacity: modelData.isOnScreen ? 0.80 : 0
                     Behavior on opacity { NumberAnimation { duration: 133 } }
 
-                    layer.enabled: appWindow.isDesktop
+                    layer.enabled: Theme.isDesktop
                     layer.samples: 4
 
                     ShapePath {

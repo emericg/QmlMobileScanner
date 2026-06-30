@@ -3,7 +3,7 @@ import QtQuick.Controls
 import QtQuick.Window
 
 import ComponentLibrary
-import QmlMobileScanner
+import AppUtils
 
 ApplicationWindow {
     id: appWindow
@@ -14,7 +14,7 @@ ApplicationWindow {
     color: Theme.colorBackground
     visible: true
 
-    property bool isHdpi: (utilsScreen.screenDpi >= 128 || utilsScreen.screenPar >= 2.0)
+    property bool isHdpi: (UtilsScreen.screenDpi >= 128 || UtilsScreen.screenPar >= 2.0)
     property bool isDesktop: true
     property bool isMobile: false
     property bool isPhone: false

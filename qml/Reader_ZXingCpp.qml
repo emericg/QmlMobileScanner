@@ -89,7 +89,7 @@ ZXingQtVideoFilter {
                                                        mapPointToItem(result.position.bottomLeft))
 
             if (newbarcode) {
-                utilsApp.vibrate(33)
+                UtilsOS.hapticFeedback(33)
 
                 if (SettingsManager.save_barcodes) {
                     barcodeManager.addHistory(result.text,

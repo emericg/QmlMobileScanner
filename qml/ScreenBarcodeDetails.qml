@@ -4,7 +4,7 @@ import QtQuick.Effects
 import QtQuick.Controls
 
 import ComponentLibrary
-import QmlMobileScanner
+import AppUtils
 
 Rectangle {
     id: screenBarcodeDetails
@@ -54,7 +54,7 @@ Rectangle {
         id: popupHistoryDelete
 
         onConfirmed: {
-            utilsApp.vibrate(33)
+            UtilsOS.hapticFeedback(33)
             barcodeManager.removeHistory(barcode.data)
             backAction()
         }
@@ -461,7 +461,7 @@ Rectangle {
                             source: "qrc:/IconLibrary/material-symbols/content_copy.svg"
 
                             onClicked: {
-                                utilsClipboard.setText(barcode.data)
+                                UtilsClipboard.setText(barcode.data)
                             }
                         }
 

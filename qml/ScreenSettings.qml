@@ -3,7 +3,7 @@ import QtQuick.Layouts
 import QtQuick.Controls
 
 import ComponentLibrary
-import QmlMobileScanner
+import AppUtils
 
 Loader {
     id: screenSettings
@@ -556,13 +556,13 @@ Loader {
                         z: 1
 
                         checked: {
-                            if (!utilsApp.checkMobileLocationPermission()) return false
-                            if (settingsManager.save_gps) return true
+                            if (!UtilsOS.checkMobileLocationPermission()) return false
+                            if (SettingsManager.save_gps) return true
                             return false
                         }
                         onClicked: {
-                            utilsApp.getMobileLocationPermission()
-                            settingsManager.save_gps = checked
+                            UtilsOS.getMobileLocationPermission()
+                            SettingsManager.save_gps = checked
                         }
                     }
                 }

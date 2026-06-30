@@ -7,9 +7,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-set(APP_NAME ${PROJECT_NAME})
-set(APP_VERSION ${PROJECT_VERSION})
-
 option(USE_ZINT "Build with zint support (encoder)"                             ON)
 option(USE_ZXINGCPP "Build with zxing-cpp support (decoder & encoder)"          ON)
 option(USE_QZXING "Build with QZXing support (decoder & encoder) (LEGACY)"      OFF)
@@ -152,7 +149,7 @@ add_other_files(${PROJECT_NAME}
 set(UTILS_CLIPBOARD true CACHE BOOL "UTILS_CLIPBOARD" FORCE)
 set(UTILS_DOCK_ENABLED true CACHE BOOL "UTILS_DOCK_ENABLED" FORCE)
 add_subdirectory(thirdparty/AppUtils)
-target_link_libraries(${PROJECT_NAME} PRIVATE AppUtils)
+target_link_libraries(${PROJECT_NAME} PRIVATE AppUtils AppUtils_plugin)
 
 # MobileUI
 add_subdirectory(thirdparty/MobileUI)

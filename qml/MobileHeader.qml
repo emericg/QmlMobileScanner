@@ -18,7 +18,7 @@ Rectangle {
 
     property int headerPosition: 60
 
-    property string headerTitle: utilsApp.appName()
+    property string headerTitle: UtilsApp.appName()
 
     ////////////////////////////////////////////////////////////////////////////
 

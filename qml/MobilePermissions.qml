@@ -1,8 +1,8 @@
 import QtQuick
-import QtQuick.Controls
 
 import ComponentLibrary
-import QmlMobileScanner
+import MobileUI
+import AppUtils
 
 Item {
     id: screenAboutPermissions
@@ -32,8 +32,8 @@ Item {
     function refreshPermissions() {
         // Refresh permissions
         button_network_test.validperm = true
-        button_location_test.validperm = utilsApp.checkMobileBleLocationPermission()
-        button_camera_test.validperm = utilsApp.checkMobileCameraPermission()
+        button_location_test.validperm = UtilsOS.checkMobileBleLocationPermission()
+        button_camera_test.validperm = UtilsOS.checkMobileCameraPermission()
     }
 
     Timer {
@@ -146,8 +146,8 @@ Item {
                     backgroundVisible: true
 
                     onClicked: {
-                        utilsApp.vibrate(25)
-                        utilsApp.getMobileCameraPermission()
+                        UtilsOS.hapticFeedback(25)
+                        UtilsOS.getMobileCameraPermission()
                         retryPermissions.start()
                     }
                 }
@@ -205,8 +205,8 @@ Item {
                     backgroundVisible: true
 
                     onClicked: {
-                        utilsApp.vibrate(25)
-                        utilsApp.getMobileLocationPermission()
+                        UtilsOS.hapticFeedback(25)
+                        UtilsOS.getMobileLocationPermission()
                         retryPermissions.start()
                     }
                 }
@@ -307,7 +307,7 @@ Item {
                 source: "qrc:/IconLibrary/material-icons/duotone/tune.svg"
                 sourceSize: 20
 
-                onClicked: utilsApp.openAndroidAppInfo("io.emeric.qmlmobilescanner")
+                onClicked: UtilsApp.openAndroidAppInfo("io.emeric.qmlmobilescanner")
             }
 
             ////////

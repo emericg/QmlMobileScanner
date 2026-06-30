@@ -1,8 +1,6 @@
 import QtQuick
-import QtQuick.Controls
 
 import ComponentLibrary
-import QmlMobileScanner
 
 DrawerThemed {
     contentItem: Item {
@@ -60,7 +58,7 @@ DrawerThemed {
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.verticalCenterOffset: 0
 
-                    text: utilsApp.appName()
+                    text: UtilsApp.appName()
                     color: Theme.colorText
                     font.bold: false
                     font.pixelSize: Theme.fontSizeTitle

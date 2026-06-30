@@ -44,7 +44,7 @@ QZXingFilter {
                                                        Qt.point(0,0), Qt.point(0,0), Qt.point(0,0), Qt.point(0,0))
 
             if (newbarcode) {
-                utilsApp.vibrate(33)
+                UtilsOS.hapticFeedback(33)
 
                 if (SettingsManager.save_barcodes) {
                     barcodeManager.addHistory(tag,

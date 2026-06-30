@@ -78,6 +78,7 @@ int main(int argc, char *argv[])
     app.setOrganizationName("emeric");
     app.setOrganizationDomain("emeric");
 
+    // Application icon
     app.setWindowIcon(QIcon(":/assets/gfx/logos/logo_black.svg"));
 
     // Init app components
@@ -96,26 +97,12 @@ int main(int argc, char *argv[])
     UtilsCamera *utilsCamera = UtilsCamera::getInstance();
     if (!utilsCamera) return EXIT_FAILURE;
 
-    // Init app utils
-    UtilsApp *utilsApp = UtilsApp::getInstance();
-    if (!utilsApp) return EXIT_FAILURE;
-
-    UtilsScreen *utilsScreen = UtilsScreen::getInstance();
-    if (!utilsScreen) return EXIT_FAILURE;
-
-    UtilsClipboard *utilsClipboard = new UtilsClipboard();
-    if (!utilsClipboard) return EXIT_FAILURE;
-
     // QML engine
     QQmlApplicationEngine engine;
     QQmlContext *engine_context = engine.rootContext();
-    engine_context->setContextProperty("settingsManager", stm);
     engine_context->setContextProperty("barcodeManager", bch);
     engine_context->setContextProperty("utilsBarcode", utilsBarcode);
     engine_context->setContextProperty("utilsCamera", utilsCamera);
-    engine_context->setContextProperty("utilsApp", utilsApp);
-    engine_context->setContextProperty("utilsScreen", utilsScreen);
-    engine_context->setContextProperty("utilsClipboard", utilsClipboard);
 
 #if QT_CONFIG(permissions)
     if (qApp->checkPermission(QCameraPermission{}) != Qt::PermissionStatus::Granted) {

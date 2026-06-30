@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import QtQuick.Controls
 
 import ComponentLibrary
+import AppUtils
 
 SwipeDelegate {
     id: widgetBarcodeHistory
@@ -226,7 +227,7 @@ SwipeDelegate {
             }
 
             SwipeDelegate.onClicked: {
-                utilsApp.vibrate(33)
+                UtilsOS.hapticFeedback(33)
                 barcodeManager.removeHistory(modelData.data)
             }
         }

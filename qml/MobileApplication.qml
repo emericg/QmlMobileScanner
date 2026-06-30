@@ -1,10 +1,9 @@
 import QtQuick
-import QtQuick.Controls
 import QtQuick.Window
 
-import QmlMobileScanner
-
 import ComponentLibrary
+import AppUtils
+
 import MobileSharing
 import MobileUI
 
@@ -17,11 +16,11 @@ Window {
     color: Theme.colorBackground
     visible: true
 
-    property bool isHdpi: (utilsScreen.screenDpi >= 128 || utilsScreen.screenPar >= 2.0)
+    property bool isHdpi: (UtilsScreen.screenDpi >= 128 || UtilsScreen.screenPar >= 2.0)
     property bool isDesktop: (Qt.platform.os !== "android" && Qt.platform.os !== "ios")
     property bool isMobile: (Qt.platform.os === "android" || Qt.platform.os === "ios")
-    property bool isPhone: ((Qt.platform.os === "android" || Qt.platform.os === "ios") && (utilsScreen.screenSize < 7.0))
-    property bool isTablet: ((Qt.platform.os === "android" || Qt.platform.os === "ios") && (utilsScreen.screenSize >= 7.0))
+    property bool isPhone: ((Qt.platform.os === "android" || Qt.platform.os === "ios") && (UtilsScreen.screenSize < 7.0))
+    property bool isTablet: ((Qt.platform.os === "android" || Qt.platform.os === "ios") && (UtilsScreen.screenSize >= 7.0))
 
     property bool wideMode: (isDesktop && width >= 640) || (isTablet && width >= 480)
     property bool singleColumn: (width < height)
@@ -254,7 +253,7 @@ Window {
         states: [
             State {
                 name: "ScreenTutorial"
-                PropertyChanges { target: appHeader; headerTitle: utilsApp.appName(); }
+                PropertyChanges { target: appHeader; headerTitle: UtilsApp.appName(); }
                 PropertyChanges { target: screenTutorial; visible: true; }
                 PropertyChanges { target: screenMainMenu; visible: false; }
                 PropertyChanges { target: screenBarcodeReader; visible: false; }
@@ -268,7 +267,7 @@ Window {
 
             State {
                 name: "ScreenMainMenu"
-                PropertyChanges { target: appHeader; headerTitle: utilsApp.appName(); }
+                PropertyChanges { target: appHeader; headerTitle: UtilsApp.appName(); }
                 PropertyChanges { target: screenTutorial; visible: false; }
                 PropertyChanges { target: screenMainMenu; visible: true; }
                 PropertyChanges { target: screenBarcodeReader; visible: false; }
