@@ -30,11 +30,14 @@
 #endif
 
 #include <QGuiApplication>
+#include <QCoreApplication>
 #include <QStandardPaths>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
 #include <QDateTime>
+#include <QQmlEngine>
+#include <QJSEngine>
 
 /* ************************************************************************** */
 
@@ -51,6 +54,21 @@ QString PlatformShareUtils::cacheIncomingDir()
 QString PlatformShareUtils::cacheOutgoingDir()
 {
     return cacheRootDir() + "/outgoing";
+}
+
+/* ************************************************************************** */
+
+MobileSharing *MobileSharing::getInstance()
+{
+    static MobileSharing *instance = new MobileSharing(QCoreApplication::instance());
+    return instance;
+}
+
+MobileSharing *MobileSharing::create(QQmlEngine *, QJSEngine *)
+{
+    MobileSharing *instance = getInstance();
+    QJSEngine::setObjectOwnership(instance, QJSEngine::CppOwnership);
+    return instance;
 }
 
 /* ************************************************************************** */
@@ -78,6 +96,9 @@ MobileSharing::MobileSharing(QObject *parent) : QObject(parent)
     mWorkingDir = PlatformShareUtils::cacheRootDir();
     mIncomingDir = PlatformShareUtils::cacheIncomingDir();
     mOutgoingDir = PlatformShareUtils::cacheOutgoingDir();
+
+    // Optional Android Storage Access Framework (SAF) DocumentProvider
+    mDocumentProvider = new DocumentProvider(this);
 
     // Session-scoped: wipe the whole directory, at the earliest point before any file can be received or sent
     QDir(mWorkingDir).removeRecursively();
@@ -147,9 +168,19 @@ void MobileSharing::sendFile(const QString &filePath, const QString &title, cons
     mPlatformShareUtils->sendFile(filePath, title, mimeType, requestId, move);
 }
 
+void MobileSharing::sendFiles(const QStringList &filePaths, const QString &title, const QString &mimeType, int requestId, bool move)
+{
+    mPlatformShareUtils->sendFiles(filePaths, title, mimeType, requestId, move);
+}
+
 void MobileSharing::viewFile(const QString &filePath, const QString &title, const QString &mimeType, int requestId)
 {
     mPlatformShareUtils->viewFile(filePath, title, mimeType, requestId);
+}
+
+void MobileSharing::viewFiles(const QStringList &filePaths, const QString &title, const QString &mimeType, int requestId)
+{
+    mPlatformShareUtils->viewFiles(filePaths, title, mimeType, requestId);
 }
 
 void MobileSharing::saveFile(const QString &filePath, const QString &suggestedName, const QString &mimeType, int requestId)
@@ -171,6 +202,13 @@ void MobileSharing::openFile()
 QString MobileSharing::getCacheDirectory() const
 {
     return mWorkingDir;
+}
+
+/* ************************************************************************** */
+
+DocumentProvider *MobileSharing::documentProvider() const
+{
+    return mDocumentProvider;
 }
 
 void MobileSharing::importFile(const QUrl &source)

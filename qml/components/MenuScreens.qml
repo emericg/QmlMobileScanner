@@ -9,7 +9,7 @@ Column {
     anchors.bottomMargin: Theme.componentMarginXL
     anchors.right: bottomemnus.right
 
-    width: singleColumn ? screenBarcodeReader.width - Theme.componentMarginXL*2 : 320
+    width: Theme.singleColumn ? screenBarcodeReader.width - Theme.componentMarginXL*2 : 320
     spacing: Theme.componentMargin
     visible: false
 

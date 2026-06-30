@@ -9,6 +9,7 @@ import MobileUI
 
 Window {
     id: appWindow
+
     minimumWidth: 480
     minimumHeight: 800
 
@@ -16,14 +17,35 @@ Window {
     color: Theme.colorBackground
     visible: true
 
+    // Helpers
     property bool isHdpi: (UtilsScreen.screenDpi >= 128 || UtilsScreen.screenPar >= 2.0)
     property bool isDesktop: (Qt.platform.os !== "android" && Qt.platform.os !== "ios")
     property bool isMobile: (Qt.platform.os === "android" || Qt.platform.os === "ios")
     property bool isPhone: ((Qt.platform.os === "android" || Qt.platform.os === "ios") && (UtilsScreen.screenSize < 7.0))
     property bool isTablet: ((Qt.platform.os === "android" || Qt.platform.os === "ios") && (UtilsScreen.screenSize >= 7.0))
 
-    property bool wideMode: (isDesktop && width >= 640) || (isTablet && width >= 480)
-    property bool singleColumn: (width < height)
+    // Setup ThemeEngine
+    Binding { target: Theme; property: "appTheme";               value: SettingsManager.appTheme }
+    Binding { target: Theme; property: "appThemeAuto";           value: SettingsManager.appThemeAuto }
+    Binding { target: Theme; property: "appThemeAutoMethod";     value: SettingsManager.appThemeAutoMethod }
+    Binding { target: Theme; property: "appWidth";               value: appWindow.width }
+    Binding { target: Theme; property: "appHeight";              value: appWindow.height }
+    Binding { target: Theme; property: "screenOrientation";      value: Screen.primaryOrientation }
+    Binding { target: Theme; property: "screenDpi";              value: UtilsScreen.screenDpi }
+    Binding { target: Theme; property: "screenPar";              value: UtilsScreen.screenPar }
+    Binding { target: Theme; property: "screenSize";             value: UtilsScreen.screenSize }
+    Binding { target: Theme; property: "screenPaddingStatusbar"; value: MobileUI.statusbarHeight }
+    Binding { target: Theme; property: "screenPaddingNavbar";    value: MobileUI.navbarHeight }
+    Binding { target: Theme; property: "screenPaddingTop";       value: MobileUI.safeAreaTop }
+    Binding { target: Theme; property: "screenPaddingLeft";      value: MobileUI.safeAreaLeft }
+    Binding { target: Theme; property: "screenPaddingRight";     value: MobileUI.safeAreaRight }
+    Binding { target: Theme; property: "screenPaddingBottom";    value: MobileUI.safeAreaBottom }
+
+    // Setup MobileUI
+    //Binding { target: MobileUI; property: "statusbarColor";         value: "transparent" }
+    //Binding { target: MobileUI; property: "statusbarContentColor";  value: Theme.colorStatusbar }
+    //Binding { target: MobileUI; property: "navbarColor";            value: "transparent" }
+    //Binding { target: MobileUI; property: "navbarContentColor";     value: Theme.colorTabletmenu }
 
     // Mobile stuff ////////////////////////////////////////////////////////////
 
@@ -40,17 +62,6 @@ Window {
     property int screenPaddingRight: MobileUI.safeAreaRight
     property int screenPaddingBottom: MobileUI.safeAreaBottom
 
-    Binding {
-        target: MobileUI
-        property: "statusbarTheme"
-        value: { return (appContent.state === "ScreenBarcodeReader") ? MobileUI.Dark : Theme.themeStatusbar }
-    }
-    Binding {
-        target: MobileUI
-        property: "navbarTheme"
-        value: { return (appContent.state === "ScreenBarcodeReader") ? MobileUI.Dark : Theme.themeStatusbar }
-    }
-
     MobileHeader {
         id: appHeader
 
@@ -63,13 +74,14 @@ Window {
         interactive: (appContent.state !== "Tutorial")
     }
 
-    MobileSharing {
-        id: mobileSharing
-    }
-
     // Events handling /////////////////////////////////////////////////////////
 
     Component.onCompleted: {
+        // Setup MobileUI
+        MobileUI.statusbarTheme = Qt.binding(() => (appContent.state === "ScreenBarcodeReader") ? MobileUI.Dark : Theme.themeStatusbar)
+        MobileUI.navbarTheme = Qt.binding(() => (appContent.state === "ScreenBarcodeReader") ? MobileUI.Dark : Theme.themeStatusbar)
+
+        // Load app screen
         if (SettingsManager.defaultTab === "writer") {
             screenBarcodeWriter.loadScreen()
         } else {

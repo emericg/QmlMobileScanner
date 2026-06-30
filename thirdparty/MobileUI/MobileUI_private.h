@@ -35,7 +35,7 @@ public:
     MobileUIPrivate() = default;
     ~MobileUIPrivate() = default;
 
-    int getDeviceTheme();
+    int getDeviceTheme() const;
 
     void setColor_statusbar(const QColor &color);
     void setTheme_statusbar(const MobileUI::Theme theme);
@@ -43,22 +43,32 @@ public:
     void setColor_navbar(const QColor &color);
     void setTheme_navbar(const MobileUI::Theme theme);
 
-    int getStatusbarHeight();
-    int getNavbarHeight();
+    /*!
+     * \brief getSafeAreaMetrics()
+     *
+     * Read all system bar sizes and safe area insets (in device-independent pixels)
+     * in a single pass (one backend round-trip, especially useful for the Android
+     * backend and it's Android main thread usage).
+     */
+    void getSafeAreaMetrics(int &statusbarHeight, int &navbarHeight,
+                            int &top, int &left, int &right, int &bottom) const;
 
-    int getSafeAreaTop();
-    int getSafeAreaLeft();
-    int getSafeAreaRight();
-    int getSafeAreaBottom();
+    int getKeyboardHeight() const;
+
+    int getScreenBrightness() const;
+    void setScreenBrightness(const int value);
+
+    void setScreenLockOrientation(const MobileUI::ScreenLockOrientation orientation);
 
     void setScreenAlwaysOn(const bool on);
 
-    void setScreenOrientation(const MobileUI::ScreenOrientation orientation);
+    void setScreenSecure(const bool on);
 
-    int getScreenBrightness();
-    void setScreenBrightness(const int value);
+    void setScreenHighRefreshRate(const bool value);
 
-    void vibrate();
+    void triggerHapticFeedback(const MobileUI::HapticFeedback type);
+
+    bool setTorch(const bool on);
 
     void backToHomeScreen();
 };

@@ -24,10 +24,8 @@
 #include <QCoreApplication>
 #include <QQmlEngine>
 #include <QJSEngine>
-#include <QStandardPaths>
 #include <QSettings>
 #include <QLocale>
-#include <QDir>
 #include <QDebug>
 
 /* ************************************************************************** */
@@ -62,7 +60,7 @@ bool SettingsManager::readSettings()
 
     if (settings.status() == QSettings::NoError)
     {
-#if defined(Q_OS_LINUX) || defined(Q_OS_MACOS) || defined(Q_OS_WINDOWS)
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
         if (settings.contains("ApplicationWindow/x"))
             m_appPosition.setWidth(settings.value("ApplicationWindow/x").toInt());
         if (settings.contains("ApplicationWindow/y"))
@@ -144,7 +142,7 @@ bool SettingsManager::readSettings()
 
     if (m_firstlaunch)
     {
-        // force settings file creation
+        // force settings file creation?
         writeSettings();
     }
 
@@ -205,10 +203,16 @@ bool SettingsManager::writeSettings()
 
 void SettingsManager::resetSettings()
 {
-    m_appTheme = "light";
+    m_appTheme = "THEME_DEFAULT";
     Q_EMIT appThemeChanged();
     m_appThemeAuto = false;
     Q_EMIT appThemeAutoChanged();
+    m_appThemeAutoMethod = 0;
+    Q_EMIT appThemeAutoMethodChanged();
+    m_appUnitSystem = 0;
+    Q_EMIT appUnitSystemChanged();
+    m_appLanguage = "auto";
+    Q_EMIT appLanguageChanged();
 
     m_defaultTab = "reader";
     m_backendWriter = "";

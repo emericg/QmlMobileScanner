@@ -9,7 +9,7 @@ Rectangle {
     anchors.bottom: parent.bottom
 
     z: 10
-    width: isHdpi ? 220 : 240
+    width: Theme.isHdpi ? 220 : 256
     color: Theme.colorSidebar
 
     ////////////

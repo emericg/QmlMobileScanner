@@ -46,17 +46,17 @@ Loader {
             Column {
                 id: contentColumn
                 anchors.left: parent.left
-                anchors.leftMargin: screenPaddingLeft + ((singleColumn || isPhone) ? 0 : parent.width * 0.12)
+                anchors.leftMargin: Theme.screenPaddingLeft + ((Theme.singleColumn || Theme.isPhone) ? 0 : parent.width * 0.12)
                 anchors.right: parent.right
-                anchors.rightMargin: screenPaddingRight + ((singleColumn || isPhone) ? 0 : parent.width * 0.12)
+                anchors.rightMargin: Theme.screenPaddingRight + ((Theme.singleColumn || Theme.isPhone) ? 0 : parent.width * 0.12)
 
                 topPadding: 20
                 bottomPadding: 20
                 spacing: 8
 
-                property int padIcon: singleColumn ? Theme.componentMarginL : Theme.componentMarginL
+                property int padIcon: Theme.singleColumn ? Theme.componentMarginL : Theme.componentMarginL
                 property int padText: appHeader.headerPosition
-                property int padMargin: singleColumn ? 0 : Theme.componentMargin
+                property int padMargin: Theme.singleColumn ? 0 : Theme.componentMargin
 
                 ////////////////
 

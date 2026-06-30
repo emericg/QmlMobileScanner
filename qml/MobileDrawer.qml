@@ -1,6 +1,7 @@
 import QtQuick
 
 import ComponentLibrary
+import AppUtils
 
 DrawerThemed {
     contentItem: Item {
@@ -90,7 +91,7 @@ DrawerThemed {
 
                 ////////
 
-                DrawerItem {
+                DrawerItem_menu {
                     highlighted: (appContent.state === "ScreenBarcodeReader")
                     text: qsTr("Barcode reader")
                     source: "qrc:/IconLibrary/material-icons/duotone/qr_code_scanner.svg"
@@ -101,7 +102,7 @@ DrawerThemed {
                     }
                 }
 
-                DrawerItem {
+                DrawerItem_menu {
                     highlighted: (appContent.state === "ScreenBarcodeWriter")
                     text: qsTr("Barcode writer")
                     source: "qrc:/IconLibrary/material-symbols/qr_code_2.svg"
@@ -116,7 +117,7 @@ DrawerThemed {
 
                 ListSeparatorPadded { }
 
-                DrawerItem {
+                DrawerItem_menu {
                     highlighted: (appContent.state === "ScreenBarcodeHistory")
                     text: qsTr("Barcodes history")
                     source: "qrc:/IconLibrary/material-icons/duotone/list.svg"
@@ -133,7 +134,7 @@ DrawerThemed {
 
                 ////////
 
-                DrawerItem {
+                DrawerItem_menu {
                     text: qsTr("Settings")
                     source: "qrc:/IconLibrary/material-symbols/settings.svg"
                     highlighted: (appContent.state === "ScreenSettings")
@@ -144,7 +145,7 @@ DrawerThemed {
                     }
                 }
 
-                DrawerItem {
+                DrawerItem_menu {
                     text: qsTr("About")
                     source: "qrc:/IconLibrary/material-symbols/info.svg"
                     highlighted: (appContent.state === "ScreenAbout" ||

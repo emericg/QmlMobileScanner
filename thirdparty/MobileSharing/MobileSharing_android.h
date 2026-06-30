@@ -71,6 +71,7 @@ public:
     void sendText(const QString &text, const QString &subject, const QUrl &url) override;
 
     void sendFile(const QString &filePath, const QString &title, const QString &mimeType, int requestId, bool move) override;
+    void sendFiles(const QStringList &filePaths, const QString &title, const QString &mimeType, int requestId, bool move) override;
     void viewFile(const QString &filePath, const QString &title, const QString &mimeType, int requestId) override;
     void saveFile(const QString &filePath, const QString &suggestedName, const QString &mimeType, int requestId) override;
 

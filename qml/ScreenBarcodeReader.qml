@@ -234,14 +234,14 @@ Loader {
 
             // Select capture rectangle
             onWidthChanged: {
-                if (isTablet) {
+                if (Theme.isTablet) {
                     videoOutput.mapCaptureRect(videoOutput.captureRect_wide_left)
                 }
-                if (isPhone) {
+                if (Theme.isPhone) {
                     videoOutput.mapCaptureRect(videoOutput.captureRect_mobile_top)
                 }
-                if (isDesktop) {
-                    if (singleColumn) {
+                if (Theme.isDesktop) {
+                    if (Theme.singleColumn) {
                         videoOutput.mapCaptureRect(videoOutput.captureRect_mobile_mid)
                     } else {
                         videoOutput.mapCaptureRect(videoOutput.captureRect_wide_left)

@@ -76,35 +76,35 @@ Rectangle {
         contentWidth: -1
         contentHeight: gridContent.height
 
-        interactive: singleColumn
-        boundsBehavior: isDesktop ? Flickable.OvershootBounds : Flickable.DragAndOvershootBounds
+        interactive: Theme.singleColumn
+        boundsBehavior: Theme.isDesktop ? Flickable.OvershootBounds : Flickable.DragAndOvershootBounds
         ScrollBar.vertical: ScrollBar { visible: false }
 
         Grid {
             id: gridContent
 
             anchors.left: parent.left
-            anchors.leftMargin: screenPaddingLeft + columnSpacing
+            anchors.leftMargin: Theme.screenPaddingLeft + columnSpacing
             anchors.right: parent.right
-            anchors.rightMargin: screenPaddingRight + columnSpacing
+            anchors.rightMargin: Theme.screenPaddingRight + columnSpacing
 
-            columns: singleColumn ? 1 : 2
-            columnSpacing: Theme.componentMarginXL * (singleColumn ? 1 : 2)
+            columns: Theme.singleColumn ? 1 : 2
+            columnSpacing: Theme.componentMarginXL * (Theme.singleColumn ? 1 : 2)
             rows: 2
-            rowSpacing: Theme.componentMarginXL * (singleColumn ? 1 : 2)
+            rowSpacing: Theme.componentMarginXL * (Theme.singleColumn ? 1 : 2)
 
             topPadding: columnSpacing
             bottomPadding: columnSpacing
             spacing: columnSpacing
 
-            property int www: singleColumn ? gridContent.width : (gridContent.width - columnSpacing) / 2
+            property int www: Theme.singleColumn ? gridContent.width : (gridContent.width - columnSpacing) / 2
             property int hhh: screenBarcodeDetails.height - columnSpacing*2
 
             ////////////////////////////////
 
             Item { // pane 1
                 width: gridContent.www
-                height: singleColumn ? barcodeView.height : gridContent.hhh
+                height: Theme.singleColumn ? barcodeView.height : gridContent.hhh
 
                 ////////
 
@@ -274,7 +274,7 @@ Rectangle {
 
             Item { // pane 2
                 width: gridContent.www
-                height: singleColumn ? barcodeDetails.height : gridContent.hhh
+                height: Theme.singleColumn ? barcodeDetails.height : gridContent.hhh
 
                 Column {
                     id: barcodeDetails
@@ -282,7 +282,7 @@ Rectangle {
                     anchors.right: parent.right
                     anchors.verticalCenter: parent.verticalCenter
 
-                    height: singleColumn ? undefined : barcodeView.height
+                    height: Theme.singleColumn ? undefined : barcodeView.height
 
                     spacing: Theme.componentMarginXL
 

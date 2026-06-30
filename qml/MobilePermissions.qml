@@ -70,7 +70,7 @@ Item {
                 anchors.right: parent.right
                 height: 20
 
-                RoundButtonIcon {
+                RoundButtonFlat {
                     id: button_network_test
                     anchors.left: parent.left
                     anchors.leftMargin: 16
@@ -83,9 +83,8 @@ Item {
                     property bool validperm: true
 
                     source: (validperm) ? "qrc:/IconLibrary/material-symbols/check.svg" : "qrc:/IconLibrary/material-symbols/close.svg"
-                    iconColor: (validperm) ? "white" : "white"
-                    backgroundColor: (validperm) ? Theme.colorSuccess : Theme.colorSubText
-                    backgroundVisible: true
+                    color: (validperm) ? Theme.colorPrimary : Theme.colorSubText
+                    colorIcon: (validperm) ? "white" : "white"
 
                     onClicked: {
                         refreshPermissions.start()
@@ -128,7 +127,7 @@ Item {
                 anchors.right: parent.right
                 height: 20
 
-                RoundButtonIcon {
+                RoundButtonFlat {
                     id: button_camera_test
                     anchors.left: parent.left
                     anchors.leftMargin: 16
@@ -141,9 +140,8 @@ Item {
                     property bool validperm: true
 
                     source: (validperm) ? "qrc:/IconLibrary/material-symbols/check.svg" : "qrc:/IconLibrary/material-symbols/close.svg"
-                    iconColor: (validperm) ? "white" : "white"
-                    backgroundColor: (validperm) ? Theme.colorSuccess : Theme.colorSubText
-                    backgroundVisible: true
+                    color: (validperm) ? Theme.colorPrimary : Theme.colorSubText
+                    colorIcon: (validperm) ? "white" : "white"
 
                     onClicked: {
                         UtilsOS.hapticFeedback(25)
@@ -188,7 +186,7 @@ Item {
                 anchors.right: parent.right
                 height: 20
 
-                RoundButtonIcon {
+                RoundButtonFlat {
                     id: button_location_test
                     width: 32
                     height: 32
@@ -200,9 +198,8 @@ Item {
                     property bool validperm: true
 
                     source: (validperm) ? "qrc:/IconLibrary/material-symbols/check.svg" : "qrc:/IconLibrary/material-symbols/close.svg"
-                    iconColor: (validperm) ? "white" : "white"
-                    backgroundColor: (validperm) ? Theme.colorSuccess : Theme.colorSubText
-                    backgroundVisible: true
+                    color: (validperm) ? Theme.colorPrimary : Theme.colorSubText
+                    colorIcon: (validperm) ? "white" : "white"
 
                     onClicked: {
                         UtilsOS.hapticFeedback(25)

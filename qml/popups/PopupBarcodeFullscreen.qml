@@ -30,7 +30,7 @@ Popup {
 
     ////////
 
-    RoundButtonIcon {
+    RoundButtonClear {
         anchors.top: parent.top
         anchors.topMargin: screenPaddingStatusbar
         anchors.left: parent.left
@@ -41,7 +41,7 @@ Popup {
 
         source: "qrc:/IconLibrary/material-symbols/arrow_back.svg"
         sourceSize: 28
-        iconColor: Theme.colorHeaderContent
+        colorIcon: Theme.colorHeaderContent
 
         onClicked: popupBarcodeFullscreen.close()
     }

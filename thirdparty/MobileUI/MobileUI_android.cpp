@@ -29,6 +29,7 @@
 #include <QTimer>
 
 #include <QJniObject>
+#include <QJniEnvironment>
 
 #include <cmath>
 
@@ -36,6 +37,7 @@
 
 // WindowManager.LayoutParams
 #define FLAG_KEEP_SCREEN_ON                     0x00000080
+#define FLAG_SECURE                             0x00002000
 #define FLAG_TRANSLUCENT_STATUS                 0x04000000
 #define FLAG_TRANSLUCENT_NAVIGATION             0x08000000
 #define FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS       0x80000000
@@ -71,8 +73,8 @@
 #define DEFAULT_AMPLITUDE                       0xffffffff
 #define EFFECT_CLICK                            0x00000000
 #define EFFECT_DOUBLE_CLICK                     0x00000001
-#define EFFECT_HEAVY_CLICK                      0x00000005
 #define EFFECT_TICK                             0x00000002
+#define EFFECT_HEAVY_CLICK                      0x00000005
 
 // Screen orientation
 #define SCREEN_ORIENTATION_UNSPECIFIED         -1
@@ -82,6 +84,9 @@
 #define SCREEN_ORIENTATION_SENSOR_PORTRAIT      7
 #define SCREEN_ORIENTATION_REVERSE_LANDSCAPE    8
 #define SCREEN_ORIENTATION_REVERSE_PORTRAIT     9
+#define SCREEN_ORIENTATION_USER_LANDSCAPE      11
+#define SCREEN_ORIENTATION_USER_PORTRAIT       12
+#define SCREEN_ORIENTATION_LOCKED              14
 
 // Screen brightness
 #define BRIGHTNESS_OVERRIDE_NONE               -1
@@ -103,7 +108,7 @@ static QJniObject getInsetsController()
 {
     if (QNativeInterface::QAndroidApplication::sdkVersion() >= 30)
     {
-        // getInsetsController // has been added in API level 30
+        // getInsetsController // Added in API level 30
 
         return getAndroidWindow().callObjectMethod("getInsetsController", "()Landroid/view/WindowInsetsController;");
     }
@@ -111,46 +116,42 @@ static QJniObject getInsetsController()
     return QJniObject();
 }
 
+static QJniObject getAndroidRootWindowInsets()
+{
+    // getRootWindowInsets // Added in API level 28
+
+    return getAndroidDecorView().callObjectMethod("getRootWindowInsets", "()Landroid/view/WindowInsets;");
+}
+
 static QJniObject getDisplayCutout()
 {
-    if (QNativeInterface::QAndroidApplication::sdkVersion() >= 28)
+    QJniObject insets = getAndroidRootWindowInsets();
+    if (insets.isValid())
     {
-        // getRootWindowInsets // has been added in API level 28
-        // getDisplayCutout // has been added in API level 28
+        // getDisplayCutout // Added in API level 28
 
-        QJniObject insets = getAndroidDecorView().callObjectMethod("getRootWindowInsets",
-                                                                   "()Landroid/view/WindowInsets;");
-
-        if (insets.isValid())
-        {
-            return insets.callObjectMethod("getDisplayCutout", "()Landroid/view/DisplayCutout;");
-        }
+        return insets.callObjectMethod("getDisplayCutout", "()Landroid/view/DisplayCutout;");
     }
 
     return QJniObject();
 }
 
-static QJniObject getWindowInsetsType(const char *insetType)
+static QJniObject getAndroidDisplay()
 {
+    QJniObject activity = QNativeInterface::QAndroidApplication::context();
+    if (!activity.isValid()) return QJniObject();
+
     if (QNativeInterface::QAndroidApplication::sdkVersion() >= 30)
     {
-        // getRootWindowInsets // has been added in API level 28
-        // WindowInsets.Type // has been added in API level 30
-
-        QJniObject insets = getAndroidDecorView().callObjectMethod("getRootWindowInsets",
-                                                                   "()Landroid/view/WindowInsets;");
-
-        if (insets.isValid())
-        {
-            // can be "statusBars", "navigationBars", "systemBars"
-            jint type = QJniObject::callStaticMethod<jint>("android/view/WindowInsets$Type",
-                                                           insetType, "()I");
-
-            return insets.callObjectMethod("getInsets", "(I)Landroid/graphics/Insets;", type);
-        }
+        // Context.getDisplay() // Added in API level 30
+        return activity.callObjectMethod("getDisplay", "()Landroid/view/Display;");
     }
 
-    return QJniObject();
+    // WindowManager.getDefaultDisplay() // Deprecated in API level 30
+    QJniObject wm = activity.callObjectMethod("getWindowManager", "()Landroid/view/WindowManager;");
+    if (!wm.isValid()) return QJniObject();
+
+    return wm.callObjectMethod("getDefaultDisplay", "()Landroid/view/Display;");
 }
 
 /* ************************************************************************** */
@@ -160,9 +161,49 @@ static int pxToDip(int px)
     return static_cast<int>(std::lround(px / qApp->devicePixelRatio()));
 }
 
+static int insetField(const QJniObject &insets, const char *insetType, const char *side)
+{
+    if (QNativeInterface::QAndroidApplication::sdkVersion() < 30) return 0;
+    if (!insets.isValid()) return 0;
+
+    // Modern system bar height, via WindowInsets.Type // Call from Android thread!
+    // WindowInsets.Type // Added in API level 30
+
+    jint type = QJniObject::callStaticMethod<jint>("android/view/WindowInsets$Type", insetType, "()I");
+    QJniObject inset = insets.callObjectMethod("getInsets", "(I)Landroid/graphics/Insets;", type);
+
+    if (!inset.isValid()) return 0;
+
+    return inset.getField<jint>(side);
+}
+
+static int dimenHeight(const char *name, int fallbackValue)
+{
+    //if (QNativeInterface::QAndroidApplication::sdkVersion() < 28) return fallbackValue;
+
+    // Legacy system bar height fallback, via the platform dimension resource // Call from Android thread!
+
+    QJniObject activity = QNativeInterface::QAndroidApplication::context();
+    QJniObject resources = activity.callObjectMethod("getResources", "()Landroid/content/res/Resources;");
+
+    QJniObject jname = QJniObject::fromString(name);
+    QJniObject jtype = QJniObject::fromString("dimen");
+    QJniObject jpackage = QJniObject::fromString("android");
+
+    int identifier = resources.callMethod<int>("getIdentifier", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I",
+                                               jname.object<jstring>(), jtype.object<jstring>(), jpackage.object<jstring>());
+
+    if (identifier > 0)
+    {
+        return pxToDip(resources.callMethod<int>("getDimensionPixelSize", "(I)I", identifier));
+    }
+
+    return fallbackValue;
+}
+
 /* ************************************************************************** */
 
-int MobileUIPrivate::getDeviceTheme()
+int MobileUIPrivate::getDeviceTheme() const
 {
     return QNativeInterface::QAndroidApplication::runOnAndroidMainThread([] {
             QJniObject activity = QNativeInterface::QAndroidApplication::context();
@@ -211,7 +252,7 @@ void MobileUIPrivate::setTheme_statusbar(const MobileUI::Theme theme)
                                        appearance, APPEARANCE_LIGHT_STATUS_BARS);
             }
         }
-        else if (QNativeInterface::QAndroidApplication::sdkVersion() < 30)
+        else // if (QNativeInterface::QAndroidApplication::sdkVersion() >= 23)
         {
             // setSystemUiVisibility // Added in API level 23 // Deprecated in API level 30
 
@@ -239,26 +280,26 @@ void MobileUIPrivate::setColor_navbar(const QColor &color)
 
             QJniObject window_android = getAndroidWindow();
             QWindow *window_qt = qApp->allWindows().isEmpty() ? nullptr : qApp->allWindows().first();
+            const bool fullscreenMode = (window_qt && window_qt->visibility() == QWindow::FullScreen);
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
-            const bool maximizedHint = (window_qt && (window_qt->flags() & Qt::ExpandedClientAreaHint));
-#else
-            const bool maximizedHint = (window_qt && (window_qt->flags() & Qt::MaximizeUsingFullscreenGeometryHint));
-#endif
+            // Way more complicated than setColor_statusbar()...
 
-            if (maximizedHint)
+            if (QNativeInterface::QAndroidApplication::sdkVersion() >= 29)
             {
-                // if we try to set the FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag while in fullscreen mode, it will mess everything up
-                window_android.callMethod<void>("addFlags", "(I)V", FLAG_TRANSLUCENT_NAVIGATION);
-                window_android.callMethod<void>("setNavigationBarColor", "(I)V", color.rgba());
+                // Unlike the status bar, navigation-bar contrast enforcement defaults to ON
+                window_android.callMethod<void>("setNavigationBarContrastEnforced", "(Z)V", false);
+            }
+            if (fullscreenMode)
+            {
+                // When the navbar is hidden, don't force the system bar backgrounds, it disturbs the fullscreen layout
+                window_android.callMethod<void>("clearFlags", "(I)V", FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             }
             else
             {
-                // set color
                 window_android.callMethod<void>("addFlags", "(I)V", FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-                window_android.callMethod<void>("clearFlags", "(I)V", FLAG_TRANSLUCENT_NAVIGATION);
-                window_android.callMethod<void>("setNavigationBarColor", "(I)V", color.rgba());
             }
+            window_android.callMethod<void>("clearFlags", "(I)V", FLAG_TRANSLUCENT_NAVIGATION);
+            window_android.callMethod<void>("setNavigationBarColor", "(I)V", color.rgba());
         }
     });
 }
@@ -279,7 +320,7 @@ void MobileUIPrivate::setTheme_navbar(const MobileUI::Theme theme)
                                        appearance, APPEARANCE_LIGHT_NAVIGATION_BARS);
             }
         }
-        else if (QNativeInterface::QAndroidApplication::sdkVersion() < 30)
+        else // if (QNativeInterface::QAndroidApplication::sdkVersion() >= 23)
         {
             // getSystemUiVisibility // Added in API level 23 // Deprecated in API level 30
 
@@ -298,215 +339,77 @@ void MobileUIPrivate::setTheme_navbar(const MobileUI::Theme theme)
 
 /* ************************************************************************** */
 
-int MobileUIPrivate::getStatusbarHeight()
+void MobileUIPrivate::getSafeAreaMetrics(int &statusbarHeight, int &navbarHeight,
+                                         int &top, int &left, int &right, int &bottom) const
 {
-    return QNativeInterface::QAndroidApplication::runOnAndroidMainThread([]() -> int {
-            if (QNativeInterface::QAndroidApplication::sdkVersion() >= 30)
-            {
-                // WindowInsets.Type // has been added in API level 30
+    QNativeInterface::QAndroidApplication::runOnAndroidMainThread([&]() -> void {
+        QJniObject insets = getAndroidRootWindowInsets(); // called just once
 
-                QJniObject statusbar = getWindowInsetsType("statusBars");
-                if (statusbar.isValid())
-                {
-                    // status bar is the top inset; a side-mounted bar in landscape is folded into the left/right safe areas
-                    return pxToDip(statusbar.getField<jint>("top"));
-                }
-            }
-            else
-            {
-                // Fallback for older systems: the legacy dimension resource
-                QJniObject activity = QNativeInterface::QAndroidApplication::context();
-                QJniObject resources = activity.callObjectMethod("getResources", "()Landroid/content/res/Resources;");
-
-                QJniObject name = QJniObject::fromString("status_bar_height");
-                QJniObject defType = QJniObject::fromString("dimen");
-                QJniObject defPackage = QJniObject::fromString("android");
-
-                int identifier = resources.callMethod<int>(
-                    "getIdentifier",
-                    "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I",
-                    name.object<jstring>(),
-                    defType.object<jstring>(),
-                    defPackage.object<jstring>());
-
-                if (identifier > 0)
-                {
-                    return pxToDip(resources.callMethod<int>("getDimensionPixelSize", "(I)I", identifier));
-                }
-            }
-
-            return 24; // default fallback
-       })
-    .result()
-    .toInt();
-}
-
-int MobileUIPrivate::getNavbarHeight()
-{
-    return QNativeInterface::QAndroidApplication::runOnAndroidMainThread([]() -> int {
-            if (QNativeInterface::QAndroidApplication::sdkVersion() >= 30)
-            {
-                // WindowInsets.Type // has been added in API level 30
-
-                QJniObject navbar = getWindowInsetsType("navigationBars");
-                if (navbar.isValid())
-                {
-                    // navigation bar is the bottom inset; a side-mounted bar in landscape is folded into the left/right safe areas
-                    return pxToDip(navbar.getField<jint>("bottom"));
-                }
-            }
-            else
-            {
-                // Fallback for older systems: the legacy dimension resource
-                QJniObject activity = QNativeInterface::QAndroidApplication::context();
-                QJniObject resources = activity.callObjectMethod("getResources", "()Landroid/content/res/Resources;");
-
-                QJniObject name = QJniObject::fromString("navigation_bar_height");
-                QJniObject defType = QJniObject::fromString("dimen");
-                QJniObject defPackage = QJniObject::fromString("android");
-
-                int identifier = resources.callMethod<int>(
-                    "getIdentifier",
-                    "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I",
-                    name.object<jstring>(),
-                    defType.object<jstring>(),
-                    defPackage.object<jstring>());
-
-                if (identifier > 0)
-                {
-                    return pxToDip(resources.callMethod<int>("getDimensionPixelSize", "(I)I", identifier));
-                }
-            }
-
-            return 48; // default fallback
-        })
-    .result()
-    .toInt();
-}
-
-int MobileUIPrivate::getSafeAreaTop()
-{
-    return QNativeInterface::QAndroidApplication::runOnAndroidMainThread([]() -> int {
-            int cutoutInset = 0;
-
-            QJniObject cutout = getDisplayCutout();
-            if (cutout.isValid())
-            {
-                cutoutInset = cutout.callMethod<int>("getSafeInsetTop", "()I");
-            }
-
-           return pxToDip(cutoutInset);
-        })
-    .result()
-    .toInt();
-}
-
-int MobileUIPrivate::getSafeAreaLeft()
-{
-    return QNativeInterface::QAndroidApplication::runOnAndroidMainThread([]() -> int {
-            int cutoutInset = 0;
-            int barInset = 0;
-
-            QJniObject cutout = getDisplayCutout();
-            if (cutout.isValid())
-            {
-                cutoutInset = cutout.callMethod<int>("getSafeInsetLeft", "()I");
-            }
-
-            // Include a side-mounted system bar when in landscape mode?
-            if (QNativeInterface::QAndroidApplication::sdkVersion() >= 30)
-            {
-                QJniObject bars = getWindowInsetsType("systemBars");
-                if (bars.isValid()) barInset = bars.getField<jint>("left");
-            }
-
-            const int inset = (cutoutInset > barInset) ? cutoutInset : barInset;
-            return pxToDip(inset);
-        })
-    .result()
-    .toInt();
-}
-
-int MobileUIPrivate::getSafeAreaRight()
-{
-    return QNativeInterface::QAndroidApplication::runOnAndroidMainThread([]() -> int {
-            int cutoutInset = 0;
-            int barInset = 0;
-
-            QJniObject cutout = getDisplayCutout();
-            if (cutout.isValid())
-            {
-                cutoutInset = cutout.callMethod<int>("getSafeInsetRight", "()I");
-            }
-
-            // Include a side-mounted system bar when in landscape mode?
-            if (QNativeInterface::QAndroidApplication::sdkVersion() >= 30)
-            {
-                QJniObject bars = getWindowInsetsType("systemBars");
-                if (bars.isValid()) barInset = bars.getField<jint>("right");
-            }
-
-            const int inset = (cutoutInset > barInset) ? cutoutInset : barInset;
-            return pxToDip(inset);
-        })
-    .result()
-    .toInt();
-}
-
-int MobileUIPrivate::getSafeAreaBottom()
-{
-    return QNativeInterface::QAndroidApplication::runOnAndroidMainThread([]() -> int {
-            int cutoutInset = 0;
-
-            QJniObject cutout = getDisplayCutout();
-            if (cutout.isValid())
-            {
-                cutoutInset = cutout.callMethod<int>("getSafeInsetBottom", "()I");
-            }
-
-            return pxToDip(cutoutInset);
-        })
-    .result()
-    .toInt();
-}
-
-/* ************************************************************************** */
-
-void MobileUIPrivate::setScreenAlwaysOn(const bool on)
-{
-    QNativeInterface::QAndroidApplication::runOnAndroidMainThread([=]() {
-        QJniObject window = getAndroidWindow();
-
-        if (on)
-            window.callMethod<void>("addFlags", "(I)V", FLAG_KEEP_SCREEN_ON);
-        else
-            window.callMethod<void>("clearFlags", "(I)V", FLAG_KEEP_SCREEN_ON);
-    });
-}
-
-void MobileUIPrivate::setScreenOrientation(const MobileUI::ScreenOrientation orientation)
-{
-    int value = SCREEN_ORIENTATION_UNSPECIFIED;
-
-    if (orientation == MobileUI::Portrait) value = SCREEN_ORIENTATION_PORTRAIT;
-    else if (orientation == MobileUI::Portrait_upsidedown) value = SCREEN_ORIENTATION_REVERSE_PORTRAIT;
-    else if (orientation == MobileUI::Portrait_sensor) value = SCREEN_ORIENTATION_SENSOR_PORTRAIT;
-    else if (orientation == MobileUI::Landscape_left) value = SCREEN_ORIENTATION_LANDSCAPE;
-    else if (orientation == MobileUI::Landscape_right) value = SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
-    else if (orientation == MobileUI::Landscape_sensor) value = SCREEN_ORIENTATION_SENSOR_LANDSCAPE;
-
-    QNativeInterface::QAndroidApplication::runOnAndroidMainThread([value]() {
-        QJniObject activity = QNativeInterface::QAndroidApplication::context();
-        if (activity.isValid())
-        {
-            activity.callMethod<void>("setRequestedOrientation", "(I)V", value);
+        if (!insets.isValid()) {
+            statusbarHeight = navbarHeight = top = left = right = bottom = 0;
+            return;
         }
-    });
+
+        const int sdk = QNativeInterface::QAndroidApplication::sdkVersion();
+
+        // System bars: the top/bottom inset
+        // side-mounted bars in landscape are folded into the left/right safe areas below
+
+        if (sdk >= 30)
+        {
+            // status/navigation bar is the top/bottom inset; a side-mounted bar in
+            // landscape reads 0 here and is folded into the left/right safe areas below.
+            statusbarHeight = pxToDip(insetField(insets, "statusBars", "top"));
+            navbarHeight = pxToDip(insetField(insets, "navigationBars", "bottom"));
+        }
+        else
+        {
+            statusbarHeight = dimenHeight("status_bar_height", 24);
+            navbarHeight = dimenHeight("navigation_bar_height", 48);
+        }
+
+        // Screen safe areas: the display cutout
+        // widened by any side-mounted system bar in landscape on the left/right edges
+
+        QJniObject cutout = insets.callObjectMethod("getDisplayCutout", "()Landroid/view/DisplayCutout;");
+        if (cutout.isValid())
+        {
+            top = pxToDip(cutout.callMethod<int>("getSafeInsetTop", "()I"));
+            left = pxToDip(cutout.callMethod<int>("getSafeInsetLeft", "()I"));
+            right = pxToDip(cutout.callMethod<int>("getSafeInsetRight", "()I"));
+            bottom = pxToDip(cutout.callMethod<int>("getSafeInsetBottom", "()I"));
+
+            if (sdk >= 30)
+            {
+                const int barLeft = pxToDip(insetField(insets, "systemBars", "left"));
+                const int barRight = pxToDip(insetField(insets, "systemBars", "right"));
+                if (barLeft > left) left = barLeft;
+                if (barRight > right) right = barRight;
+            }
+        }
+    }).waitForFinished();
 }
 
 /* ************************************************************************** */
 
-int MobileUIPrivate::getScreenBrightness()
+int MobileUIPrivate::getKeyboardHeight() const
+{
+    return QNativeInterface::QAndroidApplication::runOnAndroidMainThread([]() -> int {
+            // WindowInsets.Type.ime() // Added in API level 30
+            if (QNativeInterface::QAndroidApplication::sdkVersion() < 30) return -1;
+
+            QJniObject insets = getAndroidRootWindowInsets();
+            if (!insets.isValid()) return -1;
+
+            return pxToDip(insetField(insets, "ime", "bottom"));
+        })
+    .result()
+    .toInt();
+}
+
+/* ************************************************************************** */
+
+int MobileUIPrivate::getScreenBrightness() const
 {
     return QNativeInterface::QAndroidApplication::runOnAndroidMainThread([] {
             // If a brightness override has been set for the current app window, use it.
@@ -557,12 +460,112 @@ void MobileUIPrivate::setScreenBrightness(const int value)
 
 /* ************************************************************************** */
 
-void MobileUIPrivate::vibrate()
+void MobileUIPrivate::setScreenLockOrientation(const MobileUI::ScreenLockOrientation orientation)
+{
+    int value = SCREEN_ORIENTATION_UNSPECIFIED;
+
+    if (orientation == MobileUI::Locked) value = SCREEN_ORIENTATION_LOCKED;
+    else if (orientation == MobileUI::Portrait) value = SCREEN_ORIENTATION_PORTRAIT;
+    else if (orientation == MobileUI::Portrait_upsidedown) value = SCREEN_ORIENTATION_REVERSE_PORTRAIT;
+    else if (orientation == MobileUI::Portrait_sensor) value = SCREEN_ORIENTATION_SENSOR_PORTRAIT;
+    else if (orientation == MobileUI::Landscape_left) value = SCREEN_ORIENTATION_LANDSCAPE;
+    else if (orientation == MobileUI::Landscape_right) value = SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
+    else if (orientation == MobileUI::Landscape_sensor) value = SCREEN_ORIENTATION_SENSOR_LANDSCAPE;
+
+    QNativeInterface::QAndroidApplication::runOnAndroidMainThread([value]() {
+        QJniObject activity = QNativeInterface::QAndroidApplication::context();
+        if (activity.isValid())
+        {
+            activity.callMethod<void>("setRequestedOrientation", "(I)V", value);
+        }
+    });
+}
+
+void MobileUIPrivate::setScreenAlwaysOn(const bool on)
+{
+    QNativeInterface::QAndroidApplication::runOnAndroidMainThread([=]() {
+        QJniObject window = getAndroidWindow();
+
+        if (on)
+            window.callMethod<void>("addFlags", "(I)V", FLAG_KEEP_SCREEN_ON);
+        else
+            window.callMethod<void>("clearFlags", "(I)V", FLAG_KEEP_SCREEN_ON);
+    });
+}
+
+void MobileUIPrivate::setScreenSecure(const bool on)
+{
+    QNativeInterface::QAndroidApplication::runOnAndroidMainThread([=]() {
+        QJniObject window = getAndroidWindow();
+
+        // FLAG_SECURE blocks screenshots/recording, hides the recent-apps thumbnail,
+        // and prevents mirroring to non-secure external displays.
+        if (on)
+            window.callMethod<void>("addFlags", "(I)V", FLAG_SECURE);
+        else
+            window.callMethod<void>("clearFlags", "(I)V", FLAG_SECURE);
+    });
+}
+
+void MobileUIPrivate::setScreenHighRefreshRate(const bool value)
+{
+    QNativeInterface::QAndroidApplication::runOnAndroidMainThread([=]() {
+        QJniObject window = getAndroidWindow();
+        QJniObject layoutParams = window.callObjectMethod("getAttributes", "()Landroid/view/WindowManager$LayoutParams;");
+        if (!layoutParams.isValid()) return;
+
+        int modeId = 0; // 0 = no preference, the system picks the default mode
+
+        if (value)
+        {
+            QJniObject display = getAndroidDisplay();
+            QJniObject current = display.isValid() ? display.callObjectMethod("getMode", "()Landroid/view/Display$Mode;") : QJniObject();
+            QJniObject modes = display.isValid() ? display.callObjectMethod("getSupportedModes", "()[Landroid/view/Display$Mode;") : QJniObject();
+
+            if (current.isValid() && modes.isValid())
+            {
+                // Keep the current resolution, only look for a higher refresh rate
+                // (switching resolution would be a visible, unwanted change).
+                const int curW = current.callMethod<jint>("getPhysicalWidth", "()I");
+                const int curH = current.callMethod<jint>("getPhysicalHeight", "()I");
+                float bestRate = current.callMethod<jfloat>("getRefreshRate", "()F");
+                modeId = current.callMethod<jint>("getModeId", "()I");
+
+                QJniEnvironment env;
+                jobjectArray modeArray = modes.object<jobjectArray>();
+                const jsize count = env->GetArrayLength(modeArray);
+                for (jsize i = 0; i < count; ++i)
+                {
+                    QJniObject mode = QJniObject::fromLocalRef(env->GetObjectArrayElement(modeArray, i));
+                    if (!mode.isValid()) continue;
+
+                    if (mode.callMethod<jint>("getPhysicalWidth", "()I") != curW) continue;
+                    if (mode.callMethod<jint>("getPhysicalHeight", "()I") != curH) continue;
+
+                    const float rate = mode.callMethod<jfloat>("getRefreshRate", "()F");
+                    if (rate > bestRate)
+                    {
+                        bestRate = rate;
+                        modeId = mode.callMethod<jint>("getModeId", "()I");
+                    }
+                }
+            }
+        }
+
+        // WindowManager.LayoutParams.preferredDisplayModeId // Added in API level 23
+
+        layoutParams.setField("preferredDisplayModeId", modeId);
+        window.callMethod<void>("setAttributes", "(Landroid/view/WindowManager$LayoutParams;)V", layoutParams.object());
+    });
+}
+
+/* ************************************************************************** */
+
+static QJniObject getVibrator()
 {
     QJniObject activity = QNativeInterface::QAndroidApplication::context();
-    if (!activity.isValid()) return;
+    if (!activity.isValid()) return QJniObject();
 
-    QJniObject vibrator;
     if (QNativeInterface::QAndroidApplication::sdkVersion() >= 31)
     {
         // vibrator_manager // Added in API level 31
@@ -572,16 +575,19 @@ void MobileUIPrivate::vibrate()
                                                        name.object<jstring>());
         if (manager.isValid())
         {
-            vibrator = manager.callObjectMethod("getDefaultVibrator", "()Landroid/os/Vibrator;");
+            return manager.callObjectMethod("getDefaultVibrator", "()Landroid/os/Vibrator;");
         }
-    }
-    else
-    {
-        QJniObject name = QJniObject::fromString("vibrator");
-        vibrator = activity.callObjectMethod("getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;",
-                                             name.object<jstring>());
+        return QJniObject();
     }
 
+    QJniObject name = QJniObject::fromString("vibrator");
+    return activity.callObjectMethod("getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;",
+                                     name.object<jstring>());
+}
+
+static void doVibrate(jint predefinedEffect, jlong oneShotMs)
+{
+    QJniObject vibrator = getVibrator();
     if (!vibrator.isValid() || !vibrator.callMethod<jboolean>("hasVibrator", "()Z")) return;
 
     QJniObject effect;
@@ -592,22 +598,125 @@ void MobileUIPrivate::vibrate()
         // a nicer, system-tuned effect (EFFECT_TICK/CLICK/HEAVY_CLICK/DOUBLE_CLICK)
         effect = QJniObject::callStaticObjectMethod("android/os/VibrationEffect",
                                                     "createPredefined", "(I)Landroid/os/VibrationEffect;",
-                                                    static_cast<jint>(EFFECT_TICK));
+                                                    predefinedEffect);
     }
     else
     {
         // createOneShot() // Added in API level 26
 
-        // a short 25 ms one-shot vibration at the default amplitude
         effect = QJniObject::callStaticObjectMethod("android/os/VibrationEffect",
                                                     "createOneShot", "(JI)Landroid/os/VibrationEffect;",
-                                                    static_cast<jlong>(25), static_cast<jint>(DEFAULT_AMPLITUDE));
+                                                    oneShotMs, static_cast<jint>(DEFAULT_AMPLITUDE));
     }
 
     if (effect.isValid())
     {
         vibrator.callMethod<void>("vibrate", "(Landroid/os/VibrationEffect;)V", effect.object<jobject>());
     }
+}
+
+void MobileUIPrivate::triggerHapticFeedback(const MobileUI::HapticFeedback type)
+{
+    // Android has no notification/selection haptics, so we map each style to
+    // the closest predefined effect (or one-shot duration on API 28).
+
+    jint effect = EFFECT_TICK;
+    jlong ms = 20;
+
+    switch (type)
+    {
+    case MobileUI::HapticSelection:
+        effect = EFFECT_TICK;
+        ms = 20;
+        break;
+    case MobileUI::HapticLight:
+        effect = EFFECT_TICK;
+        ms = 20;
+        break;
+    case MobileUI::HapticMedium:
+        effect = EFFECT_CLICK;
+        ms = 30;
+        break;
+    case MobileUI::HapticHeavy:
+        effect = EFFECT_HEAVY_CLICK;
+        ms = 40;
+        break;
+    case MobileUI::HapticSuccess:
+        effect = EFFECT_HEAVY_CLICK;
+        ms = 30;
+        break;
+    case MobileUI::HapticWarning:
+        effect = EFFECT_DOUBLE_CLICK;
+        ms = 40;
+        break;
+    case MobileUI::HapticError:
+        effect = EFFECT_DOUBLE_CLICK;
+        ms = 60;
+        break;
+    }
+
+    doVibrate(effect, ms);
+}
+
+/* ************************************************************************** */
+
+bool MobileUIPrivate::setTorch(const bool on)
+{
+    QJniObject activity = QNativeInterface::QAndroidApplication::context();
+    if (!activity.isValid()) return false;
+
+    QJniObject serviceName = QJniObject::fromString("camera");
+    QJniObject cameraManager = activity.callObjectMethod("getSystemService", "(Ljava/lang/String;)Ljava/lang/Object;",
+                                                         serviceName.object<jstring>());
+    if (!cameraManager.isValid()) return false;
+
+    QJniObject idList = cameraManager.callObjectMethod("getCameraIdList", "()[Ljava/lang/String;");
+    if (!idList.isValid()) return false;
+
+    QJniEnvironment env;
+    jobjectArray idArray = idList.object<jobjectArray>();
+    const jsize count = env->GetArrayLength(idArray);
+
+    // Pick a camera that has a flash unit, preferring the back-facing one.
+    QJniObject torchCameraId;
+    for (jsize i = 0; i < count; ++i)
+    {
+        QJniObject id = QJniObject::fromLocalRef(env->GetObjectArrayElement(idArray, i));
+        QJniObject chars = cameraManager.callObjectMethod("getCameraCharacteristics",
+                                                          "(Ljava/lang/String;)Landroid/hardware/camera2/CameraCharacteristics;",
+                                                          id.object<jstring>());
+        if (!chars.isValid()) continue;
+
+        // CameraCharacteristics.FLASH_INFO_AVAILABLE (Boolean)
+        QJniObject flashKey = QJniObject::getStaticObjectField("android/hardware/camera2/CameraCharacteristics",
+                                                               "FLASH_INFO_AVAILABLE",
+                                                               "Landroid/hardware/camera2/CameraCharacteristics$Key;");
+        QJniObject hasFlash = chars.callObjectMethod("get", "(Landroid/hardware/camera2/CameraCharacteristics$Key;)Ljava/lang/Object;",
+                                                     flashKey.object());
+        if (!hasFlash.isValid() || !hasFlash.callMethod<jboolean>("booleanValue", "()Z")) continue;
+
+        torchCameraId = id;
+
+        // CameraCharacteristics.LENS_FACING (Integer); LENS_FACING_BACK == 1
+        QJniObject facingKey = QJniObject::getStaticObjectField("android/hardware/camera2/CameraCharacteristics", "LENS_FACING",
+                                                               "Landroid/hardware/camera2/CameraCharacteristics$Key;");
+        QJniObject facing = chars.callObjectMethod("get", "(Landroid/hardware/camera2/CameraCharacteristics$Key;)Ljava/lang/Object;",
+                                                   facingKey.object());
+
+        if (facing.isValid() && facing.callMethod<jint>("intValue", "()I") == 1) break;
+    }
+
+    if (!torchCameraId.isValid()) return false;
+
+    // void setTorchMode() doesn't returns operation status, but may throw CameraAccessException, which we treat that as a failure.
+    // we call it through raw JNI, because QJniObject::callMethod() clears any pending exception internally before we can inspect it.
+
+    jclass cameraManagerClass = env->GetObjectClass(cameraManager.object());
+    jmethodID setTorchMode = env->GetMethodID(cameraManagerClass, "setTorchMode", "(Ljava/lang/String;Z)V");
+    env->CallVoidMethod(cameraManager.object(), setTorchMode, torchCameraId.object<jstring>(), on);
+    if (env.checkAndClearExceptions()) return false;
+
+    return true;
 }
 
 /* ************************************************************************** */

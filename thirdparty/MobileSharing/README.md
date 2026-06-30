@@ -43,11 +43,7 @@ set(QT_QML_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 ### Setup
 
-### Setup on iOS (sending files)
-
-Not much!
-
-### Setup on iOS (receiving files)
+#### Setup on iOS (receiving files)
 
 You'll need to add the file formats that your app can accept in the `Info.plist`:
 
@@ -75,13 +71,13 @@ You'll need to add the file formats that your app can accept in the `Info.plist`
 
 ### Setup on Android
 
-The module has its own Android Java sources (`io.emeric.mobilesharing`) and FileProvider `res/xml/filepaths.xml` files.  
-These resources are **copied into your own application android source dir** automatically at configure time.  
+The module has its own Android Java sources (`io.emeric.mobilesharing`) and FileProvider (`res/xml/filepaths.xml`) files.
+These resources are **copied into your own application android source dir** automatically at configure time.
 
-You can add these copied files (especially the java files, because you may choose to customize the FileProvider paths) to your `.gitignore`:
+You can add these copied files to your `.gitignore` (especially the java files, but you may choose to customize the FileProvider paths):
 
 ```
-# MobileSharing module resources (from thirdparty/MobileSharing/android/)
+# MobileSharing module resources (from MobileSharing/android/)
 assets/android/src/io/emeric/mobilesharing/QShareActivity.java
 assets/android/src/io/emeric/mobilesharing/QShareUtils.java
 ```
@@ -100,7 +96,7 @@ implementation 'androidx.core:core:1.6.1'
 ```
 
 
-### Setup on Android (receiving files)
+#### Setup on Android (receiving files)
 
 To **receive** content, set your launcher activity to the module's `QShareActivity` and add the incoming intent-filters.
 
@@ -114,9 +110,10 @@ Edit your manifest's activity section:
 ```xml
 <activity android:name="io.emeric.mobilesharing.QShareActivity" android:launchMode="singleTask" ... > <!-- Change name and launchMode-->
 
-    <!-- Handle incoming content shared into this app (adjust mimeType to your own needs) -->
+    <!-- Handle incoming content shared into this app, single + multiple (adjust mimeType to your own needs) -->
     <intent-filter>
         <action android:name="android.intent.action.SEND" />
+        <action android:name="android.intent.action.SEND_MULTIPLE" />
         <category android:name="android.intent.category.DEFAULT" />
         <data android:mimeType="*/*" />
     </intent-filter>
@@ -133,7 +130,7 @@ Edit your manifest's activity section:
 </activity>
 ```
 
-### Setup on Android (sending files)
+#### Setup on Android (sending files)
 
 To **send** content, add the FileProvider in your manifest application section:
 
@@ -178,7 +175,8 @@ The provider can only serve files from the module's own MobileSharing subdir, no
 </paths>
 ```
 
-### Use
+
+## Using MobileSharing
 
 MobileSharing is a proper CMake QML module, so it is registered automatically by the QML engine.
 
@@ -270,14 +268,12 @@ Lifecycle (identical on both platforms):
 
 ## Caveats
 
-> TODO
+> ACTION_EDIT support (Android only) has been removed
 
 
 ## Inspirations
 
-This project is entirely based on [ekkesSHAREexample](https://github.com/ekke/ekkesSHAREexample) by ekke.
-
-This project is based on:
+This project is based on [ekkesSHAREexample](https://github.com/ekke/ekkesSHAREexample) by ekke:
 - https://github.com/ekke/ekkesSHAREexample
 - https://www.qt.io/blog/2017/12/01/sharing-files-android-ios-qt-app
 - https://www.qt.io/blog/2018/01/16/sharing-files-android-ios-qt-app-part-2
@@ -298,7 +294,7 @@ Also inspired by:
 
 ## License
 
-This project is licensed under the MIT license, see LICENSE file for details.
+This project is licensed under the [MIT license](LICENSE).
 
 > Copyright (c) 2017 Ekkehard Gentz (ekke)  
 

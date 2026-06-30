@@ -12,16 +12,23 @@ ApplicationWindow {
 
     flags: Qt.Window | Qt.MaximizeUsingFullscreenGeometryHint
     color: Theme.colorBackground
-    visible: true
 
+    // Helpers
     property bool isHdpi: (UtilsScreen.screenDpi >= 128 || UtilsScreen.screenPar >= 2.0)
     property bool isDesktop: true
     property bool isMobile: false
     property bool isPhone: false
     property bool isTablet: false
 
-    property bool singleColumn: (width < height)
-    property bool wideMode: (isDesktop && width >= 640) || (isTablet && width >= 480)
+    // Setup ThemeEngine
+    Binding { target: Theme; property: "appTheme";               value: SettingsManager.appTheme }
+    Binding { target: Theme; property: "appThemeAuto";           value: SettingsManager.appThemeAuto }
+    Binding { target: Theme; property: "appThemeAutoMethod";     value: SettingsManager.appThemeAutoMethod }
+    Binding { target: Theme; property: "appWidth";               value: appWindow.width }
+    Binding { target: Theme; property: "appHeight";              value: appWindow.height }
+    Binding { target: Theme; property: "screenDpi";              value: UtilsScreen.screenDpi }
+    Binding { target: Theme; property: "screenPar";              value: UtilsScreen.screenPar }
+    Binding { target: Theme; property: "screenSize";             value: UtilsScreen.screenSize }
 
     // Desktop stuff ///////////////////////////////////////////////////////////
 
@@ -40,9 +47,14 @@ ApplicationWindow {
     x: SettingsManager.initialPosition.width
     y: SettingsManager.initialPosition.height
     visibility: SettingsManager.initialVisibility
+    visible: true
 
     WindowGeometrySaver {
         windowInstance: appWindow
+        Component.onCompleted: {
+            // Make sure we handle window visibility correctly
+            visibility = SettingsManager.initialVisibility
+        }
     }
 
     // Mobile stuff ////////////////////////////////////////////////////////////
@@ -62,10 +74,6 @@ ApplicationWindow {
         property int headerPosition: 64
     }
     Item { // compat
-        id: mobileUI
-        function setScreenAlwaysOn() {}
-    }
-    Item { // compat
         id: appDrawer
         visible: false
     }
@@ -79,6 +87,7 @@ ApplicationWindow {
     Component.onCompleted: {
         //screenBarcodeHistory.loadScreen(); return; // DEBUG
 
+        // Load app screen
         if (SettingsManager.defaultTab === "writer") {
             screenBarcodeWriter.loadScreen()
         } else {

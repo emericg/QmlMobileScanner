@@ -36,8 +36,8 @@ Loader {
         contentWidth: -1
         contentHeight: gridContent.height
 
-        interactive: singleColumn
-        boundsBehavior: isDesktop ? Flickable.OvershootBounds : Flickable.DragAndOvershootBounds
+        interactive: Theme.singleColumn
+        boundsBehavior: Theme.isDesktop ? Flickable.OvershootBounds : Flickable.DragAndOvershootBounds
         ScrollBar.vertical: ScrollBar { visible: false }
 
         function backAction() {
@@ -61,27 +61,27 @@ Loader {
             id: gridContent
 
             anchors.left: parent.left
-            anchors.leftMargin: screenPaddingLeft + columnSpacing
+            anchors.leftMargin: Theme.screenPaddingLeft + columnSpacing
             anchors.right: parent.right
-            anchors.rightMargin: screenPaddingRight + columnSpacing
+            anchors.rightMargin: Theme.screenPaddingRight + columnSpacing
 
-            columns: singleColumn ? 1 : 2
-            columnSpacing: Theme.componentMarginXL * (singleColumn ? 1 : 2)
+            columns: Theme.singleColumn ? 1 : 2
+            columnSpacing: Theme.componentMarginXL * (Theme.singleColumn ? 1 : 2)
             rows: 2
-            rowSpacing: Theme.componentMarginXL * (singleColumn ? 1 : 2)
+            rowSpacing: Theme.componentMarginXL * (Theme.singleColumn ? 1 : 2)
 
             topPadding: columnSpacing
             bottomPadding: columnSpacing
             spacing: columnSpacing
 
-            property int www: singleColumn ? gridContent.width : (gridContent.width - columnSpacing) / 2
+            property int www: Theme.singleColumn ? gridContent.width : (gridContent.width - columnSpacing) / 2
             property int hhh: screenBarcodeWriter.height - columnSpacing*2
 
             ////////////////////////////////
 
             Item { // pane 1
                 width: gridContent.www
-                height: singleColumn ? qrcodearea.height : gridContent.hhh
+                height: Theme.singleColumn ? qrcodearea.height : gridContent.hhh
 
                 ////
 
@@ -238,7 +238,7 @@ Loader {
                 id: barcodeAdvanced
 
                 width: gridContent.www
-                height: singleColumn ? barcodeSettingsColumn.height : gridContent.hhh
+                height: Theme.singleColumn ? barcodeSettingsColumn.height : gridContent.hhh
 
                 property string barcode_string
                 property string barcode_settings_qzxing: "?" + "format=" + format +
@@ -321,7 +321,7 @@ Loader {
                         id: barcodeTextArea
                         anchors.left: parent.left
                         anchors.right: parent.right
-                        height: isPhone ? 96 : 128
+                        height: Theme.isPhone ? 96 : 128
 
                         visible: (selectorBarcodes.currentMode === "2d") // matrix
                         placeholderText: qsTr("Type barcode content here!")
@@ -384,7 +384,7 @@ Loader {
                             // matrix
                             ListElement { idx:  0; type: "2d"; txt: "QR Code"; format: "qrcode";        maxnum: 0; maxchar: 4296; maxbytes: 2953; ecc: 4; }
                             ListElement { idx:  1; type: "2d"; txt: "µQR Code"; format: "microqrcode";   maxnum: 0; maxchar: 21; maxbytes: 256; ecc: 4; }
-                            ListElement { idx:  2; type: "2d"; txt: "rect. µQrCode"; format: "rmqr";    maxnum: 0; maxchar: 21; maxbytes: 256; ecc: 4; }
+                            ListElement { idx:  2; type: "2d"; txt: "rMQR"; format: "rmqr";    maxnum: 0; maxchar: 21; maxbytes: 256; ecc: 4; }
                             ListElement { idx:  3; type: "2d"; txt: "Aztec Code"; format: "aztec";      maxnum: 0; maxchar: 3067; maxbytes: 3067; ecc: 8; }
                             //ListElement { idx:  4; type: "2d"; txt: "Aztec Rune"; format: "aztecrune";  maxnum: 0; maxchar: 3067; maxbytes: 3067; ecc: 8; }
                             ListElement { idx:  4; type: "2d"; txt: "Data Matrix"; format: "datamatrix"; maxnum: 0; maxchar: 2335; maxbytes: 1556; ecc: 0; }

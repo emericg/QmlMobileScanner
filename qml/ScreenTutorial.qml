@@ -55,10 +55,10 @@ Rectangle {
             SwipeView {
                 id: tutorialPages
                 anchors.fill: parent
-                anchors.leftMargin: screenPaddingLeft
-                anchors.rightMargin: screenPaddingRight
+                anchors.leftMargin: Theme.screenPaddingLeft
+                anchors.rightMargin: Theme.screenPaddingRight
                 anchors.bottomMargin: 56
-                property int margins: isPhone ? 24 : 40
+                property int margins: Theme.isPhone ? 24 : 40
 
                 currentIndex: 0
                 onCurrentIndexChanged: {

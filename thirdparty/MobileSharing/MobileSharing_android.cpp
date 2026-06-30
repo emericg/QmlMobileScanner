@@ -225,6 +225,52 @@ void AndroidShareUtils::sendFile(const QString &filePath, const QString &title,
 
 /* ************************************************************************** */
 
+void AndroidShareUtils::sendFiles(const QStringList &filePaths, const QString &title,
+                                  const QString &mimeType, int requestId, bool move)
+{
+    // Make every path FileProvider-serviceable (copy/move into our outgoing dir if needed);
+    // skip the ones that can't be prepared rather than failing the whole batch.
+    QStringList shareable;
+    for (const QString &p : filePaths)
+    {
+        const QString sp = ensureShareableFile(p, move);
+        if (!sp.isEmpty()) shareable.append(sp);
+        else qWarning() << "sendFiles: skipping unshareable file:" << p;
+    }
+    if (shareable.isEmpty())
+    {
+        Q_EMIT shareError(requestId, QStringLiteral("Cannot share files: none were shareable"));
+        return;
+    }
+
+    // Build a Java String[] of the prepared paths for QShareUtils.sendFiles().
+    QJniEnvironment env;
+    jclass stringClass = env->FindClass("java/lang/String");
+    jobjectArray jpaths = env->NewObjectArray(shareable.size(), stringClass, nullptr);
+    for (int i = 0; i < shareable.size(); ++i)
+    {
+        QJniObject s = QJniObject::fromString(shareable.at(i));
+        env->SetObjectArrayElement(jpaths, i, s.object<jstring>());
+    }
+
+    QJniObject jsTitle = QJniObject::fromString(title);
+    QJniObject jsMimeType = QJniObject::fromString(mimeType);
+    jboolean ok = QJniObject::callStaticMethod<jboolean>("io/emeric/mobilesharing/QShareUtils", "sendFiles",
+                                                         "([Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;I)Z",
+                                                         jpaths, jsTitle.object<jstring>(),
+                                                         jsMimeType.object<jstring>(), requestId);
+    env->DeleteLocalRef(jpaths);
+    env->DeleteLocalRef(stringClass);
+
+    if (!ok)
+    {
+        qWarning() << "Unable to resolve activity from Java";
+        Q_EMIT shareNoAppAvailable(requestId);
+    }
+}
+
+/* ************************************************************************** */
+
 /*
  * If a requestId was set we want to get the Activity Result back (recommended)
  * We need the Request Id and Result Id to control our workflow

@@ -26,9 +26,8 @@
 #include <QtQml/qqmlregistration.h>
 
 #include <QObject>
-#include <QSize>
 #include <QString>
-#include <QDateTime>
+#include <QSize>
 
 class QQmlEngine;
 class QJSEngine;
@@ -48,7 +47,7 @@ class SettingsManager: public QObject
 
     Q_PROPERTY(QSize initialSize READ getInitialSize NOTIFY initialSizeChanged)
     Q_PROPERTY(QSize initialPosition READ getInitialPosition NOTIFY initialSizeChanged)
-    Q_PROPERTY(int initialVisibility READ getInitialVisibility NOTIFY initialSizeChanged)
+    Q_PROPERTY(uint initialVisibility READ getInitialVisibility NOTIFY initialSizeChanged)
 
     Q_PROPERTY(QString appTheme READ getAppTheme WRITE setAppTheme NOTIFY appThemeChanged)
     Q_PROPERTY(bool appThemeAuto READ getAppThemeAuto WRITE setAppThemeAuto NOTIFY appThemeAutoChanged)
@@ -77,21 +76,24 @@ class SettingsManager: public QObject
     Q_PROPERTY(bool scan_tryInvert READ getScanTryInvert WRITE setScanTryInvert NOTIFY tryInvertChanged)
     Q_PROPERTY(bool scan_tryDownscale READ getScanTryDownscale WRITE setScanTryDownscale NOTIFY tryDownscaleChanged)
 
-    bool m_firstlaunch = false;
+    bool m_firstlaunch = true;
 
-    // Application window
+    /// Application window
+
     QSize m_appSize = QSize(1280, 720);
     QSize m_appPosition = QSize(64, 64);
-    int m_appVisibility = 1;                        //!< QWindow::Visibility
+    unsigned m_appVisibility = 1;               //!< QWindow::Visibility
 
-    // Application generic
+    /// Application generic
+
     QString m_appTheme = "THEME_MOBILE_LIGHT";
     bool m_appThemeAuto = false;
     unsigned m_appThemeAutoMethod = 0;
     unsigned m_appUnitSystem = 0;               //!< QLocale::MeasurementSystem
     QString m_appLanguage = "auto";
 
-    // Application specific
+    /// Application specific
+
     QString m_defaultTab = "reader";
     QString m_backendWriter = "";
     unsigned m_formatsEnabled_zxingcpp = 0xffffffff;
@@ -108,6 +110,8 @@ class SettingsManager: public QObject
     bool m_scan_tryRotate = true;
     bool m_scan_tryInvert = true;
     bool m_scan_tryDownscale = true;
+
+    /// SettingsManager
 
     // Read / Write settings
     bool readSettings();
@@ -141,13 +145,13 @@ public:
     static SettingsManager *getInstance();
     static SettingsManager *create(QQmlEngine *engine, QJSEngine *scriptEngine);
 
+    /// Generic
+
     bool isFirstLaunch() const { return m_firstlaunch; }
 
     QSize getInitialSize() { return m_appSize; }
     QSize getInitialPosition() { return m_appPosition; }
-    int getInitialVisibility() { return m_appVisibility; }
-
-    ////
+    unsigned getInitialVisibility() { return m_appVisibility; }
 
     const QString &getAppTheme() const { return m_appTheme; }
     void setAppTheme(const QString &value);
@@ -164,7 +168,7 @@ public:
     const QString &getAppLanguage() const { return m_appLanguage; }
     void setAppLanguage(const QString &value);
 
-    ////
+    /// App
 
     QString getBackendReader() const;
     QString getBackendWriter() const;
@@ -174,7 +178,7 @@ public:
     bool getBackendZXingCpp() const;
     bool getBackendZint() const;
 
-    ////
+    ///
 
     QString getDefaultTab() const { return m_defaultTab; }
     void setDefaultTab(const QString &value);
@@ -203,7 +207,7 @@ public:
     bool getScanTryDownscale() const { return m_scan_tryDownscale; }
     void setScanTryDownscale(const bool value);
 
-    ////
+    /// Utils
 
     Q_INVOKABLE void resetSettings();
 };

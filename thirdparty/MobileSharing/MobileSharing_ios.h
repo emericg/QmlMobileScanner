@@ -47,7 +47,9 @@ public:
     void sendText(const QString &text, const QString &subject, const QUrl &url);
 
     void sendFile(const QString &filePath, const QString &title, const QString &mimeType, int requestId, bool move);
+    void sendFiles(const QStringList &filePaths, const QString &title, const QString &mimeType, int requestId, bool move);
     void viewFile(const QString &filePath, const QString &title, const QString &mimeType, int requestId);
+    void viewFiles(const QStringList &filePaths, const QString &title, const QString &mimeType, int requestId);
 
     void saveFile(const QString &filePath, const QString &suggestedName, const QString &mimeType, int requestId);
     void openFile();

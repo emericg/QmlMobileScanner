@@ -9,7 +9,7 @@ Column {
     anchors.topMargin: Theme.componentMargin
     anchors.right: toprightmenus.right
 
-    width: singleColumn ? screenBarcodeReader.width - Theme.componentMargin*2 : 300
+    width: Theme.singleColumn ? screenBarcodeReader.width - Theme.componentMargin*2 : 300
     spacing: Theme.componentMargin / 2
     visible: false
 

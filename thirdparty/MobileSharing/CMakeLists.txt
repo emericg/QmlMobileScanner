@@ -14,10 +14,15 @@ set(CORE_LIBRARIES Qt::Core Qt::Gui Qt::Qml)
 
 # Generic sources
 set(CORE_SOURCES
-    MobileSharing.cpp MobileSharing.h)
+    MobileSharing.cpp MobileSharing.h MobileSharing_private.h
+    MobileSharing_DocumentProvider.cpp MobileSharing_DocumentProvider.h
+    MobileSharing_QmlDispatcher.cpp MobileSharing_QmlDispatcher.h)
 
 # OS specific sources & dependencies
 if (ANDROID)
+    set(PLATFORM_SOURCES
+        MobileSharing_android.cpp MobileSharing_android.h)
+
     if(Qt6Gui_VERSION VERSION_GREATER_EQUAL 6.10.0)
         find_package(Qt6 REQUIRED COMPONENTS CorePrivate)
         set(PLATFORM_LIBRARIES ${CORE_LIBRARIES} Qt6::CorePrivate)
@@ -25,18 +30,16 @@ if (ANDROID)
         find_package(Qt6 REQUIRED COMPONENTS Core)
         set(PLATFORM_LIBRARIES ${CORE_LIBRARIES} Qt6::CorePrivate)
     endif()
-
-    set(PLATFORM_SOURCES
-        MobileSharing_android.cpp
-        MobileSharing_android.h)
 elseif (IOS)
+    enable_language(OBJCXX)
+    set(PLATFORM_SOURCES
+        MobileSharing_ios.mm)
+
     set(PLATFORM_LIBRARIES
         "-framework UIKit"
         "-framework Foundation"
         "-framework QuickLook"
         "-framework UniformTypeIdentifiers")
-    set(PLATFORM_SOURCES
-        MobileSharing_ios.mm)
 endif()
 
 ################################################################################
@@ -56,6 +59,14 @@ target_link_libraries(MobileSharing PUBLIC ${CORE_LIBRARIES})
 target_link_libraries(MobileSharing PRIVATE ${PLATFORM_LIBRARIES})
 
 target_include_directories(MobileSharing PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+
+################################################################################
+
+if (IOS)
+    # Enable ARC for the Objective-C++ source
+    set_target_properties(MobileSharing PROPERTIES XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC YES)
+    target_compile_options(MobileSharing PRIVATE $<$<COMPILE_LANGUAGE:OBJCXX>:-fobjc-arc>)
+endif()
 
 ################################################################################
 
@@ -79,10 +90,29 @@ if (ANDROID)
 
         if (NOT EXISTS "${MOBILESHARING_ANDROID_PACKAGE_SOURCE_DIR}/res/xml/filepaths.xml")
             file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/android/res"
-            DESTINATION "${MOBILESHARING_ANDROID_PACKAGE_SOURCE_DIR}")
+                 DESTINATION "${MOBILESHARING_ANDROID_PACKAGE_SOURCE_DIR}")
         endif()
 
         message(STATUS "MobileSharing > Deployed Android Java/res into ${MOBILESHARING_ANDROID_PACKAGE_SOURCE_DIR}")
+
+        # Build-time re-deploy, to iterate on the module's Java/res WITHOUT a CMake
+        # reconfigure (the file(COPY) above only runs at configure time). Invoke on
+        # demand with:  cmake --build <dir> --target MobileSharing_deploy_android
+        # In Debug builds it is also added to ALL, so it re-copies on every build.
+        set(_mobilesharing_deploy_all "")
+        if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+            set(_mobilesharing_deploy_all ALL)
+        endif()
+        add_custom_target(MobileSharing_deploy_android ${_mobilesharing_deploy_all}
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+                    "${CMAKE_CURRENT_SOURCE_DIR}/android/src"
+                    "${MOBILESHARING_ANDROID_PACKAGE_SOURCE_DIR}/src"
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+                    "${CMAKE_CURRENT_SOURCE_DIR}/android/res"
+                    "${MOBILESHARING_ANDROID_PACKAGE_SOURCE_DIR}/res"
+            COMMENT "MobileSharing > Re-deploying Android Java/res (dev)"
+            VERBATIM)
+        unset(_mobilesharing_deploy_all)
     else()
         message(WARNING "MobileSharing > MOBILESHARING_ANDROID_PACKAGE_SOURCE_DIR is not set, "
                         "please provide the same path than your application's QT_ANDROID_PACKAGE_SOURCE_DIR before add_subdirectory(MobileSharing).")

@@ -1,6 +1,7 @@
 import QtQuick
 
 import ComponentLibrary
+import AppUtils
 
 Rectangle {
     id: appHeader

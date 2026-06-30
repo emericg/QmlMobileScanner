@@ -319,7 +319,7 @@ Flickable {
         Rectangle {
             Layout.fillHeight: true
             Layout.fillWidth: true
-            Layout.preferredWidth: singleColumn ? 48 : 64
+            Layout.preferredWidth: Theme.singleColumn ? 48 : 64
             Layout.margins: 2
             radius: 4
 
@@ -332,7 +332,7 @@ Flickable {
         Rectangle {
             Layout.fillHeight: true
             Layout.fillWidth: true
-            Layout.preferredWidth: singleColumn ? 48 : 64
+            Layout.preferredWidth: Theme.singleColumn ? 48 : 64
             Layout.margins: 2
             radius: 4
 
@@ -380,7 +380,7 @@ Flickable {
                 }
                 Rectangle {
                     Layout.fillWidth: true
-                    Layout.preferredWidth: singleColumn ? 48 : 64
+                    Layout.preferredWidth: Theme.singleColumn ? 48 : 64
                     Layout.preferredHeight: 28
                     Layout.margins: 2
                     radius: 4
@@ -396,7 +396,7 @@ Flickable {
                 }
                 Rectangle {
                     Layout.fillWidth: true
-                    Layout.preferredWidth: singleColumn ? 48 : 64
+                    Layout.preferredWidth: Theme.singleColumn ? 48 : 64
                     Layout.preferredHeight: 28
                     Layout.margins: 2
                     radius: 4

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(QmlMobileScanner VERSION 0.5 LANGUAGES C CXX)
+project(QmlMobileScanner VERSION 0.6 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -62,11 +62,9 @@ set(SOURCES
 
 if(IOS OR ANDROID) # Mobile
 
-    set(QAPPLICATION_CLASS QGuiApplication)
+    #
 
 else() # Desktop
-
-    set(QAPPLICATION_CLASS QApplication)
 
     # Set app icons
     #if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
@@ -122,6 +120,7 @@ qt_add_qml_module(${PROJECT_NAME}
 )
 
 qt_add_translations(${PROJECT_NAME}
+    SOURCE_TARGETS ${PROJECT_NAME}
     TS_FILE_BASE ${PROJECT_NAME}
     TS_FILE_DIR ${PROJECT_SOURCE_DIR}/i18n/
     RESOURCE_PREFIX "/i18n"

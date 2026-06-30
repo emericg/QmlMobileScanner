@@ -1,14 +1,10 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.24)
 
-#project(AppUtils LANGUAGES CXX)
-
-# To avoid CMake Warnings, you should add Qt6 'CorePrivate' or 'CoreGui',
-# as needed, to your root level find_package()
+project(AppUtils LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_AUTOMOC ON)
-
+set(CMAKE_FIND_PACKAGE_TARGETS_GLOBAL ON)
 set(QT_NO_PRIVATE_MODULE_WARNING ON)
 
 ################################################################################
@@ -35,14 +31,16 @@ set(CORE_LIBRARIES Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick)
 
 # Generic sources
 set(CORE_SOURCES
+    # PermissionManager
+    PermissionManager.cpp PermissionManager.h
+    PermissionManager_AndroidHelper.cpp PermissionManager_AndroidHelper.h
     # app utils
     utils_app.cpp utils_app.h
     utils_log.cpp utils_log.h
     utils_clipboard.cpp utils_clipboard.h
     utils_fpsmonitor.cpp utils_fpsmonitor.h
     utils_language.cpp utils_language.h
-    PermissionManager.cpp PermissionManager.h
-    # os utils
+    # system utils
     utils_os.cpp utils_os.h
     utils_screen.cpp utils_screen.h
     utils_sysinfo.cpp utils_sysinfo.h
@@ -50,6 +48,8 @@ set(CORE_SOURCES
     # pure c++
     utils_bits.h
     utils_maths.h
+    # others
+    LoremIpsum.h
 )
 
 # Qt optional tools

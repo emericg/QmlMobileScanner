@@ -85,9 +85,6 @@ int main(int argc, char *argv[])
     DatabaseManager *dbm = DatabaseManager::getInstance();
     if (!dbm) return EXIT_FAILURE;
 
-    SettingsManager *stm = SettingsManager::getInstance();
-    if (!stm) return EXIT_FAILURE;
-
     BarcodeManager *bch = BarcodeManager::getInstance();
     if (!bch) return EXIT_FAILURE;
 

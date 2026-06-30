@@ -25,7 +25,7 @@
 
 /* ************************************************************************** */
 
-int MobileUIPrivate::getDeviceTheme()
+int MobileUIPrivate::getDeviceTheme() const
 {
     return MobileUI::Theme::Light;
 }
@@ -50,47 +50,18 @@ void MobileUIPrivate::setTheme_navbar(const MobileUI::Theme theme)
     Q_UNUSED(theme)
 }
 
-int MobileUIPrivate::getStatusbarHeight()
+void MobileUIPrivate::getSafeAreaMetrics(int &statusbarHeight, int &navbarHeight,
+                                         int &top, int &left, int &right, int &bottom) const
 {
-    return 0;
+    statusbarHeight = navbarHeight = top = left = right = bottom = 0;
 }
 
-int MobileUIPrivate::getNavbarHeight()
+int MobileUIPrivate::getKeyboardHeight() const
 {
-    return 0;
+    return -1;
 }
 
-int MobileUIPrivate::getSafeAreaTop()
-{
-    return 0;
-}
-
-int MobileUIPrivate::getSafeAreaLeft()
-{
-    return 0;
-}
-
-int MobileUIPrivate::getSafeAreaRight()
-{
-    return 0;
-}
-
-int MobileUIPrivate::getSafeAreaBottom()
-{
-    return 0;
-}
-
-void MobileUIPrivate::setScreenAlwaysOn(const bool on)
-{
-    Q_UNUSED(on)
-}
-
-void MobileUIPrivate::setScreenOrientation(const MobileUI::ScreenOrientation orientation)
-{
-    Q_UNUSED(orientation)
-}
-
-int MobileUIPrivate::getScreenBrightness()
+int MobileUIPrivate::getScreenBrightness() const
 {
     return -1;
 }
@@ -100,9 +71,35 @@ void MobileUIPrivate::setScreenBrightness(const int value)
     Q_UNUSED(value)
 }
 
-void MobileUIPrivate::vibrate()
+void MobileUIPrivate::setScreenLockOrientation(const MobileUI::ScreenLockOrientation orientation)
 {
-    return;
+    Q_UNUSED(orientation)
+}
+
+void MobileUIPrivate::setScreenAlwaysOn(const bool on)
+{
+    Q_UNUSED(on)
+}
+
+void MobileUIPrivate::setScreenSecure(const bool on)
+{
+    Q_UNUSED(on)
+}
+
+void MobileUIPrivate::setScreenHighRefreshRate(const bool value)
+{
+    Q_UNUSED(value)
+}
+
+void MobileUIPrivate::triggerHapticFeedback(const MobileUI::HapticFeedback type)
+{
+    Q_UNUSED(type)
+}
+
+bool MobileUIPrivate::setTorch(const bool on)
+{
+    Q_UNUSED(on)
+    return false;
 }
 
 void MobileUIPrivate::backToHomeScreen()

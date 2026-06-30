@@ -1,0 +1,134 @@
+import QtQuick
+import QtQuick.Templates as T
+
+import ComponentLibrary
+
+T.RangeSlider {
+    id: control
+
+    implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
+                            first.implicitHandleWidth + leftPadding + rightPadding,
+                            second.implicitHandleWidth + leftPadding + rightPadding)
+    implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
+                             first.implicitHandleHeight + topPadding + bottomPadding,
+                             second.implicitHandleHeight + topPadding + bottomPadding)
+
+    padding: 6
+
+    ////////////////
+
+    property alias graduation: graduationLayer.graduation
+    property alias graduationFrom: graduationLayer.graduationFrom
+    property alias graduationStepSize: graduationLayer.graduationStepSize
+    property alias graduationTicks: graduationLayer.graduationTicks
+    property alias graduationTickLength: graduationLayer.graduationTickLength
+    property alias graduationDefault: graduationLayer.graduationDefault
+    property alias graduationDefaultValue_first: graduationLayer.graduationDefaultValue_first
+    property alias graduationDefaultValue_second: graduationLayer.graduationDefaultValue_second
+    property alias graduationPosition: graduationLayer.graduationPosition
+    property alias graduationColor: graduationLayer.graduationColor
+    property alias graduationColorDefault: graduationLayer.graduationColorDefault
+
+    SliderGraduation {
+        id: graduationLayer
+        anchors.fill: parent
+        slider: control
+        sliderHandleWidth: control.first.handle.width
+    }
+
+    ////////////////
+
+    background: Rectangle {
+        x: control.leftPadding + (control.horizontal ? 0 : (control.availableWidth - width) / 2)
+        y: control.topPadding + (control.horizontal ? (control.availableHeight - height) / 2 : 0)
+        implicitWidth: control.horizontal ? 200 : 6
+        implicitHeight: control.horizontal ? 6 : 200
+        width: control.horizontal ? control.availableWidth : implicitWidth
+        height: control.horizontal ? implicitHeight : control.availableHeight
+
+        radius: 2
+        opacity: control.enabled ? 1 : 0.66
+        color: Theme.colorComponentBackground
+        scale: control.horizontal && control.mirrored ? -1 : 1
+
+        Rectangle {
+            x: control.horizontal ? control.first.position * parent.width + 3 : 0
+            y: control.horizontal ? 0 : control.second.visualPosition * parent.height + 3
+            width: control.horizontal ? control.second.position * parent.width - control.first.position * parent.width - 6 : 6
+            height: control.horizontal ? 6 : control.second.position * parent.height - control.first.position * parent.height - 6
+
+            radius: 2
+            color: Theme.colorPrimary
+        }
+    }
+
+    ////////////////
+
+    first.handle: Rectangle {
+        x: control.leftPadding + (control.horizontal ? control.first.visualPosition * (control.availableWidth - width) : (control.availableWidth - width) / 2)
+        y: control.topPadding + (control.horizontal ? (control.availableHeight - height) / 2 : control.first.visualPosition * (control.availableHeight - height))
+
+        implicitWidth: 18
+        implicitHeight: 18
+        radius: 9
+
+        opacity: control.enabled ? 1 : 0.8
+        color: control.first.pressed ? Theme.colorSecondary : Theme.colorPrimary
+        border.width: 1
+        border.color: Theme.colorPrimary
+
+        MouseArea {
+            anchors.fill: parent
+            anchors.margins: -10
+            z: -1
+
+            acceptedButtons: Qt.NoButton
+            hoverEnabled: (Theme.isDesktop && control.enabled)
+            propagateComposedEvents: false
+
+            Rectangle {
+                anchors.fill: parent
+                radius: width
+                color: Theme.colorPrimary
+                opacity: (control.first.pressed || parent.containsMouse) ? 0.2 : 0
+                Behavior on opacity { NumberAnimation { duration: Theme.animationSpeedFast } }
+            }
+        }
+    }
+
+    ////////////////
+
+    second.handle: Rectangle {
+        x: control.leftPadding + (control.horizontal ? control.second.visualPosition * (control.availableWidth - width) : (control.availableWidth - width) / 2)
+        y: control.topPadding + (control.horizontal ? (control.availableHeight - height) / 2 : control.second.visualPosition * (control.availableHeight - height))
+
+        implicitWidth: 18
+        implicitHeight: 18
+        radius: 9
+
+        opacity: control.enabled ? 1 : 0.8
+        color: control.second.pressed ? Theme.colorSecondary : Theme.colorPrimary
+        border.width: 1
+        border.color: Theme.colorPrimary
+
+        MouseArea {
+            anchors.fill: parent
+            anchors.margins: -10
+            z: -1
+
+            acceptedButtons: Qt.NoButton
+            hoverEnabled: (Theme.isDesktop && control.enabled)
+            propagateComposedEvents: false
+
+            Rectangle {
+                anchors.fill: parent
+                radius: width
+                color: Theme.colorPrimary
+                opacity: (control.second.pressed || parent.containsMouse) ? 0.2 : 0
+                Behavior on opacity { NumberAnimation { duration: Theme.animationSpeedFast } }
+            }
+        }
+    }
+
+    ////////////////
+}
