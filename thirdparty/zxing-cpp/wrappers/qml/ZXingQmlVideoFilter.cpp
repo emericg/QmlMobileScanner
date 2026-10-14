@@ -1,17 +1,17 @@
 /*
  * Copyright 2020 Axel Waggershauser
  * Copyright 2023 ApiTracer developer
- * Copyright 2024 Emeric Grange
+ * Copyright 2026 Emeric Grange
  */
 
-#include "ZXingQtVideoFilter.h"
+#include "ZXingQmlVideoFilter.h"
 
 #include <QtConcurrent>
 #include <QElapsedTimer>
 #include <QImage>
 #include <QDebug>
 
-ZXingQtVideoFilter::ZXingQtVideoFilter(QObject *parent) : QObject(parent)
+ZXingQmlVideoFilter::ZXingQmlVideoFilter(QObject *parent) : QObject(parent)
 {
     m_readerOptions.setMinLineCount(4); // default is 2
     m_readerOptions.setMaxNumberOfSymbols(4); // default is 255
@@ -20,12 +20,12 @@ ZXingQtVideoFilter::ZXingQtVideoFilter(QObject *parent) : QObject(parent)
     //m_readerOptions.setBinarizer(ZXing::Binarizer::GlobalHistogram); // default is LocalAverage
 }
 
-ZXingQtVideoFilter::~ZXingQtVideoFilter()
+ZXingQmlVideoFilter::~ZXingQmlVideoFilter()
 {
     stopFilter();
 }
 
-void ZXingQtVideoFilter::stopFilter()
+void ZXingQmlVideoFilter::stopFilter()
 {
     if (!m_processThread.isFinished())
     {
@@ -37,7 +37,7 @@ void ZXingQtVideoFilter::stopFilter()
     if (m_videoSink) disconnect(m_videoSink, nullptr, this, nullptr);
 }
 
-void ZXingQtVideoFilter::setVideoSink(QVideoSink *sink)
+void ZXingQmlVideoFilter::setVideoSink(QVideoSink *sink)
 {
     if (!sink) return;
     if (m_videoSink == sink) return;
@@ -48,11 +48,11 @@ void ZXingQtVideoFilter::setVideoSink(QVideoSink *sink)
     m_videoSink = qobject_cast<QVideoSink*>(sink);
 
     connect(m_videoSink, &QVideoSink::videoFrameChanged,
-            this, &ZXingQtVideoFilter::process,
+            this, &ZXingQmlVideoFilter::process,
             Qt::QueuedConnection);
 }
 
-void ZXingQtVideoFilter::setTryHarder(const bool value)
+void ZXingQmlVideoFilter::setTryHarder(const bool value)
 {
     if (m_readerOptions.tryHarder() != value)
     {
@@ -61,7 +61,7 @@ void ZXingQtVideoFilter::setTryHarder(const bool value)
     }
 }
 
-void ZXingQtVideoFilter::setTryRotate(const bool value)
+void ZXingQmlVideoFilter::setTryRotate(const bool value)
 {
     if (m_readerOptions.tryRotate() != value)
     {
@@ -70,7 +70,7 @@ void ZXingQtVideoFilter::setTryRotate(const bool value)
     }
 }
 
-void ZXingQtVideoFilter::setTryInvert(const bool value)
+void ZXingQmlVideoFilter::setTryInvert(const bool value)
 {
     if (m_readerOptions.tryInvert() != value)
     {
@@ -79,7 +79,7 @@ void ZXingQtVideoFilter::setTryInvert(const bool value)
     }
 }
 
-void ZXingQtVideoFilter::setTryDownscale(const bool value)
+void ZXingQmlVideoFilter::setTryDownscale(const bool value)
 {
     if (m_readerOptions.tryDownscale() != value)
     {
@@ -90,7 +90,7 @@ void ZXingQtVideoFilter::setTryDownscale(const bool value)
 
 static ZXing::BarcodeFormats appBitmaskToZXingFormats(int bitmask)
 {
-    using AF = ZXingQt::BarcodeFormat; // app flags (legacy layout, canonical)
+    using AF = ZXingQml::BarcodeFormat; // app flags (legacy layout, canonical)
     using ZF = ZXing::BarcodeFormat;   // library enum (ID based)
 
     static const struct { AF bit; ZF zx; } s_map[] = {
@@ -125,12 +125,12 @@ static ZXing::BarcodeFormats appBitmaskToZXingFormats(int bitmask)
     return ZXing::BarcodeFormats(std::move(formats));
 }
 
-int ZXingQtVideoFilter::formats() const noexcept
+int ZXingQmlVideoFilter::formats() const noexcept
 {
     return m_formats;
 }
 
-void ZXingQtVideoFilter::setFormats(int newVal)
+void ZXingQmlVideoFilter::setFormats(int newVal)
 {
     if (m_formats != newVal)
     {
@@ -140,7 +140,7 @@ void ZXingQtVideoFilter::setFormats(int newVal)
     }
 }
 
-void ZXingQtVideoFilter::setCaptureRect(const QRect &captureRect)
+void ZXingQmlVideoFilter::setCaptureRect(const QRect &captureRect)
 {
     if (captureRect == m_captureRect) return;
 
@@ -148,17 +148,17 @@ void ZXingQtVideoFilter::setCaptureRect(const QRect &captureRect)
     emit captureRectChanged();
 }
 
-BarcodeQml ZXingQtVideoFilter::process(const QVideoFrame &frame)
+BarcodeQml ZXingQmlVideoFilter::process(const QVideoFrame &frame)
 {
     if (m_active && m_videoSink && m_processThread.isFinished())
     {
-        //qWarning() << ">>> ZXingQtVideoFilter::process() >>> surfaceFormat > " << frame.surfaceFormat() << " > rotation > " << frame.rotationAngle();
+        //qWarning() << ">>> ZXingQmlVideoFilter::process() >>> surfaceFormat > " << frame.surfaceFormat() << " > rotation > " << frame.rotationAngle();
 
         m_processThread = QtConcurrent::run([=, this]() {
             QElapsedTimer t;
             t.start();
 
-            auto results = ZXingQt::ReadBarcodes2(frame, m_readerOptions, m_captureRect);
+            auto results = ZXingQml::ReadBarcodes2(frame, m_readerOptions, m_captureRect);
 
             for (auto &r: results)
             {
@@ -171,7 +171,7 @@ BarcodeQml ZXingQtVideoFilter::process(const QVideoFrame &frame)
                 }
                 else
                 {
-                    qWarning() << ">>> ZXingQtVideoFilter::process() >>> INVALID RESULTS";
+                    qWarning() << ">>> ZXingQmlVideoFilter::process() >>> INVALID RESULTS";
                 }
             }
 

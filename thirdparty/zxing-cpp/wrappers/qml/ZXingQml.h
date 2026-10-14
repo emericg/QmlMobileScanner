@@ -1,11 +1,12 @@
 /*
  * Copyright 2020 Axel Waggershauser
  * Copyright 2023 ApiTracer developer
- * Copyright 2023 Emeric Grange
+ * Copyright 2026 Emeric Grange
  */
 
-#ifndef ZXING_QT_H
-#define ZXING_QT_H
+#ifndef ZXING_QML_H
+#define ZXING_QML_H
+/* ************************************************************************** */
 
 #include "ZXingCpp.h"
 
@@ -20,7 +21,9 @@
 #include <QImage>
 #include <QVideoFrame>
 
-class Position : public ZXing::Quadrilateral<QPoint>
+/* ************************************************************************** */
+
+class PositionQml : public ZXing::Quadrilateral<QPoint>
 {
     Q_GADGET
 
@@ -35,6 +38,8 @@ public:
     using Base::Base;
 };
 
+/* ************************************************************************** */
+
 class BarcodeQml : private ZXing::Barcode
 {
     Q_GADGET
@@ -43,7 +48,7 @@ class BarcodeQml : private ZXing::Barcode
     Q_PROPERTY(bool hasError READ hasError)
     Q_PROPERTY(QString errorMessage READ errorMessage)
 
-    Q_PROPERTY(Position position READ position)
+    Q_PROPERTY(PositionQml position READ position)
     Q_PROPERTY(int orientation READ orientation)
     Q_PROPERTY(bool isMirrored READ isMirrored)
     Q_PROPERTY(bool isInverted READ isInverted)
@@ -64,7 +69,7 @@ class BarcodeQml : private ZXing::Barcode
 
     QString m_text;
     QByteArray m_bytes;
-    Position m_position;
+    PositionQml m_position;
 
 public:
     BarcodeQml() = default; // required for qmetatype machinery
@@ -88,7 +93,7 @@ public:
     QString formatName() const { return QString::fromStdString(ZXing::ToString(ZXing::Barcode::format())); }
     const QString &text() const { return m_text; }
     const QByteArray &bytes() const { return m_bytes; }
-    const Position &position() const { return m_position; }
+    const PositionQml &position() const { return m_position; }
 
     using ZXing::Barcode::orientation;
     using ZXing::Barcode::isMirrored;
@@ -100,7 +105,9 @@ public:
     QString symbologyIdentifier() const { return QString::fromStdString(ZXing::Barcode::symbologyIdentifier()); }
 };
 
-class ZXingQt : public QObject
+/* ************************************************************************** */
+
+class ZXingQml : public QObject
 {
     Q_OBJECT
 
@@ -211,7 +218,7 @@ public:
     Q_ENUM(CharacterSet)
 
 public:
-    explicit ZXingQt(QObject *parent = nullptr) : QObject(parent) {}
+    explicit ZXingQml(QObject *parent = nullptr) : QObject(parent) {}
 
     static void registerQMLTypes();
     static void registerQMLImageProvider(QQmlEngine &engine);
@@ -271,4 +278,5 @@ public:
     ///
 };
 
-#endif // ZXING_QT_H
+/* ************************************************************************** */
+#endif // ZXING_QML_H

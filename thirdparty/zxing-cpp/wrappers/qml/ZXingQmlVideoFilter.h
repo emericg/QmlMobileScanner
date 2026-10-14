@@ -1,13 +1,14 @@
 /*
  * Copyright 2020 Axel Waggershauser
  * Copyright 2023 ApiTracer developer
- * Copyright 2024 Emeric Grange
+ * Copyright 2026 Emeric Grange
  */
 
-#ifndef ZXING_QT_VIDEOFILTER_H
-#define ZXING_QT_VIDEOFILTER_H
+#ifndef ZXING_QML_VIDEOFILTER_H
+#define ZXING_QML_VIDEOFILTER_H
+/* ************************************************************************** */
 
-#include "ZXingQt.h"
+#include "ZXingQml.h"
 
 #include <QObject>
 #include <QRect>
@@ -16,7 +17,9 @@
 #include <QVideoFrame>
 #include <QFuture>
 
-class ZXingQtVideoFilter : public QObject
+/* ************************************************************************** */
+
+class ZXingQmlVideoFilter : public QObject
 {
     Q_OBJECT
 
@@ -74,10 +77,11 @@ public slots:
     BarcodeQml process(const QVideoFrame &frame);
 
 public:
-    ZXingQtVideoFilter(QObject *parent = nullptr);
-    virtual ~ZXingQtVideoFilter();
+    ZXingQmlVideoFilter(QObject *parent = nullptr);
+    virtual ~ZXingQmlVideoFilter();
 
     Q_INVOKABLE void stopFilter();
 };
 
-#endif // ZXING_QT_VIDEOFILTER_H
+/* ************************************************************************** */
+#endif // ZXING_QML_VIDEOFILTER_H

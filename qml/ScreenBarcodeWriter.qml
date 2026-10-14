@@ -125,7 +125,7 @@ Loader {
 
                         source: {
                             if (SettingsManager.backend_writer === "zint") return "image://ZintQml/encode/" + barcodeAdvanced.barcode_string + barcodeAdvanced.barcode_settings_zxingcpp
-                            if (SettingsManager.backend_writer === "zxingcpp") return "image://ZXingQt/encode/" + barcodeAdvanced.barcode_string + barcodeAdvanced.barcode_settings_zxingcpp
+                            if (SettingsManager.backend_writer === "zxingcpp") return "image://ZXingQml/encode/" + barcodeAdvanced.barcode_string + barcodeAdvanced.barcode_settings_zxingcpp
                             if (SettingsManager.backend_writer === "qzxing") return "image://QZXing/encode/" + barcodeAdvanced.barcode_string + barcodeAdvanced.barcode_settings_qzxing
                             return ""
                         }

@@ -27,7 +27,7 @@
 #include <QVariantMap>
 
 #if defined(QMS_USE_ZXINGCPP)
-#include <ZXingQt>
+#include <ZXingQml>
 #endif
 #if defined(QMS_USE_QZXING)
 #include <QZXing>
@@ -65,10 +65,10 @@ QVariantList UtilsBarcode::getAvailableFormats()
     };
 
 #if defined(QMS_USE_ZXINGCPP)
-    // Bit values come from ZXingQt::BarcodeFormat (ZXingQt.h), the canonical definition of the
+    // Bit values come from ZXingQml::BarcodeFormat (ZXingQml.h), the canonical definition of the
     // legacy zxing-cpp formatsEnabled layout (also used by appBitmaskToZXingFormats() and usable
-    // directly from QML, e.g. `formats: ZXingQt.QRCode | ZXingQt.Code39`).
-    using BF = ZXingQt::BarcodeFormat;
+    // directly from QML, e.g. `formats: ZXingQml.QRCode | ZXingQml.Code39`).
+    using BF = ZXingQml::BarcodeFormat;
     add("Linear codes", (unsigned)BF::LinearCodes);
     add("Aztec",        (unsigned)BF::Aztec);
     add("Data Matrix",  (unsigned)BF::DataMatrix);

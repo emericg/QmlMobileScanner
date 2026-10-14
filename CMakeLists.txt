@@ -167,9 +167,9 @@ if(USE_ZXINGCPP)
     add_subdirectory(thirdparty/zxing-cpp)
     target_link_libraries(${PROJECT_NAME} PRIVATE ZXing)
 
-    # build zxing-cpp Qt wrapper
-    add_subdirectory(thirdparty/zxing-cpp/wrappers/qt)
-    target_link_libraries(${PROJECT_NAME} PRIVATE ZXingQt)
+    # build zxing-cpp QML wrapper
+    add_subdirectory(thirdparty/zxing-cpp/wrappers/qml)
+    target_link_libraries(${PROJECT_NAME} PRIVATE ZXingQml)
     target_compile_definitions(${PROJECT_NAME} PRIVATE QMS_USE_ZXINGCPP)
 elseif(USE_QZXING)
     # build QZXing
@@ -181,7 +181,7 @@ else()
 endif()
 
 if(USE_ZINT)
-    # build zint
+    # build Zint
     add_subdirectory(thirdparty/zint-qml)
 if (BUILD_SHARED_LIBS)
     target_link_libraries(${PROJECT_NAME} PRIVATE zint)

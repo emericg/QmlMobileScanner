@@ -3,7 +3,7 @@ import QtQuick
 import QtQuick.Dialogs
 import QtQuick.Controls
 
-import ZXingQt
+import ZXingQml
 
 import ComponentLibrary
 
@@ -49,7 +49,7 @@ Row {
         source: "qrc:/IconLibrary/material-symbols/save.svg"
         onClicked: fileSaveDialog.open()
 
-        ZXingQt {
+        ZXingQml {
             id: zxingcpp_backend
         }
 

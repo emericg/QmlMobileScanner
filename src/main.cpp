@@ -35,7 +35,7 @@
 #endif
 
 #if defined(QMS_USE_ZXINGCPP)
-#include <ZXingQt>
+#include <ZXingQml>
 #endif
 
 #if defined(QMS_USE_ZINT)
@@ -116,8 +116,8 @@ int main(int argc, char *argv[])
 
 #if defined(QMS_USE_ZXINGCPP)
     // Barcode (zxing-cpp)
-    ZXingQt::registerQMLTypes();
-    ZXingQt::registerQMLImageProvider(engine);
+    ZXingQml::registerQMLTypes();
+    ZXingQml::registerQMLImageProvider(engine);
 #endif
 
 #if defined(QMS_USE_ZINT)

@@ -1,25 +1,25 @@
 /*
  * Copyright 2020 Axel Waggershauser
  * Copyright 2023 ApiTracer developer
- * Copyright 2024 Emeric Grange
+ * Copyright 2026 Emeric Grange
  */
 
-#include "ZXingQtImageProvider.h"
-#include "ZXingQt.h"
+#include "ZXingQmlImageProvider.h"
+#include "ZXingQml.h"
 
 #include <QDebug>
 #include <QUrlQuery>
 #include <QRegularExpression>
 
-ZXingQtImageProvider::ZXingQtImageProvider() : QQuickImageProvider(QQuickImageProvider::Image)
+ZXingQmlImageProvider::ZXingQmlImageProvider() : QQuickImageProvider(QQuickImageProvider::Image)
 {
     //
 }
 
-QImage ZXingQtImageProvider::requestImage(const QString &id, QSize *size, const QSize &requestedSize)
+QImage ZXingQmlImageProvider::requestImage(const QString &id, QSize *size, const QSize &requestedSize)
 {
     if (id.isEmpty() || requestedSize.width() <= 0 || requestedSize.height() <= 0) return QImage();
-    //qDebug() << "ZXingQtImageProvider::requestImage(" << id << ") size " << *size << " /  requestedSize" << requestedSize;
+    //qDebug() << "ZXingQmlImageProvider::requestImage(" << id << ") size " << *size << " /  requestedSize" << requestedSize;
 
     int slashIndex = id.indexOf('/');
     if (slashIndex == -1)
@@ -61,7 +61,7 @@ QImage ZXingQtImageProvider::requestImage(const QString &id, QSize *size, const 
         if (optionQuery.hasQueryItem("format"))
         {
             QString formatString = optionQuery.queryItemValue("format").toLower().remove('-');
-            format = (ZXing::BarcodeFormat)ZXingQt::stringToFormat(formatString);
+            format = (ZXing::BarcodeFormat)ZXingQml::stringToFormat(formatString);
 
             if (format <= ZXing::BarcodeFormat::None)
             {
@@ -162,7 +162,7 @@ QImage ZXingQtImageProvider::requestImage(const QString &id, QSize *size, const 
     }
 
     // Generate barcode
-    QImage img = ZXingQt::generateImage(data, width, height, margins,
+    QImage img = ZXingQml::generateImage(data, width, height, margins,
                                         (int)format, (int)encoding, eccLevel,
                                         bgc, fgc);
 

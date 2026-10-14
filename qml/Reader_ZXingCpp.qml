@@ -1,11 +1,12 @@
 import QtQuick
 
 import QtMultimedia
-import ZXingQt
+import ZXingQml
 
 import ComponentLibrary
+import AppUtils
 
-ZXingQtVideoFilter {
+ZXingQmlVideoFilter {
     id: barcodeReader
 
     property real timePerFrameDecode: 0
@@ -28,18 +29,18 @@ ZXingQtVideoFilter {
 
     formats: SettingsManager.formatsEnabled
 /*
-    formats: ZXingQt.LinearCodes | ZXingQt.MatrixCodes
-    formats: ZXingQt.Codabar |
-             ZXingQt.Code39 | ZXingQt.Code93 | ZXingQt.Code128 |
-             ZXingQt.EAN8 | ZXingQt.EAN13 |
-             ZXingQt.ITF |
-             ZXingQt.DataBar | ZXingQt.DataBarExpanded |
-             ZXingQt.UPCA | ZXingQt.UPCE |
-             ZXingQt.Aztec |
-             ZXingQt.DataMatrix |
-             ZXingQt.MaxiCode |
-             ZXingQt.PDF417 |
-             ZXingQt.QRCode | ZXingQt.MicroQRCode
+    formats: ZXingQml.LinearCodes | ZXingQml.MatrixCodes
+    formats: ZXingQml.Codabar |
+             ZXingQml.Code39 | ZXingQml.Code93 | ZXingQml.Code128 |
+             ZXingQml.EAN8 | ZXingQml.EAN13 |
+             ZXingQml.ITF |
+             ZXingQml.DataBar | ZXingQml.DataBarExpanded |
+             ZXingQml.UPCA | ZXingQml.UPCE |
+             ZXingQml.Aztec |
+             ZXingQml.DataMatrix |
+             ZXingQml.MaxiCode |
+             ZXingQml.PDF417 |
+             ZXingQml.QRCode | ZXingQml.MicroQRCode
 */
     function mapPointToItem(point) {
         //console.log("-------------------------------------")
@@ -106,6 +107,6 @@ ZXingQtVideoFilter {
         framesDecodedTotal += result.runTime
 
         timePerFrameDecode = framesDecodedTotal / framesDecodedTable.length
-        //console.log("ZXingQt::onDecodingFinished(" + result.isValid + " / " + result.runTime + " ms)")
+        //console.log("ZXingQml::onDecodingFinished(" + result.isValid + " / " + result.runTime + " ms)")
     }
 }
