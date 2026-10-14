@@ -173,7 +173,7 @@ if(USE_ZXINGCPP)
 
     # build zxing-cpp QML wrapper
     add_subdirectory(thirdparty/zxing-cpp/wrappers/qml)
-    target_link_libraries(${PROJECT_NAME} PRIVATE ZXingQml)
+    target_link_libraries(${PROJECT_NAME} PRIVATE ZXingQml ZXingQml_plugin)
     target_compile_definitions(${PROJECT_NAME} PRIVATE QMS_USE_ZXINGCPP)
 elseif(USE_QZXING)
     # build QZXing
@@ -225,6 +225,7 @@ set(QML_IMPORT_PATH
     "${CMAKE_BINARY_DIR}/thirdparty/"
     "${CMAKE_BINARY_DIR}/thirdparty/MobileUI"
     "${CMAKE_BINARY_DIR}/thirdparty/ComponentLibrary"
+    "${CMAKE_BINARY_DIR}/thirdparty/zxing-cpp/wrappers/qml"
     CACHE STRING "QML Modules import paths" FORCE)
 
 # Qt official hacks...

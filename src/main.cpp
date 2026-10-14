@@ -116,7 +116,6 @@ int main(int argc, char *argv[])
 
 #if defined(QMS_USE_ZXINGCPP)
     // Barcode (zxing-cpp)
-    ZXingQml::registerQMLTypes();
     ZXingQml::registerQMLImageProvider(engine);
 #endif
 

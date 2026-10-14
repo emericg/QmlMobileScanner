@@ -28,6 +28,8 @@ class BarcodeQml;
 class ZXingQml : public QObject
 {
     Q_OBJECT
+    QML_ELEMENT
+    QML_SINGLETON
 
 public:
     enum class BarcodeFormat {
@@ -115,7 +117,6 @@ public:
 public:
     explicit ZXingQml(QObject *parent = nullptr) : QObject(parent) {}
 
-    static void registerQMLTypes();
     static void registerQMLImageProvider(QQmlEngine &engine);
 
     ///
@@ -178,6 +179,7 @@ public:
 class PositionQml : public ZXing::Quadrilateral<QPoint>
 {
     Q_GADGET
+    QML_VALUE_TYPE(positionQml)
 
     Q_PROPERTY(QPoint topLeft READ topLeft)
     Q_PROPERTY(QPoint topRight READ topRight)
@@ -195,6 +197,7 @@ public:
 class BarcodeQml : private ZXing::Barcode
 {
     Q_GADGET
+    QML_VALUE_TYPE(barcodeQml)
 
     Q_PROPERTY(bool isValid READ isValid)
     Q_PROPERTY(bool hasError READ hasError)

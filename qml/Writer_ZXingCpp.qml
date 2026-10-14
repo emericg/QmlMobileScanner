@@ -49,10 +49,6 @@ Row {
         source: "qrc:/IconLibrary/material-symbols/save.svg"
         onClicked: fileSaveDialog.open()
 
-        ZXingQml {
-            id: zxingcpp_backend
-        }
-
         FileDialog {
             id: fileSaveDialog
 
@@ -65,11 +61,11 @@ Row {
             onAccepted: {
                 console.log("fileSaveDialog: ACCEPTED: " + selectedFile)
 
-                zxingcpp_backend.saveImage(barcodeAdvanced.barcode_string,
-                                           barcodeAdvanced.exportSize, barcodeAdvanced.exportSize, barcodeAdvanced.margins,
-                                           zxingcpp_backend.stringToFormat(barcodeAdvanced.format), 0, barcodeAdvanced.eccLevel,
-                                           barcodeAdvanced.colorBg, barcodeAdvanced.colorFg,
-                                           fileSaveDialog.selectedFile)
+                ZXingQml.saveImage(barcodeAdvanced.barcode_string,
+                                   barcodeAdvanced.exportSize, barcodeAdvanced.exportSize,
+                                   barcodeAdvanced.margins, ZXingQml.stringToFormat(barcodeAdvanced.format), 0, barcodeAdvanced.eccLevel,
+                                   barcodeAdvanced.colorBg, barcodeAdvanced.colorFg,
+                                   fileSaveDialog.selectedFile)
             }
             onRejected: {
                 console.log("fileSaveDialog: REJECTED: " + selectedFile)

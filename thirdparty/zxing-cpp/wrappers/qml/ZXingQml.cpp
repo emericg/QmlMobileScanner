@@ -5,7 +5,6 @@
  */
 
 #include "ZXingQml.h"
-#include "ZXingQmlVideoFilter.h"
 #include "ZXingQmlImageProvider.h"
 
 #include "ReadBarcode.h"
@@ -30,12 +29,6 @@
 #endif
 
 /* ************************************************************************** */
-
-void ZXingQml::registerQMLTypes()
-{
-    qmlRegisterType<ZXingQml>("ZXingQml", 1, 0, "ZXingQml");
-    qmlRegisterType<ZXingQmlVideoFilter>("ZXingQml", 1, 0, "ZXingQmlVideoFilter");
-}
 
 void ZXingQml::registerQMLImageProvider(QQmlEngine &engine)
 {
