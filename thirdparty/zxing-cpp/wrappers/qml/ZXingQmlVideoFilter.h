@@ -16,6 +16,7 @@
 #include <QVideoSink>
 #include <QVideoFrame>
 #include <QFuture>
+#include <QPointer>
 
 /* ************************************************************************** */
 
@@ -23,7 +24,7 @@ class ZXingQmlVideoFilter : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QVideoSink *videoSink MEMBER m_videoSink WRITE setVideoSink)
+    Q_PROPERTY(QVideoSink *videoSink READ videoSink WRITE setVideoSink NOTIFY videoSinkChanged)
 
     Q_PROPERTY(QRect captureRect READ captureRect WRITE setCaptureRect NOTIFY captureRectChanged)
     Q_PROPERTY(int formats READ formats WRITE setFormats NOTIFY formatsChanged)
@@ -39,9 +40,10 @@ class ZXingQmlVideoFilter : public QObject
     QRect m_captureRect;
     ZXing::ReaderOptions m_readerOptions;
 
-    int m_formats = 0xffffffff;
+    int m_formats = static_cast<int>(ZXingQml::BarcodeFormat::Any);
 
-    QVideoSink *m_videoSink = nullptr;
+    QPointer<QVideoSink> m_videoSink;
+    QVideoSink *videoSink() const { return m_videoSink; }
     void setVideoSink(QVideoSink *sink);
 
     // capture rectangle
@@ -61,6 +63,8 @@ class ZXingQmlVideoFilter : public QObject
     void setTryDownscale(const bool value);
 
 signals:
+    void videoSinkChanged();
+
     void tryHarderChanged();
     void tryRotateChanged();
     void tryInvertChanged();

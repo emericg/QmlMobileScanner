@@ -46,28 +46,20 @@ void ZXingQml::registerQMLImageProvider(QQmlEngine &engine)
 
 int ZXingQml::stringToFormat(const QString &str)
 {
-    if (str == "aztec") return (int)ZXing::BarcodeFormat::AztecCode;
-    if (str == "aztecrune") return (int)ZXing::BarcodeFormat::AztecRune;
-    if (str == "codabar") return (int)ZXing::BarcodeFormat::Codabar;
-    if (str == "code39") return (int)ZXing::BarcodeFormat::Code39;
-    if (str == "code93") return (int)ZXing::BarcodeFormat::Code93;
-    if (str == "code128") return (int)ZXing::BarcodeFormat::Code128;
-    if (str == "databar") return (int)ZXing::BarcodeFormat::DataBar;
-    if (str == "databarexpanded") return (int)ZXing::BarcodeFormat::DataBarExp;
-    if (str == "datamatrix") return (int)ZXing::BarcodeFormat::DataMatrix;
-    if (str == "ean8") return (int)ZXing::BarcodeFormat::EAN8;
-    if (str == "ean13") return (int)ZXing::BarcodeFormat::EAN13;
-    if (str == "itf") return (int)ZXing::BarcodeFormat::ITF;
-    if (str == "maxicode") return (int)ZXing::BarcodeFormat::MaxiCode;
-    if (str == "pdf417") return (int)ZXing::BarcodeFormat::PDF417;
-    if (str == "qrcode") return (int)ZXing::BarcodeFormat::QRCode;
-    if (str == "upca") return (int)ZXing::BarcodeFormat::UPCA;
-    if (str == "upce") return (int)ZXing::BarcodeFormat::UPCE;
-    if (str == "microqrcode") return (int)ZXing::BarcodeFormat::MicroQRCode;
-    if (str == "rmqr") return (int)ZXing::BarcodeFormat::RMQRCode;
-    if (str == "micropdf417") return (int)ZXing::BarcodeFormat::MicroPDF417;
+    // app specific names, not understood by ZXing::BarcodeFormatFromString()
+    const QString name = str.toLower();
+    if (name == "aztec") return (int)ZXing::BarcodeFormat::AztecCode;
+    if (name == "rmqr") return (int)ZXing::BarcodeFormat::RMQRCode;
 
-    qWarning() << "ZXingQml::stringToFormat() unknown string";
+    try
+    {
+        // matches names ("QRCode") and human readable names ("QR Code", "DataBar Expanded")
+        return (int)ZXing::BarcodeFormatFromString(str.toStdString());
+    }
+    catch (const std::invalid_argument &)
+    {
+        qWarning() << "ZXingQml::stringToFormat() unknown format:" << str;
+    }
 
     return 0;
 }
@@ -100,21 +92,20 @@ QString ZXingQml::formatToString(const int fmt)
     return QString();
 }
 
-ZXing::ImageFormat ZXingQml::qimageFormatToXZingFormat(const QImage &img)
+ZXing::ImageFormat ZXingQml::qimageFormatToZXingFormat(const QImage &img)
 {
     ZXing::ImageFormat format = ZXing::ImageFormat::None;
 
     switch (img.format())
     {
         case QImage::Format_RGB32:
+        case QImage::Format_ARGB32:
+        case QImage::Format_ARGB32_Premultiplied:
 #if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
             format = ZXing::ImageFormat::BGRA; break;
 #else
             format = ZXing::ImageFormat::ARGB; break;
 #endif
-        case QImage::Format_ARGB32:
-        case QImage::Format_ARGB32_Premultiplied:
-            format = ZXing::ImageFormat::ARGB; break;
         case QImage::Format_RGB888:
             format = ZXing::ImageFormat::RGB; break;
         case QImage::Format_BGR888:
@@ -127,7 +118,7 @@ ZXing::ImageFormat ZXingQml::qimageFormatToXZingFormat(const QImage &img)
             format = ZXing::ImageFormat::Lum; break;
 
         default:
-            qWarning() << "ZXingQml::qimageFormatToXZingFormat() unknown format";
+            qWarning() << "ZXingQml::qimageFormatToZXingFormat() unknown format";
             break;
     }
 
@@ -164,7 +155,10 @@ void ZXingQml::qvideoframeFormatToXZingFormat(const QVideoFrame &frame,
     case QVideoFrameFormat::Format_P010:
     case QVideoFrameFormat::Format_P016:
         format = ZXing::ImageFormat::Lum;
-        pixStride = 1;
+        pixStride = 2;
+#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
+        pixOffset = 1;
+#endif
         break;
 
     case QVideoFrameFormat::Format_YUV420P:
@@ -243,9 +237,9 @@ QList<BarcodeQml> ZXingQml::ReadBarcodes(const QImage &image,
     //qDebug() << ">>> ZXingQml::ReadBarcodes(QImage)";
     //qDebug() << "QImage geometry     :" << image.width() << "x" << image.height();
     //qDebug() << "QImage QPixelFormat :" << image.pixelFormat();
-    //qDebug() << "ZXing ImageFormat   :" << (int)qimageFormatToXZingFormat(image);
+    //qDebug() << "ZXing ImageFormat   :" << (int)qimageFormatToZXingFormat(image);
 
-    ZXing::ImageFormat format = qimageFormatToXZingFormat(image);
+    ZXing::ImageFormat format = qimageFormatToZXingFormat(image);
     if (format != ZXing::ImageFormat::None)
     {
         return QListBarcodes(
@@ -436,7 +430,7 @@ QImage ZXingQml::generateImage(const QString &data, const int width, const int h
     return QImage();
 }
 
-QString getExternalFilesDirPath()
+static QString getExternalFilesDirPath()
 {
 #if defined(Q_OS_ANDROID)
 
@@ -472,6 +466,8 @@ QString ZXingQml::shareImage(const QString &data, int width, int height, int mar
 
     // Get temp directory path (2)
     QString exportDirectoryPath = getExternalFilesDirPath();
+    if (exportDirectoryPath.isEmpty()) exportDirectoryPath = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
+    if (exportDirectoryPath.isEmpty()) return QString();
     QDir exportDirectory(exportDirectoryPath);
     if (!exportDirectory.exists()) exportDirectory.mkpath(exportDirectoryPath);
 
@@ -479,7 +475,7 @@ QString ZXingQml::shareImage(const QString &data, int width, int height, int mar
     exportFilePath = exportDirectoryPath + "/barcode.png";
 
     if (saveImage(data, width, height, margins, format, encoding, eccLevel,
-                  backgroundColor, foregroundColor, exportFilePath))
+                  backgroundColor, foregroundColor, QUrl::fromLocalFile(exportFilePath)))
     {
         QFileInfo saveFileInfo(exportFilePath);
         qDebug() << "saveFileInfo " << saveFileInfo << ")";

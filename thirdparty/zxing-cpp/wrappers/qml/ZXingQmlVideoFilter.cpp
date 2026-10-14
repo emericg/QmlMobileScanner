@@ -39,17 +39,23 @@ void ZXingQmlVideoFilter::stopFilter()
 
 void ZXingQmlVideoFilter::setVideoSink(QVideoSink *sink)
 {
-    if (!sink) return;
-    if (m_videoSink == sink) return;
+    // setting the same sink again restarts a stopped filter
+    if (m_videoSink == sink && m_active) return;
+    const bool changed = (m_videoSink != sink);
+
     if (m_videoSink) disconnect(m_videoSink, nullptr, this, nullptr);
 
-    m_active = true;
+    m_videoSink = sink;
+    m_active = (m_videoSink != nullptr);
 
-    m_videoSink = qobject_cast<QVideoSink*>(sink);
+    if (m_videoSink)
+    {
+        connect(m_videoSink, &QVideoSink::videoFrameChanged,
+                this, &ZXingQmlVideoFilter::process,
+                Qt::QueuedConnection);
+    }
 
-    connect(m_videoSink, &QVideoSink::videoFrameChanged,
-            this, &ZXingQmlVideoFilter::process,
-            Qt::QueuedConnection);
+    if (changed) emit videoSinkChanged();
 }
 
 void ZXingQmlVideoFilter::setTryHarder(const bool value)
@@ -154,11 +160,11 @@ BarcodeQml ZXingQmlVideoFilter::process(const QVideoFrame &frame)
     {
         //qWarning() << ">>> ZXingQmlVideoFilter::process() >>> surfaceFormat > " << frame.surfaceFormat() << " > rotation > " << frame.rotationAngle();
 
-        m_processThread = QtConcurrent::run([=, this]() {
+        m_processThread = QtConcurrent::run([this, frame, opts = m_readerOptions, rect = m_captureRect]() {
             QElapsedTimer t;
             t.start();
 
-            auto results = ZXingQml::ReadBarcodes2(frame, m_readerOptions, m_captureRect);
+            auto results = ZXingQml::ReadBarcodes2(frame, opts, rect);
 
             for (auto &r: results)
             {

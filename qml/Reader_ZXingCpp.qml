@@ -83,7 +83,7 @@ ZXingQmlVideoFilter {
         //console.log("sourceRect : " + videoOutput.sourceRect)
 
         if (result.isValid && result.text !== "") {
-            var newbarcode = BarcodeManager.addBarcode(result.text, result.formatName, result.contentType, "",
+            var newbarcode = BarcodeManager.addBarcode(result.text, result.formatName, result.contentTypeName, "",
                                                        mapPointToItem(result.position.topLeft),
                                                        mapPointToItem(result.position.topRight),
                                                        mapPointToItem(result.position.bottomRight),
@@ -94,7 +94,7 @@ ZXingQmlVideoFilter {
 
                 if (SettingsManager.save_barcodes) {
                     BarcodeManager.addHistory(result.text,
-                                              result.formatName, result.contentType, "",
+                                              result.formatName, result.contentTypeName, "",
                                               gps.coordinates)
                 }
             }

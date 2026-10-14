@@ -21,89 +21,7 @@
 #include <QImage>
 #include <QVideoFrame>
 
-/* ************************************************************************** */
-
-class PositionQml : public ZXing::Quadrilateral<QPoint>
-{
-    Q_GADGET
-
-    Q_PROPERTY(QPoint topLeft READ topLeft)
-    Q_PROPERTY(QPoint topRight READ topRight)
-    Q_PROPERTY(QPoint bottomRight READ bottomRight)
-    Q_PROPERTY(QPoint bottomLeft READ bottomLeft)
-
-    using Base = ZXing::Quadrilateral<QPoint>;
-
-public:
-    using Base::Base;
-};
-
-/* ************************************************************************** */
-
-class BarcodeQml : private ZXing::Barcode
-{
-    Q_GADGET
-
-    Q_PROPERTY(bool isValid READ isValid)
-    Q_PROPERTY(bool hasError READ hasError)
-    Q_PROPERTY(QString errorMessage READ errorMessage)
-
-    Q_PROPERTY(PositionQml position READ position)
-    Q_PROPERTY(int orientation READ orientation)
-    Q_PROPERTY(bool isMirrored READ isMirrored)
-    Q_PROPERTY(bool isInverted READ isInverted)
-
-    Q_PROPERTY(bool hasText READ hasText)
-    Q_PROPERTY(QString text READ text)
-
-    Q_PROPERTY(bool hasBinaryData READ hasBinaryData)
-    Q_PROPERTY(QByteArray binaryData READ bytes)
-
-    Q_PROPERTY(ZXing::BarcodeFormat format READ format)
-    Q_PROPERTY(QString formatName READ formatName)
-    Q_PROPERTY(QString symbologyIdentifier READ symbologyIdentifier)
-    Q_PROPERTY(ZXing::ContentType contentType READ contentType)
-    Q_PROPERTY(int lineCount READ lineCount)
-
-    Q_PROPERTY(int runTime MEMBER runTime)
-
-    QString m_text;
-    QByteArray m_bytes;
-    PositionQml m_position;
-
-public:
-    BarcodeQml() = default; // required for qmetatype machinery
-
-    explicit BarcodeQml(ZXing::Barcode &&r) : ZXing::Barcode(std::move(r)) {
-        m_text = QString::fromStdString(ZXing::Barcode::text());
-        m_bytes = QByteArray(reinterpret_cast<const char*>(ZXing::Barcode::bytes().data()),
-                             static_cast<qsizetype>(ZXing::Barcode::bytes().size()));
-        auto &pos = ZXing::Barcode::position();
-        auto qp = [&pos](int i) { return QPoint(pos[i].x, pos[i].y); };
-        m_position = {qp(0), qp(1), qp(2), qp(3)};
-    }
-
-    int runTime = 0; // for debugging/development
-    using ZXing::Barcode::isValid;
-
-    bool hasText() const { return (ZXing::Barcode::contentType() == ZXing::ContentType::Text); }
-    bool hasBinaryData() const { return (ZXing::Barcode::contentType() == ZXing::ContentType::Binary); }
-    ZXing::BarcodeFormat format() const { return static_cast<ZXing::BarcodeFormat>(ZXing::Barcode::format()); }
-    ZXing::ContentType contentType() const { return static_cast<ZXing::ContentType>(ZXing::Barcode::contentType()); }
-    QString formatName() const { return QString::fromStdString(ZXing::ToString(ZXing::Barcode::format())); }
-    const QString &text() const { return m_text; }
-    const QByteArray &bytes() const { return m_bytes; }
-    const PositionQml &position() const { return m_position; }
-
-    using ZXing::Barcode::orientation;
-    using ZXing::Barcode::isMirrored;
-    using ZXing::Barcode::isInverted;
-    using ZXing::Barcode::lineCount;
-
-    bool hasError() const { return bool(ZXing::Barcode::error()); }
-    QString errorMessage() const { return hasError() ? QString::fromStdString(ZXing::ToString(ZXing::Barcode::error())) : QString(); }
-    QString symbologyIdentifier() const { return QString::fromStdString(ZXing::Barcode::symbologyIdentifier()); }
-};
+class BarcodeQml;
 
 /* ************************************************************************** */
 
@@ -112,29 +30,6 @@ class ZXingQml : public QObject
     Q_OBJECT
 
 public:
-    const int AZTEC_ERROR_CORRECTION_0      = 0;
-    const int AZTEC_ERROR_CORRECTION_12     = 1;
-    const int AZTEC_ERROR_CORRECTION_25     = 2;
-    const int AZTEC_ERROR_CORRECTION_37     = 3;
-    const int AZTEC_ERROR_CORRECTION_50     = 4;
-    const int AZTEC_ERROR_CORRECTION_62     = 5;
-    const int AZTEC_ERROR_CORRECTION_75     = 6;
-    const int AZTEC_ERROR_CORRECTION_87     = 7;
-    const int AZTEC_ERROR_CORRECTION_100    = 8;
-    const int QR_ERROR_CORRECTION_LOW       = 2;
-    const int QR_ERROR_CORRECTION_MEDIUM    = 4;
-    const int QR_ERROR_CORRECTION_QUARTILE  = 6;
-    const int QR_ERROR_CORRECTION_HIGH      = 8;
-    const int PDF417_ERROR_CORRECTION_0     = 0;
-    const int PDF417_ERROR_CORRECTION_1     = 1;
-    const int PDF417_ERROR_CORRECTION_2     = 2;
-    const int PDF417_ERROR_CORRECTION_3     = 3;
-    const int PDF417_ERROR_CORRECTION_4     = 4;
-    const int PDF417_ERROR_CORRECTION_5     = 5;
-    const int PDF417_ERROR_CORRECTION_6     = 6;
-    const int PDF417_ERROR_CORRECTION_7     = 7;
-    const int PDF417_ERROR_CORRECTION_8     = 8;
-
     enum class BarcodeFormat {
         None            = 0,
         Aztec           = (1 <<  0),
@@ -228,7 +123,7 @@ public:
     Q_INVOKABLE static int stringToFormat(const QString &str);
     Q_INVOKABLE static QString formatToString(const int fmt);
 
-    static ZXing::ImageFormat qimageFormatToXZingFormat(const QImage &img);
+    static ZXing::ImageFormat qimageFormatToZXingFormat(const QImage &img);
     static void qvideoframeFormatToXZingFormat(const QVideoFrame &frame,
                                                ZXing::ImageFormat &format, int &pixStride, int &pixOffset);
 
@@ -276,6 +171,93 @@ public:
                                       const QUrl &fileurl);
 
     ///
+};
+
+/* ************************************************************************** */
+
+class PositionQml : public ZXing::Quadrilateral<QPoint>
+{
+    Q_GADGET
+
+    Q_PROPERTY(QPoint topLeft READ topLeft)
+    Q_PROPERTY(QPoint topRight READ topRight)
+    Q_PROPERTY(QPoint bottomRight READ bottomRight)
+    Q_PROPERTY(QPoint bottomLeft READ bottomLeft)
+
+    using Base = ZXing::Quadrilateral<QPoint>;
+
+public:
+    using Base::Base;
+};
+
+/* ************************************************************************** */
+
+class BarcodeQml : private ZXing::Barcode
+{
+    Q_GADGET
+
+    Q_PROPERTY(bool isValid READ isValid)
+    Q_PROPERTY(bool hasError READ hasError)
+    Q_PROPERTY(QString errorMessage READ errorMessage)
+
+    Q_PROPERTY(PositionQml position READ position)
+    Q_PROPERTY(int orientation READ orientation)
+    Q_PROPERTY(bool isMirrored READ isMirrored)
+    Q_PROPERTY(bool isInverted READ isInverted)
+
+    Q_PROPERTY(bool hasText READ hasText)
+    Q_PROPERTY(QString text READ text)
+
+    Q_PROPERTY(bool hasBinaryData READ hasBinaryData)
+    Q_PROPERTY(QByteArray binaryData READ bytes)
+
+    Q_PROPERTY(int format READ formatId)
+    Q_PROPERTY(QString formatName READ formatName)
+    Q_PROPERTY(QString symbologyIdentifier READ symbologyIdentifier)
+    Q_PROPERTY(ZXingQml::ContentType contentType READ contentType)
+    Q_PROPERTY(QString contentTypeName READ contentTypeName)
+    Q_PROPERTY(int lineCount READ lineCount)
+
+    Q_PROPERTY(int runTime MEMBER runTime)
+
+    QString m_text;
+    QByteArray m_bytes;
+    PositionQml m_position;
+
+public:
+    BarcodeQml() = default; // required for qmetatype machinery
+
+    explicit BarcodeQml(ZXing::Barcode &&r) : ZXing::Barcode(std::move(r)) {
+        m_text = QString::fromStdString(ZXing::Barcode::text());
+        m_bytes = QByteArray(reinterpret_cast<const char*>(ZXing::Barcode::bytes().data()),
+                             static_cast<qsizetype>(ZXing::Barcode::bytes().size()));
+        auto &pos = ZXing::Barcode::position();
+        auto qp = [&pos](int i) { return QPoint(pos[i].x, pos[i].y); };
+        m_position = {qp(0), qp(1), qp(2), qp(3)};
+    }
+
+    int runTime = 0; // for debugging/development
+    using ZXing::Barcode::isValid;
+
+    bool hasText() const { return (ZXing::Barcode::contentType() == ZXing::ContentType::Text); }
+    bool hasBinaryData() const { return (ZXing::Barcode::contentType() == ZXing::ContentType::Binary); }
+    ZXing::BarcodeFormat format() const { return ZXing::Barcode::format(); }
+    int formatId() const { return static_cast<int>(ZXing::Barcode::format()); }
+    QString formatName() const { return QString::fromStdString(ZXing::ToString(ZXing::Barcode::format())); }
+    ZXingQml::ContentType contentType() const { return static_cast<ZXingQml::ContentType>(ZXing::Barcode::contentType()); }
+    QString contentTypeName() const { return QString::fromStdString(ZXing::ToString(ZXing::Barcode::contentType())); }
+    const QString &text() const { return m_text; }
+    const QByteArray &bytes() const { return m_bytes; }
+    const PositionQml &position() const { return m_position; }
+
+    using ZXing::Barcode::orientation;
+    using ZXing::Barcode::isMirrored;
+    using ZXing::Barcode::isInverted;
+    using ZXing::Barcode::lineCount;
+
+    bool hasError() const { return bool(ZXing::Barcode::error()); }
+    QString errorMessage() const { return hasError() ? QString::fromStdString(ZXing::ToString(ZXing::Barcode::error())) : QString(); }
+    QString symbologyIdentifier() const { return QString::fromStdString(ZXing::Barcode::symbologyIdentifier()); }
 };
 
 /* ************************************************************************** */

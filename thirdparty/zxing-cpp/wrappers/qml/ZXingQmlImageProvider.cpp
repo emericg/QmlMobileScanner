@@ -27,11 +27,12 @@ QImage ZXingQmlImageProvider::requestImage(const QString &id, QSize *size, const
         qWarning() << "Can't parse url" << id << ". Usage is encode/<data>?params";
         return QImage();
     }
-    int exmarkIndex = id.lastIndexOf('?');
-    if (exmarkIndex == -1)
-    {
-        exmarkIndex = id.size();
-    }
+
+    // Settings start at the last '?' followed by a known key, as the data itself may contain '?'
+    static const QRegularExpression rxSettings(
+        QStringLiteral("\\?(?=(format|encoding|eccLevel|margins|backgroundColor|foregroundColor)=)"));
+    const int settingsIndex = id.lastIndexOf(rxSettings);
+    const int dataEnd = (settingsIndex >= 0) ? settingsIndex : id.size();
 
     // Detect operation (ex. encode)
     QString operationName = id.left(slashIndex);
@@ -42,8 +43,7 @@ QImage ZXingQmlImageProvider::requestImage(const QString &id, QSize *size, const
     }
 
     // Data
-    int data_sz = id.size() - slashIndex - 1 - (id.size() - exmarkIndex);
-    QString data = id.mid(slashIndex + 1, data_sz);
+    QString data = id.mid(slashIndex + 1, dataEnd - slashIndex - 1);
 
     // Settings
     ZXing::BarcodeFormat format = ZXing::BarcodeFormat::QRCode;
@@ -53,17 +53,16 @@ QImage ZXingQmlImageProvider::requestImage(const QString &id, QSize *size, const
     QColor bgc(0, 0, 0, 0);
     QColor fgc(0, 0, 0, 255);
 
-    int customSettingsIndex = id.lastIndexOf(QRegularExpression("\\?(format|encoding|eccLevel|margin)="));
-    if (customSettingsIndex >= 0)
+    if (settingsIndex >= 0)
     {
-        QUrlQuery optionQuery(id.mid(customSettingsIndex + 1));
+        QUrlQuery optionQuery(id.mid(settingsIndex + 1));
 
         if (optionQuery.hasQueryItem("format"))
         {
-            QString formatString = optionQuery.queryItemValue("format").toLower().remove('-');
+            QString formatString = optionQuery.queryItemValue("format");
             format = (ZXing::BarcodeFormat)ZXingQml::stringToFormat(formatString);
 
-            if (format <= ZXing::BarcodeFormat::None)
+            if (format == ZXing::BarcodeFormat::None)
             {
                 qWarning() << "Format not supported: " << formatString;
                 format = ZXing::BarcodeFormat::QRCode;
