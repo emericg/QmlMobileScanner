@@ -90,7 +90,7 @@ android {
         ndk.abiFilters = qtTargetAbiList.split(",")
 
         namespace 'io.emeric.qmlmobilescanner'
-        versionName '0.5'
+        versionName '0.6'
         versionCode timestampInt
         manifestPlaceholders = [versionName: versionName, versionCode: versionCode]
     }

@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
     app.setOrganizationDomain("emeric");
 
     // Application icon
-    app.setWindowIcon(QIcon(":/assets/gfx/logos/logo_black.svg"));
+    app.setWindowIcon(QIcon(":/assets/logos/logo_black.svg"));
 
     // Init app components
     DatabaseManager *dbm = DatabaseManager::getInstance();

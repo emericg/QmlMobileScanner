@@ -14,7 +14,7 @@ on:
 
 env:
   APP_NAME: "QmlMobileScanner"
-  APP_VERSION: "0.5"
+  APP_VERSION: "0.6"
   QT_VERSION: "6.10.3"
 
 #-------------------------------------------------------------------------------
@@ -32,7 +32,7 @@ jobs:
     steps:
       # Checkout repository (and submodules)
       - name: Checkout repository (and submodules)
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           submodules: recursive
 
@@ -57,16 +57,16 @@ jobs:
         uses: jurplel/install-qt-action@v4
         with:
           version: ${{ env.QT_VERSION }}
-          host: 'linux'
+          host: 'all_os'
           target: 'android'
           arch: 'android_arm64_v8a'
           modules: qtmultimedia qtpositioning
           extra: '--autodesktop'
 
       # Install dependencies (from package manager)
-      - name: Install dependencies (from package manager)
-        run: |
-             sudo apt-get install cmake ninja-build -y;
+      #- name: Install dependencies (from package manager)
+      #  run: |
+      #       sudo apt-get install cmake ninja-build -y;
 
       # Setup env
       - name: Setup env
@@ -103,7 +103,7 @@ jobs:
     steps:
       # Checkout repository (and submodules)
       - name: Checkout repository (and submodules)
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           submodules: recursive
 

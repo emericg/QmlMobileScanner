@@ -48,7 +48,7 @@ DrawerThemed {
 
                     width: 40
                     height: 40
-                    source: "qrc:/assets/gfx/logos/logo_black.svg"
+                    source: "qrc:/assets/logos/logo_black.svg"
                     //sourceSize: Qt.size(width, height)
                     color: Theme.colorIcon
                 }

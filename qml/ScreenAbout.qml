@@ -112,7 +112,7 @@ Loader {
                             height: 64
 
                             color: Theme.colorIcon
-                            source: "qrc:/assets/gfx/logos/logo_black.svg"
+                            source: "qrc:/assets/logos/logo_black.svg"
                             //sourceSize: Qt.size(width, height)
                         }
 
@@ -174,7 +174,7 @@ Loader {
                             height: 40
 
                             text: qsTr("GitHub")
-                            source: "qrc:/assets/gfx/logos/github.svg"
+                            source: "qrc:/assets/logos/github.svg"
                             sourceSize: 22
                             color: (Theme.currentTheme === Theme.THEME_NIGHT) ? Theme.colorHeader : "#5483EF"
 

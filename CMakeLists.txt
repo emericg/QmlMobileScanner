@@ -103,10 +103,11 @@ else() # Desktop
 
     # Set app icons
     #if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    #    set(SOURCES_DESKTOP "${PROJECT_SOURCE_DIR}/assets/windows/${PROJECT_NAME}.rc")
+    #    set(SOURCES_DESKTOP "${PROJECT_SOURCE_DIR}/platforms/windows/${PROJECT_NAME}.rc")
     #elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    #    set(SOURCES_DESKTOP "${PROJECT_SOURCE_DIR}/assets/macos/${PROJECT_NAME}.icns")
+    #    set(SOURCES_DESKTOP "${PROJECT_SOURCE_DIR}/platforms/macos/${PROJECT_NAME}.icns")
     #endif()
+
 endif()
 
 qt_add_executable(${PROJECT_NAME} ${SOURCES} ${SOURCES_DESKTOP} ${SOURCES_MOBILE})
@@ -166,6 +167,9 @@ if(USE_ZXINGCPP)
     # build zxing-cpp
     add_subdirectory(thirdparty/zxing-cpp)
     target_link_libraries(${PROJECT_NAME} PRIVATE ZXing)
+    target_compile_options(ZXing PRIVATE
+        $<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wno-deprecated-declarations>
+        $<$<CXX_COMPILER_ID:MSVC>:/wd4996>)
 
     # build zxing-cpp QML wrapper
     add_subdirectory(thirdparty/zxing-cpp/wrappers/qml)
@@ -243,10 +247,10 @@ include(GNUInstallDirs)
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     # System install rules
     install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin/)
-    #install(FILES ${PROJECT_SOURCE_DIR}/assets/linux/${PROJECT_NAME}.desktop DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications/)
-    #install(FILES ${PROJECT_SOURCE_DIR}/assets/linux/${PROJECT_NAME}.appdata.xml DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/appdata/)
-    #install(FILES ${PROJECT_SOURCE_DIR}/assets/linux/${PROJECT_NAME}.svg DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/pixmaps/)
-    #install(FILES ${PROJECT_SOURCE_DIR}/assets/linux/${PROJECT_NAME}.svg DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/scalable/apps/)
+    #install(FILES ${PROJECT_SOURCE_DIR}/platforms/linux/${PROJECT_NAME}.desktop DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications/)
+    #install(FILES ${PROJECT_SOURCE_DIR}/platforms/linux/${PROJECT_NAME}.appdata.xml DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/appdata/)
+    #install(FILES ${PROJECT_SOURCE_DIR}/platforms/linux/${PROJECT_NAME}.svg DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/pixmaps/)
+    #install(FILES ${PROJECT_SOURCE_DIR}/platforms/linux/${PROJECT_NAME}.svg DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/scalable/apps/)
     #install(FILES ${PROJECT_SOURCE_DIR}/LICENSE.md DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/licenses/${PROJECT_NAME}/)
 endif()
 
@@ -255,18 +259,18 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     #set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64")
     set(CMAKE_OSX_DEPLOYMENT_TARGET "12.0")
 
-    #set(app_icon_macos "${PROJECT_SOURCE_DIR}/assets/macos/${PROJECT_NAME}.icns")
+    #set(app_icon_macos "${PROJECT_SOURCE_DIR}/platforms/macos/${PROJECT_NAME}.icns")
     #set_source_files_properties(${app_icon_macos} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
 
     set_target_properties(${PROJECT_NAME} PROPERTIES
         MACOSX_BUNDLE ON
-        MACOSX_BUNDLE_INFO_PLIST "${PROJECT_SOURCE_DIR}/assets/macos/Info.plist"
+        MACOSX_BUNDLE_INFO_PLIST "${PROJECT_SOURCE_DIR}/platforms/macos/Info.plist"
         # New Xcode attributes (???)
         XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER           "io.emeric.qmlmobilescanner"
         XCODE_ATTRIBUTE_PRODUCT_NAME                        ${PROJECT_NAME}
         XCODE_ATTRIBUTE_CURRENT_PROJECT_VERSION             ${PROJECT_VERSION}
         XCODE_ATTRIBUTE_MARKETING_VERSION                   ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-        XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS             "${PROJECT_SOURCE_DIR}/assets/macos/${PROJECT_NAME}.entitlements"
+        XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS             "${PROJECT_SOURCE_DIR}/platforms/macos/${PROJECT_NAME}.entitlements"
         #XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME  AppIcon
     )
 endif()
@@ -287,7 +291,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Android")
         #QT_ANDROID_BUILD_ALL_ABIS ON
         QT_ANDROID_MIN_SDK_VERSION 28
         QT_ANDROID_TARGET_SDK_VERSION 36
-        QT_ANDROID_PACKAGE_SOURCE_DIR "${PROJECT_SOURCE_DIR}/assets/android/"
+        QT_ANDROID_PACKAGE_SOURCE_DIR "${PROJECT_SOURCE_DIR}/platforms/android/"
     )
 
     # Support 16 KB page sizes / pre NDK28
@@ -309,14 +313,14 @@ endif()
 
 ## iOS
 if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
-    #set(app_icon_ios "${PROJECT_SOURCE_DIR}/assets/ios/Assets.xcassets")
+    #set(app_icon_ios "${PROJECT_SOURCE_DIR}/platforms/ios/Assets.xcassets")
     #set_source_files_properties(${app_icon_ios} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
 
     set_target_properties(${PROJECT_NAME} PROPERTIES
         MACOSX_BUNDLE ON
-        MACOSX_BUNDLE_INFO_PLIST "${PROJECT_SOURCE_DIR}/assets/ios/Info.plist"
+        MACOSX_BUNDLE_INFO_PLIST "${PROJECT_SOURCE_DIR}/platforms/ios/Info.plist"
         # Qt
-        #QT_IOS_LAUNCH_SCREEN "${PROJECT_SOURCE_DIR}/assets/ios/LaunchScreen.storyboard"
+        #QT_IOS_LAUNCH_SCREEN "${PROJECT_SOURCE_DIR}/platforms/ios/LaunchScreen.storyboard"
         # New Xcode attributes (???)
         XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER           "io.emeric.qmlmobilescanner"
         XCODE_ATTRIBUTE_PRODUCT_NAME                        ${PROJECT_NAME}

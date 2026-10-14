@@ -107,7 +107,7 @@ Rectangle {
                             height: width*0.229
                             anchors.horizontalCenter: parent.horizontalCenter
 
-                            source: "qrc:/assets/gfx/logos/logo_black.svg"
+                            source: "qrc:/assets/logos/logo_black.svg"
                             color: Theme.colorHeaderContent
                             fillMode: Image.PreserveAspectFit
                         }
