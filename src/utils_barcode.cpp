@@ -21,6 +21,9 @@
 
 #include "utils_barcode.h"
 
+#include <QCoreApplication>
+#include <QQmlEngine>
+#include <QJSEngine>
 #include <QVariantMap>
 
 #if defined(QMS_USE_ZXINGCPP)
@@ -32,16 +35,22 @@
 
 /* ************************************************************************** */
 
-UtilsBarcode *UtilsBarcode::instance = nullptr;
-
 UtilsBarcode *UtilsBarcode::getInstance()
 {
-    if (instance == nullptr)
-    {
-        instance = new UtilsBarcode();
-    }
-
+    static UtilsBarcode *instance = new UtilsBarcode(QCoreApplication::instance());
     return instance;
+}
+
+UtilsBarcode *UtilsBarcode::create(QQmlEngine *, QJSEngine *)
+{
+    UtilsBarcode *instance = getInstance();
+    QJSEngine::setObjectOwnership(instance, QJSEngine::CppOwnership);
+    return instance;
+}
+
+UtilsBarcode::UtilsBarcode(QObject *parent) : QObject(parent)
+{
+    //
 }
 
 /* ************************************************************************** */

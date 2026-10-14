@@ -21,23 +21,33 @@
 
 #include "utils_camera.h"
 
-#include <QImage>
-#include <QVideoFrame>
-#include <QCameraFormat>
+#include <QCoreApplication>
+#include <QQmlEngine>
+#include <QJSEngine>
+
 #include <QMediaDevices>
+#include <QCameraFormat>
+#include <QVideoFrame>
+#include <QImage>
 
 /* ************************************************************************** */
 
-UtilsCamera *UtilsCamera::instance = nullptr;
-
 UtilsCamera *UtilsCamera::getInstance()
 {
-    if (instance == nullptr)
-    {
-        instance = new UtilsCamera();
-    }
-
+    static UtilsCamera *instance = new UtilsCamera(QCoreApplication::instance());
     return instance;
+}
+
+UtilsCamera *UtilsCamera::create(QQmlEngine *, QJSEngine *)
+{
+    UtilsCamera *instance = getInstance();
+    QJSEngine::setObjectOwnership(instance, QJSEngine::CppOwnership);
+    return instance;
+}
+
+UtilsCamera::UtilsCamera(QObject *parent) : QObject(parent)
+{
+    //
 }
 
 /* ************************************************************************** */

@@ -203,6 +203,9 @@ bool SettingsManager::writeSettings()
 
 void SettingsManager::resetSettings()
 {
+    m_firstlaunch = true;
+    Q_EMIT firstLaunchChanged();
+
     m_appTheme = "THEME_DEFAULT";
     Q_EMIT appThemeChanged();
     m_appThemeAuto = false;

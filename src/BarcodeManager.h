@@ -23,11 +23,16 @@
 #define BARCODE_MANAGER_H
 /* ************************************************************************** */
 
+#include <QtQml/qqmlregistration.h>
+
 #include <QObject>
 #include <QUrl>
 #include <QString>
 #include <QDateTime>
 #include <QGeoCoordinate>
+
+class QQmlEngine;
+class QJSEngine;
 
 class QNetworkAccessManager;
 class QNetworkReply;
@@ -42,6 +47,8 @@ class Barcode;
 class BarcodeManager: public QObject
 {
     Q_OBJECT
+    QML_ELEMENT
+    QML_SINGLETON
 
     Q_PROPERTY(bool hasBarcodes READ hasBarcodes NOTIFY barcodesChanged)
     Q_PROPERTY(int barcodesCount READ getBarcodesCount NOTIFY barcodesChanged)
@@ -66,8 +73,8 @@ class BarcodeManager: public QObject
     QStringList m_colorsLeft;
     QString getAvailableColor();
 
-    static BarcodeManager *instance;
-    BarcodeManager();
+    // Singleton
+    explicit BarcodeManager(QObject *parent = nullptr);
     ~BarcodeManager();
 
 Q_SIGNALS:
@@ -76,6 +83,7 @@ Q_SIGNALS:
 
 public:
     static BarcodeManager *getInstance();
+    static BarcodeManager *create(QQmlEngine *, QJSEngine *);
 
     Q_INVOKABLE bool loadImage(const QUrl &fileUrl);
 

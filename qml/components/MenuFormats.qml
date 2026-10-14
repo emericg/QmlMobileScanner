@@ -1,5 +1,4 @@
 import QtQuick
-import QtQuick.Controls
 
 import ComponentLibrary
 
@@ -34,7 +33,7 @@ Column {
     }
 */
     Repeater {
-        model: utilsBarcode.getAvailableFormats()
+        model: UtilsBarcode.getAvailableFormats()
 
         delegate: Item {
             anchors.left: parent.left

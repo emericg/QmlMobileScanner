@@ -23,6 +23,7 @@
 #include "Barcode.h"
 #include "DatabaseManager.h"
 
+#include <QCoreApplication>
 #include <QRandomGenerator>
 
 #include <QSqlDatabase>
@@ -44,20 +45,20 @@
 
 /* ************************************************************************** */
 
-BarcodeManager *BarcodeManager::instance = nullptr;
-
 BarcodeManager *BarcodeManager::getInstance()
 {
-    if (instance == nullptr)
-    {
-        instance = new BarcodeManager();
-        return instance;
-    }
-
+    static BarcodeManager *instance = new BarcodeManager(QCoreApplication::instance());
     return instance;
 }
 
-BarcodeManager::BarcodeManager()
+BarcodeManager *BarcodeManager::create(QQmlEngine *, QJSEngine *)
+{
+    BarcodeManager *instance = getInstance();
+    QJSEngine::setObjectOwnership(instance, QJSEngine::CppOwnership);
+    return instance;
+}
+
+BarcodeManager::BarcodeManager(QObject *parent) : QObject(parent)
 {
     // Database
     DatabaseManager *db = DatabaseManager::getInstance();

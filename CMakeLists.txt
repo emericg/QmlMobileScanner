@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.24)
 
 project(QmlMobileScanner VERSION 0.6 LANGUAGES C CXX)
 
@@ -51,6 +51,7 @@ qt_policy(SET QTP0004 NEW)
 set(SOURCES
     src/main.cpp
     src/DatabaseManager.cpp src/DatabaseManager.h
+    src/SettingsManager.cpp src/SettingsManager.h
     src/BarcodeManager.cpp src/BarcodeManager.h
     src/Barcode.cpp src/Barcode.h
     src/utils_camera.cpp src/utils_camera.h
@@ -58,6 +59,40 @@ set(SOURCES
 
     assets/assets.qrc
     thirdparty/IconLibrary/IconLibrary_material.qrc
+)
+set(SOURCES_QML
+    qml/MobileApplication.qml
+    qml/MobileHeader.qml
+    qml/MobileDrawer.qml
+    qml/MobilePermissions.qml
+    qml/DesktopApplication.qml
+    qml/DesktopSidebar.qml
+
+    qml/ScreenTutorial.qml
+    qml/ScreenMainMenu.qml
+    qml/ScreenSettings.qml
+    qml/ScreenAbout.qml
+    qml/ScreenAboutFormats.qml
+
+    qml/ScreenBarcodeReader.qml
+    qml/ScreenBarcodeHistory.qml
+    qml/ScreenBarcodeDetails.qml
+    qml/ScreenBarcodeWriter.qml
+    qml/Reader_QZXing.qml
+    qml/Reader_ZXingCpp.qml
+    qml/Writer_QZXing.qml
+    qml/Writer_ZXingCpp.qml
+    qml/Writer_Zint.qml
+
+    qml/popups/PopupBarcodeFullscreen.qml
+    qml/popups/PopupHistoryDelete.qml
+
+    qml/components/MenuDebug.qml
+    qml/components/MenuCamera.qml
+    qml/components/MenuFormats.qml
+    qml/components/MenuScreens.qml
+    qml/components/WidgetBarcodeHistory.qml
+    qml/components/WidgetBarcodeResult.qml
 )
 
 if(IOS OR ANDROID) # Mobile
@@ -81,42 +116,7 @@ qt_add_ios_ffmpeg_libraries(${PROJECT_NAME})
 qt_add_qml_module(${PROJECT_NAME}
     URI ${PROJECT_NAME}
     NO_PLUGIN
-    QML_FILES
-        qml/MobileApplication.qml
-        qml/MobileHeader.qml
-        qml/MobileDrawer.qml
-        qml/MobilePermissions.qml
-        qml/DesktopApplication.qml
-        qml/DesktopSidebar.qml
-
-        qml/ScreenTutorial.qml
-        qml/ScreenMainMenu.qml
-        qml/ScreenSettings.qml
-        qml/ScreenAbout.qml
-        qml/ScreenAboutFormats.qml
-
-        qml/ScreenBarcodeReader.qml
-        qml/ScreenBarcodeHistory.qml
-        qml/ScreenBarcodeDetails.qml
-        qml/ScreenBarcodeWriter.qml
-        qml/Reader_QZXing.qml
-        qml/Reader_ZXingCpp.qml
-        qml/Writer_QZXing.qml
-        qml/Writer_ZXingCpp.qml
-        qml/Writer_Zint.qml
-
-        qml/popups/PopupBarcodeFullscreen.qml
-        qml/popups/PopupHistoryDelete.qml
-
-        qml/components/MenuDebug.qml
-        qml/components/MenuCamera.qml
-        qml/components/MenuFormats.qml
-        qml/components/MenuScreens.qml
-        qml/components/WidgetBarcodeHistory.qml
-        qml/components/WidgetBarcodeResult.qml
-
-    SOURCES
-        src/SettingsManager.cpp src/SettingsManager.h
+    QML_FILES ${SOURCES_QML}
 )
 
 qt_add_translations(${PROJECT_NAME}

@@ -40,14 +40,14 @@ QZXingFilter {
         onTagFound: (tag) => {
             //console.log("onTagFound : " + tag + " | " + decoder.foundedFormat() + " | " + decoder.charSet())
 
-            var newbarcode = barcodeManager.addBarcode(tag, decoder.foundedFormat(), decoder.charSet(), "",
+            var newbarcode = BarcodeManager.addBarcode(tag, decoder.foundedFormat(), decoder.charSet(), "",
                                                        Qt.point(0,0), Qt.point(0,0), Qt.point(0,0), Qt.point(0,0))
 
             if (newbarcode) {
                 UtilsOS.hapticFeedback(33)
 
                 if (SettingsManager.save_barcodes) {
-                    barcodeManager.addHistory(tag,
+                    BarcodeManager.addHistory(tag,
                                               decoder.foundedFormat(), decoder.charSet(), "",
                                               gps.coordinates)
                 }

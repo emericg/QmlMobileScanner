@@ -23,10 +23,13 @@
 #define BARCODE_UTILS_H
 /* ************************************************************************** */
 
+#include <QtQml/qqmlregistration.h>
+
 #include <QObject>
 #include <QVariantList>
 
-#include <QQmlEngine>
+class QQmlEngine;
+class QJSEngine;
 
 /* ************************************************************************** */
 
@@ -36,18 +39,22 @@
 class UtilsBarcode: public QObject
 {
     Q_OBJECT
+    QML_ELEMENT
+    QML_SINGLETON
 
     // Singleton
-    static UtilsBarcode *instance;
-    UtilsBarcode() = default;
-    ~UtilsBarcode() = default;
+    explicit UtilsBarcode(QObject *parent = nullptr);
 
 public:
     static UtilsBarcode *getInstance();
+    static UtilsBarcode *create(QQmlEngine *, QJSEngine *);
 
-    //! Catalog of toggleable barcode formats for the active (compile-time) reader backend.
-    //! Single source of truth for MenuFormats.qml; each entry is { "text", "value" } where
-    //! "value" is a bitmask in that backend's native formatsEnabled layout.
+    /*!
+     * \brief Catalog of toggleable barcode formats for the active (compile-time) reader backend.
+     *
+     * Single source of truth for MenuFormats.qml; each entry is { "text", "value" }
+     * where "value" is a bitmask in that backend's native formatsEnabled layout.
+     */
     static Q_INVOKABLE QVariantList getAvailableFormats();
 };
 

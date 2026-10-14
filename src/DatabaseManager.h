@@ -23,8 +23,13 @@
 #define DATABASE_MANAGER_H
 /* ************************************************************************** */
 
+#include <QtQml/qqmlregistration.h>
+
 #include <QObject>
 #include <QString>
+
+class QQmlEngine;
+class QJSEngine;
 
 /* ************************************************************************** */
 
@@ -34,6 +39,8 @@
 class DatabaseManager: public QObject
 {
     Q_OBJECT
+    QML_ELEMENT
+    QML_SINGLETON
 
     const static int s_dbCurrentVersion = 0;
 
@@ -49,15 +56,14 @@ class DatabaseManager: public QObject
     void deleteDatabase();
 
     bool tableExists(const QString &tableName);
-    void migrateDatabase();
+    bool migrateDatabase();
 
     // Singleton
-    static DatabaseManager *instance;
-    DatabaseManager();
-    ~DatabaseManager();
+    explicit DatabaseManager(QObject *parent = nullptr);
 
 public:
     static DatabaseManager *getInstance();
+    static DatabaseManager *create(QQmlEngine *, QJSEngine *);
 
     Q_INVOKABLE bool hasDatabaseInternal() const { return m_dbInternalOpen; }
     Q_INVOKABLE bool hasDatabaseExternal() const { return m_dbExternalOpen; }

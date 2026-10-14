@@ -58,7 +58,7 @@ Loader {
             id: mainView
 
             ListView {
-                model: barcodeManager.barcodesHistory
+                model: BarcodeManager.barcodesHistory
                 delegate: WidgetBarcodeHistory {
                     width: ListView.view.width
                     onClicked: {

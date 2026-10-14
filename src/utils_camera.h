@@ -23,12 +23,17 @@
 #define CAMERA_UTILS_H
 /* ************************************************************************** */
 
-#include <QImage>
-#include <QVideoFrame>
-#include <QCameraFormat>
-#include <QMediaDevices>
+#include <QtQml/qqmlregistration.h>
 
-#include <QQmlEngine>
+#include <QObject>
+
+#include <QMediaDevices>
+#include <QCameraFormat>
+#include <QVideoFrame>
+#include <QImage>
+
+class QQmlEngine;
+class QJSEngine;
 
 /* ************************************************************************** */
 
@@ -38,14 +43,15 @@
 class UtilsCamera: public QObject
 {
     Q_OBJECT
+    QML_ELEMENT
+    QML_SINGLETON
 
     // Singleton
-    static UtilsCamera *instance;
-    UtilsCamera() = default;
-    ~UtilsCamera() = default;
+    explicit UtilsCamera(QObject *parent = nullptr);
 
 public:
     static UtilsCamera *getInstance();
+    static UtilsCamera *create(QQmlEngine *engine, QJSEngine *scriptEngine);
 
     static Q_INVOKABLE QCameraFormat selectCameraFormat(int idx = 0);
 };

@@ -228,7 +228,7 @@ SwipeDelegate {
 
             SwipeDelegate.onClicked: {
                 UtilsOS.hapticFeedback(33)
-                barcodeManager.removeHistory(modelData.data)
+                BarcodeManager.removeHistory(modelData.data)
             }
         }
     }

@@ -82,7 +82,7 @@ ZXingQtVideoFilter {
         //console.log("sourceRect : " + videoOutput.sourceRect)
 
         if (result.isValid && result.text !== "") {
-            var newbarcode = barcodeManager.addBarcode(result.text, result.formatName, result.contentType, "",
+            var newbarcode = BarcodeManager.addBarcode(result.text, result.formatName, result.contentType, "",
                                                        mapPointToItem(result.position.topLeft),
                                                        mapPointToItem(result.position.topRight),
                                                        mapPointToItem(result.position.bottomRight),
@@ -92,7 +92,7 @@ ZXingQtVideoFilter {
                 UtilsOS.hapticFeedback(33)
 
                 if (SettingsManager.save_barcodes) {
-                    barcodeManager.addHistory(result.text,
+                    BarcodeManager.addHistory(result.text,
                                               result.formatName, result.contentType, "",
                                               gps.coordinates)
                 }

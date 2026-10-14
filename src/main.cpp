@@ -97,9 +97,6 @@ int main(int argc, char *argv[])
     // QML engine
     QQmlApplicationEngine engine;
     QQmlContext *engine_context = engine.rootContext();
-    engine_context->setContextProperty("barcodeManager", bch);
-    engine_context->setContextProperty("utilsBarcode", utilsBarcode);
-    engine_context->setContextProperty("utilsCamera", utilsCamera);
 
 #if QT_CONFIG(permissions)
     if (qApp->checkPermission(QCameraPermission{}) != Qt::PermissionStatus::Granted) {

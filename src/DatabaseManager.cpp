@@ -21,32 +21,36 @@
 
 #include "DatabaseManager.h"
 
-#include <QDir>
-#include <QFile>
-#include <QString>
-#include <QDateTime>
-#include <QStandardPaths>
-#include <QDebug>
+#include <QCoreApplication>
+#include <QQmlEngine>
+#include <QJSEngine>
 
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
 
-/* ************************************************************************** */
+#include <QStandardPaths>
+#include <QDateTime>
+#include <QFile>
+#include <QDir>
+#include <QDebug>
 
-DatabaseManager *DatabaseManager::instance = nullptr;
+/* ************************************************************************** */
 
 DatabaseManager *DatabaseManager::getInstance()
 {
-    if (instance == nullptr)
-    {
-        instance = new DatabaseManager();
-    }
-
+    static DatabaseManager *instance = new DatabaseManager(QCoreApplication::instance());
     return instance;
 }
 
-DatabaseManager::DatabaseManager()
+DatabaseManager *DatabaseManager::create(QQmlEngine *, QJSEngine *)
+{
+    DatabaseManager *instance = getInstance();
+    QJSEngine::setObjectOwnership(instance, QJSEngine::CppOwnership);
+    return instance;
+}
+
+DatabaseManager::DatabaseManager(QObject *parent) : QObject(parent)
 {
     bool status = false;
 
@@ -54,11 +58,11 @@ DatabaseManager::DatabaseManager()
     {
         status = openDatabase_sqlite();
     }
-}
 
-DatabaseManager::~DatabaseManager()
-{
-    //
+    if (!status)
+    {
+        qWarning() << "DatabaseManager > NO DATABASE AVAILABLE !!!";
+    }
 }
 
 /* ************************************************************************** */
@@ -66,84 +70,97 @@ DatabaseManager::~DatabaseManager()
 
 bool DatabaseManager::openDatabase_sqlite()
 {
-    if (QSqlDatabase::isDriverAvailable("QSQLITE"))
+    if (QSqlDatabase::isDriverAvailable("QSQLITE") == false)
     {
-        m_dbInternalAvailable = true;
+        qWarning() << "> SQLite is NOT available";
+        return false;
+    }
 
-        if (m_dbInternalOpen)
+    m_dbInternalAvailable = true;
+
+    if (m_dbInternalOpen)
+    {
+        closeDatabase();
+    }
+
+    QString dbPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QDir dbDirectory(dbPath);
+
+    if (dbPath.isEmpty() == false)
+    {
+        if (dbDirectory.exists() == false)
         {
-            closeDatabase();
-        }
-
-        QString dbPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-
-        if (dbPath.isEmpty() == false)
-        {
-            QDir dbDirectory(dbPath);
-            if (dbDirectory.exists() == false)
+            if (dbDirectory.mkpath(dbPath) == false)
             {
-                if (dbDirectory.mkpath(dbPath) == false)
-                    qWarning() << "Cannot create dbDirectory...";
-            }
-
-            if (dbDirectory.exists())
-            {
-                dbPath += "/data.db";
-
-                QSqlDatabase dbFile(QSqlDatabase::addDatabase("QSQLITE"));
-                dbFile.setDatabaseName(dbPath);
-
-                if (dbFile.isOpen())
-                {
-                    m_dbInternalOpen = true;
-                }
-                else
-                {
-                    if (dbFile.open())
-                    {
-                        if (dbFile.isOpenError())
-                        {
-                            qWarning() << "Error while opening database:" << dbFile.lastError();
-                        }
-
-                        m_dbInternalOpen = true;
-
-                        // Migrations //////////////////////////////////////////
-
-                        // Must be done before the creation, so we migrate old data tables
-                        // instead of creating new empty tables
-
-                        migrateDatabase();
-
-                        // Check if our tables exists //////////////////////////
-
-                        createDatabase();
-
-                        // Sanitize database ///////////////////////////////////
-
-                        // Delete everything 180 days old
-                        //QSqlQuery sanitizePastData("DELETE FROM barcodes WHERE date < DATE('now', '-" + QString::number(180) + " days')");
-                    }
-                    else
-                    {
-                        qWarning() << "Cannot open database... Error:" << dbFile.lastError();
-                    }
-                }
-            }
-            else
-            {
-                qWarning() << "Cannot create nor open dbDirectory...";
+                qWarning() << "Cannot create dbDirectory...";
             }
         }
-        else
-        {
-            qWarning() << "Cannot find QStandardPaths::AppDataLocation directory...";
-        }
+    }
+    if (dbPath.isEmpty() || dbDirectory.exists() == false)
+    {
+        qWarning() << "> Cannot make a SQLite database file";
+        return false;
+    }
+
+    dbPath += "/data.db";
+
+    QSqlDatabase dbFile(QSqlDatabase::addDatabase("QSQLITE"));
+    dbFile.setDatabaseName(dbPath);
+
+    if (dbFile.isOpen())
+    {
+        m_dbInternalOpen = true;
     }
     else
     {
-        qWarning() << "> SQLite is NOT available";
-        m_dbInternalAvailable = false;
+        if (dbFile.open())
+        {
+            if (dbFile.isOpenError())
+            {
+                qWarning() << "Error while opening database:" << dbFile.lastError();
+            }
+
+            m_dbInternalOpen = true;
+
+            // Concurrency settings ////////////////////////////////////////////
+
+            // - WAL mode allows one writer and concurrent readers across processes
+            // - busy_timeout makes a blocked writer retry instead of failing immediately with SQLITE_BUSY
+
+            QSqlQuery setWalMode("PRAGMA journal_mode = WAL");
+            QSqlQuery("PRAGMA synchronous = NORMAL");
+            QSqlQuery("PRAGMA busy_timeout = 5000");
+
+            // PRAGMA journal_mode returns the resulting mode, so we warn if WAL wasn't actually applied
+            if (setWalMode.next())
+            {
+                QString journalMode = setWalMode.value(0).toString();
+                if (journalMode.compare("wal", Qt::CaseInsensitive) != 0)
+                {
+                    qWarning() << "Database journal_mode is" << journalMode << "(expected 'wal') !!!";
+                }
+            }
+
+            // Migration(s) ////////////////////////////////////////////////////
+
+            // Migrate old data tables instead of creating new empty tables
+            // Must be done before the creation...
+
+            migrateDatabase();
+
+            // Check if our tables exists //////////////////////////////////////
+
+            createDatabase();
+
+            // Sanitize database ///////////////////////////////////////////////
+
+            // Delete everything 180 days old
+            //QSqlQuery sanitizePastData("DELETE FROM barcodes WHERE date < DATE('now', '-" + QString::number(180) + " days')");
+        }
+        else
+        {
+            qWarning() << "Cannot open database... Error:" << dbFile.lastError();
+        }
     }
 
     return m_dbInternalOpen;
@@ -186,8 +203,10 @@ void DatabaseManager::resetDatabase()
         m_dbInternalOpen = false;
         m_dbExternalOpen = false;
 
-        // remove db file
+        // remove db file, and its WAL journal files
         QFile::remove(dbName);
+        QFile::remove(dbName + "-wal");
+        QFile::remove(dbName + "-shm");
     }
 }
 
@@ -221,6 +240,8 @@ bool DatabaseManager::tableExists(const QString &tableName)
 
     return result;
 }
+
+/* ************************************************************************** */
 
 void DatabaseManager::createDatabase()
 {
@@ -271,7 +292,7 @@ void DatabaseManager::createDatabase()
 /* ************************************************************************** */
 /* ************************************************************************** */
 
-void DatabaseManager::migrateDatabase()
+bool DatabaseManager::migrateDatabase()
 {
     int dbVersion = 0;
 
@@ -287,8 +308,10 @@ void DatabaseManager::migrateDatabase()
 
     if (dbVersion > 0 && dbVersion != s_dbCurrentVersion)
     {
-        //
+        qDebug() << "dbVersion is #" << dbVersion;
     }
+
+    return (dbVersion == s_dbCurrentVersion);
 }
 
 /* ************************************************************************** */

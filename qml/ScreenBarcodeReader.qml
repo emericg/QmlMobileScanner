@@ -176,8 +176,8 @@ Loader {
                 focusMode: Camera.FocusModeAutoNear
 
                 cameraDevice: mediaDevices.videoInputs[mediaDevices.selectedDevice] ? mediaDevices.videoInputs[mediaDevices.selectedDevice] : mediaDevices.defaultVideoInput
-                cameraFormat: utilsCamera.selectCameraFormat(cameraDevice)
-                //cameraFormat: (SettingsManager.scanFullres) ? utilsCamera.selectCameraFormat(cameraDevice) : undefined
+                cameraFormat: UtilsCamera.selectCameraFormat(cameraDevice)
+                //cameraFormat: (SettingsManager.scanFullres) ? UtilsCamera.selectCameraFormat(cameraDevice) : undefined
 
                 onCameraDeviceChanged: {
                     console.log("CaptureSession::onCameraDeviceChanged()")
@@ -420,7 +420,7 @@ Loader {
             ////////
 
             Repeater {
-                model: barcodeManager.barcodes
+                model: BarcodeManager.barcodes
 
                 Shape {
                     anchors.fill: parent
@@ -478,7 +478,7 @@ Loader {
             ////
 
             Repeater {
-                model: barcodeManager.barcodes
+                model: BarcodeManager.barcodes
 
                 Shape {
                     anchors.fill: parent
@@ -614,7 +614,7 @@ Loader {
                         onAccepted: {
                             console.log("fileOpenDialog: ACCEPTED: " + selectedFile)
 
-                            if (barcodeManager.loadImage(selectedFile)) {
+                            if (BarcodeManager.loadImage(selectedFile)) {
                                 open_image(selectedFile)
                             }
                         }
@@ -826,7 +826,7 @@ Loader {
                 ////
 
                 Repeater { // barcode(s)
-                    model: barcodeManager.barcodes
+                    model: BarcodeManager.barcodes
 
                     WidgetBarcodeResult {
                         anchors.left: parent.left

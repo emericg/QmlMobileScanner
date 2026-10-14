@@ -55,7 +55,7 @@ Rectangle {
 
         onConfirmed: {
             UtilsOS.hapticFeedback(33)
-            barcodeManager.removeHistory(barcode.data)
+            BarcodeManager.removeHistory(barcode.data)
             backAction()
         }
     }
