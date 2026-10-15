@@ -163,6 +163,10 @@ target_link_libraries(${PROJECT_NAME} PRIVATE MobileSharing MobileSharing_plugin
 add_subdirectory(thirdparty/ComponentLibrary)
 target_link_libraries(${PROJECT_NAME} PRIVATE ComponentLibrary_plugin)
 
+# QmlQrEncode
+add_subdirectory(thirdparty/QmlQrEncode)
+target_link_libraries(${PROJECT_NAME} PRIVATE QmlQrEncode QmlQrEncode_plugin)
+
 if(USE_ZXINGCPP)
     # build zxing-cpp
     add_subdirectory(thirdparty/zxing-cpp)

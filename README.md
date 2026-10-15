@@ -14,6 +14,7 @@ Available backends:
 - zxing-cpp / v3.1.1 + custom QML integration
 - QZXing / v3.3.0 + Qt6 port + many patches
 - zint / v2.16 + custom QML integration
+- libQrEncode / v4.1.1 + custom QML integration
 
 > Works on Android and iOS!
 
