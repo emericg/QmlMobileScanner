@@ -16,6 +16,17 @@ Row {
 
     enabled: barcodeAdvanced.barcode_string
 
+    // current export settings, shared by the save dialog and the drag to export
+    readonly property string fileExtension: fileSaveExtension.currentText.toLowerCase()
+
+    function exportToFile(fileUrl) {
+        return ZXingQml.saveImage(barcodeAdvanced.barcode_string,
+                                  barcodeAdvanced.exportSize, barcodeAdvanced.exportSize,
+                                  barcodeAdvanced.margins, ZXingQml.stringToFormat(barcodeAdvanced.format), 0, barcodeAdvanced.eccLevel,
+                                  barcodeAdvanced.colorBg, barcodeAdvanced.colorFg,
+                                  fileUrl)
+    }
+
     Text {
         anchors.verticalCenter: parent.verticalCenter
 
@@ -55,16 +66,11 @@ Row {
             nameFilters: ["Pictures (*.png *.bmp *.jpg *.jpeg *.webp *.svg)",
                           "PNG files (*.png)", "BMP files (*.bmp)", "JPEG files (*.jpg *.jpeg)", "WebP files (*.webp)", "Vector files (*.svg)"]
             currentFolder: StandardPaths.standardLocations(StandardPaths.PicturesLocation)[0]
-            currentFile: StandardPaths.standardLocations(StandardPaths.PicturesLocation)[0] + "/barcode." + fileSaveExtension.currentText.toLowerCase()
+            currentFile: StandardPaths.standardLocations(StandardPaths.PicturesLocation)[0] + "/barcode." + barcodeWriter_zxingcpp.fileExtension
 
             onAccepted: {
                 console.log("fileSaveDialog: ACCEPTED: " + selectedFile)
-
-                ZXingQml.saveImage(barcodeAdvanced.barcode_string,
-                                   barcodeAdvanced.exportSize, barcodeAdvanced.exportSize,
-                                   barcodeAdvanced.margins, ZXingQml.stringToFormat(barcodeAdvanced.format), 0, barcodeAdvanced.eccLevel,
-                                   barcodeAdvanced.colorBg, barcodeAdvanced.colorFg,
-                                   fileSaveDialog.selectedFile)
+                barcodeWriter_zxingcpp.exportToFile(fileSaveDialog.selectedFile)
             }
             onRejected: {
                 console.log("fileSaveDialog: REJECTED: " + selectedFile)

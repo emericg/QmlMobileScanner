@@ -130,6 +130,12 @@ Loader {
                             return ""
                         }
 
+                        // drag the barcode out of the application, as a file (see exportDragHandler)
+                        Drag.dragType: Drag.Automatic
+                        Drag.supportedActions: Qt.CopyAction
+                        Drag.hotSpot.x: 48
+                        Drag.hotSpot.y: 48
+
                         IconSvg {
                             width: 80
                             height: 80
@@ -179,6 +185,26 @@ Loader {
                             barcode_string: barcodeImage.source
                         }
 
+                        DragHandler { // drag the barcode out (to a file manager...), exported with the current settings
+                            id: exportDragHandler
+                            target: null
+
+                            enabled: isDesktop && barcodeAdvanced.barcode_string !== "" &&
+                                     backendLoader.status === Loader.Ready
+
+                            onActiveChanged: {
+                                if (active) {
+                                    const fileUrl = UtilsBarcode.getTemporaryFileUrl("barcode." + backendLoader.item.fileExtension)
+                                    if (fileUrl.toString() !== "" && backendLoader.item.exportToFile(fileUrl)) {
+                                        barcodeImage.Drag.mimeData = { "text/uri-list": fileUrl.toString() }
+                                        barcodeImage.Drag.active = true
+                                    }
+                                } else {
+                                    barcodeImage.Drag.active = false
+                                }
+                            }
+                        }
+
                         onClicked: {
                             if (isMobile && barcodeAdvanced.barcode_string) {
                                 popupBarcodeFullscreen.open()
@@ -188,6 +214,13 @@ Loader {
                         onPressed: {
                             mouseBackground.width = mmmm.width*3
                             mouseBackground.opacity = 0.1
+
+                            // drag icon, ready before the drag starts
+                            if (exportDragHandler.enabled) {
+                                barcodeImage.grabToImage(function(result) {
+                                    barcodeImage.Drag.imageSource = result.url
+                                }, Qt.size(96, 96))
+                            }
                         }
                         onReleased: {
                             mouseBackground.width = 0
@@ -344,8 +377,10 @@ Loader {
                             }
 
                             // files first: file managers also provide the file path as text
+                            // our own barcode being dragged out is ignored
                             onEntered: (drag) => {
-                                drag.accepted = drag.hasUrls ? firstTextFile(drag.urls) !== "" : drag.hasText
+                                if (drag.source === barcodeImage) drag.accepted = false
+                                else drag.accepted = drag.hasUrls ? firstTextFile(drag.urls) !== "" : drag.hasText
                             }
                             onDropped: (drop) => {
                                 if (drop.hasUrls) {

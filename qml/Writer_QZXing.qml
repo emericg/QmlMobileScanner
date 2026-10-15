@@ -15,6 +15,21 @@ Row {
 
     enabled: barcodeAdvanced.barcode_string
 
+    // current export settings, shared by the save dialog and the drag to export
+    readonly property string fileExtension: fileSaveExtension.currentText.toLowerCase()
+
+    function exportToFile(fileUrl) {
+        var eccLevel = 0
+        if (barcodeAdvanced.eccStr === "M") eccLevel = 1
+        if (barcodeAdvanced.eccStr === "Q") eccLevel = 2
+        if (barcodeAdvanced.eccStr === "H") eccLevel = 3
+
+        return qzxing_backend.saveImage(barcodeAdvanced.barcode_string,
+                                        barcodeAdvanced.exportSize, barcodeAdvanced.exportSize, barcodeAdvanced.border,
+                                        eccLevel,
+                                        fileUrl)
+    }
+
     Text {
         anchors.verticalCenter: parent.verticalCenter
 
@@ -57,20 +72,11 @@ Row {
             nameFilters: ["Pictures (*.png *.bmp *.jpg *.jpeg *.webp)",
                           "PNG files (*.png)", "BMP files (*.bmp)", "JPEG files (*.jpg *.jpeg)", "WebP files (*.webp)"]
             currentFolder: StandardPaths.standardLocations(StandardPaths.PicturesLocation)[0]
-            currentFile: StandardPaths.standardLocations(StandardPaths.PicturesLocation)[0] + "/barcode." + fileSaveExtension.currentText.toLowerCase()
+            currentFile: StandardPaths.standardLocations(StandardPaths.PicturesLocation)[0] + "/barcode." + barcodeWriter_qzxing.fileExtension
 
             onAccepted: {
                 console.log("fileSaveDialog: ACCEPTED: " + selectedFile)
-
-                var eccLevel = 0
-                if (barcodeAdvanced.eccStr === "M") eccLevel = 1
-                if (barcodeAdvanced.eccStr === "Q") eccLevel = 2
-                if (barcodeAdvanced.eccStr === "H") eccLevel = 3
-
-                qzxing_backend.saveImage(barcodeAdvanced.barcode_string,
-                                         barcodeAdvanced.exportSize, barcodeAdvanced.exportSize, barcodeAdvanced.border,
-                                         eccLevel,
-                                         fileSaveDialog.selectedFile)
+                barcodeWriter_qzxing.exportToFile(fileSaveDialog.selectedFile)
             }
             onRejected: {
                 console.log("fileSaveDialog: REJECTED: " + selectedFile)
