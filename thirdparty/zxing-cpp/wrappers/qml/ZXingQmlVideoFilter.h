@@ -15,8 +15,9 @@
 #include <QPoint>
 #include <QVideoSink>
 #include <QVideoFrame>
-#include <QFuture>
 #include <QPointer>
+#include <QThreadPool>
+#include <QMutex>
 
 /* ************************************************************************** */
 
@@ -37,8 +38,9 @@ class ZXingQmlVideoFilter : public QObject
     Q_PROPERTY(bool tryInvert READ tryInvert WRITE setTryInvert NOTIFY tryInvertChanged)
     Q_PROPERTY(bool tryDownscale READ tryDownscale WRITE setTryDownscale NOTIFY tryDownscaleChanged)
 
+    QThreadPool m_pool; //!< single decoding thread, frames arriving while it's busy are dropped
+    QMutex m_mutex; //!< protects process() reads vs writes of m_active, capture rectangles, orientation, mirrored and m_readerOptions
     bool m_active = true;
-    QFuture <void> m_processThread;
 
     QRectF m_captureRect_normalized;
     QRect m_captureRect_pixel;
@@ -64,6 +66,14 @@ class ZXingQmlVideoFilter : public QObject
     bool tryDownscale() const { return m_readerOptions.tryDownscale(); }
     void setTryDownscale(const bool value);
 
+    /*!
+     * \brief Start decoding a video frame, unless the decoding thread is busy.
+     * \param frame: the new video frame.
+     *
+     * Called directly from the thread delivering the video frames.
+     */
+    void process(const QVideoFrame &frame);
+
 signals:
     void videoSinkChanged();
 
@@ -80,9 +90,6 @@ signals:
     void decodingStarted();
     void decodingFinished(BarcodeQml result);
     void tagFound(BarcodeQml result);
-
-public slots:
-    BarcodeQml process(const QVideoFrame &frame);
 
 public:
     ZXingQmlVideoFilter(QObject *parent = nullptr);

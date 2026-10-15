@@ -29,7 +29,7 @@ endif()
 
 ################################################################################
 
-find_package(Qt6 6.8 REQUIRED COMPONENTS Core Concurrent Qml Quick Multimedia)
+find_package(Qt6 6.8 REQUIRED COMPONENTS Core Qml Quick Multimedia)
 
 qt_add_library(ZXingQml STATIC)
 qt_add_qml_module(ZXingQml
@@ -42,7 +42,6 @@ qt_add_qml_module(ZXingQml
 
 target_link_libraries(ZXingQml PUBLIC ZXing::ZXing)
 target_link_libraries(ZXingQml PUBLIC Qt6::Core Qt6::Qml Qt6::Quick Qt6::Multimedia)
-target_link_libraries(ZXingQml PRIVATE Qt6::Concurrent)
 #qt_add_ios_ffmpeg_libraries(ZXingQml)
 
 target_include_directories(ZXingQml PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

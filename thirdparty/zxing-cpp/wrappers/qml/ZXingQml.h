@@ -20,6 +20,7 @@
 #include <QPoint>
 #include <QImage>
 #include <QVideoFrame>
+#include <QTransform>
 
 class BarcodeQml;
 
@@ -155,10 +156,12 @@ public:
      * \brief Read barcodes from a video frame, mapped directly in memory when possible.
      * \param frame: the video frame.
      * \param opts: the reader options.
-     * \param captureRect_pixel: capture rectangle, in pixel coordinates of the decoded image, empty for the whole frame.
-     * \return the barcodes found, positionPixels being in pixel coordinates of the decoded image.
+     * \param captureRect_pixel: capture rectangle, in toImage() pixel coordinates, empty for the whole frame.
+     * \return the barcodes found, positionPixels being in toImage() pixel coordinates.
      *
-     * The decoded image is the mapped frame, or QVideoFrame::toImage() for formats that can't be mapped.
+     * Formats that can't be mapped directly are converted with QVideoFrame::toImage().
+     * Mapped frames are decoded as is, the surface format rotation and mirroring being applied
+     * to the capture rectangle and the barcodes positions instead, so both paths give the same results.
      */
     static QList<BarcodeQml> ReadBarcodes(const QVideoFrame &frame,
                                           const ZXing::ReaderOptions &opts = {},
@@ -174,6 +177,25 @@ public:
     static QList<BarcodeQml> ReadBarcodes2(const QVideoFrame &frame,
                                            const ZXing::ReaderOptions &opts = {},
                                            const QRect captureRect_pixel = QRect());
+
+    /*!
+     * \brief Compute the transformation applied to a video frame by QVideoFrame::toImage().
+     * \param format: the frame surface format.
+     * \param size: the frame size, as mapped in memory.
+     * \param mirrored: set to true if the transformation mirrors the image.
+     * \return transformation from mapped frame coordinates to QVideoFrame::toImage() coordinates.
+     *
+     * Same as Qt's qNormalizedSurfaceTransformation(): clockwise rotation, then horizontal mirroring.
+     * The frame own rotation() and mirrored() are for presentation only, and not applied by toImage().
+     */
+    static QTransform surfaceTransform(const QVideoFrameFormat &format, const QSize &size, bool &mirrored);
+
+    /*!
+     * \brief Compute the size of a video frame converted with QVideoFrame::toImage(), without converting it.
+     * \param frame: the video frame.
+     * \return the toImage() size.
+     */
+    static QSize toImageSize(const QVideoFrame &frame);
 
     ///
 
@@ -274,6 +296,14 @@ class BarcodeQml : private ZXing::Barcode
     QByteArray m_bytes;
     PositionQml_pixels m_positionPixels;
     PositionQml_normalized m_positionNormalized;
+    int m_orientation = 0;
+    bool m_mirrored = false;
+
+    /*!
+     * \brief Compute the normalized position from the pixel position.
+     * \param imageSize: size of the decoded (uncropped) image, nothing is done if empty.
+     */
+    void updatePositionNormalized(const QSize &imageSize);
 
 public:
     BarcodeQml() = default; // required for qmetatype machinery
@@ -292,17 +322,22 @@ public:
         auto &pos = ZXing::Barcode::position();
         auto qp = [&pos, &origin](int i) { return QPoint(pos[i].x, pos[i].y) + origin; };
         m_positionPixels = {qp(0), qp(1), qp(2), qp(3)};
+        m_orientation = ZXing::Barcode::orientation();
+        m_mirrored = ZXing::Barcode::isMirrored();
 
-        if (!imageSize.isEmpty())
-        {
-            // pixel centers
-            auto qpn = [&imageSize](const QPoint &p) {
-                return QPointF((p.x() + 0.5) / imageSize.width(), (p.y() + 0.5) / imageSize.height());
-            };
-            m_positionNormalized = {qpn(m_positionPixels.topLeft()), qpn(m_positionPixels.topRight()),
-                                    qpn(m_positionPixels.bottomRight()), qpn(m_positionPixels.bottomLeft())};
-        }
+        updatePositionNormalized(imageSize);
     }
+
+    /*!
+     * \brief Map the barcode position into another coordinate system.
+     * \param transform: transformation applied to the pixel corners, in continuous pixel coordinates.
+     * \param mirrored: true if the transformation mirrors the image.
+     * \param imageSize: size of the target (uncropped) image, used to compute the normalized position.
+     *
+     * The orientation and mirrored state are updated accordingly,
+     * following ZXing conventions for mirrored barcodes.
+     */
+    void transformPosition(const QTransform &transform, bool mirrored, const QSize &imageSize);
 
     int runTime = 0; // for debugging/development
     using ZXing::Barcode::isValid;
@@ -328,8 +363,8 @@ public:
      */
     void setPositionNormalized(const PositionQml_normalized &position) { m_positionNormalized = position; }
 
-    using ZXing::Barcode::orientation;
-    using ZXing::Barcode::isMirrored;
+    int orientation() const { return m_orientation; }
+    bool isMirrored() const { return m_mirrored; }
     using ZXing::Barcode::isInverted;
     using ZXing::Barcode::lineCount;
 

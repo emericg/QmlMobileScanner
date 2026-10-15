@@ -6,7 +6,7 @@
 
 #include "ZXingQmlVideoFilter.h"
 
-#include <QtConcurrent>
+#include <QMutexLocker>
 #include <QElapsedTimer>
 #include <QImage>
 #include <QDebug>
@@ -14,6 +14,8 @@
 
 ZXingQmlVideoFilter::ZXingQmlVideoFilter(QObject *parent) : QObject(parent)
 {
+    m_pool.setMaxThreadCount(1);
+
     m_readerOptions.setMinLineCount(4); // default is 2
     m_readerOptions.setMaxNumberOfSymbols(4); // default is 255
     m_readerOptions.setFormats(ZXing::BarcodeFormat::AllReadable); // default is
@@ -28,14 +30,14 @@ ZXingQmlVideoFilter::~ZXingQmlVideoFilter()
 
 void ZXingQmlVideoFilter::stopFilter()
 {
-    if (!m_processThread.isFinished())
     {
-        m_processThread.cancel();
-        m_processThread.waitForFinished();
+        // no new decoding can be started after this
+        QMutexLocker lock(&m_mutex);
+        m_active = false;
     }
 
-    m_active = false;
     if (m_videoSink) disconnect(m_videoSink, nullptr, this, nullptr);
+    m_pool.waitForDone();
 }
 
 void ZXingQmlVideoFilter::setVideoSink(QVideoSink *sink)
@@ -47,13 +49,16 @@ void ZXingQmlVideoFilter::setVideoSink(QVideoSink *sink)
     if (m_videoSink) disconnect(m_videoSink, nullptr, this, nullptr);
 
     m_videoSink = sink;
-    m_active = (m_videoSink != nullptr);
+    {
+        QMutexLocker lock(&m_mutex);
+        m_active = (m_videoSink != nullptr);
+    }
 
     if (m_videoSink)
     {
         connect(m_videoSink, &QVideoSink::videoFrameChanged,
                 this, &ZXingQmlVideoFilter::process,
-                Qt::QueuedConnection);
+                Qt::DirectConnection);
     }
 
     if (changed) emit videoSinkChanged();
@@ -63,7 +68,10 @@ void ZXingQmlVideoFilter::setTryHarder(const bool value)
 {
     if (m_readerOptions.tryHarder() != value)
     {
-        m_readerOptions.setTryHarder(value);
+        {
+            QMutexLocker lock(&m_mutex);
+            m_readerOptions.setTryHarder(value);
+        }
         emit tryHarderChanged();
     }
 }
@@ -72,7 +80,10 @@ void ZXingQmlVideoFilter::setTryRotate(const bool value)
 {
     if (m_readerOptions.tryRotate() != value)
     {
-        m_readerOptions.setTryRotate(value);
+        {
+            QMutexLocker lock(&m_mutex);
+            m_readerOptions.setTryRotate(value);
+        }
         emit tryRotateChanged();
     }
 }
@@ -81,7 +92,10 @@ void ZXingQmlVideoFilter::setTryInvert(const bool value)
 {
     if (m_readerOptions.tryInvert() != value)
     {
-        m_readerOptions.setTryInvert(value);
+        {
+            QMutexLocker lock(&m_mutex);
+            m_readerOptions.setTryInvert(value);
+        }
         emit tryInvertChanged();
     }
 }
@@ -90,7 +104,10 @@ void ZXingQmlVideoFilter::setTryDownscale(const bool value)
 {
     if (m_readerOptions.tryDownscale() != value)
     {
-        m_readerOptions.setTryDownscale(value);
+        {
+            QMutexLocker lock(&m_mutex);
+            m_readerOptions.setTryDownscale(value);
+        }
         emit tryDownscaleChanged();
     }
 }
@@ -142,7 +159,10 @@ void ZXingQmlVideoFilter::setFormats(int newVal)
     if (m_formats != newVal)
     {
         m_formats = newVal;
-        m_readerOptions.setFormats(appBitmaskToZXingFormats(newVal));
+        {
+            QMutexLocker lock(&m_mutex);
+            m_readerOptions.setFormats(appBitmaskToZXingFormats(newVal));
+        }
         emit formatsChanged();
     }
 }
@@ -156,7 +176,10 @@ void ZXingQmlVideoFilter::setOrientation(int orientation)
     }
     if (orientation == m_orientation) return;
 
-    m_orientation = orientation;
+    {
+        QMutexLocker lock(&m_mutex);
+        m_orientation = orientation;
+    }
     emit orientationChanged();
 }
 
@@ -164,28 +187,35 @@ void ZXingQmlVideoFilter::setMirrored(bool mirrored)
 {
     if (mirrored == m_mirrored) return;
 
-    m_mirrored = mirrored;
+    {
+        QMutexLocker lock(&m_mutex);
+        m_mirrored = mirrored;
+    }
     emit mirroredChanged();
 }
 
 void ZXingQmlVideoFilter::setCaptureRect_normalized(const QRectF &captureRect_normalized)
 {
-    m_captureRect_pixel = QRect();
+    const bool changed = (captureRect_normalized != m_captureRect_normalized);
+    {
+        QMutexLocker lock(&m_mutex);
+        m_captureRect_pixel = QRect();
+        m_captureRect_normalized = captureRect_normalized;
+    }
 
-    if (captureRect_normalized == m_captureRect_normalized) return;
-
-    m_captureRect_normalized = captureRect_normalized;
-    emit captureRectChanged();
+    if (changed) emit captureRectChanged();
 }
 
 void ZXingQmlVideoFilter::setCaptureRect_pixel(const QRect &captureRect_pixel)
 {
-    m_captureRect_pixel = captureRect_pixel;
+    const bool changed = (m_captureRect_normalized != QRectF());
+    {
+        QMutexLocker lock(&m_mutex);
+        m_captureRect_pixel = captureRect_pixel;
+        m_captureRect_normalized = QRectF();
+    }
 
-    if (m_captureRect_normalized == QRectF()) return;
-
-    m_captureRect_normalized = QRectF();
-    emit captureRectChanged();
+    if (changed) emit captureRectChanged();
 }
 
 /*!
@@ -244,12 +274,12 @@ static QList<BarcodeQml> readFrame(const QVideoFrame &frame, const ZXing::Reader
                                    const QRectF &captureRect_normalized, QRect captureRect_pixel,
                                    int orientation, bool mirrored)
 {
-    const QImage image = frame.toImage();
-    if (image.isNull()) return {};
+    const QSize imageSize = ZXingQml::toImageSize(frame);
+    if (imageSize.isEmpty()) return {};
 
     const QTransform toDisplay = frameDisplayTransform(frame, orientation, mirrored);
-    const qreal w = image.width();
-    const qreal h = image.height();
+    const qreal w = imageSize.width();
+    const qreal h = imageSize.height();
 
     if (!captureRect_normalized.isEmpty())
     {
@@ -258,7 +288,7 @@ static QList<BarcodeQml> readFrame(const QVideoFrame &frame, const ZXing::Reader
         if (captureRect_pixel.isEmpty()) return {};
     }
 
-    auto results = ZXingQml::ReadBarcodes(image, opts, captureRect_pixel);
+    auto results = ZXingQml::ReadBarcodes(frame, opts, captureRect_pixel);
 
     // normalized toImage() coordinates -> normalized displayed coordinates
     for (auto &r : results)
@@ -271,50 +301,38 @@ static QList<BarcodeQml> readFrame(const QVideoFrame &frame, const ZXing::Reader
     return results;
 }
 
-BarcodeQml ZXingQmlVideoFilter::process(const QVideoFrame &frame)
+void ZXingQmlVideoFilter::process(const QVideoFrame &frame)
 {
-    if (m_active && m_videoSink && m_processThread.isFinished())
-    {
-        //qWarning() << ">>> ZXingQmlVideoFilter::process() >>> surfaceFormat > " << frame.surfaceFormat() << " > rotation > " << frame.rotationAngle();
+    QMutexLocker lock(&m_mutex);
+    if (!m_active) return;
 
-        m_processThread = QtConcurrent::run([this, frame, opts = m_readerOptions,
-                                             rectN = m_captureRect_normalized, rectP = m_captureRect_pixel,
-                                             orientation = m_orientation, mirrored = m_mirrored]() {
-            QElapsedTimer t;
-            t.start();
+    //qWarning() << ">>> ZXingQmlVideoFilter::process() >>> surfaceFormat > " << frame.surfaceFormat() << " > rotation > " << frame.rotationAngle();
 
-            auto results = readFrame(frame, opts, rectN, rectP, orientation, mirrored);
+    m_pool.tryStart([this, frame, opts = m_readerOptions,
+                     rectN = m_captureRect_normalized, rectP = m_captureRect_pixel,
+                     orientation = m_orientation, mirrored = m_mirrored]() {
+        QElapsedTimer t;
+        t.start();
 
-            for (auto &r: results)
+        auto results = readFrame(frame, opts, rectN, rectP, orientation, mirrored);
+
+        for (auto &r: results)
+        {
+            //qDebug() << "+ barcode " << ZXing::ToString(r.format()) << ": " << r.text();
+
+            if (r.isValid())
             {
-                //qDebug() << "+ barcode " << ZXing::ToString(r.format()) << ": " << r.text();
-
-                if (r.isValid())
-                {
-                    r.runTime = t.elapsed();
-                    emit tagFound(r);
-                }
-                else
-                {
-                    qWarning() << ">>> ZXingQmlVideoFilter::process() >>> INVALID RESULTS";
-                }
-            }
-
-            if (results.size())
-            {
-                results.first().runTime = t.elapsed();
-                emit decodingFinished(results.first());
-                return results.first();
+                r.runTime = t.elapsed();
+                emit tagFound(r);
             }
             else
             {
-                BarcodeQml r;
-                r.runTime = t.elapsed();
-                emit decodingFinished(r);
-                return r;
+                qWarning() << ">>> ZXingQmlVideoFilter::process() >>> INVALID RESULTS";
             }
-        });
-    }
+        }
 
-    return BarcodeQml();
+        BarcodeQml r = results.isEmpty() ? BarcodeQml() : results.first();
+        r.runTime = t.elapsed();
+        emit decodingFinished(r);
+    });
 }

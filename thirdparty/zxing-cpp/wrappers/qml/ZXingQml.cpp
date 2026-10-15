@@ -23,8 +23,10 @@
 #include <QStandardPaths>
 #include <QTextStream>
 #include <QScopeGuard>
+#include <QtMath>
 
 #include <algorithm>
+#include <cmath>
 
 #if defined(Q_OS_ANDROID)
 #include <QCoreApplication>
@@ -179,7 +181,7 @@ void ZXingQml::qvideoframeFormatToXZingFormat(const QVideoFrame &frame,
     case QVideoFrameFormat::Format_Jpeg:
     case QVideoFrameFormat::Format_SamplerRect:
     case QVideoFrameFormat::Format_SamplerExternalOES:
-        qDebug() << "ZXingQml::qvideoframeFormatToXZingFormat() unsupported format";
+        //qDebug() << "ZXingQml::qvideoframeFormatToXZingFormat() unsupported format";
         break;
 
     default:
@@ -187,6 +189,97 @@ void ZXingQml::qvideoframeFormatToXZingFormat(const QVideoFrame &frame,
         break;
     }
 }
+
+void BarcodeQml::updatePositionNormalized(const QSize &imageSize)
+{
+    if (imageSize.isEmpty()) return;
+
+    // pixel centers
+    auto qpn = [&imageSize](const QPoint &p) {
+        return QPointF((p.x() + 0.5) / imageSize.width(), (p.y() + 0.5) / imageSize.height());
+    };
+    m_positionNormalized = {qpn(m_positionPixels.topLeft()), qpn(m_positionPixels.topRight()),
+                            qpn(m_positionPixels.bottomRight()), qpn(m_positionPixels.bottomLeft())};
+}
+
+void BarcodeQml::transformPosition(const QTransform &transform, bool mirrored, const QSize &imageSize)
+{
+    // map pixel centers, so that pixel positions stay pixel positions
+    const auto map = [&transform](const QPoint &p) {
+        return (transform.map(QPointF(p) + QPointF(0.5, 0.5)) - QPointF(0.5, 0.5)).toPoint();
+    };
+    // linear codes are never reported as mirrored, reading them backward is enough,
+    // mirrored matrix codes are reported with their top right and bottom left corners swapped
+    const bool swapCorners = mirrored && !(ZXing::Barcode::format() <= ZXing::BarcodeFormat::AllLinear);
+    if (swapCorners)
+    {
+        m_positionPixels = {map(m_positionPixels.topLeft()), map(m_positionPixels.bottomLeft()),
+                            map(m_positionPixels.bottomRight()), map(m_positionPixels.topRight())};
+        m_mirrored = !m_mirrored;
+    }
+    else
+    {
+        m_positionPixels = {map(m_positionPixels.topLeft()), map(m_positionPixels.topRight()),
+                            map(m_positionPixels.bottomRight()), map(m_positionPixels.bottomLeft())};
+    }
+
+    // same as ZXing::Barcode::orientation()
+    const QPointF centerLine = QPointF(m_positionPixels.topRight() + m_positionPixels.bottomRight()) -
+                               QPointF(m_positionPixels.topLeft() + m_positionPixels.bottomLeft());
+    m_orientation = centerLine.isNull() ? 0 :
+        static_cast<int>(std::lround(qRadiansToDegrees(std::atan2(centerLine.y(), centerLine.x()))));
+
+    updatePositionNormalized(imageSize);
+}
+
+/* ************************************************************************** */
+
+QTransform ZXingQml::surfaceTransform(const QVideoFrameFormat &format, const QSize &size, bool &mirrored)
+{
+    int rotation = 0;
+    mirrored = false;
+
+    if (format.scanLineDirection() == QVideoFrameFormat::BottomToTop)
+    {
+        // vertical mirroring == horizontal mirroring + 180° rotation
+        mirrored = true;
+        rotation = 180;
+    }
+
+    int angle = qToUnderlying(format.rotation());
+    if (angle != 0)
+    {
+        if (mirrored && (angle % 180) != 0) angle += 180;
+        rotation = (rotation + angle) % 360;
+    }
+
+    mirrored ^= format.isMirrored();
+
+    // clockwise rotations, in continuous pixel coordinates
+    const qreal w = size.width();
+    const qreal h = size.height();
+    QTransform transform;
+    if (rotation == 90) transform = QTransform(0, 1, -1, 0, h, 0);
+    else if (rotation == 180) transform = QTransform(-1, 0, 0, -1, w, h);
+    else if (rotation == 270) transform = QTransform(0, -1, 1, 0, 0, w);
+
+    if (mirrored)
+    {
+        const qreal rotatedWidth = (rotation % 180) ? h : w;
+        transform *= QTransform(-1, 0, 0, 1, rotatedWidth, 0);
+    }
+
+    return transform;
+}
+
+QSize ZXingQml::toImageSize(const QVideoFrame &frame)
+{
+    bool mirrored = false;
+    const QTransform toImage = surfaceTransform(frame.surfaceFormat(), frame.size(), mirrored);
+    return toImage.mapRect(QRectF(QPointF(), QSizeF(frame.size()))).toAlignedRect().size();
+}
+
+/* ************************************************************************** */
 
 /*!
  * \brief Convert ZXing results, with pixel and normalized positions in the coordinates of the uncropped image.
@@ -312,13 +405,37 @@ QList<BarcodeQml> ZXingQml::ReadBarcodes(const QVideoFrame &frame,
         }
         QScopeGuard unmap([&] { frame_ro.unmap(); });
 
-        return QListBarcodes(
-            ZXing::ReadBarcodes(
-                ZXing::ImageView(frame_ro.bits(0) + pixOffset, frame_ro.width(), frame_ro.height(),
-                                 format, frame_ro.bytesPerLine(0), pixStride).cropped(captureRect_pixel.left(), captureRect_pixel.top(),
-                                                                                      captureRect_pixel.width(), captureRect_pixel.height()),
-                opts),
-            captureRect_pixel, frame_ro.width(), frame_ro.height());
+        // captureRect_pixel and results positions use QVideoFrame::toImage() coordinates,
+        // but we decode the mapped frame, which may be rotated and/or mirrored
+        bool mirrored = false;
+        const QRect frameBounds(0, 0, frame_ro.width(), frame_ro.height());
+        const QTransform toImage = surfaceTransform(frame_ro.surfaceFormat(), frameBounds.size(), mirrored);
+
+        ZXing::ImageView view(frame_ro.bits(0) + pixOffset, frameBounds.width(), frameBounds.height(),
+                              format, frame_ro.bytesPerLine(0), pixStride);
+
+        if (toImage.isIdentity())
+        {
+            return QListBarcodes(
+                ZXing::ReadBarcodes(view.cropped(captureRect_pixel.left(), captureRect_pixel.top(),
+                                                 captureRect_pixel.width(), captureRect_pixel.height()),
+                                    opts),
+                captureRect_pixel, frameBounds.width(), frameBounds.height());
+        }
+
+        const QRect imageBounds = toImage.mapRect(QRectF(frameBounds)).toAlignedRect();
+        const QRect imageCrop = captureRect_pixel.isEmpty() ? imageBounds : captureRect_pixel.intersected(imageBounds);
+        if (imageCrop.isEmpty()) return {};
+        const QRect frameCrop = toImage.inverted().mapRect(QRectF(imageCrop)).toAlignedRect().intersected(frameBounds);
+
+        auto results = QListBarcodes(
+            ZXing::ReadBarcodes(view.cropped(frameCrop.x(), frameCrop.y(), frameCrop.width(), frameCrop.height()), opts),
+            frameCrop, frameBounds.width(), frameBounds.height());
+
+        // positions: mapped frame coordinates -> toImage() coordinates
+        for (auto &r : results) r.transformPosition(toImage, mirrored, imageBounds.size());
+
+        return results;
     }
 
     // QImage fallback
