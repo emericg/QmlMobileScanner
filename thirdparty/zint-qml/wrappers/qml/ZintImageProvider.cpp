@@ -45,6 +45,7 @@ QImage ZintImageProvider::requestImage(const QString &id, QSize *size, const QSi
     // Data
     int data_sz = id.size() - slashIndex - 1 - (id.size() - exmarkIndex);
     QString data = id.mid(slashIndex + 1, data_sz);
+    if (data.isEmpty()) return QImage();
 
     // Settings
     int format = BARCODE_QRCODE;

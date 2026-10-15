@@ -124,6 +124,7 @@ Loader {
                         asynchronous: false
 
                         source: {
+                            if (!barcodeAdvanced.barcode_string) return ""
                             if (SettingsManager.backend_writer === "zint") return "image://ZintQml/encode/" + barcodeAdvanced.barcode_string + barcodeAdvanced.barcode_settings_zxingcpp
                             if (SettingsManager.backend_writer === "zxingcpp") return "image://ZXingQml/encode/" + barcodeAdvanced.barcode_string + barcodeAdvanced.barcode_settings_zxingcpp
                             if (SettingsManager.backend_writer === "qzxing") return "image://QZXing/encode/" + barcodeAdvanced.barcode_string + barcodeAdvanced.barcode_settings_qzxing
@@ -140,7 +141,7 @@ Loader {
                             width: 80
                             height: 80
                             anchors.centerIn: parent
-                            visible: (!barcodeAdvanced.barcode_string && SettingsManager.backend_writer === "zint")
+                            visible: !barcodeAdvanced.barcode_string
                             source: "qrc:/IconLibrary/material-icons/duotone/edit.svg"
                             color: Theme.colorIcon
                         }

@@ -153,6 +153,7 @@ Rectangle {
                             fillMode: Image.PreserveAspectFit
 
                             source: {
+                                if (!screenBarcodeDetails.barcode_string) return ""
                                 if (SettingsManager.backend_writer === "zint") return "image://ZintQml/encode/" + screenBarcodeDetails.barcode_string + screenBarcodeDetails.barcode_settings_zxingcpp
                                 if (SettingsManager.backend_writer === "zxingcpp") return "image://ZXingQml/encode/" + screenBarcodeDetails.barcode_string + screenBarcodeDetails.barcode_settings_zxingcpp
                                 if (SettingsManager.backend_writer === "qzxing") return "image://QZXing/encode/" + screenBarcodeDetails.barcode_string + screenBarcodeDetails.barcode_settings_qzxing

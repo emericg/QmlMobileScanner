@@ -85,6 +85,7 @@ QImage QZXingImageProvider::requestImage(const QString &id, QSize *size, const Q
     {
         data = id.mid(slashIndex + 1);
     }
+    if (data.isEmpty()) return QImage();
 
 #ifdef ENABLE_ENCODER_GENERIC
     QZXingEncoderConfig encoderConfig(format, explicitSize, correctionLevel, border, transparent);

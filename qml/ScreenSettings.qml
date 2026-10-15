@@ -299,7 +299,7 @@ Loader {
                         }
 
                         onMenuSelected: (index) => {
-                            console.log("SelectorMenu clicked #" + index)
+                            //console.log("SelectorMenu clicked #" + index)
                             currentSelection = index
 
                             if (index === 1) SettingsManager.defaultTab = "reader"
@@ -404,9 +404,11 @@ Loader {
                         z: 1
 
                         model: ListModel {
-                            ListElement { idx: 1; txt: "qzxing"; src: ""; sz: 0; }
-                            ListElement { idx: 2; txt: "zxingcpp"; src: ""; sz: 0; }
-                            ListElement { idx: 3; txt: "zint"; src: ""; sz: 0; }
+                            Component.onCompleted: {
+                                if (SettingsManager.backend_qzxing) append({ idx: 1, txt: "qzxing", src: "", sz: 0 })
+                                if (SettingsManager.backend_zxingcpp) append({ idx: 2, txt: "zxingcpp", src: "", sz: 0 })
+                                if (SettingsManager.backend_zint) append({ idx: 3, txt: "zint", src: "", sz: 0 })
+                            }
                         }
                         currentSelection: {
                             if (SettingsManager.backend_writer === "qzxing") return 1
@@ -416,7 +418,7 @@ Loader {
                         }
 
                         onMenuSelected: (index) => {
-                            console.log("SelectorMenu clicked #" + index)
+                            //console.log("SelectorMenu clicked #" + index)
                             currentSelection = index
 
                             if (index === 1) SettingsManager.backend_writer = "qzxing"
