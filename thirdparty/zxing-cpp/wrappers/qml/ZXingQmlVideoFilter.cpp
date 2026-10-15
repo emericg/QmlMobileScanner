@@ -260,16 +260,12 @@ static QList<BarcodeQml> readFrame(const QVideoFrame &frame, const ZXing::Reader
 
     auto results = ZXingQml::ReadBarcodes(image, opts, captureRect_pixel);
 
-    // map pixel centers
-    const auto map = [&](const QPoint &p) {
-        return toDisplay.map(QPointF((p.x() + 0.5) / w, (p.y() + 0.5) / h));
-    };
-
+    // normalized toImage() coordinates -> normalized displayed coordinates
     for (auto &r : results)
     {
-        const auto &pos = r.positionPixels();
-        r.setPositionNormalized({map(pos.topLeft()), map(pos.topRight()),
-                                 map(pos.bottomRight()), map(pos.bottomLeft())});
+        const auto &pos = r.positionNormalized();
+        r.setPositionNormalized({toDisplay.map(pos.topLeft()), toDisplay.map(pos.topRight()),
+                                 toDisplay.map(pos.bottomRight()), toDisplay.map(pos.bottomLeft())});
     }
 
     return results;

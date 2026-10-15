@@ -177,6 +177,13 @@ public:
 
     ///
 
+    /*!
+     * \brief Read barcodes from an image file.
+     * \param fileUrl: the image file url.
+     * \return the barcodes found.
+     *
+     * The image orientation metadata (EXIF) is applied, like a QML Image with autoTransform enabled.
+     */
     Q_INVOKABLE static QList<BarcodeQml> loadImage(const QUrl &fileUrl);
 
     Q_INVOKABLE static QList<BarcodeQml> loadImage(const QImage &img);
@@ -275,14 +282,26 @@ public:
      * \brief Create a barcode from a ZXing decoding result.
      * \param r: the ZXing result.
      * \param origin: origin of the decoded (cropped) image, added to the ZXing positions.
+     * \param imageSize: size of the decoded (uncropped) image, used to compute the normalized position.
      */
-    explicit BarcodeQml(ZXing::Barcode &&r, const QPoint &origin = QPoint()) : ZXing::Barcode(std::move(r)) {
+    explicit BarcodeQml(ZXing::Barcode &&r, const QPoint &origin = QPoint(), const QSize &imageSize = QSize())
+        : ZXing::Barcode(std::move(r)) {
         m_text = QString::fromStdString(ZXing::Barcode::text());
         m_bytes = QByteArray(reinterpret_cast<const char*>(ZXing::Barcode::bytes().data()),
                              static_cast<qsizetype>(ZXing::Barcode::bytes().size()));
         auto &pos = ZXing::Barcode::position();
         auto qp = [&pos, &origin](int i) { return QPoint(pos[i].x, pos[i].y) + origin; };
         m_positionPixels = {qp(0), qp(1), qp(2), qp(3)};
+
+        if (!imageSize.isEmpty())
+        {
+            // pixel centers
+            auto qpn = [&imageSize](const QPoint &p) {
+                return QPointF((p.x() + 0.5) / imageSize.width(), (p.y() + 0.5) / imageSize.height());
+            };
+            m_positionNormalized = {qpn(m_positionPixels.topLeft()), qpn(m_positionPixels.topRight()),
+                                    qpn(m_positionPixels.bottomRight()), qpn(m_positionPixels.bottomLeft())};
+        }
     }
 
     int runTime = 0; // for debugging/development
@@ -302,9 +321,10 @@ public:
 
     /*!
      * \brief Set the barcode position in normalized (0 to 1) coordinates.
-     * \param position: the barcode corners, in normalized coordinates of the displayed video frame.
+     * \param position: the barcode corners, in normalized coordinates.
      *
-     * Only set by ZXingQmlVideoFilter, the position is null otherwise.
+     * Set by the ReadBarcodes() functions in normalized coordinates of the decoded image,
+     * then mapped by ZXingQmlVideoFilter into normalized coordinates of the displayed video frame.
      */
     void setPositionNormalized(const PositionQml_normalized &position) { m_positionNormalized = position; }
 

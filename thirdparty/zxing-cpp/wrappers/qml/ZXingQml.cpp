@@ -19,6 +19,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QImageReader>
 #include <QStandardPaths>
 #include <QTextStream>
 #include <QScopeGuard>
@@ -188,7 +189,7 @@ void ZXingQml::qvideoframeFormatToXZingFormat(const QVideoFrame &frame,
 }
 
 /*!
- * \brief Convert ZXing results, with positions in the coordinates of the uncropped image.
+ * \brief Convert ZXing results, with pixel and normalized positions in the coordinates of the uncropped image.
  * \param zxres: the ZXing results.
  * \param captureRect_pixel: the capture rectangle used to crop the image.
  * \param width: the uncropped image width.
@@ -204,7 +205,7 @@ static QList<BarcodeQml> QListBarcodes(ZXing::Barcodes &&zxres, const QRect &cap
     QList<BarcodeQml> res;
     for (auto &&r : zxres)
     {
-        res.push_back(BarcodeQml(std::move(r), origin));
+        res.push_back(BarcodeQml(std::move(r), origin, QSize(width, height)));
     }
 
     return res;
@@ -347,10 +348,10 @@ QList<BarcodeQml> ZXingQml::ReadBarcodes2(const QVideoFrame &frame,
 
 QList<BarcodeQml> ZXingQml::loadImage(const QUrl &fileUrl)
 {
-    QString filepath = fileUrl.toLocalFile();
-    QImage img(filepath);
+    QImageReader reader(fileUrl.toLocalFile());
+    reader.setAutoTransform(true);
 
-    return ReadBarcodes(img);
+    return ReadBarcodes(reader.read());
 }
 
 QList<BarcodeQml> ZXingQml::loadImage(const QImage &img)
