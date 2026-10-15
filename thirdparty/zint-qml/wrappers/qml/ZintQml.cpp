@@ -14,6 +14,10 @@
 #include <QFile>
 #include <QFileInfo>
 
+#include <algorithm>
+#include <cmath>
+#include <cstdio>
+
 void ZintQml::registerQMLTypes()
 {
     qmlRegisterType<ZintQml>("ZintQml", 1, 0, "ZintQml");
@@ -93,93 +97,188 @@ QString ZintQml::formatToString(const int fmt)
     return QString();
 }
 
+/*!
+ * \brief Convert the application error correction level into the zint 'option_1' value.
+ * \param format: zint symbology.
+ * \param eccLevel: application level (QR: 2/4/6/8 = L/M/Q/H, Aztec: 1..4, PDF417: 0..8, 0: default).
+ * \return The zint 'option_1' value, or -1 to use the symbology default.
+ *
+ * zint ranges are:
+ * - QR Code 1 to 4 (7%, 15%, 25%, 30%), Micro QR 1 to 3 (7%, 15%, 25%), rMQR 2 or 4 (15% or 30%).
+ * - Aztec Code 1 to 4 (10%, 23%, 36%, 50%).
+ * - PDF417 0 to 8 (2^(level + 1) codewords).
+ */
+static int eccToZintOption1(const int format, const int eccLevel)
+{
+    if (format == BARCODE_PDF417) return qBound(0, eccLevel, 8);
+    if (eccLevel <= 0) return -1;
+
+    if (format == BARCODE_QRCODE) return qBound(1, (eccLevel + 1) / 2, 4);
+    if (format == BARCODE_MICROQR) return qBound(1, (eccLevel + 1) / 2, 3);
+    if (format == BARCODE_RMQR) return (eccLevel <= 4) ? 2 : 4;
+    if (format == BARCODE_AZTEC) return qBound(1, eccLevel, 4);
+
+    return -1;
+}
+
+/*!
+ * \brief Write a color into a zint 'fgcolour' or 'bgcolour' string, as "RRGGBBAA".
+ */
+static void setZintColour(char (&dst)[16], const QColor &color)
+{
+    std::snprintf(dst, sizeof(dst), "%02X%02X%02X%02X", color.red(), color.green(), color.blue(), color.alpha());
+}
+
+/*!
+ * \brief Encode data into a new zint symbol.
+ * \param height: bar height in X-dimensions, or 0 for the symbology default.
+ * \return The encoded symbol, to free with ZBarcode_Delete(), or nullptr on error.
+ */
+static zint_symbol *encodeSymbol(const QString &data, const int format, const int encoding, const int eccLevel,
+                                 const float height = 0.f)
+{
+    zint_symbol *symbol = ZBarcode_Create();
+    if (!symbol) return nullptr;
+
+    if (height > 0.f) symbol->height = height;
+    symbol->symbology = format;
+    symbol->input_mode = (encoding > 0) ? encoding : UNICODE_MODE;
+    symbol->option_1 = eccToZintOption1(format, eccLevel);
+
+    const QByteArray bstr = data.toUtf8();
+    const int error = ZBarcode_Encode(symbol, reinterpret_cast<const unsigned char *>(bstr.constData()), bstr.size());
+    if (error >= ZINT_ERROR)
+    {
+        qWarning() << "ZintQml::encodeSymbol() error" << error << symbol->errtxt;
+        ZBarcode_Delete(symbol);
+        return nullptr;
+    }
+
+    return symbol;
+}
+
+/*!
+ * \brief Find the largest zint scale fitting an encoded symbol into a target size.
+ * \param symbol: encoded symbol, with no whitespace set.
+ * \param targetWidth: target width in pixels.
+ * \param targetHeight: target height in pixels.
+ * \return The zint scale to use, or 1 if the symbol can't be measured.
+ *
+ * Scales are rounded down to half-integers (whole pixels per module),
+ * except for MaxiCode which is drawn with hexagons.
+ */
+static float fitScale(zint_symbol *symbol, const int targetWidth, const int targetHeight)
+{
+    symbol->scale = 1.f;
+    if (targetWidth <= 0 || targetHeight <= 0) return 1.f;
+
+    if (ZBarcode_Buffer(symbol, 0) >= ZINT_ERROR ||
+        symbol->bitmap_width <= 0 || symbol->bitmap_height <= 0) return 1.f;
+
+    const float ratio = std::min(targetWidth / float(symbol->bitmap_width),
+                                 targetHeight / float(symbol->bitmap_height));
+
+    if (symbol->symbology == BARCODE_MAXICODE) return std::max(0.2f, std::floor(ratio * 10.f) / 10.f);
+    return std::max(0.5f, std::floor(ratio * 2.f) / 2.f);
+}
+
+/*!
+ * \brief Encode data into a new zint symbol, scaled to fit a target size.
+ * \param targetWidth: target width in pixels, or 0 to keep the default scale.
+ * \param targetHeight: target height in pixels, or 0 to keep the default scale.
+ * \return The encoded symbol, to free with ZBarcode_Delete(), or nullptr on error.
+ *
+ * Linear barcodes limited by the target height are encoded again with shorter bars,
+ * so they can use the whole target width.
+ */
+static zint_symbol *createSymbol(const QString &data, const int format, const int encoding, const int eccLevel,
+                                 const int targetWidth, const int targetHeight)
+{
+    zint_symbol *symbol = encodeSymbol(data, format, encoding, eccLevel);
+    if (!symbol) return nullptr;
+
+    symbol->scale = fitScale(symbol, targetWidth, targetHeight);
+
+    if (symbol->rows == 1 && ZBarcode_Cap(format, ZINT_CAP_STACKABLE) && symbol->bitmap_width > 0)
+    {
+        // fitScale() measured the bitmap at scale 1, which is 2 pixels per X-dimension
+        const float widthScale = std::max(0.5f, std::floor(2.f * targetWidth / symbol->bitmap_width) / 2.f);
+        const float textHeight = symbol->bitmap_height / 2.f - symbol->height;
+        const float barHeight = std::floor(targetHeight / (2.f * widthScale) - textHeight);
+
+        if (widthScale > symbol->scale && barHeight >= 10.f)
+        {
+            ZBarcode_Delete(symbol);
+            symbol = encodeSymbol(data, format, encoding, eccLevel, barHeight);
+            if (symbol) symbol->scale = widthScale;
+        }
+    }
+
+    return symbol;
+}
+
+/*!
+ * \brief Compute the barcode area, inside the requested size minus the margins.
+ * \note Margins are ignored if they leave less than 16 pixels for the barcode.
+ */
+static QSize targetSize(const int width, const int height, const int margins)
+{
+    const int border = std::max(0, margins);
+    if (width - 2 * border < 16 || height - 2 * border < 16) return QSize(width, height);
+    return QSize(width - 2 * border, height - 2 * border);
+}
+
 QImage ZintQml::generateImage(const QString &data, const int width, const int height, const int margins,
                               const int format, const int encoding, const int eccLevel,
                               const QColor backgroundColor, const QColor foregroundColor)
 {
-    Q_UNUSED(width)
-    Q_UNUSED(height)
-    Q_UNUSED(eccLevel)
+    const QSize target = targetSize(width, height, margins);
+    const int border = (target.width() < width) ? std::max(0, margins) : 0;
 
-    bool format_rgb = (format == BARCODE_ULTRA);
-    bool format_rotated = false;
+    zint_symbol *symbol = createSymbol(data, format, encoding, eccLevel, target.width(), target.height());
+    if (!symbol) return QImage();
 
-    // rotated codes?
-    if (format == BARCODE_PDF417 || format == BARCODE_MICROPDF417 ||
-        format == BARCODE_CODE49 || format == BARCODE_CODE16K || format == BARCODE_CODABLOCKF)
-    {
-        format_rotated = true;
-    }
+    const bool format_rgb = (format == BARCODE_ULTRA);
+    symbol->output_options |= format_rgb ? 0 : OUT_BUFFER_INTERMEDIATE;
 
-    // Generate barcode
-    struct zint_symbol *zint_symbol = ZBarcode_Create();
-    //zint_symbol->height = requestedSize.height();
-    //zint_symbol->scale = 1.0;
-    zint_symbol->symbology = format;
-    zint_symbol->input_mode = encoding;
-    //zint_symbol->border_width = margins;
-    zint_symbol->whitespace_width = margins;
-    zint_symbol->whitespace_height = margins;
-    zint_symbol->output_options |= format_rgb ? 0 : OUT_BUFFER_INTERMEDIATE;
-
-    QByteArray bstr = data.toUtf8();
-    int error = ZBarcode_Encode_and_Buffer(zint_symbol, (unsigned char *)bstr.data(), bstr.size(), 0);
-
-
-
-/*
-    Aztec Code  1 to 4 (10%, 23%, 36%, 50%)
-    Grid Matrix 1 to 5 (10% to 50%)
-    Han Xin     1 to 4 (8%, 15%, 23%, 30%)
-    Micro QR    1 to 3 (7%, 15%, 25%) (L, M, Q)
-    PDF417      0 to 8 (2^(INTEGER + 1) codewords)
-    QR Code     1 to 4 (7%, 15%, 25%, 30%) (L, M, Q, H)
-    rMQR        2 or 4 (15% or 30%) (M or H)
-    Ultracode   1 to 6 (0%, 5%, 9%, 17%, 25%, 33%)
-*/
-/*
-    qDebug() << ">> recap >>";
-    qDebug() << "- DATA  : " << data;
-    qDebug() << "- data_sz  : " << data_sz;
-    qDebug() << "- exmarkIndex  : " << exmarkIndex;
-    qDebug() << "- slashIndex  : " << slashIndex;
-    qDebug() << "- format: " << (int)format;
-    qDebug() << "- ecc   : " << eccLevel;
-    qDebug() << "- margin: " << margins;
-*/
-/*
-    qDebug() << "data:" << data;
-    qDebug() << "encoded width:" << zint_symbol->width << " height:" << zint_symbol->height;
-    qDebug() << "encoded width:" << zint_symbol->bitmap_width << " height:" << zint_symbol->bitmap_height;
-    qDebug() << "encoded error:" << error << zint_symbol->errtxt;
-*/
-
-
-
-    QImage img(zint_symbol->bitmap_width, zint_symbol->bitmap_height, QImage::Format_ARGB32);
+    QImage img;
+    const int error = ZBarcode_Buffer(symbol, 0);
 
     if (error < ZINT_ERROR)
     {
-        int i = 0;
-        for (int row = 0; row < zint_symbol->bitmap_height; row++)
+        const QRgb fg = foregroundColor.isValid() ? foregroundColor.rgba() : qRgba(0, 0, 0, 255);
+        const QRgb bg = backgroundColor.isValid() ? backgroundColor.rgba() : qRgba(0, 0, 0, 0);
+        const int w = symbol->bitmap_width;
+        const int h = symbol->bitmap_height;
+
+        img = QImage(w + 2 * border, h + 2 * border, QImage::Format_ARGB32);
+        img.fill(bg);
+
+        const unsigned char *s = symbol->bitmap;
+        for (int y = 0; y < h; y++)
         {
-            for (int col = 0; col < zint_symbol->bitmap_width; col++)
+            QRgb *d = reinterpret_cast<QRgb *>(img.scanLine(y + border)) + border;
+            for (int x = 0; x < w; x++)
             {
                 if (format_rgb)
                 {
-                    img.setPixel(col, row, QColor(zint_symbol->bitmap[i], zint_symbol->bitmap[i + 1], zint_symbol->bitmap[i + 2]).rgba());
-                    i += 3;
+                    d[x] = qRgb(s[0], s[1], s[2]);
+                    s += 3;
                 }
                 else
                 {
-                    img.setPixel(col, row, zint_symbol->bitmap[i] == '1' ? foregroundColor.rgba() : backgroundColor.rgba());
-                    i++;
+                    d[x] = (*s == '1') ? fg : bg;
+                    s++;
                 }
             }
         }
     }
+    else
+    {
+        qWarning() << "ZintQml::generateImage() error" << error << symbol->errtxt;
+    }
 
-    ZBarcode_Delete(zint_symbol);
+    ZBarcode_Delete(symbol);
 
     return img;
 }
@@ -195,41 +294,49 @@ bool ZintQml::saveImage(const QString &data, const int width, const int height, 
 
     QString filepath = fileurl.toLocalFile();
     QFileInfo saveFileInfo(filepath);
+    const QString suffix = saveFileInfo.suffix().toLower();
 
-    if (saveFileInfo.suffix() == "svg")
+    if (suffix == "svg")
     {
-        // to vector
-        struct zint_symbol *zint_symbol = ZBarcode_Create();
-        zint_symbol->height = height;
-        zint_symbol->scale = 1.0;
-        zint_symbol->symbology = format;
-        zint_symbol->input_mode = encoding;
-        zint_symbol->whitespace_width = 4;
-        zint_symbol->whitespace_height = 4;
+        // to vector, sized like the raster export
+        const QSize target = targetSize(width, height, margins);
+        const int border = (target.width() < width) ? std::max(0, margins) : 0;
 
-        strncpy(zint_symbol->outfile, filepath.toStdString().c_str(), 256);
+        zint_symbol *symbol = createSymbol(data, format, encoding, eccLevel, target.width(), target.height());
+        if (!symbol) return false;
 
-        QByteArray bstr = data.toUtf8();
-        int error = ZBarcode_Encode_and_Print(zint_symbol, (unsigned char *)bstr.data(), bstr.size(), 0);
+        // whitespace is in X-dimensions, rounded down to stay within the requested size
+        const float pxPerModule = symbol->scale * 2.f;
+        symbol->whitespace_width = (border > 0) ? std::max(1, int(border / pxPerModule)) : 0;
+        symbol->whitespace_height = symbol->whitespace_width;
 
-        if (error >= ZINT_ERROR)
+        setZintColour(symbol->fgcolour, foregroundColor.isValid() ? foregroundColor : QColor(Qt::black));
+        setZintColour(symbol->bgcolour, backgroundColor.isValid() ? backgroundColor : QColor(Qt::transparent));
+
+        // zint expects UTF-8 file names, on every platform
+        const QByteArray path = filepath.toUtf8();
+        if (path.size() >= int(sizeof(symbol->outfile)))
         {
-            qWarning() << "ZintQml::saveImage() error" << error << zint_symbol->errtxt;
+            qWarning() << "ZintQml::saveImage() file path too long:" << filepath;
+        }
+        else
+        {
+            qstrncpy(symbol->outfile, path.constData(), sizeof(symbol->outfile));
+
+            const int error = ZBarcode_Print(symbol, 0);
+            status = (error < ZINT_ERROR);
+            if (!status) qWarning() << "ZintQml::saveImage() error" << error << symbol->errtxt;
         }
 
-        ZBarcode_Delete(zint_symbol);
+        ZBarcode_Delete(symbol);
     }
-    else if (saveFileInfo.suffix() == "bmp" ||
-             saveFileInfo.suffix() == "png" ||
-             saveFileInfo.suffix() == "jpg" ||
-             saveFileInfo.suffix() == "jpeg" ||
-             saveFileInfo.suffix() == "webp")
+    else if (suffix == "bmp" || suffix == "png" || suffix == "jpg" || suffix == "jpeg" || suffix == "webp")
     {
         QImage img = generateImage(data, width, height, margins,
                                    format, encoding, eccLevel,
                                    backgroundColor, foregroundColor);
 
-        status = img.save(filepath, saveFileInfo.suffix().toStdString().c_str(), -1);
+        status = !img.isNull() && img.save(filepath, suffix.toLatin1().constData(), -1);
     }
     else
     {

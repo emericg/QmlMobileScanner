@@ -54,7 +54,7 @@ QImage ZintImageProvider::requestImage(const QString &id, QSize *size, const QSi
     QColor bgc(0, 0, 0, 0);
     QColor fgc(0, 0, 0, 255);
 
-    int customSettingsIndex = id.lastIndexOf(QRegularExpression("\\?(format|encoding|eccLevel|margin)="));
+    int customSettingsIndex = id.lastIndexOf(QRegularExpression("\\?(format|encoding|eccLevel|margins|backgroundColor|foregroundColor)="));
     if (customSettingsIndex >= 0)
     {
         QUrlQuery optionQuery(id.mid(customSettingsIndex + 1));
@@ -82,7 +82,7 @@ QImage ZintImageProvider::requestImage(const QString &id, QSize *size, const QSi
         {
             bool ok = false;
             int m = optionQuery.queryItemValue("margins").toInt(&ok);
-            if (ok && m > 0 && m < 128) margins = std::ceil(m / 12.0);
+            if (ok && m > 0 && m < 128) margins = m;
         }
 
         if (optionQuery.hasQueryItem("backgroundColor"))
@@ -95,8 +95,19 @@ QImage ZintImageProvider::requestImage(const QString &id, QSize *size, const QSi
         }
     }
 
-    // Generate barcode
+    // Preview dimensions
     int width = requestedSize.width(), height = requestedSize.height();
+
+    // Cap the preview resolution
+    const int kPreviewCap = 1024;
+    const int maxDim = qMax(width, height);
+    if (maxDim > kPreviewCap)
+    {
+        width = qMax(1, width * kPreviewCap / maxDim);
+        height = qMax(1, height * kPreviewCap / maxDim);
+    }
+
+    // Generate barcode
 
     QImage img = ZintQml::generateImage(data, width, height, margins,
                                         (int)format, (int)encoding, eccLevel,

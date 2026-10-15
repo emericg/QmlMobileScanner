@@ -557,6 +557,13 @@ Loader {
                                 ListElement { idx: 8; txt: "99%"; redondancy: 100; ecc: 8; }
                             }
                             ListModel {
+                                id: lmBarcodeEccAzZint
+                                ListElement { idx: 0; txt: "10%"; redondancy: 10; ecc: 1; }
+                                ListElement { idx: 1; txt: "23%"; redondancy: 23; ecc: 2; }
+                                ListElement { idx: 2; txt: "36%"; redondancy: 36; ecc: 3; }
+                                ListElement { idx: 3; txt: "50%"; redondancy: 50; ecc: 4; }
+                            }
+                            ListModel {
                                 id: lmBarcodeEccPdf
                                 ListElement { idx: 0; txt: "0"; redondancy: 1; ecc: 0; }
                                 ListElement { idx: 1; txt: "1"; redondancy: 1; ecc: 1; }
@@ -577,7 +584,9 @@ Loader {
                             model: {
                                 if (barcodeAdvanced.format === "aztec" ||
                                     barcodeAdvanced.format === "azteccode"||
-                                    barcodeAdvanced.format === "aztecrune") return lmBarcodeEccAz
+                                    barcodeAdvanced.format === "aztecrune") {
+                                    return (SettingsManager.backend_writer === "zint") ? lmBarcodeEccAzZint : lmBarcodeEccAz
+                                }
                                 if (barcodeAdvanced.format === "datamatrix") return lmBarcodeEccDM
                                 if (barcodeAdvanced.format === "qrcode" ||
                                     barcodeAdvanced.format === "microqrcode" ||
@@ -588,24 +597,13 @@ Loader {
                             }
 
                             onModelChanged: {
-                                //
+                                currentSelection = 0
+                                barcodeAdvanced.eccLevel = model ? parseInt(model.get(0).ecc) : 0
+                                barcodeAdvanced.eccStr = "L"
                             }
                             onMenuSelected: (index) => {
-                                //console.log("lmBarcodeEccPd[index].ecc : " + lmBarcodeEccQR.get(index).ecc)
                                 currentSelection = index
-
-                                var vvv = 0
-                                if (barcodeAdvanced.format === "aztec" ||
-                                    barcodeAdvanced.format === "azteccode"||
-                                    barcodeAdvanced.format === "aztecrune") vvv = lmBarcodeEccAz.get(index).ecc
-                                if (barcodeAdvanced.format === "datamatrix") vvv = lmBarcodeEccDM.get(index).ecc
-                                if (barcodeAdvanced.format === "qrcode" ||
-                                    barcodeAdvanced.format === "microqrcode" ||
-                                    barcodeAdvanced.format === "rmqr") vvv = lmBarcodeEccQR.get(index).ecc
-                                if (barcodeAdvanced.format === "pdf417" ||
-                                    barcodeAdvanced.format === "micropdf417") vvv = lmBarcodeEccPdf.get(index).ecc
-
-                                barcodeAdvanced.eccLevel = parseInt(vvv)
+                                barcodeAdvanced.eccLevel = parseInt(model.get(index).ecc)
                                 barcodeAdvanced.eccStr = (SettingsManager.backend_writer === "qzxing") ? lmBarcodeEccQR.get(index).txt : "L"
                             }
                         }
@@ -757,6 +755,8 @@ Loader {
                                 ListElement { idx: 0; txt: "128x128"; sz: 128; src: ""; }
                                 ListElement { idx: 1; txt: "256x256"; sz: 256; src: ""; }
                                 ListElement { idx: 2; txt: "512x512"; sz: 512; src: ""; }
+                                ListElement { idx: 3; txt: "1024x1024"; sz: 1024; src: ""; }
+                                ListElement { idx: 4; txt: "2048x2048"; sz: 2048; src: ""; }
                             }
 
                             onMenuSelected: (index) => {
