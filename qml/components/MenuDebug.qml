@@ -53,6 +53,30 @@ Column {
             width: parent.width - 16
             LayoutMirroring.enabled: true
 
+            text: qsTr("full resolution")
+            colorText: "white"
+            colorSubText: "grey"
+            checked: SettingsManager.scan_fullres
+            onClicked: SettingsManager.scan_fullres = checked
+        }
+    }
+    Item {
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: 40
+
+        Rectangle {
+            anchors.fill: parent
+            radius: 24
+            color: "black"
+            opacity: 0.33
+        }
+
+        SwitchThemed {
+            anchors.centerIn: parent
+            width: parent.width - 16
+            LayoutMirroring.enabled: true
+
             text: qsTr("tryHarder")
             colorText: "white"
             colorSubText: "grey"

@@ -28,7 +28,9 @@
 #include <QObject>
 
 #include <QMediaDevices>
+#include <QCameraDevice>
 #include <QCameraFormat>
+#include <QVideoFrameFormat>
 #include <QVideoFrame>
 #include <QImage>
 
@@ -53,7 +55,34 @@ public:
     static UtilsCamera *getInstance();
     static UtilsCamera *create(QQmlEngine *engine, QJSEngine *scriptEngine);
 
-    static Q_INVOKABLE QCameraFormat selectCameraFormat(int idx = 0);
+    /*!
+     * \brief Select the best capture format for barcode scanning.
+     * \param device: The camera device to select a format for, the default camera if null.
+     * \param fullResolution: Maximize resolution, instead of capping it around 1080p.
+     * \return The selected format, or a null QCameraFormat if the device exposes no format.
+     *
+     * Candidates are ranked by, in order: reaching 20 fps, resolution, pixel format score,
+     * square aspect ratio, and maximum frame rate.
+     * In balanced mode, resolutions above 1920x1080 pixel count rank below every smaller one,
+     * the closest to the cap first.
+     */
+    static Q_INVOKABLE QCameraFormat selectCameraFormat(const QCameraDevice &device, bool fullResolution = false);
+
+    /*!
+     * \brief Describe a camera format, for debug display.
+     * \param format: The camera format.
+     * \return A "WIDTHxHEIGHT PIXELFORMAT FPS" string, or an empty string if the format is null.
+     */
+    static Q_INVOKABLE QString cameraFormatToString(const QCameraFormat &format);
+
+private:
+    /*!
+     * \brief Rank a pixel format by how cheaply ZXing can read it.
+     * \param pixelFormat: The video frame pixel format.
+     * \return 2 for luma-readable YUV formats, 1 for 32 bits RGB formats,
+     *         0 for formats requiring a full conversion (JPEG, textures...).
+     */
+    static int pixelFormatScore(QVideoFrameFormat::PixelFormat pixelFormat);
 };
 
 /* ************************************************************************** */

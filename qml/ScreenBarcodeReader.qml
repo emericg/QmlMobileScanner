@@ -180,7 +180,7 @@ Loader {
                 focusMode: Camera.FocusModeAutoNear
 
                 cameraDevice: mediaDevices.videoInputs[mediaDevices.selectedDevice] ? mediaDevices.videoInputs[mediaDevices.selectedDevice] : mediaDevices.defaultVideoInput
-                cameraFormat: UtilsCamera.selectCameraFormat(cameraDevice)
+                cameraFormat: UtilsCamera.selectCameraFormat(cameraDevice, SettingsManager.scan_fullres)
                 //cameraFormat: (SettingsManager.scanFullres) ? UtilsCamera.selectCameraFormat(cameraDevice) : undefined
 
                 onCameraDeviceChanged: {
@@ -537,6 +537,13 @@ Loader {
                     anchors.left: parent.left
                     anchors.verticalCenter: parent.verticalCenter
 
+                    Text {
+                        id: cameraFormatInfo
+                        visible: (currentMode === "video")
+                        text: UtilsCamera.cameraFormatToString(camera.cameraFormat) ||
+                              ("default format " + videoOutput.sourceRect.width + "x" + videoOutput.sourceRect.height)
+                        color: "white"
+                    }
                     Text {
                         id: fpsCounter
                         text: utilsFpsMonitor.fps.toFixed(0) + " fps"
