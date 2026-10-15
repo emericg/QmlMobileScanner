@@ -120,7 +120,11 @@ Loader {
             console.log(">> open_image()")
             currentMode = "image"
 
-            if (file) imageOutput.source = file
+            if (file) {
+                // huge pictures are loaded downscaled, to stay below GPU texture size limits
+                imageOutput.sourceSize = UtilsBarcode.getImageSourceSize(file, imageOutput.maxImageSize)
+                imageOutput.source = file
+            }
             videoOutput.visible = false
             imageOutput.visible = true
         }
@@ -448,6 +452,9 @@ Loader {
 
             fillMode: Image.PreserveAspectFit
             autoTransform: true // apply EXIF orientation, as BarcodeManager.loadImage() does
+
+            // bigger pictures are downscaled (see open_image()), safe for any GPU texture size limit
+            readonly property int maxImageSize: 4096
 
             // area where the picture is painted, centered by default alignment
             readonly property real contentX: (width - paintedWidth) / 2

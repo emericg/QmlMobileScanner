@@ -29,6 +29,7 @@
 #include <QVariantList>
 #include <QString>
 #include <QUrl>
+#include <QSize>
 
 class QQmlEngine;
 class QJSEngine;
@@ -74,6 +75,27 @@ public:
      * Files bigger than 4 KiB are rejected, as no 2D barcode can hold that much data.
      */
     static Q_INVOKABLE QString loadTextFile(const QUrl &fileUrl);
+
+    /*!
+     * \brief Get a file url inside a temporary folder, for exporting files to other applications.
+     * \param fileName: the file name.
+     * \return the file url, or an empty url if the temporary folder can't be created.
+     *
+     * The folder is created once per session, and removed with its content when the application quits.
+     */
+    static Q_INVOKABLE QUrl getTemporaryFileUrl(const QString &fileName);
+
+    /*!
+     * \brief Compute the QML Image sourceSize needed to load a picture with its longest side capped.
+     * \param fileUrl: the image file url.
+     * \param maxSize: the maximum size of the longest side, in pixels.
+     * \return the sourceSize to use, or an empty size (native size) if the picture is small enough or can't be read.
+     *
+     * Only one dimension is set, as setting both scales the picture to fit its shortest side.
+     * Image applies sourceSize before the orientation metadata (EXIF),
+     * so the dimension is chosen from the picture as stored in the file.
+     */
+    static Q_INVOKABLE QSize getImageSourceSize(const QUrl &fileUrl, int maxSize);
 };
 
 /* ************************************************************************** */

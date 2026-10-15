@@ -27,6 +27,9 @@
 #include <QVariantMap>
 #include <QMimeDatabase>
 #include <QFile>
+#include <QDir>
+#include <QTemporaryDir>
+#include <QImageReader>
 #include <QDebug>
 
 #if defined(QMS_USE_ZXINGCPP)
@@ -125,6 +128,26 @@ QString UtilsBarcode::loadTextFile(const QUrl &fileUrl)
     }
 
     return QString::fromUtf8(file.readAll());
+}
+
+QUrl UtilsBarcode::getTemporaryFileUrl(const QString &fileName)
+{
+    static QTemporaryDir tempDir(QDir::tempPath() + "/" + QCoreApplication::applicationName() + "-XXXXXX");
+    if (!tempDir.isValid())
+    {
+        qWarning() << "UtilsBarcode::getTemporaryFileUrl() unable to create a temporary folder:" << tempDir.errorString();
+        return QUrl();
+    }
+
+    return QUrl::fromLocalFile(tempDir.filePath(fileName));
+}
+
+QSize UtilsBarcode::getImageSourceSize(const QUrl &fileUrl, int maxSize)
+{
+    const QSize stored = QImageReader(fileUrl.toLocalFile()).size();
+    if (!stored.isValid() || qMax(stored.width(), stored.height()) <= maxSize) return QSize();
+
+    return (stored.width() >= stored.height()) ? QSize(maxSize, 0) : QSize(0, maxSize);
 }
 
 /* ************************************************************************** */
