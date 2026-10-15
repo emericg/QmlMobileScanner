@@ -25,6 +25,7 @@
 
 #include <QCoreApplication>
 #include <QRandomGenerator>
+#include <QImageReader>
 
 #include <QSqlDatabase>
 #include <QSqlDriver>
@@ -115,8 +116,11 @@ bool BarcodeManager::loadImage(const QUrl &fileUrl)
     bool status = false;
 
 #if defined(QMS_USE_ZXINGCPP)
-    QImage img;
-    if (img.load(fileUrl.toLocalFile()))
+    // apply the EXIF orientation, like the QML Image displaying it (autoTransform)
+    QImageReader reader(fileUrl.toLocalFile());
+    reader.setAutoTransform(true);
+    const QImage img = reader.read();
+    if (!img.isNull())
     {
         qDeleteAll(m_barcodes_onscreen);
         m_barcodes_onscreen.clear();

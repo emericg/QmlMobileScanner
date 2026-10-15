@@ -40,8 +40,8 @@ Row {
 
     ButtonFlat {
         height: 36
-        color: Theme.colorGrey
         font.bold: true
+        color: barcodeAdvanced.barcode_string ? Theme.colorPrimary : Theme.colorGrey
 
         text: qsTr("save")
         source: "qrc:/IconLibrary/material-symbols/save.svg"

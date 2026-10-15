@@ -7,7 +7,7 @@ Item {
     id: widgetBarcodeResult
 
     implicitWidth: 256
-    implicitHeight: 44
+    implicitHeight: 48
 
     clip: true
 
@@ -24,7 +24,7 @@ Item {
         color: "black"
         opacity: 0.33
         border.width: 2
-        border.color: "grey"
+        border.color: "darkgrey"
     }
 
     MouseArea {

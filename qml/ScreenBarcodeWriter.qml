@@ -330,6 +330,47 @@ Loader {
                         selectByMouse: true
                         onTextChanged: barcodeAdvanced.barcode_string = text
 
+                        DropArea { // drag and drop text, or a text file
+                            id: textDropArea
+                            anchors.fill: parent
+
+                            keys: ["text/uri-list", "text/plain"]
+
+                            function firstTextFile(urls) {
+                                for (let i = 0; i < urls.length; i++) {
+                                    if (UtilsBarcode.isTextFile(urls[i])) return urls[i]
+                                }
+                                return ""
+                            }
+
+                            // files first: file managers also provide the file path as text
+                            onEntered: (drag) => {
+                                drag.accepted = drag.hasUrls ? firstTextFile(drag.urls) !== "" : drag.hasText
+                            }
+                            onDropped: (drop) => {
+                                if (drop.hasUrls) {
+                                    const content = UtilsBarcode.loadTextFile(firstTextFile(drop.urls))
+                                    if (content !== "") {
+                                        barcodeTextArea.text = content
+                                        drop.accept()
+                                    }
+                                } else if (drop.hasText) {
+                                    barcodeTextArea.insert(barcodeTextArea.positionAt(drop.x, drop.y), drop.text)
+                                    drop.accept()
+                                }
+                            }
+
+                            Rectangle {
+                                anchors.fill: parent
+                                radius: 4
+
+                                visible: textDropArea.containsDrag
+                                color: "transparent"
+                                border.width: 2
+                                border.color: Theme.colorPrimary
+                            }
+                        }
+
                         SelectorMenu {
                             id: barcodeEncodingSelector
                             anchors.left: parent.left
@@ -358,6 +399,7 @@ Loader {
                             anchors.bottom: parent.bottom
                             height: 32
 
+                            color: barcodeTextArea.activeFocus ? Theme.colorPrimary : Theme.colorComponentBorder
                             opacity: barcodeTextArea.text ? 1 : 0
                             Behavior on opacity { NumberAnimation { duration: 200 } }
 

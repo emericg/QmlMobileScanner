@@ -25,6 +25,9 @@
 #include <QQmlEngine>
 #include <QJSEngine>
 #include <QVariantMap>
+#include <QMimeDatabase>
+#include <QFile>
+#include <QDebug>
 
 #if defined(QMS_USE_ZXINGCPP)
 #include <ZXingQml>
@@ -88,6 +91,40 @@ QVariantList UtilsBarcode::getAvailableFormats()
 #endif
 
     return formats;
+}
+
+/* ************************************************************************** */
+
+bool UtilsBarcode::isTextFile(const QUrl &fileUrl)
+{
+    if (!fileUrl.isLocalFile()) return false;
+
+    return QMimeDatabase().mimeTypeForFile(fileUrl.toLocalFile()).inherits("text/plain");
+}
+
+QString UtilsBarcode::loadTextFile(const QUrl &fileUrl)
+{
+    static constexpr qint64 maxSize = 4 * 1024;
+
+    if (!isTextFile(fileUrl))
+    {
+        qWarning() << "UtilsBarcode::loadTextFile() not a text file:" << fileUrl;
+        return QString();
+    }
+
+    QFile file(fileUrl.toLocalFile());
+    if (file.size() > maxSize)
+    {
+        qWarning() << "UtilsBarcode::loadTextFile() file too big:" << file.size() << "bytes";
+        return QString();
+    }
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        qWarning() << "UtilsBarcode::loadTextFile() unable to open:" << file.errorString();
+        return QString();
+    }
+
+    return QString::fromUtf8(file.readAll());
 }
 
 /* ************************************************************************** */

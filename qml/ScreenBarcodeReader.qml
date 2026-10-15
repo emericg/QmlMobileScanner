@@ -411,8 +411,6 @@ Loader {
 
                 Shape {
                     anchors.fill: parent
-                    anchors.leftMargin: screenPaddingLeft
-                    anchors.rightMargin: screenPaddingRight
 
                     opacity: modelData.isOnScreen ? 0.80 : 0
                     Behavior on opacity { NumberAnimation { duration: 133 } }
@@ -443,13 +441,17 @@ Loader {
 
         Image {
             id: imageOutput
-            anchors.centerIn: parent
+            anchors.fill: parent
 
             visible: false
             source: ""
 
-            fillMode: VideoOutput.PreserveAspectFit
-            //fillMode: VideoOutput.PreserveAspectCrop
+            fillMode: Image.PreserveAspectFit
+            autoTransform: true // apply EXIF orientation, as BarcodeManager.loadImage() does
+
+            // area where the picture is painted, centered by default alignment
+            readonly property real contentX: (width - paintedWidth) / 2
+            readonly property real contentY: (height - paintedHeight) / 2
 
             ////
 
@@ -457,6 +459,8 @@ Loader {
                 console.log("> Image > " + imageOutput.source)
                 console.log("- image sz: " + imageOutput.x + "," + imageOutput.y + " - " + imageOutput.width + "x" + imageOutput.height)
                 console.log("- sourceSize  sz: " + imageOutput.sourceSize.width + "x" + imageOutput.sourceSize.height)
+                console.log("- painted sz: " + imageOutput.contentX + "," + imageOutput.contentY + " - " +
+                                               imageOutput.paintedWidth + "x" + imageOutput.paintedHeight)
                 console.log("- sourceClipRect sz: " + imageOutput.sourceClipRect.x + "," + imageOutput.sourceClipRect.y + " - " +
                                                       imageOutput.sourceClipRect.width + "x" + imageOutput.sourceClipRect.height)
             }
@@ -468,8 +472,6 @@ Loader {
 
                 Shape {
                     anchors.fill: parent
-                    anchors.leftMargin: screenPaddingLeft
-                    anchors.rightMargin: screenPaddingRight
 
                     opacity: modelData.isOnScreen ? 0.80 : 0
                     Behavior on opacity { NumberAnimation { duration: 133 } }
@@ -480,12 +482,13 @@ Loader {
                         strokeStyle: ShapePath.SolidLine
                         fillColor: "transparent"
 
-                        startX: modelData.lastCoordinates[3].x * imageOutput.sourceSize.width
-                        startY: modelData.lastCoordinates[3].y * imageOutput.sourceSize.height
-                        PathLine { x: modelData.lastCoordinates[0].x* imageOutput.sourceSize.width; y: modelData.lastCoordinates[0].y* imageOutput.sourceSize.height; }
-                        PathLine { x: modelData.lastCoordinates[1].x* imageOutput.sourceSize.width; y: modelData.lastCoordinates[1].y* imageOutput.sourceSize.height; }
-                        PathLine { x: modelData.lastCoordinates[2].x* imageOutput.sourceSize.width; y: modelData.lastCoordinates[2].y* imageOutput.sourceSize.height; }
-                        PathLine { x: modelData.lastCoordinates[3].x* imageOutput.sourceSize.width; y: modelData.lastCoordinates[3].y* imageOutput.sourceSize.height; }
+                        // normalized coordinates -> painted picture area
+                        startX: imageOutput.contentX + modelData.lastCoordinates[3].x * imageOutput.paintedWidth
+                        startY: imageOutput.contentY + modelData.lastCoordinates[3].y * imageOutput.paintedHeight
+                        PathLine { x: imageOutput.contentX + modelData.lastCoordinates[0].x * imageOutput.paintedWidth; y: imageOutput.contentY + modelData.lastCoordinates[0].y * imageOutput.paintedHeight; }
+                        PathLine { x: imageOutput.contentX + modelData.lastCoordinates[1].x * imageOutput.paintedWidth; y: imageOutput.contentY + modelData.lastCoordinates[1].y * imageOutput.paintedHeight; }
+                        PathLine { x: imageOutput.contentX + modelData.lastCoordinates[2].x * imageOutput.paintedWidth; y: imageOutput.contentY + modelData.lastCoordinates[2].y * imageOutput.paintedHeight; }
+                        PathLine { x: imageOutput.contentX + modelData.lastCoordinates[3].x * imageOutput.paintedWidth; y: imageOutput.contentY + modelData.lastCoordinates[3].y * imageOutput.paintedHeight; }
                     }
                 }
             }
@@ -1007,6 +1010,49 @@ Loader {
             }
 
             ////////
+        }
+
+        ////////////////////////
+
+        DropArea { // drag and drop an image, same as the file dialog
+            id: imageDropArea
+            anchors.fill: parent
+
+            enabled: isDesktop && !screenBarcodeDetails.visible
+            keys: ["text/uri-list"]
+
+            readonly property var imageSuffixes: ["png", "bmp", "jpg", "jpeg", "webp"]
+
+            function firstImage(urls) {
+                for (let i = 0; i < urls.length; i++) {
+                    const url = urls[i].toString()
+                    const suffix = url.substring(url.lastIndexOf('.') + 1).toLowerCase()
+                    if (url.startsWith("file:") && imageSuffixes.includes(suffix)) return urls[i]
+                }
+                return ""
+            }
+
+            onEntered: (drag) => {
+                drag.accepted = drag.hasUrls && firstImage(drag.urls) !== ""
+            }
+            onDropped: (drop) => {
+                const file = firstImage(drop.urls)
+                if (file !== "" && BarcodeManager.loadImage(file)) {
+                    drop.accept()
+                    open_image(file)
+                }
+            }
+
+            Rectangle {
+                anchors.fill: parent
+                anchors.margins: 8
+                radius: 8
+
+                visible: imageDropArea.containsDrag
+                color: "transparent"
+                border.width: 4
+                border.color: Theme.colorPrimary
+            }
         }
 
         ////////////////////////

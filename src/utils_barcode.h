@@ -27,6 +27,8 @@
 
 #include <QObject>
 #include <QVariantList>
+#include <QString>
+#include <QUrl>
 
 class QQmlEngine;
 class QJSEngine;
@@ -56,6 +58,22 @@ public:
      * where "value" is a bitmask in that backend's native formatsEnabled layout.
      */
     static Q_INVOKABLE QVariantList getAvailableFormats();
+
+    /*!
+     * \brief Check if a file can be loaded as barcode content.
+     * \param fileUrl: the file url.
+     * \return true if the file is a local text file (text/plain or inherited, like vCard or iCalendar).
+     */
+    static Q_INVOKABLE bool isTextFile(const QUrl &fileUrl);
+
+    /*!
+     * \brief Load a text file as barcode content.
+     * \param fileUrl: the file url.
+     * \return the file content, decoded as UTF-8, or an empty string on error.
+     *
+     * Files bigger than 4 KiB are rejected, as no 2D barcode can hold that much data.
+     */
+    static Q_INVOKABLE QString loadTextFile(const QUrl &fileUrl);
 };
 
 /* ************************************************************************** */
