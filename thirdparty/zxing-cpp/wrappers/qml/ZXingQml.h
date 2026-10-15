@@ -132,25 +132,48 @@ public:
 
     static BarcodeQml ReadBarcode(const QImage &image,
                                   const ZXing::ReaderOptions &opts = {},
-                                  const QRect captureRect = QRect());
+                                  const QRect captureRect_pixel = QRect());
 
     static BarcodeQml ReadBarcode(const QVideoFrame &frame,
                                   const ZXing::ReaderOptions &opts = {},
-                                  const QRect captureRect = QRect());
+                                  const QRect captureRect_pixel = QRect());
 
     ///
 
+    /*!
+     * \brief Read barcodes from an image.
+     * \param image: the image.
+     * \param opts: the reader options.
+     * \param captureRect_pixel: capture rectangle, in image pixel coordinates, empty for the whole image.
+     * \return the barcodes found, positionPixels being in image pixel coordinates.
+     */
     static QList<BarcodeQml> ReadBarcodes(const QImage &image,
                                           const ZXing::ReaderOptions &opts = {},
-                                          const QRect captureRect = QRect());
+                                          const QRect captureRect_pixel = QRect());
 
+    /*!
+     * \brief Read barcodes from a video frame, mapped directly in memory when possible.
+     * \param frame: the video frame.
+     * \param opts: the reader options.
+     * \param captureRect_pixel: capture rectangle, in pixel coordinates of the decoded image, empty for the whole frame.
+     * \return the barcodes found, positionPixels being in pixel coordinates of the decoded image.
+     *
+     * The decoded image is the mapped frame, or QVideoFrame::toImage() for formats that can't be mapped.
+     */
     static QList<BarcodeQml> ReadBarcodes(const QVideoFrame &frame,
                                           const ZXing::ReaderOptions &opts = {},
-                                          const QRect captureRect = QRect());
+                                          const QRect captureRect_pixel = QRect());
 
+    /*!
+     * \brief Read barcodes from a video frame, converted with QVideoFrame::toImage().
+     * \param frame: the video frame.
+     * \param opts: the reader options.
+     * \param captureRect_pixel: capture rectangle, in toImage() pixel coordinates, empty for the whole frame.
+     * \return the barcodes found, positionPixels being in toImage() pixel coordinates.
+     */
     static QList<BarcodeQml> ReadBarcodes2(const QVideoFrame &frame,
                                            const ZXing::ReaderOptions &opts = {},
-                                           const QRect captureRect = QRect());
+                                           const QRect captureRect_pixel = QRect());
 
     ///
 
@@ -176,10 +199,10 @@ public:
 
 /* ************************************************************************** */
 
-class PositionQml : public ZXing::Quadrilateral<QPoint>
+class PositionQml_pixels : public ZXing::Quadrilateral<QPoint>
 {
     Q_GADGET
-    QML_VALUE_TYPE(positionQml)
+    QML_VALUE_TYPE(positionQml_pixels)
 
     Q_PROPERTY(QPoint topLeft READ topLeft)
     Q_PROPERTY(QPoint topRight READ topRight)
@@ -194,6 +217,22 @@ public:
 
 /* ************************************************************************** */
 
+class PositionQml_normalized : public ZXing::Quadrilateral<QPointF>
+{
+    Q_GADGET
+    QML_VALUE_TYPE(positionQml_normalized)
+
+    Q_PROPERTY(QPointF topLeft READ topLeft)
+    Q_PROPERTY(QPointF topRight READ topRight)
+    Q_PROPERTY(QPointF bottomRight READ bottomRight)
+    Q_PROPERTY(QPointF bottomLeft READ bottomLeft)
+
+    using Base = ZXing::Quadrilateral<QPointF>;
+
+public:
+    using Base::Base;
+};
+
 class BarcodeQml : private ZXing::Barcode
 {
     Q_GADGET
@@ -203,7 +242,8 @@ class BarcodeQml : private ZXing::Barcode
     Q_PROPERTY(bool hasError READ hasError)
     Q_PROPERTY(QString errorMessage READ errorMessage)
 
-    Q_PROPERTY(PositionQml position READ position)
+    Q_PROPERTY(PositionQml_pixels positionPixels READ positionPixels)
+    Q_PROPERTY(PositionQml_normalized positionNormalized READ positionNormalized)
     Q_PROPERTY(int orientation READ orientation)
     Q_PROPERTY(bool isMirrored READ isMirrored)
     Q_PROPERTY(bool isInverted READ isInverted)
@@ -225,18 +265,24 @@ class BarcodeQml : private ZXing::Barcode
 
     QString m_text;
     QByteArray m_bytes;
-    PositionQml m_position;
+    PositionQml_pixels m_positionPixels;
+    PositionQml_normalized m_positionNormalized;
 
 public:
     BarcodeQml() = default; // required for qmetatype machinery
 
-    explicit BarcodeQml(ZXing::Barcode &&r) : ZXing::Barcode(std::move(r)) {
+    /*!
+     * \brief Create a barcode from a ZXing decoding result.
+     * \param r: the ZXing result.
+     * \param origin: origin of the decoded (cropped) image, added to the ZXing positions.
+     */
+    explicit BarcodeQml(ZXing::Barcode &&r, const QPoint &origin = QPoint()) : ZXing::Barcode(std::move(r)) {
         m_text = QString::fromStdString(ZXing::Barcode::text());
         m_bytes = QByteArray(reinterpret_cast<const char*>(ZXing::Barcode::bytes().data()),
                              static_cast<qsizetype>(ZXing::Barcode::bytes().size()));
         auto &pos = ZXing::Barcode::position();
-        auto qp = [&pos](int i) { return QPoint(pos[i].x, pos[i].y); };
-        m_position = {qp(0), qp(1), qp(2), qp(3)};
+        auto qp = [&pos, &origin](int i) { return QPoint(pos[i].x, pos[i].y) + origin; };
+        m_positionPixels = {qp(0), qp(1), qp(2), qp(3)};
     }
 
     int runTime = 0; // for debugging/development
@@ -251,7 +297,16 @@ public:
     QString contentTypeName() const { return QString::fromStdString(ZXing::ToString(ZXing::Barcode::contentType())); }
     const QString &text() const { return m_text; }
     const QByteArray &bytes() const { return m_bytes; }
-    const PositionQml &position() const { return m_position; }
+    const PositionQml_pixels &positionPixels() const { return m_positionPixels; }
+    const PositionQml_normalized &positionNormalized() const { return m_positionNormalized; }
+
+    /*!
+     * \brief Set the barcode position in normalized (0 to 1) coordinates.
+     * \param position: the barcode corners, in normalized coordinates of the displayed video frame.
+     *
+     * Only set by ZXingQmlVideoFilter, the position is null otherwise.
+     */
+    void setPositionNormalized(const PositionQml_normalized &position) { m_positionNormalized = position; }
 
     using ZXing::Barcode::orientation;
     using ZXing::Barcode::isMirrored;

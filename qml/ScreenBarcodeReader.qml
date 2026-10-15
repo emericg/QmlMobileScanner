@@ -223,9 +223,6 @@ Loader {
 
             // Capture rectangles
             property rect captureRect
-            property rect captureRect_full: Qt.rect(0, 0, videoOutput.sourceRect.width, videoOutput.sourceRect.height)
-            property rect captureRect_mapped
-            property rect captureRect_mapped_str
 
             property rect captureRect_mobile_top: Qt.rect(0.05, 0.20, 0.9, 0.45) // default
             property rect captureRect_mobile_mid: Qt.rect(0.05, 0.25, 0.9, 0.5)
@@ -259,14 +256,7 @@ Loader {
                 videoOutput.captureRectFactorWidth  = videoOutput.captureRect.width
                 videoOutput.captureRectFactorHeight = videoOutput.captureRect.height
 
-                captureRect_mapped = Qt.rect((videoOutput.sourceRect.width - videoOutput.contentRect.x) * videoOutput.captureRectStartFactorX,
-                                             (videoOutput.sourceRect.height - videoOutput.contentRect.y) * videoOutput.captureRectStartFactorY,
-                                             (videoOutput.sourceRect.width) * videoOutput.captureRectFactorWidth,
-                                             (videoOutput.sourceRect.height) * videoOutput.captureRectFactorHeight)
-
                 videoOutput.printInfos()
-                console.log(" >> captureRect_mapped >> " + captureRect_mapped)
-                console.log(" >> captureRect_full >> " + captureRect_full)
             }
 
             ////
@@ -277,14 +267,11 @@ Loader {
                 console.log("- videoOutput sz: " + videoOutput.x + "," + videoOutput.y + " - " + videoOutput.width + "x" + videoOutput.height)
                 console.log("- videoOutput2sz: (SCALED) " + videoOutput.x*UtilsScreen.screenPar + "," + videoOutput.y*UtilsScreen.screenPar + " - " +
                                                             videoOutput.width*UtilsScreen.screenPar + "x" + videoOutput.height*UtilsScreen.screenPar)
-                console.log("- sourceRect  sz: " + videoOutput.sourceRect.x.toFixed() + "," + videoOutput.sourceRect.y + " - " +
-                                                   videoOutput.sourceRect.width + "x" + videoOutput.sourceRect.height)
                 console.log("- contentRect sz: " + videoOutput.contentRect.x.toFixed() + "," + videoOutput.contentRect.y.toFixed() + " - " +
                                                    videoOutput.contentRect.width.toFixed() + "x" + videoOutput.contentRect.height.toFixed())
                 console.log("- contentRect sz: (SCALED) " + videoOutput.contentRect.x.toFixed()*UtilsScreen.screenPar + "," + videoOutput.contentRect.y.toFixed()*UtilsScreen.screenPar + " - " +
                                                             videoOutput.contentRect.width.toFixed()*UtilsScreen.screenPar + "x" + videoOutput.contentRect.height.toFixed()*UtilsScreen.screenPar)
-                console.log("- captureRect sz: " + barcodeReader.captureRect.x.toFixed() + "," + barcodeReader.captureRect.y.toFixed() + " - " +
-                                                   barcodeReader.captureRect.width.toFixed() + "x" + barcodeReader.captureRect.height.toFixed())
+                console.log("- captureRect sz: " + barcodeReader.captureRect)
             }
 
             ////
@@ -469,8 +456,7 @@ Loader {
             function printInfos() {
                 console.log("> Image > " + imageOutput.source)
                 console.log("- image sz: " + imageOutput.x + "," + imageOutput.y + " - " + imageOutput.width + "x" + imageOutput.height)
-                console.log("- sourceSize  sz: " + imageOutput.sourceSize.x + "," + imageOutput.sourceSize.y + " - " +
-                                                   imageOutput.sourceSize.width + "x" + imageOutput.sourceSize.height)
+                console.log("- sourceSize  sz: " + imageOutput.sourceSize.width + "x" + imageOutput.sourceSize.height)
                 console.log("- sourceClipRect sz: " + imageOutput.sourceClipRect.x + "," + imageOutput.sourceClipRect.y + " - " +
                                                       imageOutput.sourceClipRect.width + "x" + imageOutput.sourceClipRect.height)
             }

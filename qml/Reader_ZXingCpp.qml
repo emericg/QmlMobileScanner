@@ -14,13 +14,19 @@ ZXingQmlVideoFilter {
     property var framesDecodedTable: []
 
     videoSink: videoOutput.videoSink
-    captureRect: SettingsManager.scan_fullscreen ?
-                     Qt.rect(videoOutput.sourceRect.x, videoOutput.sourceRect.y,
-                             videoOutput.sourceRect.width, videoOutput.sourceRect.height) :
-                     Qt.rect(videoOutput.sourceRect.width * videoOutput.captureRectStartFactorX,
-                             videoOutput.sourceRect.height * videoOutput.captureRectStartFactorY,
-                             videoOutput.sourceRect.width * videoOutput.captureRectFactorWidth,
-                             videoOutput.sourceRect.height * videoOutput.captureRectFactorHeight)
+    orientation: videoOutput.orientation
+    mirrored: videoOutput.mirrored ?? false // VideoOutput.mirrored is Qt 6.9+
+
+    // capture zone, mapped from the VideoOutput item into the displayed video frame (contentRect)
+    captureRect: {
+        if (SettingsManager.scan_fullscreen || videoOutput.contentRect.width <= 0 || videoOutput.contentRect.height <= 0)
+            return Qt.rect(0, 0, 1, 1)
+
+        return Qt.rect((videoOutput.width * videoOutput.captureRectStartFactorX - videoOutput.contentRect.x) / videoOutput.contentRect.width,
+                       (videoOutput.height * videoOutput.captureRectStartFactorY - videoOutput.contentRect.y) / videoOutput.contentRect.height,
+                       videoOutput.width * videoOutput.captureRectFactorWidth / videoOutput.contentRect.width,
+                       videoOutput.height * videoOutput.captureRectFactorHeight / videoOutput.contentRect.height)
+    }
 
     tryHarder: SettingsManager.scan_tryHarder
     tryRotate: SettingsManager.scan_tryRotate
@@ -43,51 +49,25 @@ ZXingQmlVideoFilter {
              ZXingQml.QRCode | ZXingQml.MicroQRCode
 */
     function mapPointToItem(point) {
-        //console.log("-------------------------------------")
-        //console.log("mapPointToItem(" + point + ") orientation: " + videoOutput.orientation)
-        //videoOutput.printInfos()
-
-        if (videoOutput.sourceRect.width === 0 || videoOutput.sourceRect.height === 0) return Qt.point(0, 0)
-
-        // V0 // old mechanism for Qt 6.5.3
-        let dx = point.x + barcodeReader.captureRect.x
-        let dy = point.y + barcodeReader.captureRect.y
-
-        if ((videoOutput.orientation % 180) == 0) {
-            dx = dx * videoOutput.contentRect.width / videoOutput.sourceRect.width
-            dy = dy * videoOutput.contentRect.height / videoOutput.sourceRect.height
-        } else {
-            dx = dx * videoOutput.contentRect.height / videoOutput.sourceRect.height
-            dy = dx * videoOutput.contentRect.width / videoOutput.sourceRect.width
-        }
-
-        switch ((videoOutput.orientation + 360) % 360) {
-            default:
-            case 0:
-                return Qt.point(videoOutput.contentRect.x + dx, videoOutput.contentRect.y + dy)
-            case 90:
-                return Qt.point(videoOutput.contentRect.x + dy, videoOutput.contentRect.y + videoOutput.contentRect.height - dx)
-            case 180:
-                return Qt.point(videoOutput.contentRect.x + videoOutput.contentRect.width - dx, videoOutput.contentRect.y + videoOutput.contentRect.height -dy)
-            case 270:
-                return Qt.point(videoOutput.contentRect.x + videoOutput.contentRect.width - dy, videoOutput.contentRect.y + dx)
-        }
+        // point is in normalized coordinates of the displayed video frame
+        return Qt.point(videoOutput.contentRect.x + point.x * videoOutput.contentRect.width,
+                        videoOutput.contentRect.y + point.y * videoOutput.contentRect.height)
     }
 
     onTagFound: (result) => {
         //console.log("onTagFound : " + result)
-        //console.log("> pos > " + result.position.topLeft + "," + result.position.topRight + "," +
-        //                         result.position.bottomRight  + "," + result.position.bottomLeft)
+        //console.log("> pos > " + result.positionPixels.topLeft + "," + result.positionPixels.topRight + "," +
+        //                         result.positionPixels.bottomRight  + "," + result.positionPixels.bottomLeft)
 
         //console.log("contentRect : " + videoOutput.contentRect)
         //console.log("sourceRect : " + videoOutput.sourceRect)
 
         if (result.isValid && result.text !== "") {
             var newbarcode = BarcodeManager.addBarcode(result.text, result.formatName, result.contentTypeName, "",
-                                                       mapPointToItem(result.position.topLeft),
-                                                       mapPointToItem(result.position.topRight),
-                                                       mapPointToItem(result.position.bottomRight),
-                                                       mapPointToItem(result.position.bottomLeft))
+                                                       mapPointToItem(result.positionNormalized.topLeft),
+                                                       mapPointToItem(result.positionNormalized.topRight),
+                                                       mapPointToItem(result.positionNormalized.bottomRight),
+                                                       mapPointToItem(result.positionNormalized.bottomLeft))
 
             if (newbarcode) {
                 UtilsOS.hapticFeedback(33)

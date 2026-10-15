@@ -124,16 +124,16 @@ bool BarcodeManager::loadImage(const QUrl &fileUrl)
         const QList<BarcodeQml> results = ZXingQml::loadImage(fileUrl);
         for (const auto &r: results)
         {
-            QPointF tl = r.position().topLeft();
+            QPointF tl = r.positionPixels().topLeft();
             tl.setX(tl.x() / img.width());
             tl.setY(tl.y() / img.height());
-            QPointF tr = r.position().topRight();
+            QPointF tr = r.positionPixels().topRight();
             tr.setX(tr.x() / img.width());
             tr.setY(tr.y() / img.height());
-            QPointF bl = r.position().bottomLeft();
+            QPointF bl = r.positionPixels().bottomLeft();
             bl.setX(bl.x() / img.width());
             bl.setY(bl.y() / img.height());
-            QPointF br = r.position().bottomRight();
+            QPointF br = r.positionPixels().bottomRight();
             br.setX(br.x() / img.width());
             br.setY(br.y() / img.height());
 

@@ -27,7 +27,9 @@ class ZXingQmlVideoFilter : public QObject
 
     Q_PROPERTY(QVideoSink *videoSink READ videoSink WRITE setVideoSink NOTIFY videoSinkChanged)
 
-    Q_PROPERTY(QRect captureRect READ captureRect WRITE setCaptureRect NOTIFY captureRectChanged)
+    Q_PROPERTY(QRectF captureRect READ captureRect_normalized WRITE setCaptureRect_normalized NOTIFY captureRectChanged)
+    Q_PROPERTY(int orientation READ orientation WRITE setOrientation NOTIFY orientationChanged)
+    Q_PROPERTY(bool mirrored READ mirrored WRITE setMirrored NOTIFY mirroredChanged)
     Q_PROPERTY(int formats READ formats WRITE setFormats NOTIFY formatsChanged)
 
     Q_PROPERTY(bool tryHarder READ tryHarder WRITE setTryHarder NOTIFY tryHarderChanged)
@@ -38,7 +40,10 @@ class ZXingQmlVideoFilter : public QObject
     bool m_active = true;
     QFuture <void> m_processThread;
 
-    QRect m_captureRect;
+    QRectF m_captureRect_normalized;
+    QRect m_captureRect_pixel;
+    int m_orientation = 0;
+    bool m_mirrored = false;
     ZXing::ReaderOptions m_readerOptions;
 
     int m_formats = static_cast<int>(ZXingQml::BarcodeFormat::Any);
@@ -46,10 +51,6 @@ class ZXingQmlVideoFilter : public QObject
     QPointer<QVideoSink> m_videoSink;
     QVideoSink *videoSink() const { return m_videoSink; }
     void setVideoSink(QVideoSink *sink);
-
-    // capture rectangle
-    QRect captureRect() const { return m_captureRect; }
-    void setCaptureRect(const QRect &captureRect);
 
     // barcode reader options
     int formats() const noexcept;
@@ -73,6 +74,8 @@ signals:
 
     void formatsChanged();
     void captureRectChanged();
+    void orientationChanged();
+    void mirroredChanged();
 
     void decodingStarted();
     void decodingFinished(BarcodeQml result);
@@ -86,6 +89,52 @@ public:
     virtual ~ZXingQmlVideoFilter();
 
     Q_INVOKABLE void stopFilter();
+
+    /*!
+     * \brief Set the capture rectangle, in normalized coordinates.
+     * \param captureRect_normalized: the capture rectangle, in normalized (0 to 1) coordinates of the displayed video frame.
+     *
+     * Clears the pixel capture rectangle, the last capture rectangle set is the one used.
+     * Uses the same coordinates as BarcodeQml::positionNormalized,
+     * the displayed video frame being the VideoOutput contentRect.
+     */
+    void setCaptureRect_normalized(const QRectF &captureRect_normalized);
+    int orientation() const { return m_orientation; }
+
+    /*!
+     * \brief Set the orientation of the VideoOutput displaying the video frames.
+     * \param orientation: the VideoOutput orientation, clockwise in degrees, a multiple of 90.
+     *
+     * Same as VideoOutput.orientation, other values are ignored.
+     * Applied to the normalized capture rectangle and BarcodeQml::positionNormalized,
+     * so they match the VideoOutput contentRect.
+     */
+    void setOrientation(int orientation);
+
+    bool mirrored() const { return m_mirrored; }
+
+    /*!
+     * \brief Set the mirrored state of the VideoOutput displaying the video frames.
+     * \param mirrored: true if the VideoOutput mirrors the video around its vertical axis.
+     *
+     * Same as VideoOutput.mirrored (Qt 6.9+), applied after the orientation.
+     * Applied to the normalized capture rectangle and BarcodeQml::positionNormalized,
+     * so they match the VideoOutput contentRect.
+     */
+    void setMirrored(bool mirrored);
+
+    QRectF captureRect_normalized() const { return m_captureRect_normalized; }
+
+    /*!
+     * \brief Set the capture rectangle, in pixel coordinates (C++ only).
+     * \param captureRect_pixel: the capture rectangle, in QVideoFrame::toImage() pixel coordinates.
+     *
+     * Clears the normalized capture rectangle, the last capture rectangle set is the one used.
+     * An empty rectangle captures the whole frame.
+     * Doesn't take the frame own rotation() and mirrored() into account.
+     */
+    void setCaptureRect_pixel(const QRect &captureRect_pixel);
+    QRect captureRect_pixel() const { return m_captureRect_pixel; }
 };
 
 /* ************************************************************************** */

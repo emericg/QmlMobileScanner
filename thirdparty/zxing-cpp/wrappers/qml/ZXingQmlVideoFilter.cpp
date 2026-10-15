@@ -10,6 +10,7 @@
 #include <QElapsedTimer>
 #include <QImage>
 #include <QDebug>
+#include <QTransform>
 
 ZXingQmlVideoFilter::ZXingQmlVideoFilter(QObject *parent) : QObject(parent)
 {
@@ -146,12 +147,132 @@ void ZXingQmlVideoFilter::setFormats(int newVal)
     }
 }
 
-void ZXingQmlVideoFilter::setCaptureRect(const QRect &captureRect)
+void ZXingQmlVideoFilter::setOrientation(int orientation)
 {
-    if (captureRect == m_captureRect) return;
+    if (orientation % 90 != 0)
+    {
+        qWarning() << "ZXingQmlVideoFilter::setOrientation() unsupported orientation:" << orientation;
+        return;
+    }
+    if (orientation == m_orientation) return;
 
-    m_captureRect = captureRect;
+    m_orientation = orientation;
+    emit orientationChanged();
+}
+
+void ZXingQmlVideoFilter::setMirrored(bool mirrored)
+{
+    if (mirrored == m_mirrored) return;
+
+    m_mirrored = mirrored;
+    emit mirroredChanged();
+}
+
+void ZXingQmlVideoFilter::setCaptureRect_normalized(const QRectF &captureRect_normalized)
+{
+    m_captureRect_pixel = QRect();
+
+    if (captureRect_normalized == m_captureRect_normalized) return;
+
+    m_captureRect_normalized = captureRect_normalized;
     emit captureRectChanged();
+}
+
+void ZXingQmlVideoFilter::setCaptureRect_pixel(const QRect &captureRect_pixel)
+{
+    m_captureRect_pixel = captureRect_pixel;
+
+    if (m_captureRect_normalized == QRectF()) return;
+
+    m_captureRect_normalized = QRectF();
+    emit captureRectChanged();
+}
+
+/*!
+ * \brief Clockwise rotation, in normalized coordinates.
+ * \param degrees: the rotation angle, a multiple of 90 degrees.
+ * \return the rotation of the unit square onto itself.
+ */
+static QTransform normalizedRotation(int degrees)
+{
+    switch (((degrees % 360) + 360) % 360)
+    {
+        case 90: return QTransform(0, 1, -1, 0, 1, 0);
+        case 180: return QTransform(-1, 0, 0, -1, 1, 1);
+        case 270: return QTransform(0, -1, 1, 0, 0, 1);
+        default: return QTransform();
+    }
+}
+
+/*!
+ * \brief Compute the transformation applied to QVideoFrame::toImage() for display.
+ * \param frame: the video frame.
+ * \param orientation: the VideoOutput orientation, in degrees.
+ * \param mirrored: the VideoOutput mirrored state.
+ * \return transformation from normalized toImage() coordinates to normalized displayed coordinates.
+ *
+ * toImage() only applies the surface format transformation,
+ * the frame own rotation() and mirrored() are applied for presentation only.
+ * Same as Qt's qNormalizedFrameTransformation(): frame clockwise rotation, then horizontal mirroring,
+ * then VideoOutput clockwise rotation, then horizontal mirroring.
+ */
+static QTransform frameDisplayTransform(const QVideoFrame &frame, int orientation, bool mirrored)
+{
+    const QTransform mirror(-1, 0, 0, 1, 1, 0);
+
+    QTransform transform = normalizedRotation(qToUnderlying(frame.rotation()));
+    if (frame.mirrored()) transform *= mirror;
+    transform *= normalizedRotation(orientation);
+    if (mirrored) transform *= mirror;
+
+    return transform;
+}
+
+/*!
+ * \brief Read barcodes from a video frame, and compute their normalized positions.
+ * \param frame: the video frame.
+ * \param opts: the reader options.
+ * \param captureRect_normalized: capture rectangle, in normalized displayed coordinates.
+ * \param captureRect_pixel: capture rectangle, in toImage() pixel coordinates.
+ * \param orientation: the VideoOutput orientation, in degrees.
+ * \param mirrored: the VideoOutput mirrored state.
+ *
+ * At most one of the capture rectangles is set, both empty means the whole frame.
+ * \return the barcodes found.
+ */
+static QList<BarcodeQml> readFrame(const QVideoFrame &frame, const ZXing::ReaderOptions &opts,
+                                   const QRectF &captureRect_normalized, QRect captureRect_pixel,
+                                   int orientation, bool mirrored)
+{
+    const QImage image = frame.toImage();
+    if (image.isNull()) return {};
+
+    const QTransform toDisplay = frameDisplayTransform(frame, orientation, mirrored);
+    const qreal w = image.width();
+    const qreal h = image.height();
+
+    if (!captureRect_normalized.isEmpty())
+    {
+        const QRectF r = toDisplay.inverted().mapRect(captureRect_normalized & QRectF(0, 0, 1, 1));
+        captureRect_pixel = QRectF(r.x() * w, r.y() * h, r.width() * w, r.height() * h).toRect();
+        if (captureRect_pixel.isEmpty()) return {};
+    }
+
+    auto results = ZXingQml::ReadBarcodes(image, opts, captureRect_pixel);
+
+    // map pixel centers
+    const auto map = [&](const QPoint &p) {
+        return toDisplay.map(QPointF((p.x() + 0.5) / w, (p.y() + 0.5) / h));
+    };
+
+    for (auto &r : results)
+    {
+        const auto &pos = r.positionPixels();
+        r.setPositionNormalized({map(pos.topLeft()), map(pos.topRight()),
+                                 map(pos.bottomRight()), map(pos.bottomLeft())});
+    }
+
+    return results;
 }
 
 BarcodeQml ZXingQmlVideoFilter::process(const QVideoFrame &frame)
@@ -160,11 +281,13 @@ BarcodeQml ZXingQmlVideoFilter::process(const QVideoFrame &frame)
     {
         //qWarning() << ">>> ZXingQmlVideoFilter::process() >>> surfaceFormat > " << frame.surfaceFormat() << " > rotation > " << frame.rotationAngle();
 
-        m_processThread = QtConcurrent::run([this, frame, opts = m_readerOptions, rect = m_captureRect]() {
+        m_processThread = QtConcurrent::run([this, frame, opts = m_readerOptions,
+                                             rectN = m_captureRect_normalized, rectP = m_captureRect_pixel,
+                                             orientation = m_orientation, mirrored = m_mirrored]() {
             QElapsedTimer t;
             t.start();
 
-            auto results = ZXingQml::ReadBarcodes2(frame, opts, rect);
+            auto results = readFrame(frame, opts, rectN, rectP, orientation, mirrored);
 
             for (auto &r: results)
             {
